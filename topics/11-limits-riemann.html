@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Topic 11: Riemann 框架下的极限与积分 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="10-cov-patterns.html">Topic 10</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="12-lebesgue-construction.html">Topic 12</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#motivation">§1 动机</a></li>
+        <li><a href="#prereq">§2 前置知识</a></li>
+        <li><a href="#definitions">§3 核心定义</a></li>
+        <li><a href="#theorems">§4 主要定理</a></li>
+        <li><a href="#three-theorems-compare">§4.5 三阶对比 + MCT/Fatou</a></li>
+        <li><a href="#examples">§5 Worked Examples</a></li>
+        <li><a href="#pitfalls">§6 常见陷阱</a></li>
+        <li><a href="#exercises">§7 练习</a></li>
+        <li><a href="#cheat">§8 速查表</a></li>
+        <li><a href="#further">§9 进一步阅读</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>Topic 11: Riemann 框架下的极限与积分</h1>
+      <p class="subtitle">Source: Lec 6.2 · H&amp;H §4.11 (前半) · 14 topics 中第 11 个</p>
+
+      <!-- §1 动机 -->
+      <h2 id="motivation">§1 动机</h2>
+      <p>到目前为止 (Topic 01–10), 我们建立的 Riemann 积分理论已经相当结实: $\IR(\R^n)$ 在加法、数乘、$|\cdot|$、product、Fubini、change of variables 下都有良好的封闭性. 但有一件关键的事情它<strong>做不好</strong> — 处理<em>极限</em>. 给一列可积函数 $f_k \in \IR(\R^n)$ 且 $f_k \to f$ 逐点收敛, 一个非常自然的问题是: $f$ 还可积吗? 即使可积, 是否有 $\int f_k \to \int f$? 在 Riemann 框架下, 这两个问题的答案都是: <strong>没有强额外假设的话, 都会失败</strong>.</p>
+
+      <p>这正是 Lebesgue 积分将要解决的核心痛点. Lebesgue 框架相对 Riemann 有两大结构性优势, 都跟"极限"有关: (i) 它<em>忽略测度零集</em>, 所以像 Dirichlet 函数那样 Riemann 不可积的"坏"函数, 在 Lebesgue 意义下可以变成可积; (ii) 它给出了远比 Riemann 强大的 <em>limit-integral interchange</em> 定理 — 著名的 Monotone Convergence Theorem (MCT) 和 Dominated Convergence Theorem (DCT). 完整 Lebesgue 理论是 Topic 12 的内容; 本页是它的<strong>prelude</strong>: 我们仍站在 Riemann 框架内, 证明<em>一个</em>干净的极限-积分交换定理, 它要求很强的假设 — <strong>一致收敛 + 公共有界支集</strong>.</p>
+
+      <p>本页的主线包括三件事: (a) 把 <em>一致收敛 (uniform convergence)</em> 和 <em>逐点收敛 (pointwise convergence)</em> 的定义放在一起对比, 看清"量词次序"上的本质差别; (b) 证明 Uniform Convergence Theorem (一致收敛 + 公共有界支集 $\Rightarrow$ 极限可积且 $\lim \int = \int \lim$); (c) 用两个对偶反例 (traveling box 与 tall thin spike) 展示, 一旦把"一致"换成"逐点", 上述结论会以两种典型方式失败 — <em>质量逃到无穷</em> 与 <em>质量集中到一点</em>. 这两个例子是 Lebesgue 框架接下来要应对的"恶魔", 也是 Topic 12 之后 MCT/DCT 设计动机的源头.</p>
+
+      <!-- §2 前置知识 -->
+      <h2 id="prereq">§2 前置知识</h2>
+      <div class="box prereq">
+        <span class="box-title">在阅读本页前，你应该已经掌握:</span>
+        <ul>
+          <li><a href="02-nd-riemann.html">Topic 02</a>: $n$ 维 Riemann 积分、dyadic paving、上下和 $U_K(f), L_K(f)$、<strong>Cauchy 准则</strong> (本页 Step 4 的关键工具)</li>
+          <li><a href="03-algebra-properties.html">Topic 03</a>: 积分的线性、单调性</li>
+          <li><a href="04-volume-pavable.html">Topic 04</a>: 体积、pavable 集 (本页假设 $B$ pavable 使得 $\vol_n(B) &lt; \infty$)</li>
+          <li><a href="05-measure-zero-basics.html">Topic 05</a> 与 <a href="06-lebesgue-criterion.html">Topic 06</a>: 测度零、$\Disc(f)$、Lebesgue 准则 (用来判定 step function 可积)</li>
+          <li>从 31BH (real analysis 部分) 应熟悉的 <em>一致收敛 vs 逐点收敛</em> 的基本量词差别 (本页会重新建立)</li>
+        </ul>
+      </div>
+
+      <!-- §3 核心定义 -->
+      <h2 id="definitions">§3 核心定义</h2>
+
+      <p>本页主要的"新东西"是两个收敛概念以及两个积分类的记号. 我们先把它们都放好.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 11.1 (Riemann 与 Lebesgue 可积函数类)</span>
+        <p>记
+        $$\IR(\R^n) := \{f \colon \R^n \to \R \mid f \text{ 在 } \R^n \text{ 上 Riemann 可积}\},$$
+        $$\IL(\R^n) := \{f \colon \R^n \to \R \mid f \text{ 在 } \R^n \text{ 上 Lebesgue 可积}\}.$$
+        (Lebesgue 框架将在 <a href="12-lebesgue-construction.html">Topic 12</a> 正式定义; 这里只引入符号.) 我们写 "$f \in \IR(\R^n)$" 表示 $f$ Riemann 可积.</p>
+      </div>
+
+      <p><strong>结构关系 (preview)</strong>: 完整的故事 (将在 Topic 12 证明) 是
+      $$\IR(\R^n) \subsetneq \IL(\R^n),$$
+      即每个 Riemann 可积函数都 Lebesgue 可积 (且两个积分值相等), 但 Lebesgue 类<em>严格</em>大. 例如 Dirichlet 函数 $\mathbf{1}_{\Q \cap [0,1]}$ 不在 $\IR(\R)$ 中 (它的 $\Disc = [0,1]$ 不是测度零), 但它在 $\IL(\R)$ 中且 $\int_{\R} \mathbf{1}_{\Q \cap [0,1]}\, dV_L = 0$ — 因为 Lebesgue 框架"看不见"测度零集. 同时, Lebesgue 类在<em>逐点极限</em>下的表现远比 Riemann 类好. 这两点是 Lebesgue 整套理论存在的根本理由.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 11.2 (一致收敛, uniform convergence)</span>
+        <p>设 $(f_k)_{k \in \N}$ 是 $\R^n \to \R$ 的函数列, $f \colon \R^n \to \R$. 称 $f_k$ <strong>一致收敛</strong>到 $f$ (写作 $f_k \xrightarrow{\text{uni}} f$), 若
+        $$\forall \eps > 0,\ \exists N \in \N,\ \forall k > N,\ \forall x \in \R^n: \quad |f_k(x) - f(x)| < \eps.$$
+        等价地,
+        $$\forall \eps > 0,\ \exists N \in \N,\ \forall k > N: \quad \sup_{x \in \R^n}|f_k(x) - f(x)| < \eps.$$
+        关键: $N$ 只依赖于 $\eps$, <em>不依赖于 $x$</em>.</p>
+      </div>
+
+      <div class="box def">
+        <span class="box-title">Definition 11.3 (逐点收敛, pointwise convergence)</span>
+        <p>设 $(f_k)_{k \in \N}$ 是 $\R^n \to \R$ 的函数列, $f \colon \R^n \to \R$. 称 $f_k$ <strong>逐点收敛</strong>到 $f$ (写作 $f_k \to f$), 若对每个固定的 $x \in \R^n$:
+        $$f_k(x) \to f(x) \quad \text{as } k \to \infty.$$
+        展开来:
+        $$\forall x \in \R^n,\ \forall \eps > 0,\ \exists N_x \in \N,\ \forall k > N_x: \quad |f_k(x) - f(x)| < \eps.$$
+        这里的 $N_x$ <em>可以依赖于 $x$</em>.</p>
+      </div>
+
+      <p><strong>量词次序 (The single-letter difference)</strong>. 把两个定义并排:</p>
+      <ul>
+        <li>一致: $\forall \eps,\ \exists N,\ \forall x,\ \forall k > N \Rightarrow |f_k(x) - f(x)| < \eps$.</li>
+        <li>逐点: $\forall \eps,\ \forall x,\ \exists N_x,\ \forall k > N_x \Rightarrow |f_k(x) - f(x)| < \eps$.</li>
+      </ul>
+      <p>差别仅仅在<strong>"$\exists N$" 与 "$\forall x$" 的相对位置</strong>: 一致把 $\exists N$ 提到所有 $x$ 的前面 (one $N$ for all $x$); 逐点把 $\forall x$ 提到 $\exists N_x$ 之前 (an $N$ for each $x$). 这是真正的 30 秒 takeaway, 跟 31BH 里"连续 vs 一致连续"的量词次序完全是一回事. 由此可以立刻得到:
+      $$\text{一致收敛} \;\Longrightarrow\; \text{逐点收敛},$$
+      反之 (一般) 不成立. §5 的 traveling box 与 tall thin spike 就是把"反之"做坏的两个典型例子.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 11.4 (公共有界支集, common bounded support)</span>
+        <p>函数列 $(f_k)_{k \in \N}$ 有<strong>公共有界支集</strong>, 若存在一个有界球 $B \subset \R^n$ (或更一般地, 一个 pavable 有界集) 使得
+        $$\supp(f_k) \subseteq B \quad \forall k \in \N.$$
+        意即: 所有 $f_k$ 都"住在同一个房间里", 而那个房间又是有限大的.</p>
+      </div>
+
+      <p>这个条件看上去很轻, 但它是 §4 主定理 (II) 部分得以成立的关键: 它把"$\eps$-误差"乘出来的体积 $\eps \cdot \vol_n(B)$ 控制成<em>有限</em>. 没有它, 哪怕一致收敛, 也可能让 $\eps \cdot \vol_n(\text{支集})$ 等于 $\infty$, 论证立刻崩溃. 我们在 §5 的 traveling box 反例里会看到, "失去公共有界支集"恰好就是 mass 逃到无穷的几何表现.</p>
+
+      <p><strong>几何直觉 (uniform vs pointwise picture)</strong>. 一致收敛: 给定 $\eps$, 存在大 $k$ 使得 $f_k$ 的整张图像都<em>装进</em> $f$ 周围的 $\eps$ 管道 $\{(x,y): f(x) - \eps < y < f(x) + \eps\}$ 里. 逐点收敛: 只保证<em>每条垂直线</em> $x = x_0$ 上, $f_k(x_0)$ 最终进入区间 $(f(x_0) - \eps, f(x_0) + \eps)$, 不同 $x_0$ 进入的"时间" $N_x$ 可以差得很远 — 这就是 tall thin spike 中, $N_x$ 必须随 $x \to 0$ 而越来越大的根本原因.</p>
+
+      <div class="box remark">
+        <span class="box-title">Remark 11.1 — Uniform 还保<em>连续性</em>: 主定理的姐妹版</span>
+        <p>本页 §4 主定理 (Thm 11.1) 说 "$f_k \in \IR$ + uniform + 公共有界支集 ⟹ $f \in \IR$, 且 $\int f_k \to \int f$" — uniform 把 <strong>Riemann 可积性</strong>从 $f_k$ 传递到 $f$. 一个更经典的姐妹定理 (实分析标配) 说 uniform 还能把<strong>连续性</strong>传过去:</p>
+
+        <p><strong>Proposition (Uniform → 保连续)</strong>: 设 $f_k \colon X \subseteq \R^n \to \R$ 在 $X$ 上都连续, 且 $f_k \xrightarrow{\text{uni}} f$ on $X$. 则 $f$ 在 $X$ 上连续.</p>
+
+        <p><strong>Proof (经典 $\eps/3$ trick)</strong>. 固定 $x_0 \in X$, $\eps > 0$. 三角拆 $|f(x) - f(x_0)|$ 为三段:
+        $$|f(x) - f(x_0)| \le \underbrace{|f(x) - f_k(x)|}_{\text{(I)}} + \underbrace{|f_k(x) - f_k(x_0)|}_{\text{(II)}} + \underbrace{|f_k(x_0) - f(x_0)|}_{\text{(III)}}.$$
+        <em>(I), (III) 由 uniform</em>: 取 $N$ 使 $\forall k > N, \forall y \in X: |f_k(y) - f(y)| < \eps/3$. 关键: $N$ 不依赖 $y$ — 这正是 uniform vs pointwise 的分水岭 (Def 11.2 vs Def 11.3 量词次序). 固定一个 $k > N$. <em>(II) 由 $f_k$ 连续</em>: 此 $k$ 固定后, $f_k$ 在 $x_0$ 连续, 取 $\delta > 0$ 使 $|x - x_0| < \delta \Rightarrow |f_k(x) - f_k(x_0)| < \eps/3$. 三段加起来 $< \eps$. $\square$</p>
+
+        <p><strong>跟主定理 Thm 11.1 的对称结构</strong>: 两个定理用同一个 "$\eps/3$ / $2\eps\vol(B)$ 夹逼"模板, 把 uniform 这种<em>强</em>收敛在两种 nice 结构上传递:</p>
+
+        <table class="textbook-index" style="margin-top: 8px;">
+          <thead><tr><th>定理</th><th>保的性质</th><th>$\eps$ 分配</th></tr></thead>
+          <tbody>
+            <tr><td>Uniform → 保连续</td><td>$f_k$ 连续 → $f$ 连续</td><td>$|f - f_k|, |f_k(x) - f_k(x_0)|, |f_k - f|$ 各 $\eps/3$</td></tr>
+            <tr><td>Uniform → 保 Riemann 可积 (Thm 11.1)</td><td>$f_k \in \IR$ → $f \in \IR$ + $\int f_k \to \int f$</td><td>$U_K(f) - L_K(f) \le (U_K(f_{N+1}) - L_K(f_{N+1})) + 2\eps\vol_n(B)$</td></tr>
+          </tbody>
+        </table>
+
+        <p><strong>Pointwise 不够 — 经典反例</strong>:</p>
+        <ul>
+          <li><em>反例 1</em>: $f_k(x) = x^k$ on $[0,1]$. 每个 $f_k$ 都连续 (多项式), 但 pointwise 极限
+          $$f(x) = \lim_k x^k = \begin{cases} 0 & 0 \le x < 1 \\ 1 & x = 1 \end{cases}$$
+          在 $x = 1$ 不连续. 收敛 <em>不</em> uniform (越靠近 $x = 1$ 越慢, 需要 $k \to \infty$).</li>
+          <li><em>反例 2</em>: $f_k(x) = \frac{kx}{1 + k^2 x^2}$ on $\R$. 每个连续, $f_k(x) \to 0$ pointwise (固定 $x \ne 0$ 时分母主导). 极限 $f \equiv 0$ <em>恰好</em>连续, 但收敛 <em>不</em> uniform — $f_k(1/k) = 1/2$ 不趋 0. 这反例说明 "limit 是否连续" 不能反过来推 "收敛是否 uniform" (反过来推不动).</li>
+        </ul>
+
+        <p><strong>更高的视角</strong>: 紧集 $X$ 上的连续函数空间 $C(X)$ 配上 sup-norm $\norm{f}_\infty := \sup_X |f|$ 构成一个 Banach 空间. "Uniform 收敛"就是这个 norm 下的收敛. "Uniform 保连续"等价于 "$C(X)$ 是 $\norm{\cdot}_\infty$-完备的". 这一观察是 MATH 142/240B 函数分析的起点 — 跨进 $L^p$, Hilbert space 等 norm-theoretic 框架.</p>
+
+        <p><strong>本页 Thm 11.1 用同样的"uniform 在 $\eps$-管道里"思想</strong>: 把 $f_k$ 的整条图像装进 $f$ 的 $\eps$-管道 ⟹ $f_k$ 与 $f$ 的<em>上下和</em>互相 $\eps\cdot\vol(B)$-接近 ⟹ Cauchy 准则把 $f_k \in \IR$ 升级成 $f \in \IR$. 几何意象一致, 只是"装在管道里" → "Riemann 可积性互相 transfer".</p>
+      </div>
+
+      <!-- §4 主要定理 -->
+      <h2 id="theorems">§4 主要定理</h2>
+
+      <p>主定理只有一个 (Theorem 11.1, "Uniform Convergence Theorem"). 它告诉我们: 在 Riemann 框架下, 想要把 $\lim$ 和 $\int$ 交换, "一致收敛 + 公共有界支集"就是一个干净充分的假设. 证明本身是一个 5 步 $\eps$-夹逼论证, 用 Cauchy 准则把"$f_k$ 可积"升级成"$f$ 可积"; 把它消化掉是本页技术上的高潮.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 11.1 (Uniform Convergence Theorem, H&amp;H §4.11)</span>
+        <p>设 $(f_k)_{k \in \N} \subset \IR(\R^n)$ 是 Riemann 可积函数列, 满足:
+        <ul>
+          <li><strong>(H1, 公共有界支集)</strong> 存在 pavable 有界集 $B \subset \R^n$ 使 $\supp(f_k) \subseteq B$ for all $k$;</li>
+          <li><strong>(H2, 一致收敛)</strong> $f_k \xrightarrow{\text{uni}} f$ for some $f \colon \R^n \to \R$.</li>
+        </ul>
+        则:</p>
+        <p>(I) $f \in \IR(\R^n)$ (极限函数自动 Riemann 可积);</p>
+        <p>(II) $\displaystyle\lim_{k\to\infty}\int_{\R^n} f_k\, dV = \int_{\R^n} f\, dV.$</p>
+      </div>
+
+      <p><strong>Proof sketch.</strong> 给定 $\eps > 0$. 由一致收敛, 存在 $N$ 使得 $|f_k(x) - f(x)| < \eps$ 对所有 $k > N$, 所有 $x$ 同时成立 — 一个全局的 $\eps$ 夹逼: $f_k - \eps < f < f_k + \eps$. 在每个 dyadic cube $C$ 上取 $\inf$ (左半) 和 $\sup$ (右半), 累加得 $L_K(f_k) - \eps \vol_n(B) \le L_K(f)$ 与 $U_K(f) \le U_K(f_k) + \eps \vol_n(B)$. 相减:
+      $$U_K(f) - L_K(f) \le \big(U_K(f_k) - L_K(f_k)\big) + 2\eps\, \vol_n(B).$$
+      取一个具体的 $k = N+1$, 用 $f_{N+1} \in \IR$ 的 Cauchy 准则把右端第一项压到 $< \eps$, 即得 $U_K(f) - L_K(f) < \eps(1 + 2\vol_n(B))$. 由 $\eps$ 任意, $f$ 满足 Cauchy 准则, 即 $f \in \IR$ — 这是 (I). 然后令 $K \to \infty$ (因为 $f, f_k \in \IR$, 上下和都收敛到积分), 那两条不等式变成 $\int f_k - \eps\vol_n(B) \le \int f \le \int f_k + \eps \vol_n(B)$, 即 $|\int f_k - \int f| \le \eps \vol_n(B)$ 对所有 $k > N$, 这就是 (II).</p>
+
+      <details>
+        <summary>展开完整证明 (5-step 全细节)</summary>
+        <div class="details-body">
+          <p><strong>Step 0 (setup).</strong> 取 $\eps > 0$. 由 H2, 存在 $N \in \N$ 使
+          $$\sup_{x \in \R^n}|f_k(x) - f(x)| < \eps \quad \forall k > N. \tag{$\ast$}$$
+          也就是: 对所有 $x \in \R^n$ 与 $k > N$,
+          $$f_k(x) - \eps < f(x) < f_k(x) + \eps. \tag{sandwich}$$
+          注意 $f$ 也支在 $B$ 内: 对 $x \notin B$, $f_k(x) = 0$ 对所有 $k$, 由 (sandwich) 得 $|f(x)| < \eps$ 对所有 $\eps$, 即 $f(x) = 0$. 所以剩下的论证只在 $B$ 内部进行.</p>
+
+          <p>设 $\mathcal{B}_K = \{C_{i,K} : i\}$ 为 $B$ 在 level $K$ 上的 dyadic paving (即遇到 $B$ 的 level-$K$ dyadic cube 之并). 因 $B$ pavable, $\sum_i \vol_n(C_{i,K})$ 当 $K \to \infty$ 收敛到 $\vol_n(B) < \infty$, 且在所有 $K$ 上一致地被 $\vol_n(B)$ + 一个 vanishing 修正所控制. 下面记号上简写为 $\vol_n(B)$.</p>
+
+          <p><strong>Step 1 (lower bound).</strong> 对每个 cube $C_{i,K}$, 由 (sandwich) 左半, $f_k(x) - \eps \le f(x)$. 两边在 $C_{i,K}$ 上取 $\inf$:
+          $$\inf_{C_{i,K}} f_k - \eps \le \inf_{C_{i,K}} f.$$
+          乘以 $\vol_n(C_{i,K}) \ge 0$, 然后对所有 $i$ 求和:
+          $$L_K(f_k) - \eps \vol_n(B) \le L_K(f) \quad \forall k > N. \tag{1}$$</p>
+
+          <p><strong>Step 2 (upper bound).</strong> 对每个 $C_{i,K}$, 由 (sandwich) 右半, $f(x) \le f_k(x) + \eps$. 两边取 $\sup$:
+          $$\sup_{C_{i,K}} f \le \sup_{C_{i,K}} f_k + \eps.$$
+          乘以 $\vol_n(C_{i,K})$, 求和:
+          $$U_K(f) \le U_K(f_k) + \eps \vol_n(B) \quad \forall k > N. \tag{2}$$</p>
+
+          <p><strong>Step 3 (combine).</strong> 由 (2) $-$ (1):
+          $$U_K(f) - L_K(f) \le \big(U_K(f_k) - L_K(f_k)\big) + 2\eps \vol_n(B) \quad \forall k > N. \tag{3}$$</p>
+
+          <p><strong>Step 4 (close integrability of $f$ via Cauchy 准则).</strong> 在 (3) 中取定 $k = N+1$ (合法, 因为 $N+1 > N$). 由 $f_{N+1} \in \IR$ 与 Cauchy 准则 (Topic 02), 存在 $K_0$ 使
+          $$U_K(f_{N+1}) - L_K(f_{N+1}) < \eps \quad \forall K > K_0.$$
+          代入 (3):
+          $$U_K(f) - L_K(f) < \eps + 2\eps \vol_n(B) = \eps(1 + 2\vol_n(B)) \quad \forall K > K_0.$$
+          由 $\eps$ 任意, $1 + 2\vol_n(B)$ 是固定常数, 即 $f$ 满足 Cauchy 准则, 故 $f \in \IR(\R^n)$. 这证明了 (I).</p>
+
+          <p><strong>Step 5 (integrals converge).</strong> 现在我们已经知道 $f, f_k$ 都可积, 所以 $L_K \to \int$, $U_K \to \int$ 对它们都成立. 在 (1) 中令 $K \to \infty$:
+          $$\int_{\R^n} f_k\, dV - \eps \vol_n(B) \le \int_{\R^n} f\, dV \quad \forall k > N.$$
+          在 (2) 中令 $K \to \infty$:
+          $$\int_{\R^n} f\, dV \le \int_{\R^n} f_k\, dV + \eps \vol_n(B) \quad \forall k > N.$$
+          合起来:
+          $$\left|\int_{\R^n} f_k\, dV - \int_{\R^n} f\, dV\right| \le \eps \vol_n(B) \quad \forall k > N.$$
+          $\eps$ 任意, $\vol_n(B)$ 固定, 故 $\int f_k \to \int f$. 这证明了 (II). $\square$</p>
+
+          <p><strong>每个假设用在哪里 (debrief).</strong></p>
+          <ul>
+            <li>一致收敛 (H2): 在 ($\ast$) $\to$ (sandwich) 时, 一个 $N$ 跨所有 $x$ 通用. 如果只是逐点, 不同 $x$ 的 $N_x$ 不同, 我们无法对所有 cube 一起取 $\sup/\inf$.</li>
+            <li>公共有界支集 (H1): 在累加变成 $\eps \cdot \vol_n(B)$ 时. 没有 H1, $\vol_n(B) = \infty$, 整个论证作废.</li>
+            <li>$f_k \in \IR$: 用在 Step 4 的 Cauchy 准则 (对 $f_{N+1}$) 以及 Step 5 的 $L_K(f_k), U_K(f_k) \to \int f_k$.</li>
+          </ul>
+
+          <p><strong>为什么不直接算 $\int f$.</strong> 注意整套证明从未尝试"算" $\int f$ — 我们对 $f$ 几乎一无所知 (只知它是 $f_k$ 的一致极限). 关键技术 idea 是: 用 Cauchy 准则把"$f_k$ 可积"<em>升级</em>成"$f$ 可积", Cauchy 准则只关心 $U_K - L_K$ 趋零, 不需要知道 $\int f$ 的具体值. 这是 real analysis 里非常通用的"<em>不知道极限就证明 Cauchy</em>"招式.</p>
+        </div>
+      </details>
+
+      <p><strong>定理的解读.</strong> 一致收敛在 Riemann 设置下是一个非常"友善"的假设 — 它让 $\lim$ 和 $\int$ 像可以正常交换. 代价是: 一致收敛是<em>强</em>条件, 现实中很多自然出现的函数列只逐点 (甚至几乎处处) 收敛而不一致收敛. Lebesgue 框架的全部 payoff 就是把这条 H2 ("一致收敛") 削弱为更轻的条件 (例如 DCT 只要求"逐点 + 可积 dominator"), H1 ("公共有界支集") 也被吸收进 dominator 的可积性里. 这一步要等到 Topic 12.</p>
+
+      <!-- §4.5 三阶定理对比 (UCT / DCT-R / DCT-L) -->
+      <h3 id="three-theorems-compare">§4.5 三阶定理对比 (UCT vs DCT-R vs DCT-L) — limit-integral interchange 题型骨干</h3>
+
+      <p>到这里, Riemann 框架下最干净的极限-积分互换定理 (Thm 11.1, UCT) 已经入手. 但面对一道实际的 "<em>$\lim_k \int f_k$ 与 $\int \lim_k f_k$ 相等吗?</em>" 题, 你需要的不只是 UCT — 加上 Riemann 框架的弱化版 (<a href="12-lebesgue-construction.html#theorems">Thm 12.1, DCT for Riemann</a>, 见 Topic 12 §4) 与 Lebesgue 框架的终极版 (<a href="14-lebesgue-properties.html#thm-14-2">Thm 14.2, DCT for Lebesgue</a>, 见 Topic 14 §4.5), 三者合起来才是这类题型的<strong>骨干工具集</strong>. 本节给一张并排对照表 + 一棵实战决策树 + 三个典型分类例.</p>
+
+      <div class="box remark">
+        <span class="box-title">三阶定理并排对照表</span>
+
+        <table class="textbook-index" style="margin-top: 8px;">
+          <thead>
+            <tr>
+              <th></th>
+              <th>UCT (Thm 11.1)</th>
+              <th>DCT for Riemann (Thm 12.1)</th>
+              <th>DCT for Lebesgue (Thm 14.2)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>来源</td><td>Lec 6.2 / H&amp;H §4.11</td><td>Lec 7.1 / H&amp;H 4.11.6</td><td>H&amp;H 4.11.19 (Lec 提及, 未证)</td></tr>
+            <tr><td>积分框架</td><td>$\IR(\R^n)$</td><td>$\IR(\R^n)$</td><td>$\IL(\R^n)$</td></tr>
+            <tr><td>$(f_k)$ 出身</td><td>$\subset \IR$</td><td>$\subset \IR$</td><td>$\subset \IL$</td></tr>
+            <tr><td>收敛假设</td><td><strong>uniform</strong> ($\sup\abs{f_k-f}\to 0$)</td><td>a.e. 收敛</td><td>a.e. 收敛</td></tr>
+            <tr><td>控制假设</td><td>公共有界支集 $B$</td><td>公共有界支集 + 常数界 $\abs{f_k}\le M$</td><td>$\abs{f_k}\le_L F$, $F\in\IL$ (任意可积 dominator)</td></tr>
+            <tr><td>极限可积性</td><td>$f\in\IR$ <strong>送</strong></td><td>$f\in\IR$ <strong>付费</strong>(必须 upfront 验)</td><td>$f\in\IL$ <strong>送</strong></td></tr>
+            <tr><td>结论</td><td>$\int f_k\to\int f$</td><td>$\int f_k\to\int f$</td><td><strong>$\int\abs{f_k-f}\to 0$</strong> (更强)</td></tr>
+            <tr><td>Dirichlet 极限 ($f\notin\IR$)</td><td>不适用</td><td>不适用 ($f\in\IR$ 付费失败)</td><td><strong>适用</strong>, $\int=0$</td></tr>
+            <tr><td>$\sin x/x$ on $[0,\infty)$</td><td>不适用</td><td>不适用</td><td>不适用 (无可积 dominator, 需 HK 积分)</td></tr>
+            <tr><td>典型实战 use case</td><td>$\frac{1}{k}\sin(kx)$ 这类一致收敛到 $0$</td><td>主要作 Lebesgue 构造脚手架, 实战少用</td><td><strong>所有"有自然 dominator"的题</strong></td></tr>
+          </tbody>
+        </table>
+
+        <p><strong>强弱关系</strong>: UCT 严格 implies DCT-R 的所有 hypothesis (uniform $\Rightarrow$ a.e., uniform + 公共有界支集 $\Rightarrow$ $\abs{f_k}$ 有 uniform 常数界), 但 DCT-R 在结论上跟 UCT 平级. DCT-L 在结论上严格强于 DCT-R ($\int\abs{f_k-f}\to 0$ 蕴含 $\int f_k\to\int f$), 且 hypothesis 更宽 (dominator 可以无界, 只需 $\int F < \infty$). 总: <em>UCT 强假设/弱结论, DCT-R 中假设/中结论(还要付费), DCT-L 弱假设/强结论</em>. 现代 problem-solving 几乎都用 DCT-L.</p>
+
+        <p><strong>"送 vs 付费" 速记法</strong> (核心 mnemonic, 来自 <a href="12-lebesgue-construction.html#pitfalls">Topic 12 Pitfall 12.3</a>):</p>
+        <ul>
+          <li><strong>UCT</strong>: uni 是<em>强</em>假设, 白送 $f\in\IR$.</li>
+          <li><strong>DCT-R</strong>: a.e. 是<em>弱</em>假设, 必须单独付钱验 $f\in\IR$. (Cumulative Dirichlet $f_k=\mathbf{1}_{\{q_1,\ldots,q_k\}}$ 就是付费失败的典型 — 见下面例 B.)</li>
+          <li><strong>DCT-L</strong>: 换到 $\IL$ 后, 白送 $f\in\IL$ — 但 dominator $F$ 必须找出来.</li>
+        </ul>
+      </div>
+
+      <div class="box remark">
+        <span class="box-title">二级对照表 — MCT 与 Fatou: Lebesgue 框架的两位兄弟</span>
+
+        <p>主表的三阶 (UCT / DCT-R / DCT-L) 都给<strong>等式</strong> $\lim\int = \int\lim$. 但 Lebesgue 框架里还有两个 sibling 工具, 它们的<em>触发方式</em>不一样 — 不靠 dominator 形状, 而靠 hypothesis 的结构特征 (单调 / 单边) 触发. 在不同 niche 各擅胜场, 跟 DCT-L 构成 "Lebesgue 三向互补".</p>
+
+        <table class="textbook-index" style="margin-top: 8px;">
+          <thead>
+            <tr>
+              <th></th>
+              <th>MCT (Thm 14.1, H&amp;H 4.11.18)</th>
+              <th>Fatou (Cor 14.3, H&amp;H Cor 4.11.20)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Trigger</strong> (题面看到什么用它)</td><td>$f_k \le_L f_{k+1}$ 单调递增链, 或 "$f_k \uparrow f$" 字眼</td><td>$f_k \ge 0$ + 找不到 dominator, 或题面只需 $\liminf$ 类单边估计</td></tr>
+            <tr><td>$(f_k)$ 出身</td><td>$\subset \IL$, $f_k \ge 0$ a.e.</td><td>$\subset \IL$, $f_k \ge 0$ a.e.</td></tr>
+            <tr><td>核心假设</td><td><strong>单调</strong> $f_1 \le_L f_2 \le_L \cdots$ + $\sup_k \int f_k < \infty$</td><td>无单调性要求, 无 dominator 要求</td></tr>
+            <tr><td>需要 dominator?</td><td><strong>不需要</strong> — 单调性代替了 dominator 角色</td><td><strong>不需要</strong></td></tr>
+            <tr><td>极限可积性</td><td>$f := \lim f_k \in \IL$ <strong>送</strong></td><td>$\liminf f_k \in \IL$ <strong>送</strong> (当 $\liminf\int < \infty$)</td></tr>
+            <tr><td>结论</td><td><strong>等式</strong>: $\int \lim f_k = \lim \int f_k = \sup_k \int f_k$</td><td><strong>单边 $\le$</strong>: $\int \liminf f_k \le \liminf \int f_k$</td></tr>
+            <tr><td>降版本 / 反向</td><td>$f_k \downarrow f$ + $\int f_1 < \infty$ ⟹ $\int f_k \to \int f$ (减少版)</td><td>反向 "上 Fatou" $\int \limsup \ge \limsup \int$ 仅在有 dominator 时</td></tr>
+            <tr><td>典型 use case</td><td>砖块级数 $\sum_k g_k$ 部分和递增, truncation $\min(f, k)\uparrow f$, indicator $\mathbf{1}_{A_k}$ with $A_k \uparrow A$</td><td>DCT-L 不适用但需要 lower bound; 双侧夹证 generalized DCT 与 Scheffé (Cor 14.4-5)</td></tr>
+            <tr><td>vs DCT-L 关系</td><td><strong>等价</strong> — MCT 与 DCT-L 互推 (H&amp;H §4.11 内部循环)</td><td>是 MCT 的推论; 反过来 Fatou 双侧夹可证 DCT-L (Folland 路线)</td></tr>
+          </tbody>
+        </table>
+
+        <p><strong>Lebesgue 框架的三向互补</strong>:</p>
+        <ul>
+          <li><strong>DCT-L</strong> — <em>主力</em>. a.e. 收敛 + 找得到 dominator 时, 默认选它. 结论最强 ($L^1$ 收敛).</li>
+          <li><strong>MCT</strong> — <em>专才</em>. 看到单调链时, 比 DCT-L 更省事 (不用找 dominator). 单调性本身就保证 mass 不丢.</li>
+          <li><strong>Fatou</strong> — <em>退路</em>. DCT-L 失败 (无 dominator) 但仍需结论时. 牺牲等式换单边 $\le$, 在 lower bound 类题里有时是<em>唯一</em>可用工具.</li>
+        </ul>
+
+        <p><strong>"形状识别" 速记</strong> (5 种 cue):</p>
+        <ul>
+          <li>"$f_k \uparrow f$" / "$f_k$ 单调" → <strong>MCT</strong> (不用找 dominator)</li>
+          <li>"$f_k \to f$ a.e." + 能找到 $F \in \IL$ 控 $\abs{f_k}$ → <strong>DCT-L</strong> (默认)</li>
+          <li>"$\liminf$" 字眼, 或题面只要 $\le$ 不要 $=$ → <strong>Fatou</strong></li>
+          <li>uniform + 公共支集 + 全在 $\IR$ → <strong>UCT</strong> (Riemann 舒适区)</li>
+          <li>UCT/DCT-R/DCT-L/MCT/Fatou 全失败 + mass loss 几何特征 → <strong>没救</strong> (真实的 $\lim\int \ne \int\lim$)</li>
+        </ul>
+
+        <div class="box pitfall" style="margin-top: 10px;">
+          <span class="box-title">⚠ 关于 "MCT 是 $\le$ 不是等式" 的常见混淆</span>
+          <p>MCT 给的是<strong>等式</strong> $\int\lim f_k = \lim\int f_k$, 跟 DCT 同档. 容易看到的 "$\le$" 是 MCT 的<em>假设</em> ($f_1 \le f_2 \le \cdots$ 单调链), 不是结论. 真正在<em>结论</em>里给 $\le$ 的是 <strong>Fatou</strong>. 这是把这两个 sibling 摆在一起最容易踩到的坑.</p>
+        </div>
+      </div>
+
+      <div class="box remark">
+        <span class="box-title">实战决策树 — 看到 $\lim\int = \int\lim$ 题, 按这个顺序排查</span>
+
+        <ol>
+          <li><strong>识别框架</strong>. 题目讲 Riemann 还是 Lebesgue? 31CH 的 Lebesgue 章节 (Topic 12 之后) 默认 $\IL$, 否则 $\IR$.</li>
+
+          <li><strong>mass loss detector</strong>. 看几何图像 — $(f_k)$ 是否出现 <a href="#examples">traveling box</a> (支集飞到无穷) 或 <a href="#examples">tall spike</a> (高度发散在收缩支集上)? 若是, <strong>任何积分理论都救不了</strong>, 答案就是 $\lim\int \ne \int\lim$. 不必再找定理. (见 <a href="#pitfalls">Pitfall 11.3</a>.)</li>
+
+          <li><strong>若在 Riemann 框架</strong>. 先试 UCT (Thm 11.1): uniform + 公共有界支集 ⟹ 直接套用. 若只有 a.e. + uniform 常数界, 用 DCT-R (Thm 12.1), 但必须独立验 $f\in\IR$ (通常通过 Lebesgue 准则: $\Disc(f)$ 测度零 + 有界 + 有界支集).</li>
+
+          <li><strong>若在 Lebesgue 框架</strong>. 三条 sibling 路线按 hypothesis 形状选 (顺序: 先看单调 → 再看 dominator → 退到单边):
+            <ul>
+              <li><strong>(4a) DCT-L 路线</strong> (默认主力, <a href="14-lebesgue-properties.html#thm-14-2">Thm 14.2</a>) — a.e. 收敛 + 能找到 dominator $F\in\IL$. 常见 dominator 套路:
+                <ul>
+                  <li>$(f_k)$ 全支在有界集 $K$ 内且 $\abs{f_k}\le M$: 取 $F = M\cdot\mathbf{1}_K$ (跟 DCT-R 同情形, 但结论更强).</li>
+                  <li>$f_k = g\cdot h_k$ (固定函数 $\times$ 收敛函数): $F = \abs{g}\cdot\sup_k\abs{h_k}$ — 假设此 sup 是 $\IL$.</li>
+                  <li>$f_k = f\cdot\mathbf{1}_{A_k}$ 且 $A_k\uparrow\R^n$ ("截断撑开"): 取 $F = \abs{f}$. Topic 14 Thm 14.3-14.6 的标配套路.</li>
+                  <li>Dominator 必须变化且 $\int g_k\to\int g$: 用 <a href="14-lebesgue-properties.html#cor-14-4">Generalized DCT (Cor 14.4)</a>.</li>
+                </ul>
+              </li>
+              <li><strong>(4b) MCT 路线</strong> (单调专才, <a href="14-lebesgue-properties.html#thm-14-1">Thm 14.1</a>) — 看到 $f_k \uparrow f$ (或 $f_k \downarrow f$) 直接套, <strong>不用</strong>找 dominator. 触发场景:
+                <ul>
+                  <li>砖块级数: $f := \sum_{k=1}^\infty g_k$ with $g_k \ge 0$, 部分和 $f_k := \sum_{j=1}^k g_j$ 自然递增 (Daniell-Stone 构造的核心用法).</li>
+                  <li>Truncation: $f_k := \min(f, k)$ 递增到 $f$, 或 $f_k := f\cdot\mathbf{1}_{[\abs{f}\le k]}$.</li>
+                  <li>Indicator 涨大: $f_k := f\cdot\mathbf{1}_{A_k}$ with $A_k\uparrow A$ 且 $f\ge 0$ — 给等式 $\int_A f = \lim_k \int_{A_k} f$. DCT-L 也可 (取 $F = \abs{f}$), 但 MCT 更直接.</li>
+                  <li>减少版 $f_k\downarrow f$ 需<em>额外</em>条件 $\int f_1 < \infty$ (否则 mass escape: 如 $\mathbf{1}_{[k,\infty)}\downarrow 0$ 但 $\int = \infty$ 永远).</li>
+                </ul>
+              </li>
+              <li><strong>(4c) Fatou 路线</strong> (单边退路, <a href="14-lebesgue-properties.html#cor-14-3">Cor 14.3</a>) — DCT-L 找不到 dominator 且 $(f_k)$ 不单调时. 要求 $f_k\ge 0$, 结论 $\int\liminf f_k \le \liminf\int f_k$. 典型用法:
+                <ul>
+                  <li><em>证上界类</em>: 要证 $\int f \le M$, 把 $f$ 写成 $\liminf f_k$, 然后 $\int f \le \liminf\int f_k \le M$ — 只需对 $\int f_k$ 有一致上界.</li>
+                  <li><em>反向 "上 Fatou"</em>: 当存在 dominator 时, $\int\limsup f_k \ge \limsup\int f_k$. 上下 Fatou 夹起来正是 DCT-L 的标准 Folland 风格证法.</li>
+                  <li><em>严格不等可能</em>: traveling box $\mathbf{1}_{[k,k+1]}$ 给 $\liminf f_k = 0, \liminf\int = 1$, 严格 $0 < 1$. Fatou 在 mass-loss 情形下仍给有用的单边信息.</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+
+          <li><strong>所有 sibling 全部失败</strong>. 通常意味着 mass loss (traveling box / tall spike 几何模式), 没救 — 真实的 $\lim\int \ne \int\lim$. 若几何上看不出 mass loss, 重新审查题面: a.e. 是否真的处处收敛? dominator 候选是否真的不可积? 单调性是否被掩盖了?</li>
+        </ol>
+
+        <p><strong>三层金字塔速忆</strong>:</p>
+        <ul>
+          <li><strong>UCT</strong> — 假设最强 (uni), 结论温和, 适用范围最窄. "贵族工具", 干净但挑场景.</li>
+          <li><strong>DCT-R</strong> — 假设中等 (a.e. + $M$), 但要付 "$f\in\IR$" 入场费. 主要是<em>理论建材</em> (撑 Lebesgue 构造的良定性证明), 实战很少直接用.</li>
+          <li><strong>DCT-L</strong> — 假设最宽 (a.e. + 可积 $F$), 结论最强 ($L^1$ 收敛), 适用范围最广. <strong>现代 analysis 的实战默认工具</strong>.</li>
+        </ul>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 11.5 — 三阶实战对照 (四象限抽样)</span>
+
+        <p>下面四个例子对应这类题型的<strong>四象限</strong>: (A) "$\IL$ + unbounded 但可积"; (B) "$\IL$ 但 $f\notin\IR$ (Dirichlet 类)"; (C) "mass loss"; (D) "UCT 简单适用". 实战遇到的几乎所有题都落在这四象限之一, 决策树第 2-4 步就是在做象限分类.</p>
+
+        <p><strong>(A) DCT-L 必需, UCT/DCT-R 都不够 — unbounded 但可积</strong>. 设 $f_k(x) = \frac{1}{\sqrt{x}}\mathbf{1}_{[1/k,\,1]}(x)$ on $\R$. 逐点 $f_k(x)\to f(x):=\frac{1}{\sqrt{x}}\mathbf{1}_{(0,1]}(x)$. $\sup\abs{f_k}$ 在 $x=1/k$ 等于 $\sqrt{k}\to\infty$, 故 UCT 与 DCT-R 都不能用 (无 uniform, 无 uniform 常数界). 但 $F := \frac{1}{\sqrt{x}}\mathbf{1}_{(0,1]}\in\IL(\R)$ (improper Riemann $\int_0^1 dx/\sqrt{x} = 2 < \infty$, 取 dyadic brick 分解证 $\IL$), 且 $\abs{f_k}\le F$ for all $k$. DCT-L 给 $f\in\IL$ 且 $\int f_k\to\int F = 2$.</p>
+
+        <p><strong>(B) Dirichlet 极限 — 只有 DCT-L 能用</strong>. 设 $\{q_j\}$ 枚举 $\Q\cap[0,1]$, $f_k = \mathbf{1}_{\{q_1,\ldots,q_k\}}$. 每个 $f_k\in\IR$ (有限点指示, $\int f_k = 0$), $f_k\to\mathbf{1}_{\Q\cap[0,1]}$ 处处. UCT 不适用 ($\sup\abs{f_k - f} = 1$ for all $k$). DCT-R 不适用 (极限 $f\notin\IR$, 付费假设直接失败). DCT-L 适用: 取 $F=\mathbf{1}_{[0,1]}\in\IL$, $\abs{f_k}\le F$, 得 $\mathbf{1}_{\Q\cap[0,1]}\in\IL$ 且 $\int = \lim 0 = 0$. <em>这是 $\IR\subsetneq\IL$ 的最经典样本</em>, 也是 <a href="12-lebesgue-construction.html">Topic 12</a> 反复用的例子.</p>
+
+        <p><strong>(C) Mass loss — 三个全失败</strong>. Traveling box $f_k = \mathbf{1}_{[k,\,k+1]}$ (重述 Example 11.2). $\int f_k = 1$ 永远, $f_k\to 0$ 处处. UCT 失败 (无公共支集), DCT-R 失败 (同), DCT-L 失败 (任何 dominator 必 $\ge \mathbf{1}_{[1,\infty)}$, 不可积). 答案: $\lim\int = 1, \int\lim = 0$, 不相等. <em>没有任何积分理论能"修好"这个结果</em> — mass 真的丢失了, 这不是定理的缺陷, 而是物理事实.</p>
+
+        <p><strong>(D) UCT 简单适用 — 系数收敛多项式</strong>. $P_k(x) = a_k x^3 + b_k x^2 + c_k x + d_k$ on $[0,1]$ with coefficient convergence (重述 Example 11.1). 一致收敛 + 公共有界支集 $[0,1]$ ⟹ UCT 直接给 $\int_0^1 P_k\to\int_0^1 P$. 这是最干净的象限, "贵族" UCT 在它的舒适区里. DCT-L 也成立 (dominator $F = (\sup_k\norm{P_k}_\infty)\cdot\mathbf{1}_{[0,1]}$), 但 UCT 假设更"自然", 通常直接选 UCT.</p>
+
+        <p><strong>分类小结</strong>: (A)(B) 是 Lebesgue 框架的两大胜利场景 (unbounded + 太不连续), (C) 是任何积分理论都无能为力的真失败, (D) 是 Riemann 的舒适区. 拿到题先做 mass loss 检测 → 然后看 unbounded? 看 $f\in\IR$? — 几步就能定位象限.</p>
+      </div>
+
+      <!-- §5 Worked Examples -->
+      <h2 id="examples">§5 Worked Examples</h2>
+
+      <div class="box example">
+        <span class="box-title">Example 11.1 (系数收敛的低次多项式族, 正面例子)</span>
+        <p>设 $P_k \colon [0,1] \to \R$ 为次数 $\le 3$ 的多项式列:
+        $$P_k(x) = a_k x^3 + b_k x^2 + c_k x + d_k,$$
+        系数满足 $a_k \to a$, $b_k \to b$, $c_k \to c$, $d_k \to d$. 记 $P(x) := ax^3 + bx^2 + cx + d$. 证 $P_k \xrightarrow{\text{uni}} P$ on $[0,1]$.</p>
+        <p><strong>证</strong>: 取 $\eps > 0$. 由系数收敛, 存在 $N_1, N_2, N_3, N_4$ 使
+        $$|a_k - a| < \tfrac{\eps}{4} \ (k > N_1),\quad |b_k - b| < \tfrac{\eps}{4} \ (k > N_2),\quad |c_k - c| < \tfrac{\eps}{4} \ (k > N_3),\quad |d_k - d| < \tfrac{\eps}{4} \ (k > N_4).$$
+        设 $N := \max\{N_1, N_2, N_3, N_4\}$. 对所有 $k > N$ 与所有 $x \in [0,1]$ (注意 $|x|^j \le 1$ for $j = 1,2,3$):
+        $$\begin{aligned}
+        |P_k(x) - P(x)| &amp;= |(a_k - a)x^3 + (b_k - b)x^2 + (c_k - c)x + (d_k - d)| \\
+        &amp;\le |a_k - a| + |b_k - b| + |c_k - c| + |d_k - d| \\
+        &amp;< \tfrac{\eps}{4} \cdot 4 = \eps.
+        \end{aligned}$$
+        界与 $x$ 无关, 故一致收敛. $\square$</p>
+        <p><strong>为什么 $|x| \le 1$ 不可缺</strong>: 决定性的一步是 $|x|^j \le 1$. 把定义域换成 $\R$, 取 $P_k(x) := \frac{1}{k} x^3$, 则 $P_k(0) = 0$ 但 $P_k(k^{1/3}) = 1$ — sup norm 不趋零, 一致收敛失败. 一致收敛<em>对定义域很敏感</em>, 这是它与逐点收敛的又一关键差别.</p>
+        <p><strong>更一般地</strong>: 同样证明告诉我们, 如果 $f_k = \sum_{j=1}^M \alpha_j^{(k)} g_j$ 是固定的有界函数 $g_1, \ldots, g_M$ 的有限线性组合, 且每个系数 $\alpha_j^{(k)} \to \alpha_j$, 那么 $f_k \xrightarrow{\text{uni}} \sum_j \alpha_j g_j$. 多项式只是这个 framework 的具体实例 (取 $g_j$ 为单项式, 这里在 $[0,1]$ 上自动有界).</p>
+      </div>
+
+      <p>Example 11.1 演示: 一致收敛在某些自然场景里"自动"出现 — 对系数收敛的有限线性组合, 只要 building block 在定义域上有界. 结合 Theorem 11.1 立刻给出: 对这样的 $P_k$, 自动有 $\int_0^1 P_k\, dx \to \int_0^1 P\, dx$ (实际上系数收敛 + 直接计算 $\int_0^1 P_k = \frac{a_k}{4} + \frac{b_k}{3} + \frac{c_k}{2} + d_k$ 也能立刻看出, 但这"绕路"通过一致收敛+主定理走, 是为了演示主定理在简单情景下的应用方式).</p>
+
+      <div class="box example">
+        <span class="box-title">Example 11.2 (Traveling box, 反例之一: 质量逃到无穷)</span>
+        <p>定义 $f_k \colon \R \to \R$ 为
+        $$f_k(x) = \mathbf{1}_{[k, k+1]}(x) = \begin{cases} 1, & k \le x \le k+1, \\ 0, & \text{otherwise}.\end{cases}$$</p>
+        <p><strong>几何图像</strong>: 一个宽 $1$、高 $1$、面积 $1$ 的"盒子"坐在 $[k, k+1]$ 上, 随 $k$ 增大向右滑动, 形状不变, 但位置越来越远.</p>
+        <p><strong>性质</strong>:</p>
+        <ul>
+          <li>每个 $f_k \in \IR(\R)$: step function, 不连续点集 $\{k, k+1\}$ 是测度零, 加上有界 + 有界支集, 由 Lebesgue 准则 (<a href="06-lebesgue-criterion.html">Topic 06</a>) 可积.</li>
+          <li>对每个固定 $x \in \R$, 一旦 $k > x$ (例如 $k = \lceil x \rceil + 1$), $f_k(x) = 0$. 所以
+          $$\lim_{k \to \infty} f_k(x) = 0 \quad \forall x \in \R, \qquad f_k \to 0 \text{ pointwise}.$$</li>
+          <li><em>不</em>一致收敛: $\sup_x |f_k(x) - 0| = 1$ 对所有 $k$. (盒子永远存在, 只是位置不一样.)</li>
+          <li>积分:
+          $$\int_{\R} f_k\, dx = \int_k^{k+1} 1\, dx = 1 \quad \forall k, \qquad \int_{\R} \lim_{k} f_k\, dx = \int_{\R} 0\, dx = 0.$$
+          所以
+          $$\lim_{k \to \infty} \int_{\R} f_k\, dx = 1 \ne 0 = \int_{\R} \lim_{k \to \infty} f_k\, dx.$$</li>
+        </ul>
+        <p><strong>Theorem 11.1 的哪个假设被破坏了?</strong> <em>两条都坏了</em>: (H1, 公共有界支集) $\supp f_k = [k, k+1]$ 越走越远, 没有一个有界球能装下所有 $\supp f_k$; (H2, 一致收敛) $\sup|f_k - 0| = 1$ 不趋零. 这两条 hypothesis 失败<strong>不是巧合</strong>: 在本例中, 移动的支集本身就是一致收敛失败的根源.</p>
+        <p><strong>概念图像</strong>: 一个 unit mass 沿数轴正向逃到无穷. 极限里函数处处为零, 但 mass 并没有真正消失, 而是"<em>跑出了视野</em>".</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 11.3 (Tall thin spike, 反例之二: 质量集中到一点)</span>
+        <p>定义 $f_k \colon \R \to \R$ 为
+        $$f_k(x) = k \cdot \mathbf{1}_{(0, 1/k]}(x) = \begin{cases} k, & 0 < x \le 1/k, \\ 0, & \text{otherwise}.\end{cases}$$</p>
+        <p><strong>几何图像</strong>: 一个宽 $1/k$、高 $k$、面积 $k \cdot \frac{1}{k} = 1$ 的细高矩形, 随 $k$ 增大越来越细且越来越高, 最终"压缩"到单点 $0$.</p>
+        <p><strong>性质</strong>:</p>
+        <ul>
+          <li>每个 $f_k \in \IR(\R)$ (实际上 $\supp f_k \subset [0,1]$): step function, 可积.</li>
+          <li>对每个固定 $x \in \R$:
+            <ul>
+              <li>若 $x \le 0$ 或 $x > 1$, 显然 $f_k(x) = 0$ 对所有 $k$.</li>
+              <li>若 $0 < x \le 1$, 一旦 $k > 1/x$ (即 $1/k < x$), $f_k(x) = 0$.</li>
+              <li>$x = 0$ 处: 由 $(0, 1/k]$ 是<em>左开</em>区间, $f_k(0) = 0$ 对所有 $k$.</li>
+            </ul>
+          故 $f_k \to 0$ pointwise on $\R$.</li>
+          <li><em>不</em>一致收敛: $\sup_x |f_k(x) - 0| = k \to \infty$.</li>
+          <li>积分:
+          $$\int_{\R} f_k\, dx = \int_0^{1/k} k\, dx = k \cdot \tfrac{1}{k} = 1, \qquad \int_{\R} \lim_k f_k\, dx = 0.$$
+          再次: $\lim \int = 1 \ne 0 = \int \lim$.</li>
+        </ul>
+        <p><strong>Theorem 11.1 的哪个假设被破坏了?</strong> 这次 (H1, 公共有界支集) <em>是</em>成立的 — $\supp f_k \subseteq [0, 1]$ 对所有 $k$. 失败的纯粹是 (H2, 一致收敛): $\sup |f_k - 0| = k \to \infty$.</p>
+        <p><strong>概念图像</strong>: 一个 unit mass 集中到单点 $0$. 极限里函数处处为零 (因为 $0$ 周围任何正测度邻域最终都被排除在支集之外), 但 mass 并没真消失 — 它"<em>压缩</em>"到了一个测度零的点上.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 11.4 (两个反例的对偶性)</span>
+        <p>Example 11.2 和 Example 11.3 是一对漂亮的<strong>对偶</strong>反例. 列表对比:</p>
+        <table style="border-collapse: collapse; margin: 8px 0;">
+          <tr><th style="text-align: left; padding: 4px 12px;"></th><th style="text-align: left; padding: 4px 12px;">Traveling box</th><th style="text-align: left; padding: 4px 12px;">Tall thin spike</th></tr>
+          <tr><td style="padding: 4px 12px;">支集</td><td style="padding: 4px 12px;">$[k, k+1]$ (移动)</td><td style="padding: 4px 12px;">$(0, 1/k]$ (收缩)</td></tr>
+          <tr><td style="padding: 4px 12px;">高度</td><td style="padding: 4px 12px;">$1$ (常数)</td><td style="padding: 4px 12px;">$k$ (发散)</td></tr>
+          <tr><td style="padding: 4px 12px;">面积 $\int f_k$</td><td style="padding: 4px 12px;">$1$ (常数)</td><td style="padding: 4px 12px;">$1$ (常数)</td></tr>
+          <tr><td style="padding: 4px 12px;">逐点极限</td><td style="padding: 4px 12px;">$0$</td><td style="padding: 4px 12px;">$0$</td></tr>
+          <tr><td style="padding: 4px 12px;">破坏的 hypothesis</td><td style="padding: 4px 12px;">H1 + H2 (公共支集 + 一致)</td><td style="padding: 4px 12px;">仅 H2 (一致)</td></tr>
+          <tr><td style="padding: 4px 12px;">失败机制</td><td style="padding: 4px 12px;">mass 逃到 $\infty$</td><td style="padding: 4px 12px;">mass 集中到 $0$</td></tr>
+        </table>
+        <p>两者面积始终是 $1$, 但逐点极限是 $0$. 总 mass $1$ "存在但不可见" — 它要么飞远了, 要么被压扁了. 这正是 Lebesgue 框架必须处理的现象.</p>
+        <p><strong>关于 Lebesgue DCT 的关键 remark</strong>: 即使引入 Lebesgue 积分和 <a href="14-lebesgue-properties.html#thm-14-2">DCT for Lebesgue (Topic 14 Thm 14.2)</a>, <em>这两个反例仍然会被 DCT 拒之门外</em>. DCT 要求存在一个 Lebesgue-可积的 dominator $F \ge |f_k|$ for all $k$.</p>
+        <ul>
+          <li>对 traveling box: 任何 dominator $g$ 必须满足 $g \ge 1$ 在整个 $[1, \infty)$ 上 (因为有些 $f_k$ 在那里取 $1$), 故 $\int g \ge \infty$, 不可积.</li>
+          <li>对 tall spike: 任何 dominator 必须 $\ge k$ 在 $(0, 1/k]$ 上对所有 $k$, 这逼出 $g(x) \ge 1/x$ 在 $0$ 附近, 而 $1/x$ 在 $(0, 1]$ 上不可积.</li>
+        </ul>
+        <p>所以这两个例子<strong>不是 Lebesgue 还没解决的"小漏洞"</strong>, 而是 DCT/MCT <em>本质上</em>不能救的失败模式. 它们是"mass 丢失"的真实情形, 没有任何积分理论可以把 $\lim \int = 1$ 翻译成 $\int \lim = 1$. Lebesgue 的功劳是在<strong>不会发生</strong>这种 mass 丢失的情况下, 准确地交换 $\lim$ 与 $\int$, 而不是治愈所有不交换的情形.</p>
+      </div>
+
+      <!-- §6 常见陷阱 -->
+      <h2 id="pitfalls">§6 常见陷阱</h2>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 11.1 — 把"逐点收敛"当成"一致收敛"误用 Theorem 11.1</span>
+        <p>主定理的两个 hypothesis 都<strong>必不可少</strong>. 学生最常见的错误是: 看到一列 $f_k \in \IR(\R^n)$ 逐点收敛到 $f$, 就直接写"由 Theorem 11.1, $\int f_k \to \int f$". <em>不行</em>. Theorem 11.1 明确要求<em>一致</em>收敛, 不是逐点. 单凭逐点收敛, Example 11.2 与 11.3 就直接构成反例.</p>
+        <p><strong>记忆要点</strong>: 在 Riemann 框架内, "逐点 + 公共有界支集"<strong>不</strong>足以推出 $\int f_k \to \int f$. 真的想要在弱一点的假设下交换极限与积分, 要等 <a href="12-lebesgue-construction.html">Topic 12</a> 的 Lebesgue 积分构造以及 <a href="14-lebesgue-properties.html#mct-dct">Topic 14 §4.5</a> 的 MCT (Thm 14.1) / DCT (Thm 14.2).</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 11.2 — 忘了 (H1) 公共有界支集</span>
+        <p>有时人们记住了"要一致收敛"但忘了"还要公共有界支集". Theorem 11.1 不是只用了 H2. 想象一列 $f_k := \frac{1}{k} \mathbf{1}_{[0, k]}$: 它一致收敛到 $0$ ($\sup|f_k| = \frac{1}{k} \to 0$), 但 $\int f_k = 1$ 永远. $\int \lim = 0 \ne 1 = \lim \int$. 原因正是 H1 失败 — $\supp f_k = [0, k]$ 无法装进任何固定有界球.</p>
+        <p>这个例子说明 H1 不是"可有可无的技术细节". 它在证明 Step 1-2 的累加里, 决定了 $\eps \cdot \vol_n(B)$ 是否有限.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 11.3 — 把 Lebesgue DCT 当作万能"复活术"</span>
+        <p>Lebesgue 积分确实<em>大大</em>放宽了 Theorem 11.1 的假设 (DCT 只要求逐点 + 可积 dominator). 但<strong>它并不能让所有 "$\lim \int \ne \int \lim$" 的反例都变好</strong>. Example 11.4 已经分析过: traveling box 与 tall spike 即使在 Lebesgue 框架下, 也找不到可积的 dominator, 所以 DCT 不适用. 这两个反例的 $\lim \int = 1, \int \lim = 0$ 本身在 Lebesgue 意义下仍然<em>分别成立且不相等</em>. Lebesgue 不能"挽救" mass 真的丢失的情形, 它只能在 mass <strong>没有</strong>丢失时, 把交换公式严格落地.</p>
+        <p><strong>更深的 takeaway</strong>: 当你看到一个 $\lim \int \ne \int \lim$ 的反例, 第一反应不应是"等学了 Lebesgue 就好了", 而应是 "<em>这里到底有没有 mass 真的逃走或集中</em>"? 如果有, 任何积分理论都无能为力.</p>
+      </div>
+
+      <!-- §7 练习 -->
+      <h2 id="exercises">§7 练习</h2>
+      <p>展开 <code>&lt;details&gt;</code> 查看答案 (建议先自己想 10-15 分钟再看).</p>
+
+      <div class="exercise">
+        <p><span class="ex-num">1.</span> 设 $f_k(x) = x^k$ on $[0, 1]$. (a) 这个序列逐点收敛吗? 极限是什么? (b) 一致收敛吗? (c) 是否有 $\int_0^1 f_k \to \int_0^1 \lim f_k$?</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>(a) <em>是</em>, 逐点收敛. 极限函数 $f(x) = \begin{cases} 0, & 0 \le x < 1, \\ 1, & x = 1. \end{cases}$ — 因为 $0 \le x < 1$ 时 $x^k \to 0$, $x = 1$ 时 $1^k = 1$.</p>
+            <p>(b) <em>不</em>一致收敛. 取 $x_k = (1/2)^{1/k}$, 则 $f_k(x_k) = 1/2$. 而极限 $f(x_k) = 0$ (因为 $x_k < 1$). 故 $\sup |f_k - f| \ge 1/2$ 对所有 $k$, 不一致收敛.</p>
+            <p>(c) <em>仍然有</em>! 直接计算: $\int_0^1 x^k\, dx = \frac{1}{k+1} \to 0$, $\int_0^1 f\, dx = 0$ (极限函数仅在 $x = 1$ 这一测度零点取非零值, 积分值由 a.e. 性质 = 0; 或直接由 step function 计算). 所以等式 $\lim \int = \int \lim$ 是成立的, 尽管 Theorem 11.1 的假设不满足.</p>
+            <p><strong>教训</strong>: Theorem 11.1 是<em>充分</em>条件, 不是必要的. 没有一致收敛时, 等式仍可能成立 — 这恰好是 Lebesgue 框架要刻画的更广情形.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">2.</span> 构造一列 $f_k \colon [0, 1] \to \R$, 每个 $f_k \in \IR$, 满足 $f_k \to 0$ 逐点 (<em>不</em>一致), 但 $\int_0^1 f_k \to 0$ 仍成立.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>一个标准构造: $f_k(x) = \sqrt{k} \cdot \mathbf{1}_{(0, 1/k]}(x)$. 高度 $\sqrt{k}$, 宽度 $1/k$, 面积 $\sqrt{k}/k = 1/\sqrt{k} \to 0$.</p>
+            <p>验证: (a) 每个 $f_k$ 是 step function, 可积; (b) 逐点收敛到 $0$ (同 Example 11.3 的论证, 对每个 $x > 0$, 当 $k$ 充分大 $1/k < x$ 时 $f_k(x) = 0$); (c) 不一致收敛, $\sup|f_k| = \sqrt{k} \to \infty$; (d) $\int_0^1 f_k\, dx = 1/\sqrt{k} \to 0 = \int 0\, dx$.</p>
+            <p>这是介于 Theorem 11.1 (一致收敛) 与 Example 11.3 (tall spike, 面积保持 $1$) 之间的"温和"情况 — 高度发散但增速慢于宽度收缩, 所以面积仍趋零.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">3.</span> 设 $f_k \xrightarrow{\text{uni}} f$ on $\R^n$, 每个 $f_k$ 连续. 证 $f$ 也连续. (这与 Theorem 11.1 平行 — 一致收敛保持连续性.)</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>固定 $x_0 \in \R^n$, $\eps > 0$. 由一致收敛, 取 $N$ 使 $\sup_x |f_N(x) - f(x)| < \eps/3$ for all $k > N$ (具体取 $k = N+1$, 但为了简洁还是写成 $f_N$). 由 $f_N$ 在 $x_0$ 连续, 存在 $\delta > 0$ 使 $|x - x_0| < \delta$ 蕴含 $|f_N(x) - f_N(x_0)| < \eps/3$.</p>
+            <p>对 $|x - x_0| < \delta$, 三角不等式:
+            $$|f(x) - f(x_0)| \le |f(x) - f_N(x)| + |f_N(x) - f_N(x_0)| + |f_N(x_0) - f(x_0)| < \eps/3 + \eps/3 + \eps/3 = \eps.$$
+            故 $f$ 在 $x_0$ 处连续. $\square$</p>
+            <p>这是一个标准的 "$\eps/3$ 论证". 一致收敛是它能 work 的关键 — 头尾两项都用<em>同一个</em> $N$ 控制. 类似的 $\eps/3$ 也是 Theorem 11.1 证明中"全局 $\eps$ 夹逼"的精神.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">4.</span> 设 $f_k(x) = \sin(kx)$ on $[0, \pi]$. (a) $f_k$ 逐点收敛吗? (b) 一致收敛吗? (c) $\int_0^\pi f_k\, dx \to$ ?</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>(a) <em>不</em>逐点收敛 (一般而言). 例如 $x = \pi/2$ 时, $f_k(\pi/2) = \sin(k\pi/2)$ 在 $\{1, 0, -1, 0, 1, \ldots\}$ 之间循环, 不收敛.</p>
+            <p>(b) 不一致 (一致 $\Rightarrow$ 逐点, 已经逐点失败).</p>
+            <p>(c) 然而 $\int_0^\pi \sin(kx)\, dx = \frac{1}{k}[-\cos(kx)]_0^\pi = \frac{1 - \cos(k\pi)}{k}$ 在 $k$ 偶数时为 $0$, $k$ 奇数时为 $2/k$. 在两种情况下 $|\int_0^\pi f_k| \le 2/k \to 0$. 所以积分趋 $0$, 即使函数列本身根本不收敛.</p>
+            <p><strong>评注</strong>: 这是著名的 Riemann-Lebesgue lemma 的雏形. 它表明: 高频振荡函数即使逐点不收敛, 积分上也可以"平均掉"; 这给了我们一个比 Theorem 11.1 远更精细的现象 — 即使 $\lim f_k$ 不存在, $\lim \int f_k$ 仍可以存在.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">5.</span> ("证明或反例") 若 $f_k \xrightarrow{\text{uni}} f$ on $\R$ (无任何支集假设), 是否一定有 $\int_\R f_k \to \int_\R f$?</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>反例</strong>. 取 $f_k(x) = \frac{1}{k} \mathbf{1}_{[0, k]}(x)$. 检查:</p>
+            <ul>
+              <li>一致收敛到 $0$: $\sup_x |f_k(x)| = 1/k \to 0$. 而 $f \equiv 0$.</li>
+              <li>$\int_\R f_k\, dx = \frac{1}{k} \cdot k = 1$ for all $k$.</li>
+              <li>$\int_\R f\, dx = 0$.</li>
+              <li>$\lim \int = 1 \ne 0 = \int \lim$.</li>
+            </ul>
+            <p>这正是 Pitfall 11.2 的具体化. 公共有界支集 (H1) <em>不能</em>省去. $\square$</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">6.</span> 设 $g \colon [0, 1] \to \R$ 连续 (因此可积), $f_k(x) := g(x) + \frac{1}{k}$ on $[0, 1]$. 证 $f_k \xrightarrow{\text{uni}} g$ 并验证 Theorem 11.1 直接给出 $\int_0^1 f_k \to \int_0^1 g$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>$|f_k(x) - g(x)| = \frac{1}{k}$ 与 $x$ 无关. 对任意 $\eps$ 取 $N > 1/\eps$, 则 $k > N$ 时 $\sup_x |f_k - g| = 1/k < \eps$. 即一致收敛.</p>
+            <p>$\supp f_k \subseteq [0, 1]$ 公共有界. 每个 $f_k = g + 1/k$ 是连续函数, 可积. 由 Theorem 11.1:</p>
+            <p>$$\lim_k \int_0^1 f_k\, dx = \int_0^1 g\, dx,$$ 与直接计算 $\int_0^1 f_k = \int_0^1 g + \frac{1}{k} \cdot 1 \to \int_0^1 g$ 一致. $\square$</p>
+            <p>这道题的目的是: 验证主定理在一个完全平凡的情形下"自动 work" — 一致收敛是 robust 的, 把它放在很弱的函数列上也能正常发挥.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">7.</span> 设 $f_k(x) = \frac{x}{1 + k x^2}$ on $\R$. (a) 求逐点极限 $f$. (b) 它一致收敛吗? (c) Theorem 11.1 在这里直接适用吗? (d) $\int_\R f_k\, dx$ 怎么样?</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>(a) 对 $x = 0$: $f_k(0) = 0$. 对 $x \ne 0$: $f_k(x) = \frac{x}{1 + kx^2} \to 0$ as $k \to \infty$ (分母发散). 故 $f \equiv 0$.</p>
+            <p>(b) <em>一致</em>! 用微积分: $f_k'(x) = \frac{1 - kx^2}{(1 + kx^2)^2}$, 在 $x = \pm 1/\sqrt{k}$ 处取 max/min, 值为 $\pm \frac{1/\sqrt{k}}{1 + 1} = \pm \frac{1}{2\sqrt{k}}$. 故 $\sup_x |f_k(x)| = \frac{1}{2\sqrt{k}} \to 0$. 一致收敛到 $0$.</p>
+            <p>(c) <em>否</em>, Theorem 11.1 直接版本要求公共有界支集 (H1). 这里 $f_k$ 在 $\R$ 整个上都不为零, 没有 H1, 不能直接套用. 实际上 $f_k$ 也不 Riemann 可积 (整个 $\R$ 上, $f_k$ 不在 $\IR(\R)$ 的标准定义里, 因为没有有界支集). 在 $[-M, M]$ 上 $f_k$ 可积, 主定理可以适用, 但要把"积分"理解为该区间上的积分.</p>
+            <p>(d) 在 $[-M, M]$ 上: $\int_{-M}^M \frac{x}{1 + k x^2}\, dx = 0$ (奇函数). 这跟 $f \equiv 0$ 的积分一致. 所以即使不能直接套主定理, 等式 $\int = 0$ 成立.</p>
+            <p><strong>评注</strong>: 这道题是给读者机会练习"<em>检查每个 hypothesis 而不是机械套公式</em>". 一致收敛成立, 但 H1 失败; 等式仍然成立 (因为奇对称给出 $\int_{-M}^M f_k = 0$ for all $M, k$); 这是一个"主定理失效 hypothesis 但结论仍然对"的例子. 它再次印证 Theorem 11.1 是充分非必要.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">8.</span> 阅读 Theorem 11.1 的证明 Step 4. 把里面 "$k = N+1$" 改成 "$k = N + 100$" 仍然 work 吗? 把 "$k = N+1$" 改成 "任何固定 $k > N$" 呢? 为什么证明里特意写 $N+1$?</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>都 work. Step 4 只需要<em>任意一个具体</em>的 $k > N$, 因为 $f_k \in \IR$ 对每个 $k$ 都成立, 所以可以对任意 $k > N$ 用 Cauchy 准则. 写 $k = N+1$ 只是"最简洁的写法" — 不需要更大的 $k$ 因为不等式 (3) 已经把 $k$-依赖性吃掉了, 只剩下 $\vol_n(B)$ 这个固定常数.</p>
+            <p>从概念角度看, 这一步揭示了一个重要的"自由度": 在收敛性 (II) 的论证里, $k > N$ 是动态的; 但在可积性 (I) 的论证里, 我们只<em>需要一个</em> Cauchy 来源, 所以可以任选一个 $k > N$ 固定下来. 这两种 "$k$ 的角色"在证明里要分开理解.</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- §8 速查表 -->
+      <h2 id="cheat">§8 速查表</h2>
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def"><strong>$\IR(\R^n)$ vs $\IL(\R^n)$</strong>: Riemann 可积类 vs Lebesgue 可积类, $\IR \subsetneq \IL$ (Topic 12 证).</li>
+          <li class="cs-def"><strong>一致收敛 (uniform)</strong>: $\forall \eps,\ \exists N,\ \forall x,\ \forall k > N: |f_k(x) - f(x)| < \eps$. $N$ 与 $x$ <em>无关</em>.</li>
+          <li class="cs-def"><strong>逐点收敛 (pointwise)</strong>: $\forall x,\ \forall \eps,\ \exists N_x,\ \forall k > N_x: |f_k(x) - f(x)| < \eps$. $N_x$ <em>可</em>依赖于 $x$.</li>
+          <li class="cs-def"><strong>量词次序差别</strong>: 一致是 "$\exists N, \forall x$", 逐点是 "$\forall x, \exists N_x$". 顺序调换 $\Rightarrow$ 强度差一档. 这是本页 30 秒 takeaway.</li>
+          <li class="cs-def"><strong>蕴含关系</strong>: 一致 $\Rightarrow$ 逐点, 反之不然 (traveling box, tall spike, $x^k$ on $[0,1]$).</li>
+          <li class="cs-thm"><strong>Uniform Convergence Thm (Thm 11.1)</strong>: $(f_k) \subset \IR$, 公共有界支集 $\supp f_k \subseteq B$, $f_k \xrightarrow{\text{uni}} f$ $\Rightarrow$ (I) $f \in \IR$ 且 (II) $\lim \int f_k = \int f$.</li>
+          <li class="cs-thm"><strong>证明骨架 (5 步)</strong>: 全局 $\eps$ sandwich $\to$ 上下和 sandwich $\to$ 相减得 $U_K(f) - L_K(f) \le (U_K(f_{N+1}) - L_K(f_{N+1})) + 2\eps\vol_n(B)$ $\to$ Cauchy 准则给可积性 $\to$ $K \to \infty$ 给积分相等.</li>
+          <li class="cs-tech"><strong>反例 1 (traveling box)</strong>: $f_k = \mathbf{1}_{[k,k+1]}$, mass 逃 $\infty$, 破坏 H1 + H2. $\lim \int = 1 \ne 0 = \int \lim$.</li>
+          <li class="cs-tech"><strong>反例 2 (tall thin spike)</strong>: $f_k = k \mathbf{1}_{(0, 1/k]}$, mass 集中 $0$, 仅破坏 H2. $\lim \int = 1 \ne 0 = \int \lim$.</li>
+          <li class="cs-pitfall"><strong>陷阱</strong>: 主定理两个 hypothesis 都不可少; 逐点收敛单独 <em>不</em>足以推出 $\int$ 交换.</li>
+          <li class="cs-pitfall"><strong>陷阱</strong>: 即使 Lebesgue 框架的 DCT (Topic 12) 也救不了 traveling box 和 tall spike — 找不到可积 dominator. mass 真丢失是结构性失败.</li>
+          <li class="cs-pitfall"><strong>陷阱</strong>: Thm 11.1 是<em>充分</em>条件, 不是必要的 (Exercise 1, 7). 没满足 hypothesis 不等于结论错.</li>
+        </ul>
+      </div>
+
+      <!-- §9 进一步阅读 -->
+      <h2 id="further">§9 进一步阅读</h2>
+      <ul>
+        <li><strong>H&amp;H 教材</strong>: §4.11 (前半). Lebesgue 框架的入口章节; 本页对应"Lebesgue prelude"部分.</li>
+        <li><strong>Typed lecture notes</strong>:
+          <ul>
+            <li><code>../../Notes/Typed/6.2_notes/6.2_notes.pdf</code> — Lec 6.2 完整版, 包含 Theorem 11.1 的 5-step 证明全细节.</li>
+          </ul>
+        </li>
+        <li><strong>关联 review topics</strong>:
+          <ul>
+            <li><a href="02-nd-riemann.html">Topic 02</a>: Cauchy 准则 — 本页 Step 4 的核心工具</li>
+            <li><a href="06-lebesgue-criterion.html">Topic 06</a>: Lebesgue <em>准则</em> (注意名字! 是 Riemann 可积性的判据, <em>不是</em>本页的 Lebesgue 积分构造). 用来判定 step function 可积.</li>
+            <li><a href="12-lebesgue-construction.html">Topic 12</a>: Lebesgue 积分的正式构造. 本页的反例 (Dirichlet, mass-loss) 是 Topic 12 设计动机的源头. MCT/DCT 也在那里登场.</li>
+            <li><a href="13-well-definedness.html">Topic 13</a>: Lebesgue 良定性证明 — 也用类似的 tail bound / 一致控制论证.</li>
+          </ul>
+        </li>
+        <li><strong>同主题外读</strong>:
+          <ul>
+            <li>Rudin, <em>Principles of Mathematical Analysis</em>, Ch 7 — 标准 real analysis 的"函数列一致收敛"处理, 包括 Weierstrass M-test 等本页未涉及的工具.</li>
+            <li>Royden &amp; Fitzpatrick, <em>Real Analysis</em>, Ch 4 — Lebesgue DCT/MCT 的正式定理与证明, 对照本页的"为什么 Riemann 不够".</li>
+          </ul>
+        </li>
+      </ul>
+
+      <hr style="margin: 60px 0 20px; border: 0; border-top: 1px solid #d8d3c4;">
+      <p style="font-size: 13px; color: #888; text-align: center;">MATH 31CH 复习指南 · Topic 11 · Riemann 框架下的极限与积分</p>
+
+    </main>
+  </div>
+
+</body>
+</html>

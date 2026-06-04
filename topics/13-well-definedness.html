@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Topic 13: Lebesgue 积分良定性证明 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|',
+        '\\trunc': '\\left[#1\\right]_R'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="12-lebesgue-construction.html">Topic 12</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="14-lebesgue-properties.html">Topic 14</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#motivation">§1 动机</a></li>
+        <li><a href="#prereq">§2 前置知识</a></li>
+        <li><a href="#definitions">§3 核心定义</a></li>
+        <li><a href="#theorems">§4 主要定理</a></li>
+        <li><a href="#examples">§5 Worked Examples</a></li>
+        <li><a href="#pitfalls">§6 常见陷阱</a></li>
+        <li><a href="#exercises">§7 练习</a></li>
+        <li><a href="#cheat">§8 速查表</a></li>
+        <li><a href="#further">§9 进一步阅读</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>Topic 13: Lebesgue 积分良定性证明</h1>
+      <p class="subtitle">Source: Lec 7.2, 7.3 (前半) · H&amp;H §4.11 · 14 topics 中第 13 个</p>
+
+      <!-- §1 动机 -->
+      <h2 id="motivation">§1 动机</h2>
+      <p>在 <a href="12-lebesgue-construction.html">Topic 12</a> 我们定义了 Lebesgue 积分: $f \in \IL(\R^n)$ 当且仅当存在 brick decomposition (砖块分解) $(f_k) \subset \IR(\R^n)$, 满足 $\sum_k \int |f_k| \, dV < \infty$ 且 $\sum_k f_k = f$ a.e., 此时
+      $$\int_{\R^n} f \, dV_L \;:=\; \sum_{k=1}^{\infty} \int_{\R^n} f_k \, dV.$$
+      <strong>但是有一个根本问题</strong>: 给定一个 $f$, 它的 brick decomposition <em>不唯一</em>! 不同的 $(f_k)$ 会不会给出不同的 $\int f \, dV_L$? 如果会, 那么 $\int f \, dV_L$ 这个符号就不指向唯一的数, 整个定义会 ill-formed (不良定).</p>
+
+      <p>本 topic 的全部内容是<strong>证明良定性 (well-definedness)</strong>: 任意两个合法的 brick decomposition $(f_k), (g_k)$ 都满足 $\sum_k \int f_k = \sum_k \int g_k$. 这是本课程整个 integration chapter 里<strong>最技术化</strong>的一个证明 — 它要求把 truncation (截断) 操作、Cauchy-tail 思想、dyadic paving 上的 Markov-style 估计、以及 Riemann-side DCT 这四件 weapon 拼装在同一个 ε-bookkeeping 里, 最终得出 $|\int H_l| < 6\eps$ 的结论。</p>
+
+      <p>从更宏观的角度: 这个证明是 <strong>Daniell-Stone construction</strong> 整个机器的核心齿轮。一旦它转动起来, Lebesgue 积分就成为一个 well-formed 的算子, 后续 (Topic 14) 才能放心讨论它的线性、单调、product 性质; 再之后 (后续课程) 才能升级到 Lebesgue DCT, MCT, Fubini。可以说: <em>本 topic 的证明完成之前, 我们写下的每一个 "$\int f \, dV_L$" 都只是符号上的 wishful thinking; 完成之后, 它才真正是一个数</em>。</p>
+
+      <p>叙事上, 本页的"主线 worked example" 不是一个具体函数的积分, 而是<strong>证明本身的逐步展开</strong> — 我们会把它拆成 5 个 Step (截断 + DCT, Cauchy-tail pivot, dyadic A/B 分裂, Markov 估计, 三角不等式拼装), 每一步都有 ε 预算的明确记账。</p>
+
+      <p><strong>为什么良定性"自动"不成立?</strong> 一个常见的初学者反应是: "$\sum f_k$ 和 $\sum g_k$ 都收敛到 $f$, 求积分项级数应该自动相等才对!" 这种直觉来自有限和情形 — $f$ 有限多种写法, 积分线性自然给同一答案。但<em>无穷级数不是有限和</em>: 不同的 brick decomposition 可以让 $f$ 在不同 region 由不同 $f_k$ 拼出, 中间的 cancellation 模式截然不同, 积分项的级数 $\sum \int f_k$ 在 a priori 上和 $\sum \int g_k$ 没有必然联系。良定性的证明本质上是说: <em>不管你怎么"切"</em> $f$ (只要满足 Topic 12 的两条要求), 切出来的积分总和都是同一个数。这是 Daniell-Stone 路线的全部精髓。</p>
+
+      <!-- §2 前置知识 -->
+      <h2 id="prereq">§2 前置知识</h2>
+      <div class="box prereq">
+        <span class="box-title">在阅读本页前，你应该已经掌握:</span>
+        <ul>
+          <li><a href="12-lebesgue-construction.html">Topic 12</a>: <strong>Lebesgue 积分的构造</strong> — brick decomposition 的定义、Beppo-Levi 命题、$\IR \subset \IL$、Dirichlet 与 $-\ln x$ 两个例子. 本页的整个目的就是证 Topic 12 那个定义良定。</li>
+          <li><a href="12-lebesgue-construction.html">Topic 12</a>: <strong>DCT for Riemann integrals</strong> (H&amp;H Thm 4.11.6) — 本页证明唯一的"非初等输入"。</li>
+          <li><a href="05-measure-zero-basics.html">Topic 05</a>: 测度零 (measure zero) 与 a.e. 概念, 可数 union 性质。</li>
+          <li><a href="02-nd-riemann.html">Topic 02</a>: dyadic paving $\mathcal{D}_N$, $M_C(g) = \sup_C g$, upper sum $U_N(g)$, $\IR$ 的 Cauchy 准则。</li>
+          <li><a href="03-algebra-properties.html">Topic 03</a>: 三角不等式 $|\int f| \le \int |f|$, 积分单调性。</li>
+          <li>标准实分析: 绝对收敛级数的 Cauchy 准则 (tail 趋于零)。</li>
+        </ul>
+      </div>
+
+      <!-- §3 核心定义 -->
+      <h2 id="definitions">§3 核心定义</h2>
+      <p>本页的核心新概念只有一个 — <strong>截断 (truncation) 算子</strong> $[\cdot]_R$ — 但它出现的频率极高, 几乎每一步都要用。再加上证明里的 <strong>dyadic 好坏分裂</strong>, 我们一共列两个 "definition-like" 概念。</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 13.1 (截断算子 / Truncation $\trunc{\cdot}$, H&amp;H §4.11)</span>
+        <p>给定 $g \colon \R^n \to \R$ 与 $R > 0$, 定义 <strong>$R$-截断函数 (the $R$-truncation of $g$)</strong>
+        $$\trunc{g}(x) \;:=\; \begin{cases}
+          0, &amp; |x| > R, \\
+          R, &amp; |x| \le R \text{ 且 } g(x) > R, \\
+          -R, &amp; |x| \le R \text{ 且 } g(x) < -R, \\
+          g(x), &amp; |x| \le R \text{ 且 } |g(x)| \le R.
+        \end{cases}$$</p>
+        <p>直观地: 先把 $g$ 限制到球 $B_R(0)$ 上 (球外强制设为零), 再把球内取值夹到带 $[-R, R]$ (上溢/下溢分别 cap 到 $\pm R$)。</p>
+      </div>
+
+      <p><strong>直觉 / 几何图像</strong>: 想象 $\R$ 上一根波动很大、衰减缓慢的曲线 $g$。在 $|x| \le R$ 的"小窗口"里, 我们要求曲线的值挤进 $[-R, R]$ 这条"水平管道" — 凡是超出顶部的部分被剪平到 $R$, 凡是低于底部的部分被剪平到 $-R$; 窗口外的所有部分直接砍掉变成 $0$。结果是一个"flat-shelf"形状: 中间是 $g$ 的 untouched 部分, 两边是水平 ceiling/floor, 远处是 $0$。</p>
+
+      <p><strong>为什么定义 $R$-截断而非 $R_1$-截断 $+$ $R_2$-clip</strong>: 课堂的版本把"水平 cap"和"水平 support"用<em>同一个</em> $R$, 是为了简化 bookkeeping — 后面 DCT 的"common bounded support"和"uniform pointwise bound"两条要求会被同一个 $R$ 同时满足。在更一般的处理中可以分两个常数, 但本课程默认同步。</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 13.2 (Dyadic 好坏分裂 / Good–Bad Split, 证明专用术语)</span>
+        <p>在证明 Theorem 13.1 时, 我们固定 $l > M$ 并取 $N$ 使得 $U_N(|H_l - H_M|) < \eps$。将 dyadic paving 在 $B_R(0)$ 上的限制
+        $$\mathcal{D}_N(B_R(0)) \;:=\; \{C \in \mathcal{D}_N : C \cap B_R(0) \ne \emptyset\}$$
+        按 $|H_l - H_M|$ 在每个 cube 上的 sup 分为两类:
+        $$\mathcal{A} \;:=\; \bigl\{ C \in \mathcal{D}_N(B_R(0)) : M_C(|H_l - H_M|) > R/2 \bigr\} \quad (\text{bad cubes}),$$
+        $$\mathcal{B} \;:=\; \bigl\{ C \in \mathcal{D}_N(B_R(0)) : M_C(|H_l - H_M|) \le R/2 \bigr\} \quad (\text{good cubes}).$$
+        以同名 $\mathcal{A}, \mathcal{B}$ 记号代表对应 cube 的<strong>union</strong> (作为可 pavable 子集)。</p>
+      </div>
+
+      <p>这不是一个"标准"definition (它是 proof 里的临时构造), 但因为整个证明的核心就建立在 $\mathcal{A}$/$\mathcal{B}$ 的 dichotomy 上, 我把它单独列出来作为概念锚点。<strong>读懂这个分裂 = 读懂这个证明的一半</strong>。</p>
+
+      <p><strong>记忆: 为什么用 $R/2$ 作 threshold</strong>: 选 $R/2$ 而非 $R$ 或其它常数, 是为了让 $\mathcal{B}$ 上的不等式 $|H_l - H_M| \le R/2$ 与 $|H_M| \le R/2$ 加起来正好 $\le R$, 触发 Lem 13.2 (iv) 的 truncation-invisible 条件。这是一个 perfectly balanced 设计 — 改成 $R/3$ 或 $2R/3$ 都会破坏 dichotomy 的某一边。Pitfall 13.4 中我们会专门讨论这点。</p>
+
+      <!-- §4 主要定理 -->
+      <h2 id="theorems">§4 主要定理</h2>
+      <p>本节有一个中心定理 (良定性) 与两个 supporting lemmas。中心定理的证明由 §5 的逐步展开承担, 这里给出语句 + 高层 sketch。</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 13.1 (Lebesgue 积分良定性, H&amp;H Thm 4.11.5)</span>
+        <p>设 $(f_k)_{k\in\N}, (g_k)_{k\in\N} \subset \IR(\R^n)$ 是两族 Riemann 可积函数, 满足
+        $$\text{(i)}\ \sum_{k=1}^{\infty}\int_{\R^n}|f_k|\,dV < \infty, \ \sum_{k=1}^{\infty}\int_{\R^n}|g_k|\,dV < \infty;$$
+        $$\text{(ii)}\ \sum_{k=1}^{\infty} f_k \;=\; \sum_{k=1}^{\infty} g_k \quad \text{a.e.\ on } \R^n.$$
+        则
+        $$\sum_{k=1}^{\infty}\int_{\R^n} f_k\,dV \;=\; \sum_{k=1}^{\infty}\int_{\R^n} g_k\,dV.$$</p>
+      </div>
+
+      <p><strong>Proof sketch (高层)</strong>: 整个证明分两步。<em>第一步: 简化到齐次形式</em>。令 $h_k := f_k - g_k$, 则
+      $\sum_k \int |h_k| \le \sum_k \int(|f_k|+|g_k|) < \infty$ 且 $\sum_k h_k = 0$ a.e.。结论 $\sum_k \int f_k = \sum_k \int g_k$ 等价于 $\sum_k \int h_k = 0$。于是只需证<em>齐次版本</em>: $(h_k) \subset \IR$, $\sum \int |h_k| < \infty$, $\sum h_k = 0$ a.e.$\Rightarrow \sum \int h_k = 0$。</p>
+
+      <p><em>第二步: 证齐次版本</em>。记部分和 $H_l := \sum_{k=1}^l h_k$, 目标是 $\lim_l \int H_l = 0$。我们已知 $H_l \to 0$ a.e.。"自然"的策略是直接对 $(H_l)$ 应用 DCT for Riemann — 但 DCT 要求 <em>common bounded support</em> + <em>uniform pointwise bound</em>, 这两条对 $H_l$ 都<strong>不成立</strong> (各 $h_k$ 的支集随 $k$ 可任意增长, $H_l$ 的 sup 也可随 $l$ 任意增长)。</p>
+
+      <p>修复手段: <strong>截断</strong>。取 $R$ 充分大, 把 $H_l$ 替换为 $\trunc{H_l}$, 后者 (按 Def 13.1) 自然 supp $\subset \overline{B_R(0)}$ 且 $|\trunc{H_l}| \le R$。再加上一个观察: $H_l \to 0$ a.e. $\Rightarrow$ $\trunc{H_l} \to 0$ a.e.。于是 DCT 可以应用到 $(\trunc{H_l})$, 得 $\int \trunc{H_l} \to 0$。</p>
+
+      <p>剩余工作: 证 <em>截断改变积分不多</em>, 即 $\int |H_l - \trunc{H_l}|$ 小。这一步是 Cauchy-tail 加 dyadic paving 的"主菜": 选 $M$ 使 tail $\sum_{k>M} \int |h_k| < \eps$ (推出 $\int |H_l - H_M| < \eps$, 标记 $(\star)$), 再选 $R$ 使 $\supp(H_M) \subset B_R(0)$ 且 $|H_M| \le R/2$。用 dyadic paving 在 $B_R(0)$ 上做好坏分裂 $\mathcal{A} \sqcup \mathcal{B}$ (Def 13.2), 在 $\mathcal{B}$ 上 truncation invisible 直接用 $(\star)$ 给出 $< \eps$, 在 $\mathcal{A}$ 上用 Markov-style 估计得 $\vol(\mathcal{A}) < 2\eps/R$ 配粗略 pointwise 界 $3R/2$ 给出 $< 3\eps$, 合起来 $\int |[\trunc{H_l}] - H_M| < 4\eps$。再一次三角不等式得 $\int |H_l - \trunc{H_l}| < 5\eps$, 与 DCT 给的 $|\int \trunc{H_l}| < \eps$ 合起来 $|\int H_l| < 6\eps$, $\eps$ 任意, 完成。</p>
+
+      <p>完整的逐步证明 (5 步) 放在 §5 Worked Examples 里, 把它当作"主菜"展开。</p>
+
+      <div class="box thm">
+        <span class="box-title">Lemma 13.2 (截断算子的基本性质, Lec 7.2 Lem 7.2.9)</span>
+        <p>对任意 $g \colon \R^n \to \R$ 与 $R > 0$:</p>
+        <ol type="i">
+          <li>$|\trunc{g}(x)| \le R$ 对所有 $x \in \R^n$;</li>
+          <li>$\supp(\trunc{g}) \subset \overline{B_R(0)}$;</li>
+          <li>$|\trunc{g}(x)| \le |g(x)|$ 对所有 $x \in \R^n$;</li>
+          <li>若 $|g(x)| \le R$ 且 $|x| \le R$, 则 $\trunc{g}(x) = g(x)$;</li>
+          <li>若 $g \in \IR(\R^n)$, 则 $\trunc{g} \in \IR(\R^n)$。</li>
+        </ol>
+      </div>
+
+      <p><strong>Proof sketch</strong>: (i)–(iv) 直接由 Def 13.1 的 case-by-case 验证 (没有任何技术含量)。(v) 需要 Lebesgue 准则 (Topic 06): $\Disc(\trunc{g}) \subset \Disc(g) \cup \partial B_R(0) \cup \{|g| = R\}$。这三个集合分别是: 测度零 (由 $g \in \IR$ + Lebesgue 准则), 测度零 ((n-1)-维球面是 (n-1)-维子流形 $\subset \R^n$ 测度零), 以及测度零或被吸收到 $\Disc(g)$ 里 (level set $\{g = R\}$ 在 $g$ 连续的地方与截断的 cap 平滑接续)。所以 $\Disc(\trunc{g})$ 仍测度零, 反向应用 Lebesgue 准则得 $\trunc{g} \in \IR$。 $\square$</p>
+
+      <div class="box thm">
+        <span class="box-title">Lemma 13.3 (Cauchy-tail 推论 $(\star)$)</span>
+        <p>设 $(h_k) \subset \IR(\R^n)$, $\sum_k \int |h_k| < \infty$。则对任意 $\eps > 0$, 存在 $M \in \N$ 使得对所有 $l > M$,
+        $$\int_{\R^n} |H_l - H_M| \, dV \;<\; \eps, \qquad (\star)$$
+        其中 $H_l := \sum_{k=1}^l h_k$。</p>
+      </div>
+
+      <p><strong>Proof</strong>: 由实分析的 Cauchy 准则 (绝对收敛级数的 tail 趋于零), 存在 $M$ 使 $\sum_{k > M} \int |h_k| < \eps$。对 $l > M$, $H_l - H_M = \sum_{k=M+1}^l h_k$, 三角不等式给
+      $$\int |H_l - H_M| \le \int \sum_{k=M+1}^l |h_k| = \sum_{k=M+1}^l \int |h_k| \le \sum_{k>M} \int |h_k| < \eps. \quad \square$$</p>
+
+      <p>这就是证明里 invoke 数次的 $(\star)$ 估计 — 它把"两个 partial sum $H_l$ 和 $H_M$ 在 $L^1$ 意义下接近"这一事实从绝对求和性单挤出来。在课堂上, 这是先选 $M_1$ 让 $f$-tail $< \eps/2$, 再选 $M_2$ 让 $g$-tail $< \eps/2$, 取 $M = \max$, 由 $|h_k| \le |f_k| + |g_k|$ 推出 $h$-tail $< \eps$, 整个步骤合起来记作 $(\star)$ — 但齐次形式下我们直接处理 $h_k$ 即可。</p>
+
+      <details>
+        <summary>展开 Theorem 13.1 的简化到齐次 (技术细节)</summary>
+        <div class="details-body">
+          <p>设两组 brick decomposition $(f_k), (g_k)$ 都满足 Thm 13.1 的 (i)(ii)。令 $h_k := f_k - g_k$。验证:</p>
+          <ul>
+            <li><em>$(h_k) \subset \IR$</em>: $\IR$ 在差运算下封闭 (Lec 2.1 线性性), 故 $h_k \in \IR$ 对每个 $k$。</li>
+            <li><em>$\sum_k \int |h_k| < \infty$</em>: $|h_k| = |f_k - g_k| \le |f_k| + |g_k|$ 且积分单调, 故
+            $$\sum_k \int |h_k| \le \sum_k \int(|f_k| + |g_k|) = \sum_k \int |f_k| + \sum_k \int |g_k| < \infty$$
+            (两个级数都收敛, 拆开重组合法)。</li>
+            <li><em>$\sum_k h_k = 0$ a.e.</em>: 假设 (ii) 在测度零集 $E$ 外 $\sum f_k = \sum g_k$ 成立。在 $E^c$ 上, $\sum h_k(x) = \sum f_k(x) - \sum g_k(x) = 0$。故 $\sum h_k = 0$ a.e.。</li>
+          </ul>
+          <p>反过来, 假设齐次版本已证 ($\sum \int h_k = 0$)。则 $\sum \int f_k - \sum \int g_k = \sum \int (f_k - g_k) = \sum \int h_k = 0$, 即 $\sum \int f_k = \sum \int g_k$, Thm 13.1 (一般形式) 得证。</p>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">Remark 13.4 (为什么 Markov-style 估计是"正确"工具)</span>
+        <p>Step 4c 的核心是 $\vol(\mathcal{A}) < 2\eps / R$ — 这是 <strong>Markov / Chebyshev 不等式</strong>在 Riemann 框架下的离散版。一般的 Markov 不等式: 设 $g \ge 0$, $\int g < \eps$, 则集合 $\{g > t\}$ 的"体积" $< \eps / t$。直觉: 大值 $g > t$ 必须在小集合上分布, 否则 $\int g$ 会爆。我们这里 $g = |H_l - H_M|$ 且 $t = R/2$, 故 $\vol\{g > R/2\} < 2\eps/R$。</p>
+        <p>之所以"<em>对偶</em>地用 dyadic": Riemann 没有点态测度概念, 我们只能在 cube 层面谈"$g > t$"。$M_C(g) > t$ 表征"$g$ 在 $C$ 上至少在某点 $> t$" — 这是 dyadic 版的"在 $C$ 上 $g$ 大"。$U_N(g)$ 是 $M_C(g) \cdot \vol(C)$ 的加权和, 它直接给出 dyadic 版 Markov 估计 $\vol(\mathcal{A}) \cdot t \le U_N(g) < \eps$。这种"<em>$L^1$ small $\Rightarrow$ small bad set</em>" 的翻译是 modern measure theory 里"convergence in measure"的雏形 — 我们在 Riemann 框架下提前一步使用它。</p>
+      </div>
+
+      <div class="box remark">
+        <span class="box-title">Remark 13.5 (两个 corollary)</span>
+        <p>Thm 13.1 一旦证明, 立即推出 Topic 12 里"暂未良定"的两个 corollary 正式成立:</p>
+        <ol>
+          <li><em>$\int f \, dV_L$ 良定</em>: 对任意 $f \in \IL$, 任意两个合法 brick decomposition 给出同一个 $\sum_k \int f_k$。— 由 Thm 13.1 直接推出。</li>
+          <li><em>$\IR \subset \IL$ 且积分相等</em>: 对 $f \in \IR$, 取 trivial 分解 $f_1 := f$, $f_k := 0$ ($k \ge 2$), 验证两个条件, 由 Thm 13.1 该 trivial 分解与任何其它分解给出同一个值, 即 $\int f \, dV_L = \int f \, dV_R$。 — Topic 12 已给过非正式陈述 (Thm 12.4), 现在它"有 backing"了。</li>
+        </ol>
+      </div>
+
+      <!-- §5 Worked Examples -->
+      <h2 id="examples">§5 Worked Examples</h2>
+      <p>本节的"主菜"是把 Thm 13.1 的证明按 5 步完整走一遍 — 这就是本 topic 的核心 worked example。两个辅助 example 演示了截断算子在具体函数上的行为, 帮助 build 直觉。</p>
+
+      <div class="box example">
+        <span class="box-title">Example 13.1 (Thm 13.1 的完整证明 — 5 步展开)</span>
+        <p>设 $(h_k) \subset \IR$, $\sum_k \int |h_k| < \infty$, $\sum_k h_k = 0$ a.e.。证明 $\sum_k \int h_k = 0$, 即 $\lim_l \int H_l = 0$ (其中 $H_l := \sum_{k=1}^l h_k$)。</p>
+
+        <p><strong>固定 $\eps > 0$</strong>。我们要找 $L$ 使对所有 $l > L$, $|\int H_l| < 6\eps$ — 由 $\eps$ 任意性即得 $\int H_l \to 0$。</p>
+
+        <p><strong>Step 1 (选 $M$, 推出 $(\star)$)</strong>: 由 Lemma 13.3, 取 $M$ 使对所有 $l > M$,
+        $$\int_{\R^n} |H_l - H_M| \, dV < \eps. \qquad (\star)$$
+        从此 $M$ 与 $H_M$ 固定 (不再随 $l$ 变化)。</p>
+
+        <p><strong>Step 2 (选 $R$)</strong>: $H_M$ 是 $M$ 个 $\IR$ 函数的有限和, 故有界 (say $|H_M| \le K$) 且 bounded support (say $\supp H_M \subset B_{R_1}(0)$)。取
+        $$R := \max(R_1, \; 2K + 1).$$
+        则 (i) $\supp H_M \subset B_R(0)$ (因为 $R \ge R_1$), (ii) $|H_M| \le K < R/2$ a.e. (因为 $R/2 \ge K + 1/2 > K$)。从此 $R$ 也固定。</p>
+
+        <p><strong>Step 3 (对 $\trunc{H_l}$ 应用 DCT)</strong>: 由 Lemma 13.2,
+        <ul>
+          <li>$\trunc{H_l} \in \IR$ 对每个 $l$;</li>
+          <li>$\supp \trunc{H_l} \subset \overline{B_R(0)}$ — common bounded support $\checkmark$;</li>
+          <li>$|\trunc{H_l}| \le R$ — uniform pointwise bound $\checkmark$。</li>
+        </ul>
+        再验证 $\trunc{H_l} \to 0$ a.e.: 在 $|x| > R$ 处永远 $\trunc{H_l}(x) = 0$; 在 $|x| \le R$ 处取 $H_l(x) \to 0$ 的 a.e. 点, 则最终 $|H_l(x)| \le R$, 故由 Lem 13.2 (iv) 最终 $\trunc{H_l}(x) = H_l(x) \to 0$。
+        应用 <strong>DCT for Riemann</strong> (limit 函数 $\varphi \equiv 0 \in \IR$):
+        $$\lim_{l\to\infty} \int_{\R^n} \trunc{H_l} \, dV \;=\; \int_{\R^n} 0 \, dV \;=\; 0. \qquad (\text{DCT})$$
+        故存在 $L > M$ 使对所有 $l > L$, $\bigl|\int \trunc{H_l}\bigr| < \eps$。</p>
+
+        <p><strong>Step 4 (核心: 用 dyadic A/B 分裂证 $\int |H_l - \trunc{H_l}| < 5\eps$)</strong>: 固定 $l > M$ (随后 plug-in $l > L$)。先经 pivot:
+        $$\int |H_l - \trunc{H_l}| \;\le\; \underbrace{\int |H_l - H_M|}_{<\eps \text{ by }(\star)} \;+\; \underbrace{\int |\trunc{H_l} - H_M|}_{?}. \qquad (\text{pivot})$$
+        余下要证 $\int |\trunc{H_l} - H_M| < 4\eps$, 这就是 Lec 7.3 中的 dyadic 估计。</p>
+
+        <p><strong>Step 4a (降到 $B_R(0)$)</strong>: 球外 $|x| > R$, $\trunc{H_l}(x) = 0$ 永真, $H_M(x) = 0$ a.e.(因 $\supp H_M \subset B_R(0)$), 故球外 $\trunc{H_l} - H_M = 0$ a.e., 积分为 $0$。所以
+        $$\int_{\R^n} |\trunc{H_l} - H_M| \;=\; \int_{B_R(0)} |\trunc{H_l} - H_M|.$$</p>
+
+        <p><strong>Step 4b (选 $N$, 切 dyadic 好坏分裂)</strong>: $|H_l - H_M| \in \IR$, 由 Riemann 积分的定义 $U_N(|H_l - H_M|) \downarrow \int |H_l - H_M| < \eps$。取 $N$ 使 $U_N(|H_l - H_M|) < \eps$。按 Def 13.2 分 $\mathcal{D}_N(B_R(0)) = \mathcal{A} \sqcup \mathcal{B}$。</p>
+
+        <p><strong>Step 4c (Markov-style: $\vol_n(\mathcal{A}) < 2\eps / R$)</strong>: 由 $U_N$ 的定义,
+        $$\eps > U_N(|H_l - H_M|) = \sum_{C \in \mathcal{D}_N} M_C(|H_l - H_M|) \vol_n(C) \ge \sum_{C \in \mathcal{A}} M_C(|H_l - H_M|) \vol_n(C) > \frac{R}{2} \sum_{C \in \mathcal{A}} \vol_n(C) = \frac{R}{2} \vol_n(\mathcal{A}).$$
+        (第二个不等式: 删去 $\mathcal{A}^c$ 的非负项; 第三个: 对每个 $C \in \mathcal{A}$, $M_C(|H_l - H_M|) > R/2$。) 故
+        $$\boxed{\vol_n(\mathcal{A}) < \frac{2\eps}{R}.}$$</p>
+
+        <p><strong>Step 4d ($\mathcal{B}$ 上: truncation invisible $\Rightarrow$ 直接用 $(\star)$)</strong>: 对 $x \in C \in \mathcal{B}$ 的 a.e. 点, $|H_l(x) - H_M(x)| \le M_C(|H_l - H_M|) \le R/2$, 配 $|H_M(x)| \le R/2$ a.e. 得
+        $$|H_l(x)| \le |H_M(x)| + |H_l(x) - H_M(x)| \le R/2 + R/2 = R \quad \text{a.e. on } \mathcal{B}.$$
+        由 Lem 13.2 (iv) (因 $\mathcal{B} \subset \overline{B_R(0)}$, $|x| \le R$ 自动), $\trunc{H_l}(x) = H_l(x)$ a.e. on $\mathcal{B}$。故
+        $$\int_{\mathcal{B}} |\trunc{H_l} - H_M| = \int_{\mathcal{B}} |H_l - H_M| \le \int_{\R^n} |H_l - H_M| < \eps \quad \text{by } (\star).$$</p>
+
+        <p><strong>Step 4e ($\mathcal{A}$ 上: 粗略 pointwise + 小 volume)</strong>: 单 cube 内 $|\trunc{H_l}| \le R$ 和 $|H_M| \le R/2$ a.e., 故
+        $$|\trunc{H_l}(x) - H_M(x)| \le R + R/2 = 3R/2 \quad \text{a.e. on } \mathcal{A}.$$
+        与 Step 4c 的 volume bound 相乘:
+        $$\int_{\mathcal{A}} |\trunc{H_l} - H_M| \le \frac{3R}{2} \cdot \vol_n(\mathcal{A}) < \frac{3R}{2} \cdot \frac{2\eps}{R} = 3\eps.$$</p>
+
+        <p><strong>Step 4f (拼装 4d + 4e)</strong>:
+        $$\int_{B_R(0)} |\trunc{H_l} - H_M| = \int_{\mathcal{A}} |\trunc{H_l} - H_M| + \int_{\mathcal{B}} |\trunc{H_l} - H_M| < 3\eps + \eps = 4\eps.$$
+        代回 (pivot):
+        $$\int |H_l - \trunc{H_l}| \le \eps + 4\eps = 5\eps. \qquad (\text{remainder})$$</p>
+
+        <p><strong>Step 5 (结论)</strong>: 取 $l > L$ (来自 Step 3 的 DCT 选择, 自动 $l > M$)。由三角不等式与 (remainder),
+        $$\Bigl|\int H_l\Bigr| = \Bigl|\int \trunc{H_l} + \int(H_l - \trunc{H_l})\Bigr| \le \Bigl|\int \trunc{H_l}\Bigr| + \int |H_l - \trunc{H_l}| < \eps + 5\eps = 6\eps.$$
+        $\eps$ 任意, 故 $\lim_l \int H_l = 0$, 即 $\sum_k \int h_k = 0$。由齐次 $\Leftrightarrow$ 一般等价 (Step 1 简化), Thm 13.1 得证。$\square$</p>
+
+        <p><em>记账总结</em>: ε 预算 $1 (\text{DCT}) + 1 (\star \text{ in pivot}) + 1 (\mathcal{B}) + 3 (\mathcal{A}) = 6\eps$。若一开始把 ε 替换成 ε/6, 最终 bound 就是 $\le \eps$ — 但 ε 任意性下常数无关紧要。</p>
+      </div>
+
+      <p>Example 13.1 是本 topic 的核心。如果你只有 30 分钟复习这一页, 请把它读两遍并在纸上重新推一遍 ε-bookkeeping。下面两个补充 example 帮助 build 截断的直觉。</p>
+
+      <p><strong>Meta-评论</strong>: 这个证明结构上有一个很优美的对偶性。$H_l$ 本身坏在两个方向 — supp 可能大, 值可能大。$M$ 的引入解决"<em>$L^1$ 振荡可控</em>"问题 ($H_l - H_M$ 在 $L^1$ 意义小); $R$ 的引入解决"<em>pointwise/supp 可控</em>"问题 ($\trunc{H_l}$ 满足 DCT 假设)。两个解决方案<strong>各自不够</strong>: $M$ 不告诉你 $H_l$ 的支撑或上界 ($H_M$ 是 pivot, 不是 envelope), $R$ 改变了 $H_l$ ($\trunc{H_l} \ne H_l$, 我们需要量化差异)。它们的<em>组合</em>提供了完整解决: 在 $\mathcal{B}$ 上 truncation invisible 让 $R$ 的"代价"消失, 用 $(\star)$ 控制; 在 $\mathcal{A}$ 上 truncation 起作用但 $\mathcal{A}$ 体积小 (Markov), 用粗略 pointwise 界控制。两个工具在 dyadic A/B 分裂下精确互补。</p>
+
+      <div class="box example">
+        <span class="box-title">Example 13.2 (截断算子在具体函数上的行为)</span>
+        <p>令 $g(x) := x^2$ on $\R$ (一维)。计算 $\trunc{g}$ for $R = 2$。</p>
+        <p>解: 对 $|x| > 2$: $\trunc{g}(x) = 0$ 永真。对 $|x| \le 2$: $g(x) = x^2 \ge 0$, 比较 $x^2$ 与 $R = 2$。
+        <ul>
+          <li>$x^2 > 2$ $\Leftrightarrow$ $|x| > \sqrt{2}$ (而仍 $\le 2$); $\trunc{g}(x) = 2$。</li>
+          <li>$x^2 \le 2$ $\Leftrightarrow$ $|x| \le \sqrt{2}$; $\trunc{g}(x) = x^2$。</li>
+        </ul>
+        故
+        $$\trunc{g}(x) = \begin{cases} 0, &amp; |x| > 2, \\ 2, &amp; \sqrt{2} < |x| \le 2, \\ x^2, &amp; |x| \le \sqrt{2}. \end{cases}$$
+        从图形上看: 在 $[-\sqrt{2}, \sqrt{2}]$ 上保留抛物线; 在 $\sqrt{2} < |x| \le 2$ 上是水平线段 $y = 2$ ("ceiling shelf"); 在 $|x| > 2$ 上是 $y = 0$。整个图像是 bounded 且 supp $\subset [-2, 2]$, 印证 Lem 13.2 (i)(ii)。</p>
+        <p>关键观察: 这里没有<em>原 $g$ 的</em>支撑界 (二次函数无界), 但 $\trunc{g}$ 有界支撑。这正是为什么 truncation 是个有用工具 — 它把一个不一定满足 DCT 的函数, "强制"塞进 DCT 的两条要求里。</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 13.3 (为什么 dyadic 分裂是必要的: 一个微缩 toy version)</span>
+        <p>设想 $\R$ 上 $H_l(x) = l \cdot \mathbf{1}_{[0, 1/l]}(x) + \mathbf{1}_{[2, 3]}(x)$, $H_M = \mathbf{1}_{[2, 3]}$ (即 $h_k$ 决定了第一项, $H_M$ 在 $[2, 3]$ 上已稳定)。则
+        $$|H_l - H_M|(x) = l \cdot \mathbf{1}_{[0, 1/l]}(x),$$
+        $\int |H_l - H_M| = 1$ — 注意这<em>不</em>小于 $\eps$, 但 toy 不要求 $(\star)$ 已满足, 我们只用此例展示 $\mathcal{A}/\mathcal{B}$ 的几何。取 $R = 4$ ($H_M$ 支撑在 $[2,3] \subset B_4(0)$, $|H_M| = 1 \le R/2 = 2$)。</p>
+        <p>用 $N$ 充分大切 dyadic, 在 $[0, 1/l]$ 附近 $|H_l - H_M| = l$, 当 $l > R/2 = 2$ 时这些 cube 满足 $M_C(|H_l - H_M|) = l > R/2$, 落入 $\mathcal{A}$ — 这正是 $H_l$ "尖塔" 撑住的窄区域。在 $[0, 1/l]$ 之外, $|H_l - H_M| = 0$ 或 $1$ ($[2,3]$ 上的差), 远小于 $R/2 = 2$, 落入 $\mathcal{B}$。</p>
+        <p>$\vol(\mathcal{A}) \approx 1/l$ (尖塔窄), 在大 $l$ 下趋零 — 与 Step 4c 的 $\vol(\mathcal{A}) < 2\eps/R$ 一致 (若让 ε 与 $1/l$ 同步)。而 $\mathcal{B}$ 上 $|H_l - H_M|$ 受 $R/2$ 的"温和"上界控制, 与 $\trunc{H_l} - H_M$ 一致 (因 truncation invisible)。$\square$</p>
+        <p>这个 toy 例子说明: <strong>$\mathcal{A}$ 抓"尖塔" / "spike", $\mathcal{B}$ 抓"温和波动"</strong>。证明的精髓是: spike 的 volume 必须小 (因 $L^1$ 估计), 温和波动的 amplitude 必须小 (因 truncation invisible)。</p>
+      </div>
+
+      <!-- §6 常见陷阱 -->
+      <h2 id="pitfalls">§6 常见陷阱</h2>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 13.1 — 为什么<strong>同时</strong>需要 $M$ 和 $R$?</span>
+        <p>初读证明时, 学生常困惑: 我们已经用 $R$ 把 $H_l$ 截断到 bounded support / pointwise, 为什么还需要选 $M$ 引入 $H_M$ 作 pivot?</p>
+        <p><strong>答</strong>: 因为<strong>截断本身改变积分</strong>。DCT 给的是 $\int \trunc{H_l} \to 0$, 不是 $\int H_l \to 0$。要桥接, 必须证 $\int|H_l - \trunc{H_l}|$ 小。如果直接估
+        $$\int|H_l - \trunc{H_l}| \le \int_{|H_l|>R} |H_l - \trunc{H_l}| + \int_{\R^n \setminus B_R} |H_l|,$$
+        会发现两项都<strong>无法控制</strong>: 第一项的"$|H_l| > R$"集可以很大 (大 $l$ 让 $|H_l|$ 任意大), 第二项 $|H_l|$ 在远处不受 $h_k$ 支撑增长的限制。</p>
+        <p>$H_M$ 的引入是"<strong>双稳态参考</strong>": $H_M$ 本身有 bounded support 和 bounded 上界 (因它是<em>固定的</em>有限和), 我们用它把 $H_l$ "锚定"。具体地, $H_l = H_M + (H_l - H_M)$, 其中 $H_M$ 提供 baseline, $H_l - H_M$ 在 $L^1$ 意义下小 (由 Cauchy-tail $(\star)$)。这两个工具<em>缺一不可</em>: $R$ 让 DCT 适用, $M$ 让 truncation gap 可控。</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 13.2 — 为什么需要 dyadic paving, 而不能直接 $L^1$ 估计?</span>
+        <p>看似可以直接用 $(\star)$: $\int |H_l - H_M| < \eps$, 然后由 Lem 13.2 (iii) $|\trunc{H_l}| \le |H_l|$ 推出 $|\trunc{H_l} - H_M| \le |H_l| + |H_M|$... 但 $|H_l|$ 没有<strong>uniform 上界</strong>, 所以这条路死。</p>
+        <p>关键在 $\trunc{H_l} - H_l$ 的差只在 $\{|H_l| > R\}$ 上非零, 这个集合的<em>大小</em>需要单独估计 — 而 $L^1$ 范数 $\int |H_l - H_M| < \eps$ 本身不告诉你"$|H_l - H_M|$ 大的集合"有多大。要从 $L^1$ 转换到"小集合", 就需要 <strong>Markov-style 不等式</strong>: $\int g < \eps$ + $g \ge R/2$ on $E$ $\Rightarrow$ $\vol(E) < 2\eps/R$。</p>
+        <p>Dyadic paving 是 Markov-style 在 Riemann 框架下的"离散版": $M_C(g)$ 是 $g$ 在 $C$ 上的 coarse-grained 值, $U_N(g)$ 是这些 coarse-grained 值的体积加权和。$\mathcal{A}$ 集合 = "coarse $g$ 大的 cube" — 这就是"小 volume" 的精确量化。没有 dyadic 这一层翻译, Markov-style 在 Riemann theory 里没有适用语言。</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 13.3 — 警惕"a.e."的范围混淆</span>
+        <p>证明里有多处"a.e."陈述: $H_l \to 0$ a.e. (来自 hypothesis), $|H_M| \le R/2$ a.e. (来自 $H_M$ 的选择), $\trunc{H_l} = H_l$ a.e. on $\mathcal{B}$ (来自 Step 4d 推导), 等等。每个 "a.e." <strong>对应不同的测度零例外集</strong>; 关键事实是: <em>有限多个测度零集的 union 仍是测度零</em>, 故所有"a.e."同时成立的点集仍是 full measure。</p>
+        <p><strong>常错</strong>: 把 $H_l(x) \to 0$ 理解成"几乎对所有 $x$, 当 $l \to \infty$ 时 $H_l(x) \to 0$"是正确的; 但有时学生会读成"对几乎所有 $(x, l)$, ..." — 这两个不同! 前者: $\exists$ 测度零集 $E$, $\forall x \notin E$, $\lim_l H_l(x) = 0$ (例外集与 $l$ 无关)。后者无意义 ($l$ 是离散指标)。</p>
+        <p><strong>检查</strong>: 当你写"$|H_l| \le R$ a.e. on $\mathcal{B}$", 例外集 $E_l$ 是<em>依赖 $l$ 的</em>; 但每个 $l$ 给的 $E_l$ 测度零, 不影响积分。这是合法的; 不要因"$E_l$ 随 $l$ 变化"而以为有问题。</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 13.4 — 误以为 $R$ 与 $\eps$ 可以"分别取极限"</span>
+        <p>看到证明里 ε-bookkeeping 同时涉及 $R$ 和 $\eps$, 学生有时会想: "我们能不能先固定 $\eps$, 再让 $R \to \infty$, 然后让 $l \to \infty$, 再让 $\eps \to 0$?"</p>
+        <p><strong>不能</strong>。$R$ 在证明里是<em>固定的</em>常数 (依赖 $\eps$ 与 $H_M$), 不是<em>极限变量</em>。具体来说:</p>
+        <ul>
+          <li>$R$ 一旦选定就不再变。它的角色是给截断算子 $\trunc{\cdot}$ 提供"flat-shelf"高度, 也给 DCT 提供 bounded-supp / bounded-pointwise 的常数。</li>
+          <li>$l \to \infty$ 是<strong>外层极限</strong>: 我们要证 $\lim_l \int H_l = 0$。在固定 ($\eps, M, R$) 下, DCT 给出"$l$ 大时" $\int \trunc{H_l}$ 小。</li>
+          <li>$\eps \to 0$ 是<strong>更外层</strong>: 我们对每个 $\eps$ 都建立一个 $L$, 使 $l > L$ 时 $|\int H_l| < 6\eps$。$\eps$ 任意性下结论 $\lim_l \int H_l = 0$ 才合法。</li>
+        </ul>
+        <p>正确顺序: 固定 $\eps \Rightarrow$ 选 $M$ ($\eps$ 依赖) $\Rightarrow$ 选 $R$ ($\eps, M$ 依赖) $\Rightarrow$ 选 $L$ ($\eps, M, R$ 依赖, 但来自 DCT 抽象保证) $\Rightarrow$ 对 $l > L$ 估计。每一步都是"对固定的前一组参数选择下一个", 不存在并行极限或"$R \to \infty$"。</p>
+      </div>
+
+      <!-- §7 练习 -->
+      <h2 id="exercises">§7 练习</h2>
+      <p>展开 <code>&lt;details&gt;</code> 查看答案 (建议先自己想 10 分钟再看).</p>
+
+      <div class="exercise">
+        <p><span class="ex-num">1.</span> 验证 Lemma 13.2 的 (i)–(iv) — 直接按 Def 13.1 的 4 个 case 验证。</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>四个 case: $|x|>R$ 时 $\trunc{g} = 0$, $|x|\le R$ 时按 $g(x)$ 与 $\pm R$ 的大小关系定。</p>
+            <ul>
+              <li><strong>(i)</strong> $|\trunc{g}| \le R$: case 1 → $0 \le R \checkmark$; case 2 → $R$, abs $R \le R \checkmark$; case 3 → $-R$, abs $R \le R \checkmark$; case 4 → $|g(x)| \le R$ by 假设 $\checkmark$。</li>
+              <li><strong>(ii)</strong> $\supp \subset \overline{B_R(0)}$: $\trunc{g}(x) \ne 0 \Rightarrow$ $x$ 不在 case 1, 故 $|x| \le R$, 即 $x \in \overline{B_R(0)}$。所以 $\{x : \trunc{g}(x) \ne 0\} \subset \overline{B_R(0)}$, 取闭包后仍 $\subset \overline{B_R(0)}$。</li>
+              <li><strong>(iii)</strong> $|\trunc{g}(x)| \le |g(x)|$: case 1 → $0 \le |g(x)|$ 永真 $\checkmark$; case 2 → $\trunc{g} = R < g(x)$ (因 $g(x) > R$), 故 $|\trunc{g}| = R < |g(x)| \checkmark$; case 3 类似; case 4 → $\trunc{g} = g$, 等号 $\checkmark$。</li>
+              <li><strong>(iv)</strong> 若 $|g(x)| \le R$ 且 $|x| \le R$, 则我们落在 case 4, $\trunc{g}(x) = g(x)$。$\square$</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">2.</span> 在 Thm 13.1 的证明中, 我们用了 ε-bookkeeping $1 + 1 + 1 + 3 = 6\eps$。如果改写证明的开头, 把整个 $\eps$ 替换为 $\eps/6$, 重新走一遍 5 步, 验证最终 bound 变为 $\le \eps$。这样做"更干净"还是"更乱"? 你倾向哪个版本?</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>替换后</strong>:</p>
+            <ul>
+              <li>Step 1: 选 $M$ 使 $\int |H_l - H_M| < \eps/6$。</li>
+              <li>Step 4c: $\vol(\mathcal{A}) < 2(\eps/6)/R = \eps/(3R)$。</li>
+              <li>Step 4d: $\int_{\mathcal{B}} < \eps/6$。</li>
+              <li>Step 4e: $\int_{\mathcal{A}} < 3R/2 \cdot \eps/(3R) = \eps/2$。</li>
+              <li>Step 4f: $\int |\trunc{H_l} - H_M| < \eps/2 + \eps/6 = 2\eps/3$。</li>
+              <li>(remainder): $\int |H_l - \trunc{H_l}| < \eps/6 + 2\eps/3 = 5\eps/6$。</li>
+              <li>(DCT step): $|\int \trunc{H_l}| < \eps/6$。</li>
+              <li>Step 5: $|\int H_l| < \eps/6 + 5\eps/6 = \eps$。$\checkmark$</li>
+            </ul>
+            <p><strong>意见</strong>: $6\eps$ 版本可读性更强 (每步的"贡献"清晰: DCT 1, pivot 1, $\mathcal{B}$ 1, $\mathcal{A}$ 3), 适合 first-pass 理解。$\le \eps$ 版本更"完美", 适合最终写作时让结论更整洁。两种都是合法的; 课程惯例是 first-pass 用前者, 最终交稿时可以选后者。</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">3.</span> 若把假设 $\sum_k \int |h_k| < \infty$ 削弱成 $\sum_k |\int h_k| < \infty$ (只要求<em>积分本身</em>绝对求和, 不要求 $|h_k|$ 积分绝对求和), 证明是否还成立?</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>不成立</strong>。反例: 在 $\R$ 上取
+            $$h_k(x) = \mathbf{1}_{[k, k+1]}(x) - \mathbf{1}_{[k+1, k+2]}(x).$$
+            则 $\int h_k = 1 - 1 = 0$, $\sum_k |\int h_k| = 0 < \infty \checkmark$。$\sum_k h_k$ 是"telescoping": $\sum_{k=1}^l h_k = \mathbf{1}_{[1, 2]} - \mathbf{1}_{[l+1, l+2]}$, 当 $l \to \infty$ 时 a.e. 趋于 $\mathbf{1}_{[1, 2]}$, 不是 $0$。所以 $\sum_k h_k \ne 0$ a.e., 假设 (ii) 没满足 — 不能直接用这一例子反驳。</p>
+            <p>更细致的反例: 在 $\R$ 上取
+            $$h_k(x) = \frac{(-1)^k}{k} \mathbf{1}_{[0, 1]}(x).$$
+            $\int h_k = (-1)^k / k$, $\sum_k |\int h_k| = \sum_k 1/k = \infty$ (反例失败, 此例并不满足"$\sum |\int h_k| < \infty$"的要求)。</p>
+            <p>更仔细构造: $h_k = a_k \mathbf{1}_{[k-1, k]}$ with $a_k$ 选成 $\int h_k = a_k$, $|\int h_k| = |a_k|$, $\int |h_k| = |a_k|$。若 $\sum |a_k| < \infty$, 两个假设都满足, 证明仍合法。若 $\sum a_k$ 条件收敛但 $\sum |a_k| = \infty$, 我们的弱假设满足, 但强假设不。然而此时 $\sum_k h_k(x) = \sum_k a_k \mathbf{1}_{[k-1, k]}(x)$ 在每个 $x \in [k-1, k]$ 上 = $a_k$ — 这<strong>不是</strong> $0$ a.e. (除非所有 $a_k = 0$)。所以"$\sum h_k = 0$ a.e."的假设迫使每个支撑分离的项 $a_k = 0$ — 反例难构造。</p>
+            <p><strong>更深的核心</strong>: 削弱的假设丢掉 Cauchy-tail 论证的能力 (Lemma 13.3 需要 $\sum \int |h_k| < \infty$, 不是 $\sum |\int h_k| < \infty$)。具体反例的构造需要"$\sum h_k = 0$ a.e."与"$\sum |\int h_k| < \infty$"同时成立而"$\sum \int |h_k| = \infty$" — 这是 conditional 收敛的典型情形。教学层面: 这个练习意在说明<strong>绝对收敛是 Lebesgue 积分构造的本质要求, 不是技术细节</strong>。</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">4.</span> 在 Step 4c, 我们用了"$M_C(|H_l - H_M|) > R/2$ for $C \in \mathcal{A}$"这一定义。如果把 $R/2$ 替换为 $R$, 会怎么样?</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>$\vol(\mathcal{A}) < \eps / R$ (而非 $2\eps / R$), <strong>更紧</strong>。但是 Step 4d 会出问题: 我们需要"$|H_l - H_M| \le R/2$ on $\mathcal{B}$"以推出 "$|H_l| \le R$", 进而 $\trunc{H_l} = H_l$。如果 $\mathcal{B}$ 用 "$M_C \le R$", 则 $\mathcal{B}$ 上 $|H_l| \le |H_M| + R \le R/2 + R = 3R/2 > R$ — 不能用 Lem 13.2 (iv)。</p>
+            <p>修复需要把 $|H_M| \le R/2$ 升级到 $|H_M| \le 0$ (即 $H_M = 0$ a.e., 失败) 或重新调整 $R$ 的选择。所以 "$R/2$"的选择是为<strong>平衡 $\mathcal{A}$ 的 volume bound 与 $\mathcal{B}$ 的 truncation-invisible 条件</strong>而精心设的 — 不是随意。</p>
+            <p>这个练习强调: 证明里的每一个常数 ($R/2$, $3R/2$, $4\eps$, $5\eps$, $6\eps$) 都是有 reason 的, 不能随便改。</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">5.</span> Lemma 13.2 (v) 的证明用了 Lebesgue 准则 (Topic 06)。如果没有 Lebesgue 准则, 你能直接从 Riemann 积分定义证 $\trunc{g} \in \IR$ 吗?</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>可以</strong>, 但更繁琐。直接从 Cauchy 准则: 给 $\eps$, 要找 $N$ 使 $U_N(\trunc{g}) - L_N(\trunc{g}) < \eps$。</p>
+            <p>策略: 把 $\R^n$ 分三块: $A_1 := \{|x| > R\}$ (那里 $\trunc{g} = 0$, $U_N = L_N = 0$); $A_2 := \overline{B_R(0)} \cap \{|g| > R\}$ (那里 $\trunc{g} \in \{-R, R\}$, oscillation 控制需要边界 $\{|g| = R\}$ 测度零); $A_3 := \overline{B_R(0)} \cap \{|g| \le R\}$ (那里 $\trunc{g} = g$, 用 $g \in \IR$ 的 Cauchy 准则)。</p>
+            <p>在 $A_2 \cup A_3$ 的连接处, $\trunc{g}$ 的 oscillation 受 $\Disc(g)$ 与 $\{|g| = R\} \cup \partial B_R(0)$ 双重影响。处理边界集需要"开覆盖 + compactness"论证, 等价于<em>实质上重新证一遍 Lebesgue 准则的 $\Leftarrow$ 方向</em>。所以<strong>不本质地简化</strong>, 只是把 Lebesgue 准则的内容嵌入到这一步。课堂用 Lebesgue 准则是为了精简, 不是 essential。</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">6.</span> Theorem 13.1 的一个直接推论是: 若 $f \in \IR$, 用任意 brick decomposition $(f_k)$ for $f$ 计算的 $\sum_k \int f_k$ 都等于 $\int f \, dV_R$。验证这一点 (这是 Topic 12 Thm 12.4 的严格化)。</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>设 $f \in \IR$, $(f_k) \subset \IR$ 任一合法 brick decomposition for $f$。考虑 trivial 分解 $g_1 := f$, $g_k := 0$ ($k \ge 2$)。验证 Thm 13.1 的两个假设:</p>
+            <ul>
+              <li><em>(i) 绝对求和</em>: $(f_k)$ 由假设满足; $(g_k)$ 满足 $\sum_k \int|g_k| = \int |f| < \infty$ ($|f| \in \IR$ 因为 $f \in \IR$, Lec 2.1)。$\checkmark$</li>
+              <li><em>(ii) a.e. 相等</em>: $\sum_k f_k = f$ a.e. (由 $(f_k)$ 是 $f$ 的合法 decomposition); $\sum_k g_k = f$ 处处 (trivial 分解的 $g_1 = f$ 而其余 $0$)。两者 a.e. 相等。$\checkmark$</li>
+            </ul>
+            <p>由 Thm 13.1, $\sum_k \int f_k \, dV = \sum_k \int g_k \, dV = \int f \, dV_R$。这正是要证的。所以任何 brick decomposition for $f \in \IR$ 都计算出 $\int f \, dV_R$, 良定。$\square$</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- §8 速查表 -->
+      <h2 id="cheat">§8 速查表</h2>
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def"><strong>截断 $\trunc{g}$ (Def 13.1)</strong>: 球 $B_R(0)$ 外置零, 球内 cap 到 $[-R, R]$。$|\trunc{g}| \le R$, $\supp \subset \overline{B_R(0)}$, $|\trunc{g}| \le |g|$, $|g| \le R \land |x| \le R \Rightarrow \trunc{g} = g$。</li>
+          <li class="cs-def"><strong>好坏分裂 (Def 13.2)</strong>: $\mathcal{A} = \{C : M_C(|H_l - H_M|) > R/2\}$ (bad), $\mathcal{B} = \{C : M_C \le R/2\}$ (good)。</li>
+          <li class="cs-thm"><strong>良定性定理 (Thm 13.1)</strong>: 同一 $f$ 的两个合法 brick decomposition $(f_k), (g_k)$ 满足 $\sum_k \int f_k = \sum_k \int g_k$。</li>
+          <li class="cs-thm"><strong>截断性质 (Lem 13.2)</strong>: 五条 (有界、bounded supp、pointwise dominance、identity on small values、$\IR$-closedness)。</li>
+          <li class="cs-thm"><strong>Cauchy-tail $(\star)$ (Lem 13.3)</strong>: 由 $\sum_k \int |h_k| < \infty$ 推出 $\exists M$, $\int |H_l - H_M| < \eps \, \forall l > M$。</li>
+          <li class="cs-tech"><strong>证明 5 步</strong>: (1) 选 $M$, 得 $(\star)$; (2) 选 $R$ 使 $\supp H_M \subset B_R$ 且 $|H_M| \le R/2$; (3) 对 $\trunc{H_l}$ 用 DCT, 得 $\int \trunc{H_l} \to 0$; (4) 用 dyadic A/B 分裂证 $\int |\trunc{H_l} - H_M| < 4\eps$, 进而 $\int|H_l - \trunc{H_l}| < 5\eps$; (5) 三角不等式得 $|\int H_l| < 6\eps$。</li>
+          <li class="cs-tech"><strong>Markov-style 估计</strong>: $U_N(g) < \eps \land g > R/2 \text{ on } \mathcal{A} \Rightarrow \vol(\mathcal{A}) < 2\eps/R$。 — 把"$L^1$ 小"翻译成"小 volume"的关键工具。</li>
+          <li class="cs-tech"><strong>ε 预算</strong>: $1$ (DCT) $+ 1$ ($\star$ in pivot) $+ 1$ ($\mathcal{B}$) $+ 3$ ($\mathcal{A}$ = $3R/2 \cdot 2\eps/R$) $= 6\eps$。任意 ε 性下常数无关紧要。</li>
+          <li class="cs-tech"><strong>简化到齐次</strong>: 令 $h_k := f_k - g_k$, 一般 form $\Leftrightarrow$ 齐次 form $\sum_k h_k = 0 \text{ a.e.} \Rightarrow \sum_k \int h_k = 0$。</li>
+          <li class="cs-tech"><strong>核心二元搭档</strong>: $R$ 让 DCT 适用 (bounded supp + bounded value), $M$ 让 truncation gap 可控 ($H_M$ 作为 pivot)。 两者缺一不可。</li>
+          <li class="cs-thm"><strong>Corollary: $\int f \, dV_L$ 良定</strong>: 不依赖 brick decomposition 的选择 — Thm 13.1 的直接 corollary (Rmk 13.5(1))。</li>
+          <li class="cs-thm"><strong>Corollary: $\IR \subset \IL$ 且积分相等</strong>: 用 trivial 分解 $f_1 := f, f_k := 0$ 验证 $f \in \IL$ 与 $\int f \, dV_L = \int f \, dV_R$ (Rmk 13.5(2))。</li>
+          <li class="cs-pitfall"><strong>不要混淆 $\mathcal{A}, \mathcal{B}$ 的定义</strong>: 是按<em>$|H_l - H_M|$</em> 的 $M_C$ 来分, 不是按 $H_l$ 或 $\trunc{H_l}$ 直接。整个 dyadic 论证的输入是 $(\star)$, 输出是 $\vol(\mathcal{A})$。</li>
+          <li class="cs-pitfall"><strong>不要削弱 $\sum_k \int |h_k| < \infty$</strong>: 这是 Cauchy-tail Lemma 13.3 的<em>本质</em>输入。条件收敛 $\sum |\int h_k| < \infty$ 不够。</li>
+        </ul>
+      </div>
+
+      <!-- §9 进一步阅读 -->
+      <h2 id="further">§9 进一步阅读</h2>
+      <ul>
+        <li><strong>H&amp;H 教材</strong>: §4.11 (整个 Lebesgue 节), 特别是 Thm 4.11.5 (well-definedness)。$\IR \subset \IL$ 的论述与 4.11.6 (DCT for Riemann) 紧密相连。</li>
+        <li><strong>Typed lecture notes</strong>:
+          <ul>
+            <li><code>../../Notes/Typed/7.2_notes/7.2_notes.pdf</code> — Setup: truncation 定义、Cauchy-tail 推 $(\star)$、$\vol(\mathcal{A}) < 2\eps/R$ 的 Markov-style 估计 (Steps 1–3)</li>
+            <li><code>../../Notes/Typed/7.3_notes/7.3_notes.pdf</code> — Proof 完成: $\mathcal{A}$ 上的 $3\eps$ 估计、$\mathcal{B}$ 上的 truncation invisibility、$4\eps \to 5\eps \to 6\eps$ 拼装 (Steps 4–5); 后半为 Topic 14 内容</li>
+          </ul>
+        </li>
+        <li><strong>关联 review topics</strong>:
+          <ul>
+            <li><a href="12-lebesgue-construction.html">Topic 12</a>: <strong>本页所证良定性的对象</strong> — 定义 $\IL$、brick decomposition、DCT for Riemann 等</li>
+            <li><a href="14-lebesgue-properties.html">Topic 14</a>: $\IL$ 的初等性质 (线性、product 与 bounded $\IR$、单调) — Thm 13.1 是它们的<em>逻辑前提</em></li>
+            <li><a href="05-measure-zero-basics.html">Topic 05</a>: 测度零定义 — 证明里"$\sum h_k = 0$ a.e."、"$|H_M| \le R/2$ a.e." 的语言基础</li>
+            <li><a href="02-nd-riemann.html">Topic 02</a>: dyadic paving, $U_N$, Cauchy 准则 — Step 4b–c 完全建立在这层语言上</li>
+            <li><a href="06-lebesgue-criterion.html">Topic 06</a>: Lebesgue 准则 — Lem 13.2 (v) 直接用</li>
+          </ul>
+        </li>
+        <li><strong>同主题外读</strong>:
+          <ul>
+            <li>Royden &amp; Fitzpatrick, <em>Real Analysis</em>: Ch 4 — 标准 measure theory 处理。"Convergence in measure"概念正是 Markov-style 的现代化身。</li>
+            <li>Folland, <em>Real Analysis</em>: Ch 2 — Lebesgue 积分的不同构造路线, 对比 Daniell-Stone 与 Carathéodory。</li>
+            <li>Rudin, <em>Real and Complex Analysis</em>: Ch 1 — 更简洁的 measure-theoretic 路线; 与本课程的 Daniell-Stone 路线互补。</li>
+          </ul>
+        </li>
+      </ul>
+
+      <hr style="margin: 60px 0 20px; border: 0; border-top: 1px solid #d8d3c4;">
+      <p style="font-size: 13px; color: #888; text-align: center;">MATH 31CH 复习指南 · Topic 13 · Phase 3</p>
+
+    </main>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Topic 03: Riemann 积分的代数与序性质 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="02-nd-riemann.html">Topic 02</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="04-volume-pavable.html">Topic 04</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#motivation">§1 动机</a></li>
+        <li><a href="#prereq">§2 前置知识</a></li>
+        <li><a href="#definitions">§3 核心定义</a></li>
+        <li><a href="#theorems">§4 主要定理</a></li>
+        <li><a href="#examples">§5 Worked Examples</a></li>
+        <li><a href="#pitfalls">§6 常见陷阱</a></li>
+        <li><a href="#exercises">§7 练习</a></li>
+        <li><a href="#cheat">§8 速查表</a></li>
+        <li><a href="#further">§9 进一步阅读</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>Topic 03: Riemann 积分的代数与序性质</h1>
+      <p class="subtitle">Source: Lec 2.1 (properties), 2.2, 3.3 (product) · H&amp;H §4.1, §4.2 · 14 topics 中第 3 个</p>
+
+      <!-- §1 动机 -->
+      <h2 id="motivation">§1 动机</h2>
+      <p>到现在为止 (<a href="01-1d-riemann.html">Topic 01</a>、<a href="02-nd-riemann.html">Topic 02</a>)，我们对 Riemann 可积性已经有了一个干净的工作定义 — 上和等于下和，或等价地满足 Cauchy 准则。但 <em>定义</em> 与 <em>计算工具</em> 之间还隔着一层鸿沟: 如果 $f$ 和 $g$ 各自可积，$f + g$ 是否可积？$3f - 2g$ 呢？$|f|$、$f \cdot g$、$\max(f, g)$ 呢？积分能不能把 $f \le g$ 这种序关系保下来？</p>
+
+      <p>这些问题听起来很基础，但每一个的回答都不是"显然的"，因为 Riemann 可积性是一个用 paving + sup/inf 控制的<strong>分析</strong>性质，而上面这些操作 ($+$, $\cdot$, $|\cdot|$, $\sup$) 是<strong>代数</strong>性质。把分析与代数串接起来，需要每次都回到 paving 层面去做<em>振荡控制 (oscillation control)</em>。本页的目的就是把所有这些"close under" 性质打包，让以后用积分时可以放心地代数操作: 凡是看到 $a \int f + b \int g$、$|\int f|$、$\int(fg)$ 之类的表达式，都不必从头担心被积函数是否仍在 $\IR(\R^n)$ 里。</p>
+
+      <p>本页有三个相对独立但又串成一条线的主题: <strong>(I)</strong> 线性 + 单调性 + $|f|$ 可积 — 这三件套是 textbook 命题 "积分的基本性质" 的内容; <strong>(II)</strong> 正负部 $f^+, f^-$ 与 lattice 操作 $\sup(f,g), \inf(f,g)$ — 它们让我们能把"有符号"问题归约到"非负"问题; <strong>(III)</strong> 两类乘积 — separate variables 的 baby Fubini ($f_1(x) f_2(y)$ 可积且积分分离), 以及 same variables 的乘积 ($fg$ 可积，但<em>没有</em>类似 $(\int f)(\int g)$ 的简化). 通过这些性质，可积函数空间 $\IR(\R^n)$ 被刻画为一个<strong>代数 (algebra)</strong> + <strong>vector lattice</strong> — 一个既能加减乘、又能取 max/min 的结构。</p>
+
+      <!-- §2 前置知识 -->
+      <h2 id="prereq">§2 前置知识</h2>
+      <div class="box prereq">
+        <span class="box-title">在阅读本页前，你应该已经掌握:</span>
+        <ul>
+          <li><a href="01-1d-riemann.html">Topic 01</a>: 1D Riemann 积分、partition、上和下和、Cauchy 准则</li>
+          <li><a href="02-nd-riemann.html">Topic 02</a>: $n$-维 dyadic paving $\mathcal{D}_N$、$U_N(f), L_N(f)$、Cauchy 准则、单调性 ($U_N$ 递减、$L_N$ 递增)、oscillation 记号 $\osc_C(f) = M_C(f) - m_C(f)$</li>
+          <li><a href="06-lebesgue-criterion.html">Topic 06</a> (可选前看): Lebesgue 准则 — 本页 §4 中乘积 $fg$ 的可积性用它给出的"短证明"</li>
+          <li>不等式技巧: $\sup(A + B) \le \sup A + \sup B$ 与 reverse triangle inequality $||a| - |b|| \le |a - b|$</li>
+          <li>支撑 (support) 与有界支撑 (bounded support) 的定义</li>
+        </ul>
+      </div>
+
+      <!-- §3 核心定义 -->
+      <h2 id="definitions">§3 核心定义</h2>
+      <p>本页的"定义"部分比较薄 — 真正花力气的是定理与它们的证明技术。需要正式定义的只有从已知函数派生的几个新对象: 正负部、pointwise lattice。</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 3.1 (正部 $f^+$ 与负部 $f^-$)</span>
+        <p>设 $f \colon \R^n \to \R$. <strong>正部 (positive part)</strong> 和 <strong>负部 (negative part)</strong> 定义为
+        $$f^+(x) := \begin{cases} f(x) & f(x) \ge 0, \\ 0 & f(x) < 0, \end{cases} \qquad f^-(x) := \begin{cases} -f(x) & f(x) \le 0, \\ 0 & f(x) > 0. \end{cases}$$</p>
+        <p>等价的代数表达式 (本页证明里更好用):
+        $$f^+ = \tfrac{1}{2}(|f| + f), \qquad f^- = \tfrac{1}{2}(|f| - f).$$</p>
+        <p>它们满足两个基本恒等式: $f = f^+ - f^-$ (符号分解) 与 $|f| = f^+ + f^-$ (总大小).</p>
+      </div>
+
+      <p><strong>直觉</strong>: $f^+$ 是"$f$ 的上半身", $f^-$ 是"$f$ 的下半身翻折成正". 二者都非负, 把任何有符号函数变成两个非负函数的差. 这一招是把"符号问题"换成"非负问题" 的标准把戏 (与 Hahn–Jordan 分解、Lebesgue $\int f := \int f^+ - \int f^-$ 思路相同).</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 3.2 (Pointwise lattice 操作 $\sup(f, g), \inf(f, g)$)</span>
+        <p>设 $f, g \colon \R^n \to \R$. 它们的 <strong>pointwise supremum</strong> 与 <strong>pointwise infimum</strong> 为
+        $$\sup(f, g)(x) := \max\{f(x), g(x)\}, \qquad \inf(f, g)(x) := \min\{f(x), g(x)\}.$$</p>
+        <p>等价的代数表达式 (本页关键工具):
+        $$\sup(f, g) = \frac{f + g + |f - g|}{2}, \qquad \inf(f, g) = \frac{f + g - |f - g|}{2}.$$</p>
+      </div>
+
+      <p><strong>验证</strong>: 在 $f(x) \ge g(x)$ 的点, $|f - g| = f - g$, 故 $\sup$ 的公式给 $\frac{(f+g) + (f-g)}{2} = f$, 正确. 反之类似. 这两个公式连接了 lattice 操作与代数操作 — 一旦 $|f - g|$ 可积，$\sup(f, g)$ 与 $\inf(f, g)$ 的可积性就跟着白送。</p>
+
+      <p>取 $g \equiv 0$, 得到 $\sup(f, 0) = f^+$ 与 $\inf(f, 0) = -f^-$, 与 Def 3.1 的公式一致 — 正负部其实是 lattice 操作的特殊情形。</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 3.3 (可积函数空间 $\IR(\R^n)$)</span>
+        <p>$$\IR(\R^n) := \{f \colon \R^n \to \R \mid f \text{ 有界, 有界支撑, Riemann 可积}\}.$$</p>
+        <p>本页要证明的几乎所有定理可以浓缩成一句话: $\IR(\R^n)$ 在加法、数乘、绝对值、$f^+, f^-$、$\sup(\cdot, \cdot), \inf(\cdot, \cdot)$、以及 pointwise 乘积下都<strong>封闭</strong> (closed). 它是一个 $\R$-代数 兼 vector lattice。</p>
+      </div>
+
+      <!-- §4 主要定理 -->
+      <h2 id="theorems">§4 主要定理</h2>
+
+      <p>本节有 5 个定理 / 推论，按依赖顺序排列: <strong>Thm 3.1</strong> (线性 + 单调) → <strong>Thm 3.2</strong> ($|f|$ 可积 + triangle ineq) → <strong>Thm 3.3</strong> ($f^\pm$ 与 lattice 可积) → <strong>Thm 3.4</strong> (baby Fubini: separate variable 乘积) → <strong>Thm 3.5</strong> (same variable 乘积). 后两个虽然都叫"乘积"，但用的技术与结论完全不同，必须分清。</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 3.1 (线性与单调性, H&amp;H Prop 4.1.10)</span>
+        <p>设 $f, g \in \IR(\R^n)$，$a, b \in \R$. 则:</p>
+        <ol>
+          <li><strong>(线性 / linearity)</strong> $af + bg \in \IR(\R^n)$ 且
+          $$\int_{\R^n} (af + bg)\, dV = a \int_{\R^n} f\, dV + b \int_{\R^n} g\, dV.$$</li>
+          <li><strong>(单调性 / monotonicity)</strong> 若 $f(x) \le g(x)$ for all $x \in \R^n$, 则
+          $$\int_{\R^n} f\, dV \le \int_{\R^n} g\, dV.$$</li>
+        </ol>
+      </div>
+
+      <p><strong>Proof sketch.</strong> 线性拆成 <em>加法</em> + <em>数乘</em> 两块。</p>
+
+      <p><em>加法</em>: 关键不等式是 $\sup_C(f + g) \le \sup_C f + \sup_C g$ 与对应的 inf 反向不等式 $\inf_C(f + g) \ge \inf_C f + \inf_C g$ (在每个 dyadic cube $C$ 上). 求和后给
+      $$U_N(f + g) \le U_N(f) + U_N(g), \qquad L_N(f + g) \ge L_N(f) + L_N(g).$$
+      两个相减: $U_N(f+g) - L_N(f+g) \le (U_N(f) - L_N(f)) + (U_N(g) - L_N(g))$. 用 Cauchy 准则: 给定 $\eps$, 让两边各 $< \eps/2$, 合起来 $< \eps$, 得 $f + g$ 可积. 积分等式则是因为 $U_N(f), U_N(g)$ 同时收敛到 $\int f, \int g$, 而 $U_N(f+g)$ 被它们的和夹住.</p>
+
+      <p><em>数乘</em>: 若 $a \ge 0$, $\sup_C(af) = a \sup_C f$ — 直接给 $U_N(af) = a U_N(f)$. 若 $a < 0$, sup/inf 交换: $\sup_C(af) = a \inf_C f$, $\inf_C(af) = a \sup_C f$, 故 $U_N(af) = a L_N(f)$ 与 $L_N(af) = a U_N(f)$. 两种情形都让 $U_N(af) - L_N(af) = |a|(U_N(f) - L_N(f))$, Cauchy 准则照样给可积; 积分等式由极限.</p>
+
+      <p><em>单调性</em>: 若 $f \le g$ 处处，则 $\sup_C f \le \sup_C g$ 故 $U_N(f) \le U_N(g)$. 两边取极限 ($f, g$ 都可积): $\int f \le \int g$. 这是<strong>最简单的</strong>定理 — 但它是后面所有 "$\int h \ge 0$" 推理 (Topic 06 正性引理) 的基石。</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 3.2 ($|f|$ 可积 + 三角不等式, H&amp;H Prop 4.1.12)</span>
+        <p>设 $f \in \IR(\R^n)$. 则 $|f| \in \IR(\R^n)$ 且
+        $$\left|\int_{\R^n} f\, dV\right| \le \int_{\R^n} |f|\, dV.$$</p>
+      </div>
+
+      <p><strong>Proof sketch.</strong> 关键技术是<strong>振荡控制 (oscillation control)</strong>: 在每个 cube $C$ 上,
+      $$\osc_C(|f|) \le \osc_C(f).$$
+      亦即"$|f|$ 上下浮动幅度不超过 $f$ 的上下浮动幅度". 一旦这成立, $U_N(|f|) - L_N(|f|) \le U_N(f) - L_N(f) < \eps$, Cauchy 准则给 $|f|$ 可积.</p>
+
+      <p>振荡控制的证明用 <strong>reverse triangle inequality</strong> $||a| - |b|| \le |a - b|$. 对任 $x, y \in C$:
+      $$|f(x)| - |f(y)| \le \bigl||f(x)| - |f(y)|\bigr| \le |f(x) - f(y)| \le \osc_C(f).$$
+      最后一步用 $|f(x) - f(y)| \le \sup_C f - \inf_C f = \osc_C(f)$ (因为 $f(x) \le \sup_C f$ 且 $\inf_C f \le f(y)$, 两边相减). 对 $x$ 取 sup, 对 $y$ 取 inf:
+      $$\osc_C(|f|) = \sup_C |f| - \inf_C |f| \le \osc_C(f).$$</p>
+
+      <p>三角不等式 $|\int f| \le \int |f|$: 由 $f \le |f|$ 与 $-f \le |f|$, 用 Thm 3.1(2) 单调性各积出
+      $$\int f \le \int |f|, \qquad -\int f = \int(-f) \le \int |f|,$$
+      合起来 $|\int f| \le \int |f|$. <em>这是离散三角不等式 $|\sum a_k| \le \sum |a_k|$ 的连续版本</em>.</p>
+
+      <details>
+        <summary>展开: 振荡控制不等式的"独立证法" (Lec 2.1 风格)</summary>
+        <div class="details-body">
+          <p>另一种证明用<em>双重</em> reverse triangle 给的两个独立的引理 (Lec 2.1 §5):</p>
+          <ul>
+            <li><strong>Claim 1 (Upper sum dominance)</strong>: $|M_C(f)| \le M_C(|f|)$ — 因为 $f(x) \le |f(x)| \le M_C(|f|)$ 故 $M_C(f) \le M_C(|f|)$, 类似 $-m_C(f) \le M_C(|f|)$, 合起来 $|M_C(f)| \le M_C(|f|)$.</li>
+            <li><strong>Claim 2 (Oscillation control)</strong>: $M_C(|f|) - m_C(|f|) \le M_C(f) - m_C(f)$ — 即上面证的振荡控制.</li>
+          </ul>
+          <p>Claim 1 直接给 $|U_N(f)| \le U_N(|f|)$ 与 (对 $-f$ 同样套) $|L_N(f)| \le U_N(|f|)$. 取极限给三角不等式 — 不依赖单调性, 不依赖 Thm 3.1. 这是 lecture 现场用的"更原子化"路径。无论走哪条, 中心思想都是: <strong>$|f|$ 在 cube 上的振荡不超过 $f$ 的振荡</strong> — 这个事实把"取绝对值"安全地引入 Riemann 积分.</p>
+        </div>
+      </details>
+
+      <p>振荡控制技术 — 用 $\osc_C(\Phi \circ f) \le \text{Lip}(\Phi) \cdot \osc_C(f)$ 或类似的局部估计 — 是<strong>本课程整个 Chapter 4 的核心方法</strong>. 后面 $\sup(f, g)$、product、change of variables 都会再用一次。</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 3.3 ($f^\pm$ 与 lattice 可积, H&amp;H §4.2)</span>
+        <p>设 $f, g \in \IR(\R^n)$. 则:</p>
+        <ol>
+          <li>$f^+, f^- \in \IR(\R^n)$，且 $f$ 可积 $\Longleftrightarrow$ $f^+, f^-$ 都可积. 当二者可积时,
+          $$\int f^+ = \frac{1}{2}\left(\int |f| + \int f\right), \quad \int f^- = \frac{1}{2}\left(\int |f| - \int f\right).$$</li>
+          <li>$\sup(f, g), \inf(f, g) \in \IR(\R^n)$.</li>
+        </ol>
+      </div>
+
+      <p><strong>Proof sketch.</strong> 这是 Thm 3.1 + Thm 3.2 的纯<em>代数后果</em>, 不需要再回到 paving.</p>
+
+      <p>(1) $f^+ = \frac{1}{2}(|f| + f)$. 由 Thm 3.2, $|f|$ 可积; 由 Thm 3.1, $|f| + f$ 可积, 数乘 $\frac{1}{2}$ 后还可积. 故 $f^+ \in \IR$. 类似 $f^- = \frac{1}{2}(|f| - f) \in \IR$. 反向: 若 $f^+, f^- \in \IR$, 则 $f = f^+ - f^- \in \IR$ 由线性. 积分公式直接由线性套代数定义.</p>
+
+      <p>(2) 类似. $\sup(f, g) = \frac{1}{2}(f + g + |f - g|)$. 由线性 $f - g \in \IR$, 由 Thm 3.2 $|f - g| \in \IR$, 再由线性 $f + g + |f - g| \in \IR$, 最后乘 $\frac{1}{2}$ 仍在 $\IR$. $\inf$ 同理.</p>
+
+      <p>这条定理的<strong>组合力</strong>: 一旦你建立了线性 + $|f|$ 可积这两块, 大量代数操作 ($\max, \min, f^+, f^-$) 都"白送". 这就是把<em>分析</em>结论用<em>代数</em>恒等式扩展的典型例子.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 3.4 (Baby Fubini: separate-variable 乘积, H&amp;H Thm 4.5.1 special case)</span>
+        <p>设 $f_1 \in \IR(\R^n)$, $f_2 \in \IR(\R^m)$. 定义 $g \colon \R^{n+m} \to \R$ 为
+        $$g(x, y) := f_1(x)\, f_2(y), \qquad (x, y) \in \R^n \times \R^m.$$
+        则 $g \in \IR(\R^{n+m})$ 且
+        $$\int_{\R^{n+m}} g(x, y)\, dV_{n+m} = \left(\int_{\R^n} f_1(x)\, dV_n\right) \left(\int_{\R^m} f_2(y)\, dV_m\right).$$</p>
+      </div>
+
+      <p><strong>Proof sketch.</strong> 先做<strong>非负情形</strong> $f_1, f_2 \ge 0$.</p>
+
+      <p>关键观察: $\R^{n+m}$ 的第 $N$ 级 dyadic paving $\mathcal{D}_N$ 中每个 cube $C$ 都<em>唯一</em>分解为 $C = C_1 \times C_2$ ($C_1$ 是 $\R^n$ 的 dyadic cube, $C_2$ 是 $\R^m$ 的 dyadic cube). 在非负情形下,
+      $$M_C(g) = M_{C_1}(f_1) \cdot M_{C_2}(f_2), \qquad m_C(g) = m_{C_1}(f_1) \cdot m_{C_2}(f_2).$$
+      (sup of $f_1(x) f_2(y)$ over product = product of sups; 非负是必要的, 见 Pitfall 3.2.) 又 $\vol_{n+m}(C) = \vol_n(C_1) \cdot \vol_m(C_2)$. 把这些代进 $U_N$:
+      $$U_N(g) = \sum_{C_1, C_2} M_{C_1}(f_1) M_{C_2}(f_2) \vol_n(C_1) \vol_m(C_2) = \left(\sum_{C_1} M_{C_1}(f_1) \vol_n(C_1)\right)\left(\sum_{C_2} M_{C_2}(f_2) \vol_m(C_2)\right) = U_N(f_1) \cdot U_N(f_2).$$
+      同样 $L_N(g) = L_N(f_1) \cdot L_N(f_2)$. 由 $f_1, f_2$ 可积, $U_N(f_i) \to \int f_i$ 与 $L_N(f_i) \to \int f_i$, 故 $U_N(g), L_N(g) \to (\int f_1)(\int f_2)$, 所以 $g$ 可积且积分等于乘积.</p>
+
+      <p><strong>有符号情形</strong>: 用 Thm 3.3 把 $f_1 = f_1^+ - f_1^-$, $f_2 = f_2^+ - f_2^-$ 拆开,
+      $$g = (f_1^+ - f_1^-)(f_2^+ - f_2^-) = f_1^+ f_2^+ - f_1^- f_2^+ - f_1^+ f_2^- + f_1^- f_2^-.$$
+      每个 $f_i^{\pm}$ 非负且可积, 用非负情形得每个四个乘积 $\in \IR(\R^{n+m})$, 用线性得 $g \in \IR(\R^{n+m})$. 积分:
+      $$\int g = (\int f_1^+)(\int f_2^+) - (\int f_1^-)(\int f_2^+) - (\int f_1^+)(\int f_2^-) + (\int f_1^-)(\int f_2^-) = (\int f_1^+ - \int f_1^-)(\int f_2^+ - \int f_2^-) = (\int f_1)(\int f_2).$$</p>
+
+      <p><strong>命名</strong>: 称之为"baby Fubini"，因为完整的 Fubini 定理 (H&amp;H Thm 4.5.1, <a href="07-fubini.html">Topic 07</a>) 对<em>任意</em> $g(x, y) \in \IR(\R^{n+m})$ 都成立 (写成 iterated integral)，不要求 $g$ 是 product 形. 但 baby Fubini 对 product 形的 $g$ 给出更强的<em>积分分离</em> — 直接拆成两边各积. 这是 product structure 给的"礼物"。</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 3.5 (Same-variable 乘积 $fg \in \IR$, H&amp;H §4.1)</span>
+        <p>设 $f, g \in \IR(\R^n)$. 则 $fg \in \IR(\R^n)$.</p>
+        <p><strong>注意</strong>: 一般 $\int fg \ne (\int f)(\int g)$ — 见 Pitfall 3.3. 本定理只 assertion $fg$ <em>可积</em>，对 $\int fg$ 的<em>值</em>没有结论.</p>
+      </div>
+
+      <p>本定理有<strong>两种证明</strong>，对比起来很有教学意义.</p>
+
+      <p><strong>证明路径 A (oscillation bound, 不用 Lebesgue 准则)</strong>. 关键振荡控制 (Lec 3.3 的设置):
+      $$\osc_C(fg) \le |f|_\infty \cdot \osc_C(g) + |g|_\infty \cdot \osc_C(f),$$
+      其中 $|f|_\infty = \sup_{\R^n} |f|$ (有界由 hypothesis 保证). <strong>证之</strong>: 对 $x, y \in C$,
+      $$f(x)g(x) - f(y)g(y) = f(x)(g(x) - g(y)) + g(y)(f(x) - f(y)),$$
+      取绝对值并用 $|f(x)| \le |f|_\infty$, $|g(y)| \le |g|_\infty$ + $|f(x) - f(y)| \le \osc_C(f)$, $|g(x) - g(y)| \le \osc_C(g)$:
+      $$|f(x)g(x) - f(y)g(y)| \le |f|_\infty \osc_C(g) + |g|_\infty \osc_C(f).$$
+      对 $x, y$ 取 sup 即为振荡控制. 求和:
+      $$U_N(fg) - L_N(fg) \le |f|_\infty (U_N(g) - L_N(g)) + |g|_\infty (U_N(f) - L_N(f)).$$
+      给 $\eps$, 让右边两项各 $< \eps/2$ (Cauchy 准则), 合起来 $< \eps$, $fg$ 可积. 这个证明完全 paving-based, 没用到 Lebesgue 准则.</p>
+
+      <p><strong>证明路径 B (用 Lebesgue 准则, Lec 3.3 的简洁版)</strong>. 这是最干净的证明，但需要先讲完 Topic 06 的 Lebesgue 准则.</p>
+
+      <p>由 hypothesis, $\Disc(f), \Disc(g)$ 都是测度零 (Topic 06 的 Thm). 关键观察: <em>连续函数代数</em> (MATH 31BH) 告诉我们: 若 $f, g$ 都在 $x_0$ 处连续, 则 $fg$ 也在 $x_0$ 处连续. 取反命题: 若 $fg$ 在 $x_0$ 处不连续, 则 $f$ 或 $g$ 在 $x_0$ 处不连续. 即
+      $$\Disc(fg) \subseteq \Disc(f) \cup \Disc(g).$$
+      右边是两个测度零集的并, 仍测度零 (Topic 05). 故 $\Disc(fg)$ 测度零. 又 $fg$ 有界 (有界 $\times$ 有界), 有界支撑 ($\supp(fg) \subseteq \supp(f) \cap \supp(g)$). Lebesgue 准则 $\Rightarrow$ $fg \in \IR$.</p>
+
+      <details>
+        <summary>展开: 两条路径的对比</summary>
+        <div class="details-body">
+          <p>路径 A 完全在 Riemann 框架内, 用振荡控制 — 但代数复杂. 路径 B 把可积性"翻译"成测度论问题后, 利用 31BH 已知的"连续函数代数封闭"白送结论 — 哲学上更高级, 但需要 Lebesgue 准则当 hammer.</p>
+          <p>本课程实际上两条都讲: Lec 2.2 给了 baby Fubini (路径 A 风格), Lec 3.3 给了 same-variable 乘积 (路径 B 风格). 教学上的意义是: <strong>同一个事实可以用两种本质不同的工具证明</strong>, 选哪条看你当时有什么 prerequisite 工具.</p>
+          <p>路径 A 在 Lebesgue 准则之前可用, 路径 B 在 Lebesgue 准则之后才能用. 但路径 B 把"乘积"、"加法"、"max/min" 都统一成"操作保持连续性 + 有界 + 有界支撑" — 哲学统一性更强.</p>
+        </div>
+      </details>
+
+      <p><strong>命题级总结</strong>: Thm 3.1–3.5 联合起来给出 <strong>$\IR(\R^n)$ 是一个 $\R$-代数 兼 vector lattice</strong>. 即在 $+$、scalar 乘、pointwise 乘、$\sup, \inf$ 操作下都封闭. 这是 "可积函数空间" 真正具有数学结构的 evidence.</p>
+
+      <!-- §5 Worked Examples -->
+      <h2 id="examples">§5 Worked Examples</h2>
+
+      <div class="box example">
+        <span class="box-title">Example 3.1 (用 lattice 操作判断可积性)</span>
+        <p>设 $f \colon [0,1] \to \R$ 由 $f(x) = \sin(1/x)$ for $x \ne 0$, $f(0) = 0$ 给出. 已知 $f \in \IR([0,1])$ (Topic 06 Exercise 1). 问 $h(x) := \max(\sin(1/x), 0)$ 是否可积？</p>
+        <p><strong>解</strong>: 注意 $h = f^+$. 由 Thm 3.3(1), $f \in \IR \Rightarrow f^+ \in \IR$. 故 $h \in \IR([0,1])$.</p>
+        <p><strong>插曲: $\int h$ 是多少</strong>? 由 Thm 3.3 公式 $\int h = \int f^+ = \frac{1}{2}(\int |f| + \int f)$. 这告诉我们: 如果你能算 $\int f$ 和 $\int |f|$, 就免费得到 $\int f^+$. 这是<strong>把分析问题归约到两个独立量</strong>的标准技巧.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 3.2 (Baby Fubini 算盒子上 separable 积分)</span>
+        <p>令 $g(x, y) = e^{-x^2} \cdot y$ on $[0, 1]^2$. 算 $\int_{[0,1]^2} g\, dV_2$.</p>
+        <p><strong>解</strong>: 把 $g$ 看成 $f_1(x) f_2(y)$, where $f_1(x) = e^{-x^2} \mathbf{1}_{[0,1]}(x)$, $f_2(y) = y \cdot \mathbf{1}_{[0,1]}(y)$. 两者都是 $[0,1]$ 上的连续函数 $\times$ 特征函数, 故都 $\in \IR(\R)$. 由 Thm 3.4:
+        $$\int_{[0,1]^2} e^{-x^2} y\, dV_2 = \left(\int_0^1 e^{-x^2}\, dx\right)\left(\int_0^1 y\, dy\right) = \left(\int_0^1 e^{-x^2}\, dx\right) \cdot \frac{1}{2}.$$</p>
+        <p>注意: $\int_0^1 e^{-x^2}\, dx$ 没有<em>初等</em>闭形式 (与 error function 相关), 但它依然<strong>存在</strong> — Thm 3.4 给我们的是 "$g \in \IR$ 且积分分离"的结构信息, 不是显式公式. 即使最后只剩一个 1D 积分要算 (或留作 $\frac{\sqrt{\pi}}{2}\,\operatorname{erf}(1)$), 我们已经把 2D 问题降到了 1D 问题 — 这就是 baby Fubini 的实际效用.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 3.3 (Same-variable 乘积: 没有积分分离)</span>
+        <p>令 $f(x) = x$, $g(x) = x$ on $[0, 1]$. 则 $fg = x^2$. 都连续故都 $\in \IR$, 且乘积 $x^2 \in \IR$. 但
+        $$\int_0^1 fg\, dx = \int_0^1 x^2\, dx = \frac{1}{3}, \qquad (\int_0^1 f\, dx)(\int_0^1 g\, dx) = \frac{1}{2} \cdot \frac{1}{2} = \frac{1}{4}.$$</p>
+        <p>显然 $\frac{1}{3} \ne \frac{1}{4}$. 这是 same-variable 与 separate-variable 乘积的<strong>根本差异</strong>: Thm 3.4 只对 $f_1(x) f_2(y)$ 形 (两个变量) 给积分分离; Thm 3.5 对 $f(x) g(x)$ (同一变量) 只 assert 可积性，不 assert 任何积分等式.</p>
+        <p>记忆要点: <em>积分分离 $\Leftrightarrow$ 变量分离</em>. 若 $f, g$ 函数共享 $x$, 积分必须老老实实算 $\int fg$.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 3.4 (单调性 + $|f|$ 三角不等式估计)</span>
+        <p>设 $f \colon [0, 1] \to \R$ 连续且 $|f(x)| \le M$ for all $x$. 证 $\left|\int_0^1 f(x) \sin(nx)\, dx\right| \le M$ for all $n \in \N$.</p>
+        <p><strong>证</strong>: $f \cdot \sin(n \cdot)$ 是两个连续函数乘积, $\in \IR$ (Thm 3.5). 用 Thm 3.2:
+        $$\left|\int_0^1 f(x) \sin(nx)\, dx\right| \le \int_0^1 |f(x) \sin(nx)|\, dx = \int_0^1 |f(x)| \cdot |\sin(nx)|\, dx.$$
+        由 $|f| \le M$ 与 $|\sin(nx)| \le 1$ 和 Thm 3.1(2) 单调性:
+        $$\int_0^1 |f(x)| \cdot |\sin(nx)|\, dx \le \int_0^1 M \cdot 1\, dx = M.$$
+        合起来得证.</p>
+        <p>这个 estimate 是 Riemann-Lebesgue Lemma (随 $n \to \infty$ 积分 $\to 0$) 的<em>第一步</em>; 完整的 RL Lemma 还要用更精细的 oscillation 控制. 本练习展示<strong>三角不等式 + 单调性</strong> 是怎么联合给出 quick estimate 的 — 这种 pattern 在 Fourier analysis 与 PDE estimate 里随处可见.</p>
+      </div>
+
+      <!-- §6 常见陷阱 -->
+      <h2 id="pitfalls">§6 常见陷阱</h2>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 3.1 — 把 baby Fubini 误用到同变量乘积</span>
+        <p>常见错误: 看到 $\int f g\, dx$, 误以为 $= (\int f)(\int g)$. <strong>错</strong>! Thm 3.4 (baby Fubini) 要求 $f$ 是 $x$ 的函数、$g$ 是 $y$ 的函数 — <em>不同变量</em>; 在 $\R^n \times \R^m$ 上积. 而 Thm 3.5 处理同变量 $x$ 上的 $fg$, 只 assert 可积, <strong>没有</strong>积分分离公式.</p>
+        <p>反例: Example 3.3. 一般 $\int_0^1 fg\, dx \ne (\int_0^1 f\, dx)(\int_0^1 g\, dx)$.</p>
+        <p><strong>记忆口诀</strong>: 变量不同才能分离; 变量相同必须老实算.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 3.2 — 在 baby Fubini 里漏掉"非负"假设</span>
+        <p>Thm 3.4 证明里的关键引理 "$M_C(f_1 f_2) = M_{C_1}(f_1) \cdot M_{C_2}(f_2)$" <strong>要求 $f_1, f_2 \ge 0$</strong>. 直觉: 非负情形下 sup 由两个最大正值相乘达到; 有符号情形下"两个负值相乘也能给大正值"会打乱这个简单公式.</p>
+        <p><strong>清晰的反例</strong>: 取 $f_1(x) = x$ on $[-2, 1]$ 和 $f_2(y) = y$ on $[-2, 1]$. 则 $\sup f_1 = 1$, $\sup f_2 = 1$, 乘积 = $1$. 但
+        $$\sup_{[-2,1]^2} f_1(x) f_2(y) = \sup_{[-2,1]^2} xy = (-2)(-2) = 4 \ne 1.$$
+        因为 $xy$ 在 $(-2, -2)$ 处取得 $4$ (两个负值相乘), 远超 $(1, 1)$ 处的 $1$.</p>
+        <p>一般情形下 $\sup_{x, y} f_1(x) f_2(y)$ 等于 $\{M_1 M_2,\ m_1 m_2,\ M_1 m_2,\ m_1 M_2\}$ 这<strong>四个组合</strong>的最大者 (其中 $M_i = \sup f_i$, $m_i = \inf f_i$). 只有当 $f_1, f_2 \ge 0$ 时三个非主要组合 $\le M_1 M_2$, 简化为单一乘积. 这就是为什么 Thm 3.4 的证明必须<em>先做非负, 再用 $f^\pm = (|f| \pm f)/2$ 分解扩展到有符号情形</em> — 不要试图绕过这步.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 3.3 — "$|f|$ 可积"不蕴含"$f$ 可积"</span>
+        <p>Thm 3.2 说"$f \in \IR \Rightarrow |f| \in \IR$", 但<strong>反向不成立</strong>: $|f| \in \IR$ 不蕴含 $f \in \IR$.</p>
+        <p>反例: 在 $[0, 1]$ 上, 令
+        $$f(x) = \begin{cases} 1 & x \in \Q, \\ -1 & x \notin \Q. \end{cases}$$
+        则 $|f| \equiv 1 \in \IR$, 但 $f$ 本身 (类似 Dirichlet) 不可积 — 每个 cube 都 $\osc = 2$.</p>
+        <p><strong>取走</strong>: 三角不等式 $|\int f| \le \int |f|$ 的前提是<em>两边都 well-defined</em>, 即 $f$ 本身先要可积. 别忘了检查.</p>
+      </div>
+
+      <!-- §7 练习 -->
+      <h2 id="exercises">§7 练习</h2>
+      <p>展开 <code>&lt;details&gt;</code> 查看答案 (建议先自己想 10 分钟再看).</p>
+
+      <div class="exercise">
+        <p><span class="ex-num">1.</span> 设 $f, g \in \IR(\R^n)$. 证 $\max(|f|, |g|) \in \IR(\R^n)$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>$|f|, |g| \in \IR$ 由 Thm 3.2. $\max(|f|, |g|) = \sup(|f|, |g|) \in \IR$ 由 Thm 3.3(2). 完.</p>
+            <p>注意: 链式调用三个定理 — 这是 $\IR$ 作为代数 + lattice 的<strong>组合力</strong>的典型 demo.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">2.</span> 设 $f \in \IR(\R^n)$, $\alpha \in \R$. 定义 $f_\alpha(x) := \max(f(x), \alpha)$ (即"把 $f$ 在 $\alpha$ 处截断"). 证 $f_\alpha \in \IR(\R^n)$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>令 $g \equiv \alpha$ const. 但 const 函数<em>不一定</em>有有界支撑 (除非 $\alpha = 0$). 所以不能直接用 $\sup(f, g)$.</p>
+            <p>正确做法: 注意 $f$ 有界支撑 $K \subset \R^n$. 在 $K^c$ 上 $f \equiv 0$. 故 $f_\alpha(x) = \max(f(x), \alpha) = \alpha$ for $x \in K^c$ (假设 $\alpha \ge 0$) 或 $= 0$ for $x \in K^c$ (若 $\alpha < 0$).</p>
+            <p>更简洁的处理: 假设 $\alpha \ge 0$. 在 $K$ 上 $f_\alpha = \max(f, \alpha)$, 在 $K^c$ 上 $f_\alpha = \alpha$ — 后者不在 $\IR(\R^n)$ 范围内, 除非 $\alpha = 0$. 故 $f_\alpha$ 一般<strong>不</strong>属于 $\IR(\R^n)$ (它无界支撑).</p>
+            <p>修正命题: 若 $\alpha = 0$, 则 $f_0 = \max(f, 0) = f^+ \in \IR$ by Thm 3.3.</p>
+            <p>本题的 takeaway: <strong>有界支撑 hypothesis 至关重要</strong>. 任何把 $f$ 的支撑外的值改成非零常数的操作都破坏可积性. lattice 操作只在<em>所有参与函数都 $\in \IR(\R^n)$</em>时安全.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">3.</span> 设 $f, g \in \IR(\R^n)$ 都 $\ge 0$. 证 $\sqrt{fg} \in \IR(\R^n)$. (Hint: 算术-几何平均不等式.)</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>由 AM-GM 不等式 (pointwise): $0 \le \sqrt{f(x)g(x)} \le \frac{f(x) + g(x)}{2}$.</p>
+            <p>$\sqrt{fg}$ 有界 (上界 $\frac{|f|_\infty + |g|_\infty}{2}$) 与有界支撑 ($\supp(\sqrt{fg}) \subseteq \supp(f) \cap \supp(g)$). 剩下要证可积.</p>
+            <p>路径 (B, 用 Lebesgue 准则, Topic 06): $f, g \ge 0$ 且 $\in \IR$, 故 $\Disc(f), \Disc(g)$ 测度零. 由连续函数代数: $\sqrt{\cdot}$ on $[0, \infty)$ 连续, $f, g \mapsto fg$ 连续, 复合保连续. 故 $\Disc(\sqrt{fg}) \subseteq \Disc(f) \cup \Disc(g)$ 测度零. 由 Lebesgue 准则 (Thm 6.1), $\sqrt{fg} \in \IR$.</p>
+            <p>路径 (A, 不用 Lebesgue 准则): 用振荡控制 $\osc_C(\sqrt{h}) \le \sqrt{\osc_C(h)}$ (对 $h \ge 0$) — Hölder-style. 然后联合 Thm 3.5 给的 $fg \in \IR$. 较为技术, 此处略.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">4.</span> ("证明或反例") 若 $f \in \IR(\R^n)$ 且 $f \ge 0$, 则 $\int f \ge 0$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>真</strong>. 应用 Thm 3.1(2) 单调性, 取 $g = 0$ (零函数, 显然 $\in \IR$): $0 = g \le f$, 故 $0 = \int 0 \le \int f$.</p>
+            <p>注意: 这并<strong>没有</strong>给"$f \ge 0$ 且 $\int f = 0$ $\Rightarrow$ $f = 0$ a.e." — 后者要用 Topic 06 的正性引理 (Thm 6.2). 单调性只给"积分非负", 不给"等号何时成立".</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">5.</span> 设 $f \in \IR(\R^n)$. 证 $\int f^+ \ge 0$ 与 $\int f^- \ge 0$, 且
+        $$\int |f| = \int f^+ + \int f^-, \qquad \int f = \int f^+ - \int f^-.$$
+        </p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>$f^+, f^- \ge 0$ 处处, 与 Exercise 4: $\int f^+, \int f^- \ge 0$.</p>
+            <p>由 Def 3.1 的恒等式: $|f| = f^+ + f^-$ 与 $f = f^+ - f^-$ 处处. 由 Thm 3.1 线性: $\int |f| = \int f^+ + \int f^-$ 与 $\int f = \int f^+ - \int f^-$. 完.</p>
+            <p>这两个公式与 Thm 3.3 的公式 $\int f^\pm = \frac{1}{2}(\int |f| \pm \int f)$ 是<em>互为逆</em>: 你可以从 $\int f, \int |f|$ 算出 $\int f^\pm$, 反之亦然. 4 个量之间是 2 维 vector space 上的双向线性变换.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">6.</span> 用 Thm 3.4 (baby Fubini) 算 $\int_{[0, 1]^3} xyz\, dV_3$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>$xyz = x \cdot y \cdot z$ — 三个独立变量. 套用 baby Fubini 两次:
+            $$\int_{[0,1]^3} xyz\, dV_3 = \int_{[0,1]^2 \times [0,1]} (xy) \cdot z\, dV_3.$$
+            把 $\R^3 = \R^2 \times \R$, $f_1(x, y) = xy$, $f_2(z) = z$. 由 Thm 3.4:
+            $$= \left(\int_{[0,1]^2} xy\, dV_2\right) \cdot \left(\int_0^1 z\, dz\right).$$
+            再对 $\int xy\, dV_2 = (\int x)(\int y) = \frac{1}{2} \cdot \frac{1}{2}$ 用 baby Fubini.
+            $$= \frac{1}{4} \cdot \frac{1}{2} = \frac{1}{8}.$$</p>
+            <p>这是 baby Fubini "迭代分离"的典例: 任何 $n$ 个独立变量的乘积积分都可以拆成 $n$ 个 1D 积分之乘积.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">7.</span> 给出一个 $f, g \in \IR([0, 1])$ 的例子, 满足 $\int_0^1 (fg)\, dx = 0$ 但 $f, g$ 都<strong>不</strong>是 $0$ a.e..</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>取 $f(x) = 1$ on $[0, 1/2]$, $f(x) = 0$ on $(1/2, 1]$. 取 $g(x) = 0$ on $[0, 1/2]$, $g(x) = 1$ on $(1/2, 1]$. 两者都是<em>characteristic functions</em>, 各自 $\in \IR$ (Topic 04). 但 $fg \equiv 0$ pointwise (永远是一个为 $0$), 故 $\int fg = 0$. 然而 $\int f = 1/2 \ne 0$, $\int g = 1/2 \ne 0$, $f, g$ 都不 a.e. 为 $0$.</p>
+            <p>本题展示: <strong>$\int fg = 0$ 是 $f, g$ 关于内积 $\langle f, g \rangle := \int fg$ 正交</strong>, 不等于 $f$ 或 $g$ 本身为零. 这是 Hilbert space $L^2$ 中正交分解的基础.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">8.</span> 设 $f \in \IR(\R^n)$ 且 $f$ 是<em>偶函数</em> ($f(-x) = f(x)$), $g \in \IR(\R^n)$ 是<em>奇函数</em> ($g(-x) = -g(x)$). 假设积分区域关于原点对称. 问 $\int fg\, dV$ 一定 $= 0$ 吗？</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>是</strong>, 在足够温和的 hypothesis 下 (如 $f, g$ 在对称区域 $A = -A$ 上). 论证: $fg$ 是奇 $\times$ 偶 $=$ 奇函数. 由 Topic 09 (Lec 4.2) 的"奇函数在对称区域上积分 $= 0$" (用 Riemann 和的 mirror pairing 论证, 取 $x_m$ 与 $-x_m$ 在 mirror cube 中). 故 $\int fg = 0$.</p>
+            <p>这是<strong>对称性论证</strong>的典型应用. 注意它的<em>非平凡之处</em>: $f, g$ 各自的积分一般 $\ne 0$, 是 $fg$ 的奇性使得 mirror pairing 让和为零. 类似的对称性技巧在 Fourier series 计算 $\int x \cos(nx)$ 时也常用 (此积分 $= 0$, 因被积函数奇).</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- §8 速查表 -->
+      <h2 id="cheat">§8 速查表</h2>
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def"><strong>$f^+ = \tfrac{1}{2}(|f| + f)$, $f^- = \tfrac{1}{2}(|f| - f)$</strong>: 正负部. 满足 $f = f^+ - f^-$, $|f| = f^+ + f^-$.</li>
+          <li class="cs-def"><strong>$\sup(f, g) = \tfrac{1}{2}(f + g + |f - g|)$, $\inf(f, g) = \tfrac{1}{2}(f + g - |f - g|)$</strong>: lattice 操作的代数表达式.</li>
+          <li class="cs-thm"><strong>线性 (Thm 3.1)</strong>: $\int(af + bg) = a\int f + b\int g$. 加法用 $\sup(A + B) \le \sup A + \sup B$ + Cauchy 准则.</li>
+          <li class="cs-thm"><strong>单调性 (Thm 3.1)</strong>: $f \le g \Rightarrow \int f \le \int g$. 简单但是后续所有正性论证的基石.</li>
+          <li class="cs-thm"><strong>$|f|$ 可积 + 三角不等式 (Thm 3.2)</strong>: $f \in \IR \Rightarrow |f| \in \IR$ 且 $|\int f| \le \int |f|$. 振荡控制 $\osc(|f|) \le \osc(f)$ 是关键.</li>
+          <li class="cs-thm"><strong>$f^\pm, \sup, \inf$ 可积 (Thm 3.3)</strong>: 从线性 + $|f|$ 可积白送, 无需新 paving 论证.</li>
+          <li class="cs-thm"><strong>Baby Fubini (Thm 3.4)</strong>: $f_1(x) f_2(y) \in \IR(\R^{n+m})$ 且 $\int f_1 f_2\, dV_{n+m} = (\int f_1)(\int f_2)$. 仅对<em>独立变量</em> 乘积!</li>
+          <li class="cs-thm"><strong>Same-variable 乘积 (Thm 3.5)</strong>: $f, g \in \IR(\R^n) \Rightarrow fg \in \IR(\R^n)$. 但 $\int fg \ne (\int f)(\int g)$ 一般. 两个证明路径: oscillation bound (路径 A) 或 Lebesgue 准则 + 连续代数 (路径 B).</li>
+          <li class="cs-tech"><strong>核心技术: 振荡控制 (oscillation control)</strong>. $\osc_C(\Phi \circ f) \le L \cdot \osc_C(f)$ (Lipschitz $\Phi$) 或类似估计. 配合 Cauchy 准则给可积性. 在 $|f|, fg, \sqrt{f}$ 等的可积性证明里都有这一招.</li>
+          <li class="cs-tech"><strong>$\IR(\R^n)$ 是 $\R$-代数 兼 vector lattice</strong>: 在 $+, \cdot, \alpha\cdot, |\cdot|, \sup, \inf$ 下都封闭.</li>
+          <li class="cs-pitfall"><strong>陷阱</strong>: 同变量乘积<em>没</em>有积分分离 — $\int fg \ne (\int f)(\int g)$ in general. 只有 separate variables 才有.</li>
+          <li class="cs-pitfall"><strong>陷阱</strong>: $|f| \in \IR$ 不蕴含 $f \in \IR$. 三角不等式前提是 $f$ 本身先可积.</li>
+        </ul>
+      </div>
+
+      <!-- §9 进一步阅读 -->
+      <h2 id="further">§9 进一步阅读</h2>
+      <ul>
+        <li><strong>H&amp;H 教材</strong>:
+          <ul>
+            <li>§4.1, 特别 Prop 4.1.10 (linearity), Prop 4.1.11 (monotonicity), Prop 4.1.12 (triangle inequality)</li>
+            <li>§4.2 (lattice operations, $f^\pm$ decomposition)</li>
+            <li>§4.5, Thm 4.5.1 (Fubini's theorem) — baby Fubini 是其 product 情形</li>
+          </ul>
+        </li>
+        <li><strong>Typed lecture notes</strong>:
+          <ul>
+            <li><code>../../Notes/Typed/2.1_notes/2.1_notes.pdf</code> — 性质陈述、$|f|$ 可积全细节、振荡控制双引理</li>
+            <li><code>../../Notes/Typed/2.2_notes/2.2_notes.pdf</code> — $f^\pm$、lattice 操作、baby Fubini 完整证明 (含 sign 情形)</li>
+            <li><code>../../Notes/Typed/3.3_notes/3.3_notes.pdf</code> — same-variable 乘积 via Lebesgue 准则; product Stability 与"$\IR$ 是 $\R$-代数"的 takeaway remark</li>
+          </ul>
+        </li>
+        <li><strong>关联 review topics</strong>:
+          <ul>
+            <li><a href="02-nd-riemann.html">Topic 02</a>: Cauchy 准则与 $n$-维 paving — 本页所有可积性证明的底层工具</li>
+            <li><a href="06-lebesgue-criterion.html">Topic 06</a>: Lebesgue 准则 + 正性引理 — 给 Thm 3.5 同变量乘积可积的"路径 B"短证; 也是判断 a.e. 等式的工具</li>
+            <li><a href="04-volume-pavable.html">Topic 04</a>: 体积与 pavable 集 — baby Fubini 的直接应用 (盒子体积 $= \prod (b_i - a_i)$)</li>
+            <li><a href="07-fubini.html">Topic 07</a>: 完整 Fubini 定理 — baby Fubini 的<em>大哥</em>, 处理任意 $g(x, y) \in \IR$ (不要求 product 形)</li>
+            <li><a href="14-lebesgue-properties.html">Topic 14</a>: Lebesgue 积分的代数与序性质 — 本页所有结论在 $\IL$ 里的对应版本 (线性、单调、与有界 $\IR$ 函数的乘积保 $\IL$)</li>
+          </ul>
+        </li>
+        <li><strong>同主题外读</strong>: Rudin, <em>Principles of Mathematical Analysis</em>, Ch 6 — 经典 1D Riemann 积分代数性质; Royden &amp; Fitzpatrick, <em>Real Analysis</em>, Ch 3 — Lebesgue 视角下的对应结果, "$L^1$ space" 作为 Banach 代数</li>
+      </ul>
+
+      <hr style="margin: 60px 0 20px; border: 0; border-top: 1px solid #d8d3c4;">
+      <p style="font-size: 13px; color: #888; text-align: center;">MATH 31CH 复习指南 · Topic 03 · 基于 POC 模板</p>
+
+    </main>
+  </div>
+
+</body>
+</html>

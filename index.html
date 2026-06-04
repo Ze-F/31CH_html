@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MATH 31CH 复习指南 | Honors Vector Calculus</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="index">
+
+  <nav class="top-nav">
+    <span class="nav-prev nav-disabled">无</span>
+    <span class="nav-center">MATH 31CH 复习指南</span>
+    <span class="nav-next nav-disabled">无</span>
+  </nav>
+
+  <div class="container">
+    <main>
+      <h1>MATH 31CH 复习指南</h1>
+      <p class="subtitle">Honors Vector Calculus · UCSD · Spring 2026 · 共 14 个 topic 页</p>
+
+      <p>本复习系统按 <strong>topic</strong> (而非 lecture) 组织，每页是一个完整的故事弧：从动机出发，串联核心定义与定理，配以 worked examples、常见陷阱、可隐藏答案的练习题、以及末尾的速查表。叙述用中文，数学符号沿用 typed notes 的英文 LaTeX 风格 — 这是一份<strong>与 typed notes 互补</strong>的 personal study mode 资料。</p>
+
+      <p>建议复习顺序：按编号 01 → 14 顺读；若只想巩固某一主题，直接跳到对应 Part 即可。每页页首列有 <em>前置知识</em>，标明依赖哪些更早的 topic。</p>
+
+      <!-- MT2 复习专区 (parallel section, 4 pages, H&H §4.9-4.11) -->
+      <section class="part-section">
+        <h2>MT2 复习专区 (H&amp;H §4.9-4.11, exam-prep parallel)</h2>
+        <ul class="topic-list">
+          <li>
+            <div class="topic-num">MT2-O</div>
+            <div>
+              <a class="topic-title" href="midterm2/MT2-overview.html">MT2 总览 + 综合速查</a>
+              <div class="topic-meta">跨 §4.9-4.11</div>
+              <div class="topic-desc">入口页 + 全局 cheat sheet + 5 题 mock mini-final。考前 10 分钟扫这里。</div>
+            </div>
+          </li>
+          <li>
+            <div class="topic-num">MT2-A</div>
+            <div>
+              <a class="topic-title" href="midterm2/MT2-A_linear_cov.html">行列式 scales 体积 + 线性 CoV</a>
+              <div class="topic-meta">§4.9 (Lec 5.1, 5.2)</div>
+              <div class="topic-desc">DSV 定理 + elementary matrix 分解 + 线性变量代换. 含 HW3 §4.9 改编题。</div>
+            </div>
+          </li>
+          <li>
+            <div class="topic-num">MT2-B</div>
+            <div>
+              <a class="topic-title" href="midterm2/MT2-B_nonlinear_cov.html">非线性 CoV + 三种 design pattern</a>
+              <div class="topic-meta">§4.10 (Lec 5.3, 6.1)</div>
+              <div class="topic-desc">极坐标 / 球 / 柱坐标 + symmetry / boundary / slice-driven 模式 + IFT shortcut。含 HW3 §4.10 改编题。</div>
+            </div>
+          </li>
+          <li>
+            <div class="topic-num">MT2-C</div>
+            <div>
+              <a class="topic-title" href="midterm2/MT2-C_lebesgue.html">Lebesgue 积分构造与性质</a>
+              <div class="topic-meta">§4.11 (Lec 6.2, 7.1-7.3)</div>
+              <div class="topic-desc">Uniform conv 极限交换 → DCT for Riemann → brick decomp 构造 → 良定性 → 线性 / 乘积 / 单调性 + 反例。</div>
+            </div>
+          </li>
+          <li>
+            <div class="topic-num">MT2-P</div>
+            <div>
+              <a class="topic-title" href="midterm2/MT2-practice.html">Practice MT2 — 真题与详解</a>
+              <div class="topic-meta">9 题 (Fatou / MCT / DCT / CoV / DSV)</div>
+              <div class="topic-desc">老师 2026-05-20 发布的 Practice MT2 全题, 配 hidden-answer 详解。先做后看是设计意图。</div>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Homework 详解专区 -->
+      <section class="part-section">
+        <h2>Homework 详解专区 (每周 HW 的 HTML 讲解, 与 LaTeX response 互补)</h2>
+        <ul class="topic-list">
+          <li>
+            <div class="topic-num">HW1</div>
+            <div>
+              <a class="topic-title" href="homework/HW1.html">HW1 详解 — §4.1 Riemann 积分基础 4 题</a>
+              <div class="topic-meta">§4.1 · Lebesgue 准则 + BV 理论 + Riemann sums squeeze + textbook 习题 2 道</div>
+              <div class="topic-desc">奠基性 HW, 4 题覆盖 §4.1 的三大基础工具. 含 P1 的 Dirichlet 反例 + P2 的 BV mini-treatise (4 part 串成 "BV ⟹ 可积") + P3 的 Riemann sum squeeze + P4 的 vol-zero 等价 (LHS = $U_N(\mathbf 1_X)$ translation) 与上积分子加性反例.</div>
+            </div>
+          </li>
+          <li>
+            <div class="topic-num">HW2</div>
+            <div>
+              <a class="topic-title" href="homework/HW2.html">HW2 详解 — measure zero + 可积性 + Fubini 10 题</a>
+              <div class="topic-meta">§4.1-§4.5 · measure 0 探索 + 连续⟹可积 + Thomae + symmetric integration + Fubini 应用</div>
+              <div class="topic-desc">跨节 HW, 10 题分三大主题: (I) measure-zero 探索 5 题 含 $\Q \cap [0,1]$ + countable ⟹ measure 0 + Thomae + ball-vs-cube 等价 + digit-1-6 Cantor-like. (II) 连续 + bounded support ⟹ 可积 (用 upper-lower sum). (III) Fubini & 对称 4 题: cube vs simplex + cylinder slice + sin x/x swap-order + paraboloids 间体积.</div>
+            </div>
+          </li>
+          <li>
+            <div class="topic-num">HW3</div>
+            <div>
+              <a class="topic-title" href="homework/HW3.html">HW3 详解 — §4.9 + §4.10 线性/非线性 CoV 9 题</a>
+              <div class="topic-meta">§4.9 (3 题) + §4.10 (6 题) · DSV / Wronskian / 三大 design pattern 实战 · 与 MT2-A/B/D heavy ref</div>
+              <div class="topic-desc">纯 textbook HW, 9 题分配在 §4.9 (DSV + simplex + Wronskian) 与 §4.10 (六题 nonlinear CoV). 按 Topic 10 三大设计模式分类: symmetry-driven (4.10.9/12/18 球坐标) + boundary-driven (4.10.17/19 自定义 $\Phi$) + slice-driven (4.10.4 twisted ellipsoid). 重 cross-ref Topic 08-10 与 MT2-A/B/D 不重述基础理论.</div>
+            </div>
+          </li>
+          <li>
+            <div class="topic-num">HW4</div>
+            <div>
+              <a class="topic-title" href="homework/HW4.html">HW4 详解 — §4.11 Lebesgue 积分 MCT/DCT 6 题</a>
+              <div class="topic-meta">§4.11 Ex 5, 6, 7, 8, 11, 19</div>
+              <div class="topic-desc">本次 HW 是 MCT/DCT 应用集. 含 p-参数 truncation 联合策略 (Problems 5/6/7) + Lebesgue 版 IBP 完整链条 (Problem 8) + 跨题方法论速查.</div>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Part I -->
+      <section class="part-section">
+        <h2>Part I — Riemann 积分基础 (4 页)</h2>
+        <ul class="topic-list">
+          <li>
+            <div class="topic-num">01</div>
+            <div>
+              <a class="topic-title" href="topics/01-1d-riemann.html">1D Riemann 积分</a>
+              <div class="topic-meta">Lec 1.1</div>
+              <div class="topic-desc">Partitions, upper/lower sums, Cauchy 准则: 在最熟悉的 1D 设置中建立可积性的概念基础。</div>
+            </div>
+          </li>
+          <li>
+            <div class="topic-num">02</div>
+            <div>
+              <a class="topic-title" href="topics/02-nd-riemann.html">n-维 Riemann 积分: dyadic paving 与可积性</a>
+              <div class="topic-meta">Lec 1.2, 1.3, 2.1</div>
+              <div class="topic-desc">用 dyadic cubes 把 1D 思想推广到 ℝⁿ，并完整证明 Cauchy 准则。</div>
+            </div>
+          </li>
+          <li>
+            <div class="topic-num">03</div>
+            <div>
+              <a class="topic-title" href="topics/03-algebra-properties.html">Riemann 积分的代数与序性质</a>
+              <div class="topic-meta">Lec 2.1, 2.2, 3.3</div>
+              <div class="topic-desc">线性、单调性、|f|、f⁺/f⁻、lattice 操作、product on ℝⁿ×ℝᵐ — 积分的"日常工具包"。</div>
+            </div>
+          </li>
+          <li>
+            <div class="topic-num">04</div>
+            <div>
+              <a class="topic-title" href="topics/04-volume-pavable.html">体积与 pavable 集</a>
+              <div class="topic-meta">Lec 2.2, 3.1</div>
+              <div class="topic-desc">vol via 𝟙_A、平移/缩放不变性、有限与可数可加性。</div>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Part II -->
+      <section class="part-section">
+        <h2>Part II — 测度零理论 (2 页)</h2>
+        <ul class="topic-list">
+          <li>
+            <div class="topic-num">05</div>
+            <div>
+              <a class="topic-title" href="topics/05-measure-zero-basics.html">测度零: 定义与基本性质</a>
+              <div class="topic-meta">Lec 3.1, 3.2 (前半)</div>
+              <div class="topic-desc">Vol 0 vs measure 0、k-维子空间为零、countable union 仍为零。</div>
+            </div>
+          </li>
+          <li>
+            <div class="topic-num">06</div>
+            <div>
+              <a class="topic-title" href="topics/06-lebesgue-criterion.html">Lebesgue 准则与 a.e. 推论</a>
+              <div class="topic-meta">Lec 3.2 (后半), 3.3</div>
+              <div class="topic-desc">可积 ⟺ a.e. 连续；Thomae 函数；正性引理 — 全课最重要的 measure-theoretic 桥梁。</div>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Part III -->
+      <section class="part-section">
+        <h2>Part III — Fubini (1 页)</h2>
+        <ul class="topic-list">
+          <li>
+            <div class="topic-num">07</div>
+            <div>
+              <a class="topic-title" href="topics/07-fubini.html">Fubini 定理与应用</a>
+              <div class="topic-meta">Lec 4.1, 4.2</div>
+              <div class="topic-desc">Iterated integrals 与 multiple integral 的等价；ball volume、Steinmetz、Fubini 反例。</div>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Part IV -->
+      <section class="part-section">
+        <h2>Part IV — 变量代换 (3 页)</h2>
+        <ul class="topic-list">
+          <li>
+            <div class="topic-num">08</div>
+            <div>
+              <a class="topic-title" href="topics/08-linear-cov.html">行列式 scales 体积 / 线性 CoV</a>
+              <div class="topic-meta">Lec 5.1, 5.2</div>
+              <div class="topic-desc">Determinant scales volume 定理 + elementary matrix 分解证明 + linear CoV。</div>
+            </div>
+          </li>
+          <li>
+            <div class="topic-num">09</div>
+            <div>
+              <a class="topic-title" href="topics/09-nonlinear-cov.html">非线性 CoV 定理与标准坐标</a>
+              <div class="topic-meta">Lec 5.3</div>
+              <div class="topic-desc">Jacobian 出现的逻辑；polar/spherical/cylindrical 三大公式推导。</div>
+            </div>
+          </li>
+          <li>
+            <div class="topic-num">10</div>
+            <div>
+              <a class="topic-title" href="topics/10-cov-patterns.html">CoV 实战: 三种设计模式</a>
+              <div class="topic-meta">Lec 6.1</div>
+              <div class="topic-desc">Symmetry-/boundary-/slice-driven 三种 pattern + 三个完整 worked examples。</div>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Part V -->
+      <section class="part-section">
+        <h2>Part V — 极限与 Lebesgue 积分 (4 页)</h2>
+        <ul class="topic-list">
+          <li>
+            <div class="topic-num">11</div>
+            <div>
+              <a class="topic-title" href="topics/11-limits-riemann.html">Riemann 框架下的极限与积分</a>
+              <div class="topic-meta">Lec 6.2</div>
+              <div class="topic-desc">Uniform convergence theorem; traveling box / tall spike 两个 paradigm 反例。</div>
+            </div>
+          </li>
+          <li>
+            <div class="topic-num">12</div>
+            <div>
+              <a class="topic-title" href="topics/12-lebesgue-construction.html">Lebesgue 积分的构造</a>
+              <div class="topic-meta">Lec 7.1</div>
+              <div class="topic-desc">Daniell-Stone 砖块分解; Beppo-Levi; 定义; 𝓘_R ⊂ 𝓘_L; Dirichlet 与 log 例子。</div>
+            </div>
+          </li>
+          <li>
+            <div class="topic-num">13</div>
+            <div>
+              <a class="topic-title" href="topics/13-well-definedness.html">良定性证明</a>
+              <div class="topic-meta">Lec 7.2, 7.3 (proof part)</div>
+              <div class="topic-desc">Truncation; dyadic paving; Markov-style 估计 — 全课最技术化的一个证明。</div>
+            </div>
+          </li>
+          <li>
+            <div class="topic-num">14</div>
+            <div>
+              <a class="topic-title" href="topics/14-lebesgue-properties.html">Lebesgue 积分的初等性质</a>
+              <div class="topic-meta">Lec 7.3 (后半)</div>
+              <div class="topic-desc">线性、与 bounded R 函数的乘积、单调性；1/√|x| 反例。</div>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Part VI: Fourier & Laplace transforms (Lec 9.2 + 10.1, post-MT2 应用篇) -->
+      <section class="part-section">
+        <h2>应用篇 — Fourier &amp; Laplace transforms (4 页)</h2>
+        <p style="color:#666;font-size:14.5px;margin-top:-8px;">课程后期增补的"应用块": 把 §4.11 的 Lebesgue 收敛工具 (DCT, MCT) 应用到积分参数化与积分变换。这是从 H&amp;H 整合定理向 PDE 与调和分析的过渡。</p>
+        <ul class="topic-list">
+          <li>
+            <div class="topic-num">15</div>
+            <div>
+              <a class="topic-title" href="topics/15-dui.html">微分号下求积 (DUI) 与 Feynman trick</a>
+              <div class="topic-meta">Lec 9.2 §2-3</div>
+              <div class="topic-desc">参数积分的 Leibniz 求导公式 + DCT-backed 证明 + 用它把 hard integral 转化成 ODE 求解。</div>
+            </div>
+          </li>
+          <li>
+            <div class="topic-num">16</div>
+            <div>
+              <a class="topic-title" href="topics/16-fourier-transform.html">Fourier transform — 定义与计算库</a>
+              <div class="topic-meta">Lec 9.2 §4-6 + Lec 10.1 §1-3</div>
+              <div class="topic-desc">Convention + 6 个 worked Fourier transforms (indicator, Gaussian, double-sided exp) + growth ↔ smoothness 对偶。</div>
+            </div>
+          </li>
+          <li>
+            <div class="topic-num">17</div>
+            <div>
+              <a class="topic-title" href="topics/17-fourier-pde.html">Fourier transform 解常系数 PDE</a>
+              <div class="topic-meta">Lec 9.2 §7 + Lec 10.1 §4-5</div>
+              <div class="topic-desc">"微分 ↔ 乘法"对偶让常系数 ODE/PDE 算法化: 热方程 + Poisson 方程 + 一般常系数 ODE 三个 worked solutions。</div>
+            </div>
+          </li>
+          <li>
+            <div class="topic-num">18</div>
+            <div>
+              <a class="topic-title" href="topics/18-laplace-transform.html">Laplace transform 入门</a>
+              <div class="topic-meta">Lec 10.1 §6-7</div>
+              <div class="topic-desc">$[0,\infty)$ 上的 Fourier 表亲: 定义 + 4 个 examples + ODE → algebraic equation 的诀窍。</div>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Part VII: 微分几何入门 (Klingenberg, starts with Lec 9.3) -->
+      <section class="part-section">
+        <h2>微分几何入门 — Klingenberg 教材 (持续扩展中)</h2>
+        <p style="color:#666;font-size:14.5px;margin-top:-8px;">课程末段从 H&amp;H 转向 Klingenberg <em>A Course in Differential Geometry</em>: 曲线、曲面的内蕴几何。本 Part 随每节课进度逐步扩展。</p>
+        <ul class="topic-list">
+          <li>
+            <div class="topic-num">19</div>
+            <div>
+              <a class="topic-title" href="topics/19-curves-frenet.html">曲线与 Frenet frame 入门</a>
+              <div class="topic-meta">Lec 9.3</div>
+              <div class="topic-desc">Tangent space (操作性定义) + 正则曲线 + 沿曲线的向量场 + 参数变换/弧长/能量 + 动标架 (moving frame) 与 Frenet frame 定义。</div>
+            </div>
+          </li>
+          <li>
+            <div class="topic-num">20</div>
+            <div>
+              <a class="topic-title" href="topics/20-frenet-curvature.html">Frenet–Serret 公式与曲率</a>
+              <div class="topic-meta">Lec 10.2 (前半) · Klingenberg §§1.2–1.5</div>
+              <div class="topic-desc">Distinguished Frenet frame 存在唯一性 (Gram-Schmidt) + tridiagonal skew-symmetric Frenet 方程 + 平面 signed κ + 空间 κ/τ + ★ 圆柱螺线全计算 (κ = a/(a²+b²), τ = b/(a²+b²))。</div>
+            </div>
+          </li>
+          <li>
+            <div class="topic-num">21</div>
+            <div>
+              <a class="topic-title" href="topics/21-surfaces-first-form.html">曲面参数化与第一基本形式</a>
+              <div class="topic-meta">Lec 10.2 (后半) · Klingenberg §§3.1–3.2</div>
+              <div class="topic-desc">维度跃迁 1D → 2D：参数化曲面 + regularity (X_u × X_v ≠ 0) + 单位法向场 ν 与 Gauss 映射 + 第一基本形式 I = [[E F][F G]] + 弧长/面积公式 + 重参数化变换律。含球面、圆柱面、函数图象、旋转面四个范例。</div>
+            </div>
+          </li>
+          <li class="unavailable">
+            <div class="topic-num">22</div>
+            <div>
+              <a class="topic-title">第二基本形式与曲率 (待 Lec 10.3+ 完成)</a>
+              <div class="topic-meta">Lec 10.3+ (尚未发生)</div>
+              <div class="topic-desc">Shape operator / Weingarten map + 主曲率 + Gauss 曲率 + 平均曲率 + Theorema Egregium.</div>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+    </main>
+  </div>
+
+</body>
+</html>

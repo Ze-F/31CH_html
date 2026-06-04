@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HW1 详解 — §4.1 Riemann 积分基础 4 题 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\diam': '\\operatorname{diam}',
+        '\\sgn': '\\operatorname{sgn}',
+        '\\BV': '\\mathrm{BV}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <span class="nav-prev nav-disabled">无</span>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="HW2.html">HW2</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#sec1">§1 总览</a></li>
+        <li><a href="#sec2">§2 Problem 1 (Lebesgue 准则 应用)</a></li>
+        <li><a href="#sec3">§3 Problem 2 (Bounded Variation 完整理论)</a></li>
+        <li><a href="#sec4">§4 Problem 3 (Riemann sums squeeze)</a></li>
+        <li><a href="#sec5">§5 Problem 4 (textbook 习题 2 道)</a></li>
+        <li><a href="#sec6">§6 方法论速查</a></li>
+        <li><a href="#sec7">§7 进一步阅读</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>HW1 详解 — §4.1 Riemann 积分基础 4 题</h1>
+      <p class="subtitle">本周 HW 的 HTML 讲解 · 4 道题覆盖 §4.1 的三大基础工具 (Lebesgue 准则 / Cauchy 准则 / dyadic paving) · 原 pset 截止 2026-04-15 (Wed) · 与 LaTeX 解答 <code>../../HW/Response/HW1_response.pdf</code> 互补 · 策略段默认展开, 证明段折叠在 <code>&lt;details&gt;</code> 中</p>
+
+      <h2 id="sec1">§1 总览</h2>
+
+      <p>本次 HW (2026 SP 第 1 周) 是整学期<strong>奠基</strong>性的一次, 4 道题分别测试 §4.1 (Riemann 积分基础) 的<em>三种不同</em>工具:</p>
+      <ul>
+        <li><strong>Problem 1</strong> (2 part) — <em>Lebesgue 准则 (Thm 4.1.13)</em>: 通过反例与定理直接应用, 训练"discontinuity set 的测度"这一视角.</li>
+        <li><strong>Problem 2</strong> (4 part) — <em>Bounded Variation (BV) 完整理论</em>: 这是 H&amp;H 主文之外的扩展材料, 4 个小问递进地建立一个 mini-treatise: BV 在 $|\cdot|$ / 线性运算 / $\max$ 下闭合 (i, ii, iii), 主结果是 "BV $\implies$ 可积" (iv).</li>
+        <li><strong>Problem 3</strong> (1 题) — <em>Riemann sums squeeze</em>: 验证 $L_N(f) \le R_N(f) \le U_N(f)$ 三明治, 把"Riemann sum 定义"与"upper/lower sum 定义"打通.</li>
+        <li><strong>Problem 4</strong> (2 道任选) — <em>textbook 习题</em>: Ex 4.1.4 (Prop 4.1.23 vol-zero 的 dyadic 等价描述) + Ex 4.1.21 (上积分的子加性 + 严格不等反例).</li>
+      </ul>
+
+      <p>不同于后期 HW (HW4 全 6 题共享单一 truncation 模板), 本次 HW 的 4 题<em>没有 shared template</em>; 每题用各自合适的工具. 所以本页<strong>无 §1.5 联合策略段</strong>, 而是直接按 problem 顺序进入. §1 余下给一个简洁的<strong>主题表</strong>和<strong>通用工具栏</strong>.</p>
+
+      <h3>题型分布表</h3>
+
+      <table class="textbook-index">
+        <thead>
+          <tr><th>题号</th><th>核心工具</th><th>形式</th><th>主要看点</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1(a)</td><td>Lebesgue 准则</td><td>Prove or disprove</td><td>反例: Dirichlet ($f$) vs 指示函数 ($g$); $g$ 可积但 $f$ 不可积</td></tr>
+          <tr><td>1(b)</td><td>Lebesgue 准则</td><td>True/false</td><td>加 "$f$ 连续" ⟹ $\Disc f = \emptyset$, 立即可积 ($g$ 无用)</td></tr>
+          <tr><td>2(i)</td><td>反向三角不等式</td><td>$f \in \BV \Rightarrow \abs{f} \in \BV$</td><td>$V_a^b(\abs f) \le V_a^b(f)$</td></tr>
+          <tr><td>2(ii)</td><td>线性代数 axioms</td><td>$\BV$ 是线性子空间</td><td>三角不等式 + $V_a^b(cf) = \abs c V_a^b(f)$</td></tr>
+          <tr><td>2(iii)</td><td>$\max\{f,g\} = \tfrac12(f+g+\abs{f-g})$</td><td>$\BV$ 在 $\max$ 下闭合</td><td>(i)(ii) 的应用; identity 不需要证, "if-then" 逐点检验</td></tr>
+          <tr><td>2(iv) ★</td><td>Cauchy 准则 + 2 个 lemma</td><td>$\BV \Rightarrow$ Riemann 可积</td><td>$\osc \le V$ + variation 加性, 均匀分割 $U_N - L_N \le (b-a)V/N$</td></tr>
+          <tr><td>3</td><td>squeeze theorem</td><td>$\lim R_N = \int f$</td><td>$L_N \le R_N \le U_N$, sandwich</td></tr>
+          <tr><td>4a (Ex 4.1.4)</td><td>恒等式 + MCT-style 收敛</td><td>$\vol(X) = 0$ ⟺ ε-cover by dyadic cubes</td><td>★ <em>LHS = $U_N(\mathbf 1_X)$</em> 是关键 translation</td></tr>
+          <tr><td>4b (Ex 4.1.21)</td><td>$\sup$ 不等式</td><td>$\overline\int(f+g) \le \overline\int f + \overline\int g$, 严格不等反例</td><td>反例: Dirichlet + 互补 Dirichlet, 和 = $\mathbf 1_{[0,1]}$</td></tr>
+        </tbody>
+      </table>
+
+      <h3>通用工具栏</h3>
+
+      <div class="box prereq">
+        <span class="box-title">📦 本次 HW 反复用的 §4.1 工具 (不再每题重列)</span>
+        <ul>
+          <li><strong>Lebesgue 准则 (Thm 4.1.13)</strong>: $f \colon \R^n \to \R$ bounded with bounded support 可积 ⟺ $\Disc(f) := \{x : f \text{ discontinuous at } x\}$ 有 measure zero. 用于 P1(a)(b), P4a (vol-zero 的等价 form).</li>
+          <li><strong>Cauchy 准则</strong>: $f$ bounded with bounded support 可积 ⟺ $\forall \eps &gt; 0,\,\exists N,\,U_N(f) - L_N(f) &lt; \eps$. 用于 P2(iv) Step 2.</li>
+          <li><strong>Dyadic paving + $U_N/L_N$ 单调收敛</strong>: $U_N(f) \searrow U(f)$, $L_N(f) \nearrow L(f)$ (by refinement). $f$ 可积 ⟺ $U(f) = L(f)$. 用于 P3 (squeeze 的 endpoint), P4a (vol-zero 的 ⟸ 方向).</li>
+          <li><strong>$U_N(\mathbf 1_X) = \sum_{C \cap X \ne \emptyset} \vol_n(C)$</strong>: 任何<em>指示函数</em>的上和等于"与 $X$ 相交的 dyadic cube 体积之和". P4a 的 critical translation.</li>
+          <li><strong>Riemann sum $R_N(f) = \sum_{D_N} f(x_{\mathbf k, N})/2^{nN}$</strong>: 在每个 dyadic cube 里取 arbitrary 样本点形成的和. P3 的研究对象.</li>
+          <li><strong>$\sup_C(f + g) \le \sup_C f + \sup_C g$ + $\sup_C \abs{f} \ge \abs{\sup_C f - \inf_C f - \text{...}}$ 等</strong>: sup/osc 的逐点不等式, 是 P2(i), P2(iv) Step 1, P4b 的共同 building block.</li>
+        </ul>
+      </div>
+
+      <h2 id="sec2">§2 Problem 1 — Lebesgue 准则的两次应用</h2>
+
+      <p>Problem 1 是<strong>两个紧密相关的 prove-or-disprove</strong>: 同样的设置 ($f, g$ 都 bounded, bounded support, $0 \le f \le g$, $g$ 可积), 但 (a) 没有 $f$ 的额外正则性, (b) 加了"$f$ 连续". 答案对偶: (a) <strong>FALSE</strong>, (b) <strong>TRUE</strong>. 反例与证明都极短, 但凝结的<em>洞察</em>是: "可积性是 discontinuity set 的属性", 加 dominator 没用, 加 $f$ 自身的正则性才有用.</p>
+
+      <h3 id="sec2a">Part (a) — $g$ 可积 $\Rightarrow$ $f$ 可积?</h3>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 1(a)</span>
+        <p>$f, g \colon \R^n \to \R$ bounded with bounded support, $0 \le f \le g$ on $\R^n$. <em>Prove or disprove</em>: $g$ 可积 $\implies$ $f$ 可积.</p>
+        <p><strong>Verdict.</strong> <span style="color:#c00;font-weight:bold;">FALSE</span> — 给反例.</p>
+      </div>
+
+      <h4>策略</h4>
+
+      <p>这是 "<em>大函数把小函数夹住, 大的可积小的也得可积</em>" 的<strong>朴素直觉</strong>. 直觉来自<em>测度论</em>: 在 Lebesgue 框架里, 这个命题<em>是对的</em> (DCT 立即给出). 但 Riemann 框架里它<strong>是错的</strong> —— Riemann 可积性要求被积函数本身的<em>discontinuity set</em>是 measure zero, 与"被多大函数 dominate"无关.</p>
+
+      <p>反例的<strong>设计思路</strong>: 选一个 $g$ 是<em>简单</em>的 (e.g. 单位区间指示), 然后选一个 $f$ 满足 $f \le g$ 但"discontinuity set 极大". 最经典的"discontinuity 全场"函数就是 <strong>Dirichlet 函数</strong> $\mathbf 1_{\Q \cap [0,1]}$ — 它在 $[0,1]$ 上每一点都不连续. 而 $g = \mathbf 1_{[0,1]}$ 只在 $\{0, 1\}$ 两点不连续 (测度零), 故 $g \in \IR$. 然而 $f \le g$ 因为 $\Q \cap [0,1] \subseteq [0,1]$. 完美命中.</p>
+
+      <details>
+        <summary><strong>展开严格证明 (反例 + Lebesgue 准则双向应用)</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">反例</span>
+
+            <p>设 $n = 1$. 定义
+            $$f(x) := \mathbf{1}_{\Q \cap [0,1]}(x) = \begin{cases}1 & x \in \Q \cap [0,1], \\ 0 & \text{otherwise};\end{cases} \qquad g(x) := \mathbf{1}_{[0,1]}(x) = \begin{cases}1 & x \in [0,1], \\ 0 & \text{otherwise}.\end{cases}$$
+
+            <p><strong>Step 1 — 假设满足</strong>:</p>
+            <ul>
+              <li>$0 \le f \le g$: $f(x) \in \{0, 1\}$, 且 $f(x) = 1$ 仅当 $x \in \Q \cap [0,1] \subseteq [0,1]$, 此时 $g(x) = 1$. $\checkmark$</li>
+              <li>$f, g$ bounded: $|f|, |g| \le 1$. $\checkmark$</li>
+              <li>$f, g$ bounded support: $\supp(f), \supp(g) \subseteq [0,1]$. $\checkmark$</li>
+            </ul>
+
+            <p><strong>Step 2 — $g$ 可积</strong>: $\Disc(g) = \{0, 1\}$ (两个 jump 点), 这是 2-元素集合, measure zero. 由 Lebesgue 准则 (Thm 4.1.13), $g \in \IR(\R)$. $\checkmark$</p>
+
+            <p><strong>Step 3 — $f$ <em>不</em>可积</strong>: 对任意 $x_0 \in [0, 1]$, 任何邻域 $B_\delta(x_0) \subset \R$ 既含 $\Q$ 中的点 (因 $\Q$ 在 $\R$ 中稠密) 也含 $\R \setminus \Q$ 中的点 (因 irrationals 也稠密). 因此存在 sequence $x_k \to x_0$ with $f(x_k) = 0$ 与另一 sequence $y_k \to x_0$ with $f(y_k) = 1$ — 矛盾于"$f$ 在 $x_0$ 处连续". 故 $\Disc(f) \supseteq [0, 1]$.</p>
+
+            <p>而 $[0, 1]$ <em>不</em>是 measure zero: 任何 countable cover $[0,1] \subseteq \bigcup_j (a_j, b_j)$ 的总长 $\sum (b_j - a_j) \ge 1$ (e.g., 用 Heine-Borel 取有限 subcover 后 telescoping). 由 Lebesgue 准则反向, $f \notin \IR(\R)$.</p>
+
+            <p>$f$ 与 $g$ 共同提供反例. $\blacksquare$</p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — 为什么"夹"不奏效</span>
+        <p>在 Lebesgue 框架里, "$0 \le f \le g$, $g \in \IL$ ⟹ $f \in \IL$" 是<strong>对的</strong> (DCT / 直接 Lebesgue 定义). Riemann 框架里失败的根源: <em>Riemann 可积性是 $f$ 的"局部光滑性"属性, 与 magnitude 无关</em>. 一个函数即使 magnitude 控制得很好 (被 nice 函数 dominate), 只要它本身在足够多的点处不连续, 它就不可积.</p>
+        <p>这个反例是<strong>整学期反复回访</strong>的 motivation: 它直接预告了 §4.11 引入 Lebesgue 积分的<em>第一个理由</em> (扩展 $\IR$ 让 Dirichlet 函数变可积, $\int_\Q\mathbf 1\,dV_L = 0$). 见 <a href="../topics/12-lebesgue-construction.html">Topic 12</a>.</p>
+      </div>
+
+      <h3 id="sec2b">Part (b) — 加 $f$ 连续 ⟹ 可积?</h3>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 1(b)</span>
+        <p>承接 (a) 的设置, 现在<em>额外</em>假设 $f$ 连续. 同样的 implication 还成立吗?</p>
+        <p><strong>Verdict.</strong> <span style="color:#080;font-weight:bold;">TRUE</span> — 但 <em>$g$ 的可积性其实根本没用上</em>.</p>
+      </div>
+
+      <h4>策略</h4>
+
+      <p>关键观察是 (b) 的<strong>真实结构</strong>: 加了"$f$ 连续" + 已有 "bounded + bounded support" 后, 直接由 Lebesgue 准则 $f \in \IR$ — 因为 $\Disc(f) = \emptyset$ 已经 measure zero. <em>$g$ 的存在和可积性都是 distraction</em>; 题目把它放进 hypothesis 只是为了让条件看起来"匹配 (a)", 但实际证明里我们一行都不引用 $g$.</p>
+
+      <p>这个题目设计的<strong>教学价值</strong>正是这个对比: (a) 看 dominator 没用, (b) 看 $f$ 自身的连续性立刻奏效. <em>"什么 hypothesis 才真正抓住 Riemann 可积性"</em> 的答案被 (a)(b) 联合凸显: 是 $f$ 的 discontinuity, 不是 $f$ 的 magnitude.</p>
+
+      <details>
+        <summary><strong>展开严格证明 (Lebesgue 准则 + 备选 Cauchy 准则)</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">证明 (Lebesgue 准则)</span>
+            <p>$f \colon \R^n \to \R$ 连续 ⟹ $\Disc(f) = \emptyset$ ⟹ $\Disc(f)$ has measure zero (空集 trivially measure zero). 结合 $f$ bounded + bounded support, 由 Lebesgue 准则 (Thm 4.1.13), $f \in \IR(\R^n)$. $\blacksquare$</p>
+          </div>
+
+          <div class="box remark">
+            <span class="box-title">备选证明 (不用 Lebesgue 准则, 用 Cauchy 准则)</span>
+            <p>$f$ 连续 + bounded support ⟹ $f$ 在包含 $\supp(f)$ 的紧致 box 上<em>均匀连续</em> (Heine-Cantor). 均匀连续蕴含 $\osc_{C_{\mathbf k, N}}(f) \to 0$ 一致地 (independent of $\mathbf k$) 当 $N \to \infty$. 于是
+            $$U_N(f) - L_N(f) = \sum_{C_{\mathbf k, N}} \osc_{C_{\mathbf k, N}}(f) \cdot \frac{1}{2^{nN}} \le \max_{\mathbf k} \osc_{C_{\mathbf k, N}}(f) \cdot \vol(\text{box 包含 } \supp f) \to 0.$$
+            由 Cauchy 准则 $f \in \IR$.</p>
+            <p>这个 alternative 比"调用 Lebesgue 准则"更"<em>elementary</em>" — 它不需要 Lebesgue 准则这个"重型工具"; 只用基础的 Cauchy 准则 + 均匀连续. 在课程早期 (Lec 1-2 还没引入 Lebesgue 准则时) 这是唯一可行路径.</p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — (a) vs (b) 的对比, 与 "dominator 无用" 的教训</span>
+        <p>题目 (a)(b) 的设计是一个<em>对比实验</em>:</p>
+        <ul>
+          <li>(a) 控制 magnitude (加 $g$ dominator) — <strong>不奏效</strong>, 反例 trivial.</li>
+          <li>(b) 控制 regularity (加 $f$ 连续) — <strong>奏效</strong>, $g$ 不再需要.</li>
+        </ul>
+        <p>结论: <em>Riemann 可积性关心 regularity, 不关心 magnitude</em>. 这是与 Lebesgue 积分 (后者关心 magnitude through DCT) 的根本对比.</p>
+        <p>在期末考试或后续 HW 中遇到类似"$f \le g$, $g \in \IR$, 问 $f$"的题, 默认 <em>反向检查 discontinuity set</em>, 不要被 dominator 误导. 见 <a href="../topics/06-lebesgue-criterion.html">Topic 06 (Lebesgue 准则)</a> 的 Pitfall 6.X.</p>
+      </div>
+
+      <h2 id="sec3">§3 Problem 2 — Bounded Variation 完整理论 (4 小问串成 mini-treatise)</h2>
+
+      <h3 id="sec3-0">串联 — BV 是什么, 为什么 4 个 part 一起做才完整</h3>
+
+      <p><strong>Bounded variation (BV)</strong> 是 H&amp;H 主文之外的扩展概念, 它给出"<em>非单调函数也可以"被一个有限的几何量度量振荡</em>"的精确表述. 单调函数自动是 $\BV$ (variation = $|f(b) - f(a)|$); 但 $\BV$ 远比单调宽 — 任何 $\BV$ 函数都是<em>两个单调函数之差</em> (Jordan 分解, 本题不涉及但是著名定理).</p>
+
+      <p>4 个 part 不是 4 道独立小题, 而是构造 BV 理论的<strong>4 块拼图</strong>:</p>
+
+      <div class="box thm">
+        <span class="box-title">🧱 4 块拼图的逻辑依赖</span>
+        <ul>
+          <li><strong>(i) $\BV$ 在 $\abs{\cdot}$ 下闭合</strong> — 用<em>反向三角不等式</em>立即推出. 是后面 (iii) 的 building block.</li>
+          <li><strong>(ii) $\BV$ 是线性子空间</strong> — 验证三 axiom (零, scalar, sum). 是 (iii) 与 (iv) 的代数基础.</li>
+          <li><strong>(iii) $\BV$ 在 $\max\{f, g\}$ 下闭合</strong> — 通过<em>代数恒等式</em> $\max\{f, g\} = \tfrac12(f + g + \abs{f - g})$, (i)(ii) 都用上.</li>
+          <li><strong>(iv) ★ $\BV \Rightarrow$ 可积 (Hint: Cauchy 准则 + 均匀分割)</strong> — 主结果, 用两个 lemma (refinement 增加 $V$ + variation 加性) 加 Cauchy 准则收尾.</li>
+        </ul>
+      </div>
+
+      <p>4 个 part 顺序设计精巧: (i)(ii) 是简单的 algebra, (iii) 演练 (i)(ii) 的<em>组合应用</em>, (iv) 是<em>真正的工作</em> (跨越 BV 与 Riemann 可积性这两个完全不同的概念世界). 下面按 part 顺序 (题面+证明), 整体反思放在 §3.e.</p>
+
+      <h3 id="sec3a">(i) $f \in \BV([a,b]) \Rightarrow \abs{f} \in \BV([a,b])$</h3>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 2(i)</span>
+        <p>设 $V_a^b(f)$ 是 $f$ 的 total variation. 若 $f \in \BV$ (即 $V_a^b(f) &lt; \infty$), 证明 $\abs{f} \in \BV$.</p>
+      </div>
+
+      <details>
+        <summary><strong>展开证明 (反向三角不等式)</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">证明</span>
+            <p>对任意分割 $P = \{x_0, \ldots, x_{n_P}\}$ of $[a,b]$, 由<em>反向三角不等式</em> $\bigl|\abs{u} - \abs{v}\bigr| \le \abs{u - v}$ 逐项应用:
+            $$\sum_{j=0}^{n_P - 1}\bigl|\abs{f(x_{j+1})} - \abs{f(x_j)}\bigr| \le \sum_{j=0}^{n_P - 1}\abs{f(x_{j+1}) - f(x_j)} \le V_a^b(f).$$
+            对所有分割 $P$ 取 sup:
+            $$V_a^b(\abs f) \le V_a^b(f) &lt; \infty. \qquad \blacksquare$$
+            </p>
+          </div>
+        </div>
+      </details>
+
+      <h3 id="sec3b">(ii) $\BV([a,b])$ 是 $\{f \colon [a,b] \to \R\}$ 的线性子空间</h3>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 2(ii)</span>
+        <p>证明 $\BV([a,b])$ 包含零函数, 且对加法与 scalar 乘法封闭.</p>
+      </div>
+
+      <details>
+        <summary><strong>展开证明 (三 axiom)</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">证明</span>
+
+            <p><strong>(零向量)</strong> 零函数 $0$ 满足 $V_a^b(0) = 0 &lt; \infty$, 故 $0 \in \BV$.</p>
+
+            <p><strong>(scalar 乘法)</strong> 设 $f \in \BV$, $c \in \R$. 对任意 $P$:
+            $$\sum_j \abs{cf(x_{j+1}) - cf(x_j)} = \abs c\sum_j \abs{f(x_{j+1}) - f(x_j)}.$$
+            取 sup over $P$:
+            $$V_a^b(cf) = \abs c\,V_a^b(f) &lt; \infty,$$
+            故 $cf \in \BV$.</p>
+
+            <p><strong>(加法)</strong> 设 $f, g \in \BV$. 对任意 $P$, 由三角不等式:
+            $$\sum_j\abs{(f+g)(x_{j+1}) - (f+g)(x_j)} = \sum_j\abs{(f(x_{j+1}) - f(x_j)) + (g(x_{j+1}) - g(x_j))}$$
+            $$\le \sum_j\abs{f(x_{j+1}) - f(x_j)} + \sum_j\abs{g(x_{j+1}) - g(x_j)} \le V_a^b(f) + V_a^b(g).$$
+            取 sup over $P$:
+            $$V_a^b(f + g) \le V_a^b(f) + V_a^b(g) &lt; \infty,$$
+            故 $f + g \in \BV$. $\blacksquare$</p>
+          </div>
+
+          <div class="box remark">
+            <span class="box-title">副产物: TV 是 semi-norm</span>
+            <p>顺便我们证明了 $V_a^b(cf) = \abs c V_a^b(f)$ (homogeneous) 与 $V_a^b(f + g) \le V_a^b(f) + V_a^b(g)$ (三角). 加上 $V_a^b(f) \ge 0$, $V_a^b(\cdot)$ 是 $\BV([a,b])$ 上的<strong>seminorm</strong> (不是 norm, 因为 $V_a^b(f) = 0 \iff f$ 是常数, 不一定 $f = 0$). 商掉常数 $\BV/\R$ 后它就是 norm. 题目没问, 但这是 Jordan 分解定理与"$\BV$ 是 Banach 空间"的入口.</p>
+          </div>
+        </div>
+      </details>
+
+      <h3 id="sec3c">(iii) $f, g \in \BV([a,b]) \Rightarrow \max\{f, g\} \in \BV([a,b])$</h3>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 2(iii)</span>
+        <p>证明 $\BV$ 在 pointwise $\max$ 下封闭.</p>
+      </div>
+
+      <details>
+        <summary><strong>展开证明 (代数恒等式 + (i)+(ii) 组合)</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">证明</span>
+            <p>关键 trick 是<em>逐点</em>代数恒等式:
+            $$\max\{f, g\} = \frac{1}{2}\bigl(f + g + \abs{f - g}\bigr).$$
+            <strong>验证</strong>: 若 $f(x) \ge g(x)$, RHS = $\tfrac12(f + g + f - g) = f$; 若 $f(x) &lt; g(x)$, RHS = $\tfrac12(f + g + g - f) = g$. 都等于 $\max\{f, g\}$. $\checkmark$</p>
+
+            <p>现在 $f, g \in \BV$:</p>
+            <ol>
+              <li>$f - g \in \BV$ (由 (ii) 加法 + scalar 乘 $-1$);</li>
+              <li>$\abs{f - g} \in \BV$ (由 (i));</li>
+              <li>$f + g + \abs{f - g} \in \BV$ (由 (ii) 加法两次);</li>
+              <li>$\tfrac12(f + g + \abs{f - g}) \in \BV$ (由 (ii) scalar 乘 $\tfrac12$).</li>
+            </ol>
+            <p>故 $\max\{f, g\} \in \BV$. $\blacksquare$</p>
+          </div>
+          <div class="box remark">
+            <span class="box-title">推论 (题目没问, 但顺手)</span>
+            <p>$\min\{f, g\} = -\max\{-f, -g\}$, 故 $\BV$ 也在 $\min$ 下封闭. 推到任意有限 max/min 通过归纳. 这表明 $\BV$ 形成一个<strong>lattice (格)</strong>, 与 §4.11 出现的"$\IL$ 在 max/min 下封闭"是平行结构 (但 $\IL$ 那边的证明需要 truncation + DCT, 更深).</p>
+          </div>
+        </div>
+      </details>
+
+      <h3 id="sec3d">(iv) ★ $\BV([a,b])$ 的函数都是 Riemann 可积的</h3>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 2(iv) (主结果)</span>
+        <p>证明 $\BV([a,b]) \subseteq \IR([a,b])$. <strong>Hint</strong>: 用均匀长度分割 + upper-lower sum / Cauchy 准则.</p>
+      </div>
+
+      <h4>策略</h4>
+
+      <p>这是 P2 的<strong>大结果</strong>: 跨越两个 a priori 不相关的概念 — "<em>BV (geometric, 关心 $f$ 在分割端点间的总变差</em>) → <em>Riemann 可积 (analytic, 关心 $U_N - L_N \to 0$)</em>". 桥梁是<strong>关键不等式</strong>:
+      $$\osc_{[c,d]}(f) \le V_c^d(f).$$
+      即 "<em>$f$ 在子区间 $[c,d]$ 上的振幅 $\le$ 它在同区间上的总变差</em>". 这是"sup-inf 差"被"端点跳变之和"控制的精确版.</p>
+
+      <p>有了这个不等式 + variation 的<em>加性</em> ($V_a^b = \sum_j V_{x_j}^{x_{j+1}}$ for any partition), 均匀分割 $P_N$ 立即给:
+      $$U(P_N, f) - L(P_N, f) \le \frac{(b-a) V_a^b(f)}{N} \to 0,$$
+      Cauchy 准则收尾. 整个证明只有 2 步, 但<strong>两个支撑 lemma</strong> (refinement 不降低 variation, variation 加性) 各自需独立证明.</p>
+
+      <p>另外有一个<strong>前置 step 0</strong>: BV 函数自动 bounded. 这一步 obvious 但必须 record, 因为 Riemann 可积性 hypothesis 要求 bounded.</p>
+
+      <details>
+        <summary><strong>展开严格证明 (含 2 个 lemma + step 0/1/2)</strong></summary>
+        <div class="details-body">
+
+          <div class="box thm">
+            <span class="box-title">Lemma 1 (refinement 不降低 variation sum)</span>
+            <p>设 $P$ 是 $[a,b]$ 的分割, $P' = P \cup \{c\}$ 是加一点 $c \in [a, b]$ 的细分. 则
+            $$\sum_{P'}\abs{\Delta f} \ge \sum_P \abs{\Delta f}.$$
+            </p>
+            <p><strong>证明</strong>: 若 $c$ 与 $P$ 中某点重合, $P' = P$ 无需证. 否则 $c \in (x_k, x_{k+1})$ 某个子区间. 原来一项 $\abs{f(x_{k+1}) - f(x_k)}$ 被两项替代:
+            $$\abs{f(c) - f(x_k)} + \abs{f(x_{k+1}) - f(c)} \ge \abs{(f(c) - f(x_k)) + (f(x_{k+1}) - f(c))} = \abs{f(x_{k+1}) - f(x_k)},$$
+            三角不等式. 其余项不变, 故总和不减. $\square$</p>
+          </div>
+
+          <div class="box thm">
+            <span class="box-title">Lemma 2 (variation 的加性)</span>
+            <p>对任意 $c \in (a, b)$:
+            $$V_a^b(f) = V_a^c(f) + V_c^b(f).$$
+            </p>
+            <p><strong>证明 ($\ge$)</strong>: 对任意 $P_1$ 是 $[a, c]$ 的分割, $P_2$ 是 $[c, b]$ 的分割, $P = P_1 \cup P_2$ 是 $[a, b]$ 的分割, 且 $\sum_P \abs{\Delta f} = \sum_{P_1}\abs{\Delta f} + \sum_{P_2}\abs{\Delta f}$. 故
+            $$V_a^b(f) \ge \sum_P \abs{\Delta f} = \sum_{P_1}\abs{\Delta f} + \sum_{P_2}\abs{\Delta f}.$$
+            先 sup over $P_1$: $V_a^b(f) \ge V_a^c(f) + \sum_{P_2}\abs{\Delta f}$. 再 sup over $P_2$: $V_a^b(f) \ge V_a^c(f) + V_c^b(f)$. $\checkmark$</p>
+            <p><strong>证明 ($\le$)</strong>: 对任意 $[a, b]$ 的分割 $P$, 由 Lemma 1 加 $c$ 后 $\sum_P \abs{\Delta f} \le \sum_{P \cup \{c\}}\abs{\Delta f}$. 细分 $P' = P \cup \{c\}$ 自然分裂为 $P_1' = P' \cap [a, c]$ (一个 $[a,c]$ 的分割) 与 $P_2' = P' \cap [c, b]$ (一个 $[c,b]$ 的分割), 满足
+            $$\sum_{P'}\abs{\Delta f} = \sum_{P_1'}\abs{\Delta f} + \sum_{P_2'}\abs{\Delta f} \le V_a^c(f) + V_c^b(f).$$
+            sup over $P$: $V_a^b(f) \le V_a^c(f) + V_c^b(f)$. $\square$</p>
+          </div>
+
+          <div class="box remark">
+            <span class="box-title">推论 (Lemma 2 的归纳)</span>
+            <p>由归纳, 对任意分割 $\{x_0, \ldots, x_N\}$ of $[a, b]$:
+            $$V_a^b(f) = \sum_{j=0}^{N-1} V_{x_j}^{x_{j+1}}(f).$$
+            这就是下面 Step 2 用到的形式.</p>
+          </div>
+
+          <div class="box thm">
+            <span class="box-title">主证明 ($\BV \Rightarrow$ 可积)</span>
+            <p>设 $f \in \BV([a, b])$.</p>
+
+            <p><strong>Step 0 ($f$ bounded)</strong>: 对任意 $x \in [a, b]$, 分割 $\{a, x, b\}$ 给
+            $$\abs{f(x) - f(a)} \le \abs{f(x) - f(a)} + \abs{f(b) - f(x)} \le V_a^b(f),$$
+            故 $\abs{f(x)} \le \abs{f(a)} + V_a^b(f) &lt; \infty$ for all $x \in [a, b]$. $f$ bounded $\checkmark$.</p>
+
+            <p><strong>Step 1 (key 不等式: $\osc_{[c, d]} f \le V_c^d(f)$)</strong>: 对任意 $u, v \in [c, d]$ with $u \le v$, 分割 $\{c, u, v, d\}$ of $[c, d]$ 的 variation sum 是
+            $$\abs{f(u) - f(c)} + \abs{f(v) - f(u)} + \abs{f(d) - f(v)} \ge \abs{f(v) - f(u)} = \abs{f(u) - f(v)},$$
+            故 $V_c^d(f) \ge \abs{f(u) - f(v)}$. sup over $u, v$:
+            $$V_c^d(f) \ge \sup_{u, v \in [c, d]}\abs{f(u) - f(v)} = \sup_{[c, d]} f - \inf_{[c, d]} f = \osc_{[c, d]}(f). \quad\checkmark$$
+            </p>
+
+            <p><strong>Step 2 (Cauchy 准则 via 均匀分割)</strong>: 取 $[a, b]$ 的均匀分割 $P_N$ 为 $N$ 等长子区间 $I_j = [x_j, x_{j+1}]$, $\abs{I_j} = (b - a)/N$. 则
+            $$U(P_N, f) - L(P_N, f) = \sum_{j=0}^{N-1}\osc_{I_j}(f) \cdot \abs{I_j} = \frac{b - a}{N}\sum_{j=0}^{N-1}\osc_{I_j}(f)$$
+            $$\overset{\text{Step 1}}{\le} \frac{b - a}{N}\sum_{j=0}^{N-1}V_{x_j}^{x_{j+1}}(f) \overset{\text{Lem 2 推论}}{=} \frac{b - a}{N}\cdot V_a^b(f).$$
+            对任意 $\eps &gt; 0$, 取 $N &gt; (b - a) V_a^b(f) / \eps$, 则 $U(P_N, f) - L(P_N, f) &lt; \eps$. 由 Cauchy 准则, $f \in \IR([a, b])$. $\blacksquare$</p>
+          </div>
+        </div>
+      </details>
+
+      <h3 id="sec3e">整体反思 — 4 块拼图的几何与代数</h3>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — BV 是什么样的函数, 与 §4.1 其他类的关系</span>
+        <p><strong>BV 函数的几何</strong>: 单调函数自动是 $\BV$, $V_a^b(f) = \abs{f(b) - f(a)}$. 多个单调段拼起来 — e.g. 上升再下降的 piecewise monotone 函数 — 仍 BV, $V_a^b = \sum$ 每段的高度差. 更深的事实: 任何 $\BV$ 函数都是<em>两个单调递增函数之差</em> ($f = (f + V_a^x(f))/2$ vs $V_a^x(f)/2 - f/2$, 经典 <strong>Jordan 分解</strong>). 我们没在 HW 里证它, 但 Jordan 分解是 $\BV$ 理论的"圣杯".</p>
+        <p><strong>与连续/可微的关系</strong>:</p>
+        <ul>
+          <li>BV $\not\Rightarrow$ 连续: 阶梯函数是 BV 但有 jump.</li>
+          <li>连续 $\not\Rightarrow$ BV: Weierstrass 函数 (连续但 nowhere differentiable) 也 nowhere BV — 它的振荡在任意 fine 分割下变 unbounded.</li>
+          <li>$C^1$ ($f'$ 连续) $\Rightarrow$ BV: $V_a^b(f) = \int_a^b \abs{f'(x)}\,dx &lt; \infty$ (FTC).</li>
+        </ul>
+        <p>所以 $C^1 \subsetneq \BV \subsetneq \IR$ 在 $[a, b]$ 上 (三个真子集关系都需要 nontrivial 反例验证, P2(iv) 是其中一条).</p>
+
+        <p><strong>关键不等式 $\osc \le V$ 的几何</strong>: $\osc_{[c, d]}(f)$ 是 $f$ 在 $[c, d]$ 上"<em>瞬时最大-瞬时最小</em>" — 一个 vertical extent. $V_c^d(f)$ 是 $f$ "<em>沿曲线走过的总垂直距离</em>" — 包括了来回振荡. 显然走过的总距离 $\ge$ 振幅 (不等式是<em>"曲线长度 $\ge$ 端点距离"</em>的离散版). 这就是 P2(iv) Step 1.</p>
+
+        <p><strong>P2(iv) 与未来 HW/MT 的关联</strong>: 这是<strong>用 Cauchy 准则证明可积性</strong>的标志性例子. 后面 (e.g. Topic 06, MT2-C) 会反复用同款"控制 $U_N - L_N$"的技术 — 但通过<em>不同的</em> regularity assumption (连续, a.e. 连续, Lipschitz, ...). 把 P2(iv) 当成<em>第一次实战</em>, 后面同款套路就熟了.</p>
+      </div>
+
+      <h2 id="sec4">§4 Problem 3 — Riemann sums squeeze</h2>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 3</span>
+        <p>Riemann sum (与 $N$-th dyadic paving 关联) 定义为
+        $$R_N(f) := \sum_{D_N(f)} f(x_{\mathbf k, N}) \cdot \frac{1}{2^{nN}},$$
+        其中 $x_{\mathbf k, N} \in C_{\mathbf k, N}$ 是<em>任意</em>样本点. 证明: 若 $f$ 可积, 则
+        $$\lim_{N \to \infty}R_N(f) = \lim_{N \to \infty}U_N(f) = \lim_{N \to \infty}L_N(f).$$
+        </p>
+      </div>
+
+      <h4>策略</h4>
+
+      <p>这是 §4.1 的<strong>关键 unifying 定理</strong>: 它把"<em>用任意样本点求和的 Riemann sum</em>"与"<em>用 sup/inf 求和的 upper/lower sum</em>"统一为<em>同一个积分值</em>. 直觉是 squeeze: 每个 cube $C$ 内的 sample value $f(x_{\mathbf k, N})$ 必满足 $\inf_C f \le f(x_{\mathbf k, N}) \le \sup_C f$ — 即 $m_C(f) \le f(x_{\mathbf k, N}) \le M_C(f)$. 乘 $\vol(C)$ 求和后保持不等式: $L_N(f) \le R_N(f) \le U_N(f)$. 三明治成立, 两边都收敛到 $\int f$, squeeze 给出 $R_N \to \int f$.</p>
+
+      <p>注意这个结论的<strong>普适性</strong>: 对<em>任何</em>样本点 $x_{\mathbf k, N}$ 选择都成立 — 你可以每次选中点, 选左端点, 选 $f$ 最大的点, ... 都给同一极限. 这正是"Riemann sum 与样本点选择无关"的本质 — 也是 Cauchy 时代用 Riemann sum 定义积分能 work 的原因.</p>
+
+      <details>
+        <summary><strong>展开严格证明 (squeeze)</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">证明</span>
+
+            <p><strong>Step 1 (逐 cube 不等式)</strong>: 对每个 dyadic cube $C_{\mathbf k, N}$ 与<em>任意</em> $x_{\mathbf k, N} \in C_{\mathbf k, N}$, sup/inf 的定义给:
+            $$m_{C_{\mathbf k, N}}(f) := \inf_{C_{\mathbf k, N}} f \;\le\; f(x_{\mathbf k, N}) \;\le\; \sup_{C_{\mathbf k, N}} f =: M_{C_{\mathbf k, N}}(f).$$
+            </p>
+
+            <p><strong>Step 2 (乘 volume 求和)</strong>: 每个 cube $C_{\mathbf k, N}$ 的体积是 $\vol_n(C_{\mathbf k, N}) = 1/2^{nN}$ (cube 边长 $1/2^N$, $n$-维体积 $1/2^{nN}$). 乘等式不变:
+            $$\underbrace{\sum_{D_N(f)} m_{C_{\mathbf k, N}}(f) \cdot \frac{1}{2^{nN}}}_{= L_N(f)} \;\le\; \underbrace{\sum_{D_N(f)} f(x_{\mathbf k, N}) \cdot \frac{1}{2^{nN}}}_{= R_N(f)} \;\le\; \underbrace{\sum_{D_N(f)} M_{C_{\mathbf k, N}}(f) \cdot \frac{1}{2^{nN}}}_{= U_N(f)}.$$
+            即
+            $$L_N(f) \;\le\; R_N(f) \;\le\; U_N(f) \quad \forall\, N \in \N.$$
+            </p>
+
+            <p><strong>Step 3 (Squeeze)</strong>: $f$ 可积 ⟹ $L_N(f) \nearrow L(f)$, $U_N(f) \searrow U(f)$, 且 $L(f) = U(f) = \int_{\R^n} f\,dV$. 由 squeeze theorem (高中即学):
+            $$\lim_{N \to \infty} R_N(f) = \int_{\R^n} f\,dV = L(f) = U(f). \qquad \blacksquare$$
+            </p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — Riemann sum 的"普适性"</span>
+        <p><strong>三个要点</strong>:</p>
+        <ol>
+          <li><strong>不依赖样本点选择</strong>: 证明对<em>任何</em> $x_{\mathbf k, N}$ 都给出同极限. 这意味着<em>每个</em> "Riemann sum convention" (中点法则 / Simpson 法则 / 任意法则) 都收敛到同一积分值 — 这是把可积性翻译成"求和的极限"的代价被分摊到 sample-point-arbitrariness 上的体现.</li>
+          <li><strong>不需要等长分割</strong>: 题目用 dyadic paving (cube 大小固定 $1/2^N$), 但 squeeze 原理对任意"<em>mesh $\to 0$</em>"的分割族同样成立. 现代教材 (e.g. Spivak) 直接用任意细分定义 Riemann sum.</li>
+          <li><strong>"$f$ 可积"是关键前置</strong>: 反之, 若 $f$ 不可积, $L_N$ 与 $U_N$ 收敛到<em>不同</em>值 (= $L(f) &lt; U(f)$), squeeze 不再给唯一极限. $R_N$ 视样本点选择不同会摆动 between 这两个值之间 — 不收敛.</li>
+        </ol>
+
+        <p><strong>与下一章的桥</strong>: 这条 squeeze 在 §4.10 的 change-of-variable 证明 (Topic 08-09) 里反复出现 (e.g. linear CoV 的 dyadic 分割映射). 也是 §4.11 引入 Lebesgue 积分时 "Daniell-Stone 砖块分解" 极限交换的基础 (Topic 12).</p>
+      </div>
+
+      <h2 id="sec5">§5 Problem 4 — Textbook 习题 2 道 (任选)</h2>
+
+      <p>题目要求 "<em>any two problems of your choice from section 4.1</em>". 我们选 <strong>Ex 4.1.4</strong> (证明 vol-zero 的等价描述, 即 Prop 4.1.23) 与 <strong>Ex 4.1.21</strong> (上积分的子加性 + 严格不等反例). 两题都是 H&amp;H §4.1 中<em>提到但未证明</em>的命题/性质, 各自填充课程里的一个缺口.</p>
+
+      <h3 id="sec5a">5(a) Ex 4.1.4 — Proposition 4.1.23 (vol-zero 的 dyadic 等价描述)</h3>
+
+      <div class="box def">
+        <span class="box-title">📋 Proposition 4.1.23</span>
+        <p>设 $X \subset \R^n$ bounded. 则 $X$ 有 vol $0$ ⟺ $\forall \eps &gt; 0,\,\exists N \in \N$ 使得
+        $$\sum_{\substack{C \in \mathcal D_N(\R^n) \\ C \cap X \ne \emptyset}}\vol_n(C) \le \eps.$$
+        即, 与 $X$ 相交的 level-$N$ dyadic cubes 的总体积可以任意小.</p>
+      </div>
+
+      <h4>策略</h4>
+
+      <p>核心是<strong>关键 translation</strong>: 不等式左边的求和恰好等于<strong>$U_N(\mathbf 1_X)$</strong> ($X$ 的指示函数的第 $N$ 上和):
+      $$\sum_{C \cap X \ne \emptyset}\vol_n(C) = U_N(\mathbf 1_X).$$
+      为什么? 因为 $M_C(\mathbf 1_X) = \sup_C \mathbf 1_X$ 在 $C \cap X \ne \emptyset$ 时 = 1, 在 $C \cap X = \emptyset$ 时 = 0. 故 $U_N(\mathbf 1_X) = \sum_C M_C(\mathbf 1_X) \vol(C) = \sum_{C \cap X \ne \emptyset}\vol(C)$.</p>
+
+      <p>有了这个 translation, 命题就<em>不再</em>是"几何关于 dyadic cubes 的 statement", 而是 "<em>$\mathbf 1_X$ 上和能任意小</em>" 的分析 statement. 后者直接对应 "$U(\mathbf 1_X) = 0$" — vol-zero 的定义! 双向都简单 — ($\Rightarrow$) 用 $U_N \searrow U = 0$, ($\Leftarrow$) 用 $\inf_N U_N = 0$ + $L_N \ge 0$ 夹.</p>
+
+      <p>这种"<em>把几何条件翻译成 $U_N/L_N$ 极限</em>"的<strong>translation</strong> 是 §4.1 - §4.5 反复出现的主线 — see Topic 04 (体积 via $\mathbf 1_A$), Topic 05 (measure zero).</p>
+
+      <details>
+        <summary><strong>展开严格证明 (LHS = $U_N(\mathbf 1_X)$ + 双向)</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">证明</span>
+
+            <p><strong>Key observation</strong>: 对每个 $C \in \mathcal D_N$:
+            $$M_C(\mathbf 1_X) = \sup_C \mathbf 1_X = \begin{cases}1 & C \cap X \ne \emptyset, \\ 0 & C \cap X = \emptyset.\end{cases}$$
+            (Sup 是 0 或 1, 取决于 $C$ 是否触到 $X$ 的某个点.) 故
+            $$U_N(\mathbf 1_X) = \sum_{C \in \mathcal D_N}M_C(\mathbf 1_X)\cdot\vol_n(C) = \sum_{C \cap X \ne \emptyset}\vol_n(C).$$
+            (求和实际上有限项 — $X$ bounded 意味着 only 有限个 $C \in \mathcal D_N$ 与 $X$ 相交.)</p>
+
+            <p>$U_N(\mathbf 1_X)$ 关于 $N$ <em>monotone decreasing</em> (refinement: 每个 level-$N$ cube 分裂成 $2^n$ 个 level-$(N+1)$ sub-cubes, sup over subset $\le$ sup over whole), bounded below by $0$, 故 $U(\mathbf 1_X) := \lim_N U_N(\mathbf 1_X) = \inf_N U_N(\mathbf 1_X)$ 存在.</p>
+
+            <p><strong>($\Rightarrow$) vol $0$ ⟹ ε-cover</strong>: $X$ has vol $0$ 意味着 $\mathbf 1_X \in \IR$ 且 $\int \mathbf 1_X = 0$. 故 $U(\mathbf 1_X) = \int \mathbf 1_X = 0$, 即 $\lim_N U_N(\mathbf 1_X) = 0$. 对任意 $\eps &gt; 0$, $\exists N$ 使 $U_N(\mathbf 1_X) \le \eps$, 即 $\sum_{C \cap X \ne \emptyset}\vol_n(C) \le \eps$. $\checkmark$</p>
+
+            <p><strong>($\Leftarrow$) ε-cover ⟹ vol $0$</strong>: 假设 $\forall \eps &gt; 0,\,\exists N,\,U_N(\mathbf 1_X) \le \eps$. 则 $\inf_N U_N(\mathbf 1_X) = 0$, 即 $U(\mathbf 1_X) = 0$. 同时 $\mathbf 1_X \ge 0$ ⟹ $L_N(\mathbf 1_X) \ge 0$ for all $N$, 故 $L(\mathbf 1_X) \ge 0$. 结合 $L(\mathbf 1_X) \le U(\mathbf 1_X) = 0$ ⟹ $L(\mathbf 1_X) = U(\mathbf 1_X) = 0$. 故 $\mathbf 1_X \in \IR$ with $\int = 0$, 即 $\vol_n(X) = 0$. $\blacksquare$</p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — vol $0$ vs measure $0$, 与 §4.1 vs §4.11 的对比</span>
+        <p>这条命题给出 vol-zero 的<em>"finite dyadic cover"</em>判据: 与 $X$ 相交的 cube 总体积可任意小. 这与 <strong>measure-zero</strong> 的定义 (Lec 3.1, Topic 05) 形成<em>关键对比</em>:</p>
+        <ul>
+          <li><strong>vol $0$</strong>: <em>finite</em> cover by dyadic cubes, total vol $\le \eps$.</li>
+          <li><strong>measure $0$</strong>: <em>countable</em> cover by arbitrary boxes, total vol $\le \eps$.</li>
+        </ul>
+        <p>"finite" vs "countable" 的区别非常本质 — measure zero 严格弱于 vol zero. 反例: $X = \Q \cap [0, 1]$ has measure $0$ (countable set), but <em>not</em> vol $0$ (因为 $\mathbf 1_X$ 不可积 — Dirichlet, P1a 反例). 与 P1a 相互印证 — "测度论给 measure-0 集合更多空间 (countable union 仍 measure 0); 但 Riemann 框架的 vol-0 集合受限于 finite covers, 更刚性."</p>
+        <p>这条 Prop 也是 P4a 的 lemma 形式 — <em>很多</em>关于 vol-zero 的 statement 通过这条等价命题转化为关于 $\mathbf 1_X$ 的上和性质, 进而调用 dyadic paving 的工具. 见 Topic 04 (volume + pavable sets).</p>
+      </div>
+
+      <h3 id="sec5b">5(b) Ex 4.1.21 — 上积分的子加性</h3>
+
+      <div class="box def">
+        <span class="box-title">📋 Ex 4.1.21</span>
+        <p>设 $f, g \colon \R^n \to \R$ bounded with bounded support.</p>
+        <p><strong>(a)</strong> 证明 $U(f + g) \le U(f) + U(g)$ (上积分的<em>子加性</em>).</p>
+        <p><strong>(b)</strong> 给出例子使<strong>严格不等</strong>成立: $U(f + g) &lt; U(f) + U(g)$.</p>
+      </div>
+
+      <h4>(a) 策略 + 证明</h4>
+
+      <p>核心 trick: $\sup_C(f + g) \le \sup_C f + \sup_C g$ — 这是基础 sup 不等式. 乘 $\vol(C)$, 求和, 取极限.</p>
+
+      <details>
+        <summary><strong>展开证明</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">证明 (a)</span>
+            <p>对每个 $N$ 与每个 dyadic cube $C \in \mathcal D_N$, 由 sup 不等式 (对任意 $x \in C$, $f(x) + g(x) \le \sup_C f + \sup_C g$; sup over $x \in C$ on LHS):
+            $$M_C(f + g) = \sup_C(f + g) \le \sup_C f + \sup_C g = M_C(f) + M_C(g).$$
+            </p>
+            <p>乘 $\vol_n(C)$ 求和 over $C \in \mathcal D_N$:
+            $$U_N(f + g) \le U_N(f) + U_N(g).$$
+            $N \to \infty$ (三 sequences 都单调递减 bounded below, 极限存在):
+            $$U(f + g) = \lim_N U_N(f + g) \le \lim_N(U_N(f) + U_N(g)) = U(f) + U(g). \qquad \blacksquare$$
+            </p>
+          </div>
+        </div>
+      </details>
+
+      <h4>(b) 策略 + 反例</h4>
+
+      <p>需要 $U(f + g) &lt; U(f) + U(g)$. 直觉: 若 $f$ 与 $g$ 的"spike 位置"<em>互补</em> (即 $f$ 大的地方 $g$ 为 0, 反之亦然), 那么 $\sup_C f + \sup_C g$ 会<em>各自</em> capture 各自的 spike (= 1 + 1 = 2), 但 $\sup_C(f + g)$ 在每个 $C$ 中只 = 1 (因为 $f + g$ 在每个点要么 = $f$ 要么 = $g$, 都被局部 spike 限制为 1). 这是<strong>"sup 不分配于 +"</strong>的极端 manifestation.</p>
+
+      <p>具体构造: <em>Dirichlet 函数</em> $f = \mathbf 1_{\Q \cap [0,1]}$ 与<em>互补 Dirichlet</em> $g = \mathbf 1_{(\R \setminus \Q) \cap [0,1]}$. 由稠密性, 每个 dyadic cube $C$ 与 $[0,1]$ 相交时 $\sup_C f = 1$ <em>且</em> $\sup_C g = 1$, 给出 $U(f) = U(g) = 1$. 而 $f + g = \mathbf 1_{[0,1]}$ (因为每个 $x \in [0,1]$ 是 rational xor irrational), 这是可积函数 with $\int = 1$. 故 $U(f + g) = 1$ vs $U(f) + U(g) = 2$ — 严格不等差距 1.</p>
+
+      <details>
+        <summary><strong>展开反例的详细计算</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">反例</span>
+
+            <p>设 $n = 1$. 定义
+            $$f := \mathbf 1_{\Q \cap [0,1]}, \qquad g := \mathbf 1_{(\R \setminus \Q) \cap [0,1]}.$$
+            二者都 bounded with bounded support in $[0, 1]$.</p>
+
+            <p><strong>$U(f) = 1$</strong>: 对任意 level-$N$ dyadic 区间 $C \cap [0,1] \ne \emptyset$, $C \cap [0, 1]$ 是 nondegenerate interval (有正长度), 含 rational (by density of $\Q$) 故 $\sup_C f = 1$. 求和:
+            $$U_N(f) = \sum_{C \cap [0,1] \ne \emptyset}\vol_1(C) \to \vol_1([0, 1]) = 1 \quad (N \to \infty)$$
+            (由 vol-zero of $\partial[0, 1] = \{0, 1\}$). 故 $U(f) = 1$.</p>
+
+            <p><strong>$U(g) = 1$</strong>: 同理, 用 density of $\R \setminus \Q$. $U(g) = 1$.</p>
+
+            <p><strong>$f + g = \mathbf 1_{[0,1]}$</strong>: 对 $x \in [0, 1]$, 恰好一个 of $x \in \Q$ 或 $x \notin \Q$ 成立, 故 $f(x) + g(x) = 1$. 对 $x \notin [0, 1]$, $f(x) + g(x) = 0$. 故 $f + g = \mathbf 1_{[0,1]}$.</p>
+
+            <p><strong>$U(f + g) = 1$</strong>: $\mathbf 1_{[0,1]}$ 可积 ($\Disc = \{0, 1\}$ measure 0), 故 $U(\mathbf 1_{[0,1]}) = \int\mathbf 1_{[0,1]} = 1$.</p>
+
+            <p>综合:
+            $$U(f + g) = 1 \;&lt;\; 2 = U(f) + U(g). \qquad \blacksquare$$
+            </p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box pitfall">
+        <span class="box-title">⚠️ Pitfall — "sup 不分配于 +"</span>
+        <p>$\sup_C(f + g) \le \sup_C f + \sup_C g$ 一般<em>严格不等</em>, 当 $f$ 与 $g$ 的"最大值位置"<em>不重合</em>时. 上例反映: $f$ 在 rationals 取 1, $g$ 在 irrationals 取 1 — 不同位置, sup 相加是 1 + 1 = 2, 但 sup 和是 sup over 每个 $x$ 的 $f(x) + g(x) \le 1$.</p>
+
+        <p>这是<em>"$\sup$ 不是 linear"</em>的标准例证. 与 $\inf$ 对偶的不等式是 $\inf(f + g) \ge \inf f + \inf g$ (反向). 这两条非线性是 P2(iv) 与 P4b 之 (a) 推导的<strong>基本工具</strong>.</p>
+      </div>
+
+      <h3 id="sec5e">5(a) + 5(b) 整体反思</h3>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — Ex 4.1.4 + 4.1.21 共同体现的 §4.1 主线</span>
+        <p>两道 textbook 习题, 看似无关 (一个 about vol-zero, 一个 about 上积分), 实际共享 §4.1 的<strong>核心 mantra</strong>: <em>把几何/代数 statement 翻译成关于 $U_N, L_N$ 极限的 statement, 再用 dyadic paving 工具研究极限</em>.</p>
+        <ul>
+          <li>Ex 4.1.4: 几何"vol-zero" → 分析"$U_N(\mathbf 1_X) \to 0$" → ε-condition.</li>
+          <li>Ex 4.1.21(a): 代数"$f + g$ 的上积分" → 分析"$U_N(f + g) \le U_N(f) + U_N(g)$" via 逐 cube sup 不等式 → 极限保持.</li>
+          <li>Ex 4.1.21(b): 构造性的反例 — 用 Dirichlet/irrational density 让 sup 不等式严格.</li>
+        </ul>
+
+        <p>共同模板: "<em>逐 $C$ 不等式 → 乘 $\vol$ 求和 → $N \to \infty$ 取极限</em>". 这就是 §4.1 反复用到的<strong>3-step pattern</strong>, 后续 Lec 2-3, Topic 03-04 中无数次见.</p>
+
+        <p><strong>选这两题的另一个理由</strong>: 它们都很<em>短</em> — Ex 4.1.4 的核心 LHS = $U_N(\mathbf 1_X)$ 一行 translation 就赢; Ex 4.1.21 的 (a) 三行 sup 不等式 + (b) 一个标准 Dirichlet 反例. 与 P1, P2, P3 的 "<em>体力题</em>" (尤其 P2(iv) 含两个 lemma) 形成对比 — 让 HW 整体节奏不至于太重.</p>
+      </div>
+
+      <h2 id="sec6">§6 方法论速查</h2>
+
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def"><strong>Lebesgue 准则 (Thm 4.1.13)</strong>: $f$ bounded with bounded support 可积 ⟺ $\Disc(f)$ has measure zero. <em>用于 P1(a)(b), P4a 间接</em>.</li>
+          <li class="cs-def"><strong>Cauchy 准则</strong>: $f$ bounded with bounded support 可积 ⟺ $\forall \eps,\,\exists N,\,U_N(f) - L_N(f) &lt; \eps$. <em>用于 P2(iv) Step 2</em>.</li>
+          <li class="cs-def"><strong>Dyadic paving + $U_N(f) \searrow U(f), L_N(f) \nearrow L(f)$</strong>: 由 refinement 单调性. 可积 ⟺ $U(f) = L(f)$. <em>用于 P3, P4a, P4b</em>.</li>
+          <li class="cs-def"><strong>Riemann sum $R_N(f) := \sum_{D_N} f(x_{\mathbf k, N})/2^{nN}$</strong> with arbitrary sample $x_{\mathbf k, N} \in C_{\mathbf k, N}$. <em>P3 的研究对象</em>.</li>
+          <li class="cs-def"><strong>Bounded variation $V_a^b(f) := \sup_P \sum \abs{\Delta f}$</strong>, $\BV = \{f : V_a^b(f) &lt; \infty\}$. <em>P2 全</em>.</li>
+
+          <li class="cs-thm"><strong>★ Riemann sum squeeze (P3)</strong>: $L_N \le R_N \le U_N$, 可积时三者同极限 = $\int f$.</li>
+          <li class="cs-thm"><strong>$f$ 连续 + bounded support ⟹ 可积 (P1b)</strong>: 由 Lebesgue 准则 (空 $\Disc$) 或 Heine-Cantor (均匀连续) → Cauchy 准则.</li>
+          <li class="cs-thm"><strong>★ $\BV \Rightarrow$ 可积 (P2iv)</strong>: 通过 $\osc_{[c,d]}(f) \le V_c^d(f)$ + variation 加性, 均匀分割给 $U_N - L_N \le (b-a)V/N \to 0$.</li>
+          <li class="cs-thm"><strong>Variation 加性 (P2 Lemma 2)</strong>: $V_a^b(f) = V_a^c(f) + V_c^b(f)$ for $c \in (a,b)$. 由"<em>refinement 不降低 variation sum</em>" (Lemma 1) 给出.</li>
+          <li class="cs-thm"><strong>vol-zero 等价 (P4a, Prop 4.1.23)</strong>: $\vol(X) = 0$ ⟺ $U_N(\mathbf 1_X) \to 0$ ⟺ $\forall \eps,\,\exists N,\,\sum_{C \cap X \ne \emptyset}\vol(C) \le \eps$. 关键 translation: <em>LHS = $U_N(\mathbf 1_X)$</em>.</li>
+          <li class="cs-thm"><strong>上积分子加性 (P4b)</strong>: $U(f + g) \le U(f) + U(g)$, 可严格不等. 由 sup 不等式 $\sup_C(f + g) \le \sup_C f + \sup_C g$.</li>
+
+          <li class="cs-tech"><strong>反向三角不等式</strong>: $\bigl|\abs u - \abs v\bigr| \le \abs{u - v}$. <em>用于 P2(i)</em>.</li>
+          <li class="cs-tech"><strong>$\max\{f, g\} = \tfrac12(f + g + \abs{f - g})$</strong> 代数恒等式 (逐点验证 by case on $f \gtrless g$). <em>用于 P2(iii)</em>; 把 $\max$ 操作转化为 (i)(ii) 的合并应用.</li>
+          <li class="cs-tech"><strong>Dirichlet 函数 $\mathbf 1_{\Q \cap [0,1]}$ 是 §4.1 的"瑞士军刀"反例</strong>: $\Disc = [0, 1]$ measure 不为零 ⟹ 不可积 (P1a, P4b 都用). 把它与互补 $\mathbf 1_{(\R\setminus\Q)\cap[0,1]}$ 配对得到 $\mathbf 1_{[0,1]}$ — 这是 P4b 的"严格不等"配方.</li>
+          <li class="cs-tech"><strong>"逐 $C$ 不等式 → 乘 vol 求和 → 取极限" 3-step pattern</strong>: §4.1 的几乎所有 statement 都用此模板. P3, P4a, P4b 的核心步骤都是它的实例.</li>
+
+          <li class="cs-pitfall"><strong>★ Pitfall — "dominator 不奏效"</strong>: $0 \le f \le g$, $g$ 可积 ⟹ $f$ 可积? <strong>错</strong> (P1a Dirichlet 反例). Riemann 可积性是 $f$ 的<em>discontinuity</em> 属性, 与 magnitude 无关.</li>
+          <li class="cs-pitfall"><strong>Pitfall — "sup 分配于 +"</strong>: $\sup(f + g) \ne \sup f + \sup g$ 一般; 仅满足 $\le$. P4b 反例: Dirichlet + 互补 Dirichlet 给 $U(f) + U(g) = 2$ vs $U(f + g) = 1$.</li>
+          <li class="cs-pitfall"><strong>Pitfall — "$\BV$ 与连续/可微的关系"</strong>: $\BV \not\subseteq C^0$ (阶梯 BV but jumps), $C^0 \not\subseteq \BV$ (Weierstrass 函数). 但 $C^1 \subset \BV \subset \IR$ (P2iv 是第二个 ⊂).</li>
+        </ul>
+      </div>
+
+      <h2 id="sec7">§7 进一步阅读</h2>
+
+      <ul>
+        <li><strong>原题与提交解答</strong>: 题目 <code>../../HW/Pset/HW1.pdf</code>; LaTeX 完整证明 <code>../../HW/Response/HW1_response.pdf</code> (本页数学内容的 single source of truth).</li>
+        <li><strong>H&amp;H §4.1 — Riemann 积分基础</strong>: 本次 HW 全 4 题 (及 P4 的两道 textbook 习题) 都来自此节. 配套定理 Thm 4.1.13 (Lebesgue 准则), Prop 4.1.23 (vol-zero 等价).</li>
+        <li><strong>对应 typed notes</strong>:
+          <ul>
+            <li><code>Notes/Typed/1.1_notes/</code> + <code>1.2_notes/</code> + <code>1.3_notes/</code> — Riemann 积分的 1D 与 $n$-维构造, $U_N/L_N$ 单调性, Cauchy 准则.</li>
+            <li><code>Notes/Typed/2.1_notes/</code> + <code>2.2_notes/</code> — 可积性 + 不可积反例 (Dirichlet); 体积 via 指示函数; pavable 集.</li>
+            <li><code>Notes/Typed/3.1_notes/</code> + <code>3.2_notes/</code> + <code>3.3_notes/</code> — 测度零定义 + Lebesgue 准则 + 关于可积函数的 a.e. 推论.</li>
+          </ul>
+        </li>
+        <li><strong>相关 topic 页 (概念教学层)</strong>:
+          <ul>
+            <li><a href="../topics/01-1d-riemann.html">Topic 01 — 1D Riemann 积分</a>: P1, P2(iv), P3 的概念基础.</li>
+            <li><a href="../topics/02-nd-riemann.html">Topic 02 — n-维 Riemann 积分</a>: P3, P4a 用到的 dyadic paving + $U_N/L_N$ 框架.</li>
+            <li><a href="../topics/03-algebra-properties.html">Topic 03 — 积分的代数与序性质</a>: P4b 上积分子加性的母章 (那里讲<em>下</em>积分与 $\int$ 的关系, 与 P4b 互补).</li>
+            <li><a href="../topics/04-volume-pavable.html">Topic 04 — 体积与 pavable 集</a>: P4a (Prop 4.1.23) 的 home topic — vol-zero 的多种等价定义.</li>
+            <li><a href="../topics/05-measure-zero-basics.html">Topic 05 — 测度零</a> + <a href="../topics/06-lebesgue-criterion.html">Topic 06 — Lebesgue 准则</a>: P1 的 home topics. 这两页详尽讲 Lebesgue 准则的两个方向以及 Dirichlet 反例的 anatomy.</li>
+          </ul>
+        </li>
+        <li><strong>BV 理论的拓展阅读</strong> (题外但有趣):
+          <ul>
+            <li><strong>Royden &amp; Fitzpatrick</strong> <em>Real Analysis</em> Ch 6 §6 — Jordan 分解 ($\BV$ 函数 = 单调上升之差), Lebesgue 定理 (BV 函数 a.e. 可微).</li>
+            <li><strong>Stein &amp; Shakarchi</strong> <em>Real Analysis</em> Ch 3 — BV 函数 + absolute continuity + Radon-Nikodym, 引向 measure theory 的现代 framework.</li>
+          </ul>
+        </li>
+        <li><strong>HW1 在整学期中的位置</strong>: 这是奠基性的一份, 训练了"<em>把可积性 statement 翻译成 $U_N/L_N$ 极限 + dyadic paving 工具</em>"的核心 mantra. 后续 HW2 (Fubini + 体积), HW3 (change of variable), HW4 (MCT/DCT) 都在此基础上层层加码. 期末考试的 "<em>20 points of computation</em>" (Lec 8.2) 来自 §4.9-§4.11, 但底层语言仍是 §4.1 的 $U_N/L_N$ — HW1 学得扎实, 后面会顺很多.</li>
+      </ul>
+
+    </main>
+  </div>
+
+</body>
+</html>

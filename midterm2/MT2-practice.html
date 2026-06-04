@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MT2 Practice — 真题与详解 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\diam': '\\operatorname{diam}',
+        '\\sgn': '\\operatorname{sgn}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="MT2-C_lebesgue.html">MT2-C</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="MT2-D_drill.html">MT2-D 押题</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#intro">导览</a></li>
+        <li><a href="#p1">Problem 1 — Fatou</a></li>
+        <li><a href="#p2">Problem 2 — Fatou (a.e.)</a></li>
+        <li><a href="#p3">Problem 3 — 减少版 MCT</a></li>
+        <li><a href="#p4">Problem 4 — Ex 4.11.8</a></li>
+        <li><a href="#p5">Problem 5 — Ex 4.11.12</a></li>
+        <li><a href="#p6">Problem 6 — §4.10 代表题</a></li>
+        <li><a href="#p7">Problem 7 — Prop 4.9.5</a></li>
+        <li><a href="#p8">Problem 8 — Generalized DCT</a></li>
+        <li><a href="#p9">Problem 9 — Scheffé</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>MT2 Practice — 真题与详解</h1>
+      <p class="subtitle">老师发布的 Practice Midterm II (2026-05-20) · 9 题 · 配套 <a href="MT2-A_linear_cov.html">MT2-A</a> / <a href="MT2-B_nonlinear_cov.html">MT2-B</a> / <a href="MT2-C_lebesgue.html">MT2-C</a> · LaTeX 解答 <code>../../HW/Response/PracticeMT2_response.pdf</code></p>
+
+      <h2 id="intro">导览</h2>
+
+      <p>本页是 <code>HW/Pset/Practice MT2.pdf</code> 的 HTML 镜像 + 详解. 9 道题保持课本顺序 (跟 PDF 一致), 不像 MT2-A/B/C 按 topic 切分 — 这页设计用于<strong>真实考试模拟</strong>: 先盖住答案做一遍 (~90 min), 再展开 <code>&lt;details&gt;</code> 对答案. 错的题型回主题页对应 cluster 重读.</p>
+
+      <div class="box pitfall">
+        <span class="box-title">🎯 老师对 MT2 的关键公示 (Lec 8.2, 2026-05-21)</span>
+        <p>"<em>This time, my exam will be, like, very, very similar to that [Practice MT2].</em>" Lec 8.2 是 MT2 复习课, 老师亲自全证了 <strong>P1, P2, P3, P8, P9</strong> 这 5 道 §4.11 证明题 (全部 MCT/DCT/Fatou 应用). 板书 LaTeX 整理见 <code>../../Notes/Typed/8.2_notes/8.2_notes.pdf</code>.</p>
+        <p><strong>题型分布 (亲口公布)</strong>:</p>
+        <ul>
+          <li><strong>§4.11 (重点考)</strong> — 几道证明题, 但每道都是 <strong>"短而直白"</strong> 的 MCT/DCT/Fatou 应用 (识别定理 → 验 hypotheses → 套结论, 4-10 行就完). 模板即 P1, P2, P3, P8, P9. <strong>不考</strong> §4.11 砖块构造 / 良定性 / truncation 这类长技术证明.</li>
+          <li><strong>§4.10 (考 1 道计算)</strong> — "<em>just one computation about the change of variables, and I'm not going to ask you to verify Lipschitz derivatives and all that.</em>" 不要求验证 Lipschitz / 单射性 / 边界测度零. 模板即 <strong>P6</strong> (Example 4.10.18 + Exercises 4.10.9, 4.10.12, 4.10.13).</li>
+          <li><strong>§4.9 (考 1 道直白应用)</strong> — Example 4.9.4 风格. 模板即 <strong>P7</strong>.</li>
+        </ul>
+        <p><strong>修正常见误读</strong>: 老师说的 "not going to ask you any proof" 不是字面"完全没证明题", 而是<em>没有 §4.11 砖块那种 6ε truncation 的硬证明</em>. §4.11 部分仍是证明题, 只不过每道都是套现成定理. "<em>I'm going to ask, like, very, very straightforward examples. ... if you apply this, you immediately get the answer.</em>"</p>
+        <p><strong>复习优先顺序 (亲口公布)</strong>: ① 必做 Practice MT2 全部 9 题; ② 必做老师点名的 H&amp;H 课本题 (4.10.9, 4.10.12, 4.10.13, 4.11.8, 4.11.12); ③ 时间充裕再看 HW. <em>不必死磕</em>砖块定义 / 良定性长证明 / Lec 7.1-7.3 技术性内容 (conceptual 理解仍有价值, 但优先级低).</p>
+      </div>
+
+      <div class="box remark">
+        <span class="box-title">题目分布速览</span>
+        <ul>
+          <li><strong>§4.11 (Lebesgue) 占 6 题</strong>: P1, P2, P3 (Fatou + MCT 系列), P4 (4 parts, Lebesgue 积分的微分/连续/分部积分), P8 (Generalized DCT), P9 (Scheffé). 全部需要 <strong>MCT for Lebesgue (Thm 4.11.18)</strong> 或 <strong>DCT for Lebesgue (Thm 4.11.19)</strong> 作 black box — 见 <a href="MT2-C_lebesgue.html">MT2-C</a> §1 末尾的 🆕 box.</li>
+          <li><strong>§4.10 (Nonlinear CoV) 占 2 题</strong>: P5 (用 $u=xy, v=y/x$ 的 boundary-driven 套路, IFT shortcut), P6 (H&amp;H 三道 exercise + Example 4.10.18 的代表题). 配套 <a href="MT2-B_nonlinear_cov.html">MT2-B</a>.</li>
+          <li><strong>§4.9 (DSV) 占 1 题</strong>: P7 (Prop 4.9.5, $n$-parallelogram 体积). 配套 <a href="MT2-A_linear_cov.html">MT2-A</a>.</li>
+        </ul>
+        <p><strong>策略提示 (结合 Lec 8.2 公示更新)</strong>: 老师 Lec 8.2 板书走的题正是 P1, P2, P3, P8, P9 — 这 5 道是 MT2 上证明题的<em>直接模板</em>, 务必熟练. P4 (4.11.8) 与 P5 (4.11.12) 是老师点名的 H&amp;H 课本题, 难度略高于模板但仍是 DCT/Fubini/CoV 直接应用. P6 / P7 是课本题直接搬, 是 §4.10 + §4.9 的"计算配额"模板.</p>
+      </div>
+
+      <!-- ======================================================== -->
+      <h2 id="p1">Problem 1 (Fatou's lemma for Lebesgue integrable functions)</h2>
+
+      <div class="box example">
+        <span class="box-title">题面</span>
+        <p>设 $f_k \colon \R^n \to [0, \infty)$ 是一列 Lebesgue 可积函数. 证明
+        $$\int_{\R^n} \liminf_{k\to\infty} f_k \;\le\; \liminf_{k\to\infty} \int_{\R^n} f_k.$$
+        (提示: 用 monotone convergence theorem.)</p>
+      </div>
+
+      <details>
+        <summary>展开详解</summary>
+        <div class="details-body">
+          <p><strong>策略</strong>: 把 $\liminf f_k$ 表为单调递增极限, 然后套 MCT.</p>
+
+          <div class="box remark">
+            <span class="box-title">⚠ 这里的 MCT 指的是?</span>
+            <p>不是你熟悉的"单调有界数列必有极限" (那是 <em>实数列</em> MCT, real-analysis). 这里 MCT 指的是 <strong><a href="MT2-C_lebesgue.html#thm-C-6">MCT for Lebesgue</a> (H&amp;H Thm 4.11.18, ≡ MT2-C 的 Thm C.6)</strong>: $(f_k) \subset \IL$ a.e. 单调递增且 $\sup_k \int f_k < \infty$ ⟹ 极限函数 $f := \lim f_k$ <strong>仍在 $\IL$ 中</strong> 且 $\int f = \lim \int f_k$.</p>
+            <p>这条定理 lecture 没专门证 (是 H&amp;H §4.11 末尾 black box), 但 Practice MT2 的 Problem 1, 2, 3 都直接用. 完整 statement + 实数列版对比见 <a href="MT2-C_lebesgue.html#thm-C-6">MT2-C §2.5</a>.</p>
+          </div>
+
+          <p>定义 $g_k(x) := \inf_{j \ge k} f_j(x) \ge 0$. 三个 preliminary 观察:</p>
+          <ul>
+            <li><em>(i) $g_k \in \IL$</em>: $g_k$ 是 $\{f_j\}_{j \ge k}$ 的 pointwise inf, 可测且 $0 \le g_k \le f_k$. 跟可积 dominator $f_k$ 比较即得 $g_k \in \IL(\R^n)$. (技术细节: $g_k = \lim_m \min(f_k, \ldots, f_{k+m})$, 每个 finite min 由 $\min(u,v) = (u+v-\abs{u-v})/2$ 是 $\IL$; 用减少版 MCT — Problem 3 — 取极限.)</li>
+            <li><em>(ii) $(g_k)$ 单调递增</em>: $k \le k'$ ⟹ $\{j \ge k\} \supseteq \{j \ge k'\}$, 故 inf over larger set $\le$ inf over smaller set, 即 $g_k \le g_{k'}$.</li>
+            <li><em>(iii) $\lim_k g_k(x) = \liminf_k f_k(x)$</em>: 这就是 liminf 的定义.</li>
+          </ul>
+
+          <p>对任意 $j \ge k$, $g_k \le f_j$, 由单调性 (Prop 4.11.16):
+          $$\int g_k \le \int f_j \quad \forall j \ge k \;\;\Rightarrow\;\; \int g_k \le \inf_{j \ge k} \int f_j. \quad (\ast)$$
+          取 $k \to \infty$ 在 $(\ast)$ 两端:
+          $$\sup_k \int g_k \;\le\; \lim_{k\to\infty} \inf_{j \ge k} \int f_j \;=\; \liminf_{k\to\infty} \int f_k. \quad (\ast\ast)$$</p>
+
+          <p><strong>Case 1</strong>: $\liminf \int f_k = +\infty$ ⟹ 结论平凡.</p>
+
+          <p><strong>Case 2</strong>: $\liminf \int f_k < \infty$ ⟹ $\sup_k \int g_k < \infty$ (由 $(\ast\ast)$). 套 MCT (Thm 4.11.18): $\liminf_k f_k = \lim_k g_k \in \IL$ 且
+          $$\int_{\R^n} \liminf_{k\to\infty} f_k = \sup_k \int_{\R^n} g_k \stackrel{(\ast\ast)}{\le} \liminf_{k\to\infty} \int_{\R^n} f_k. \quad\square$$</p>
+
+          <p><strong>Remark</strong>: Fatou 是积分理论的"非对称工马". Mass 可以在极限中丢失 (典型反例 $f_k = \mathbf{1}_{[k, k+1]}$, $\liminf f_k = 0$ 但 $\int f_k = 1$), 所以这条不等式不能改成等式 — 除非加额外假设 (如 DCT 的 dominator).</p>
+        </div>
+      </details>
+
+      <!-- ======================================================== -->
+      <h2 id="p2">Problem 2 (Fatou for an a.e. limit)</h2>
+
+      <div class="box example">
+        <span class="box-title">题面</span>
+        <p>设 $(f_k)_{k\in\N}$ 是非负 Lebesgue 可积函数, $f_k \to f$ a.e., $f$ 也非负且 Lebesgue 可积. 证
+        $$\int_{\R^n} f \;\le\; \liminf_{k\to\infty} \int_{\R^n} f_k.$$</p>
+      </div>
+
+      <details>
+        <summary>展开详解</summary>
+        <div class="details-body">
+          <p>逐点收敛 ⟹ $\liminf_k f_k = \lim_k f_k = f$ a.e. 直接套 Problem 1 (Fatou):
+          $$\int_{\R^n} f = \int_{\R^n} \liminf_k f_k \le \liminf_k \int_{\R^n} f_k. \quad\square$$</p>
+          <p><strong>Remark</strong>: 假设 $f \in \IL$ (已给) 保证 LHS 是<em>有限</em>实数. 测度论标准版的 Fatou 在 extended reals 里给 $\int f \le \liminf \int f_k \in [0, \infty]$, 但这里 $f \in \IL$ 让结论非平凡.</p>
+        </div>
+      </details>
+
+      <!-- ======================================================== -->
+      <h2 id="p3">Problem 3 (Decreasing monotone convergence)</h2>
+
+      <div class="box example">
+        <span class="box-title">题面</span>
+        <p>设 $(f_k)$ 是非负 Lebesgue 可积函数, $f_k \downarrow f$ pointwise, $\int_{\R^n} f < \infty$. 证
+        $$\lim_{k\to\infty} \int_{\R^n} f_k \;=\; \int_{\R^n} f.$$</p>
+      </div>
+
+      <details>
+        <summary>展开详解</summary>
+        <div class="details-body">
+          <p><strong>策略</strong>: 翻转成单调<em>增</em>序列后套 MCT (这里 MCT 仍指 Lebesgue 版 <a href="MT2-C_lebesgue.html#thm-C-6">Thm C.6</a>, 不是实数列版 — 见 <a href="#p1">Problem 1</a> 策略行的 ⚠ box).</p>
+
+          <p>令 $h_k := f_1 - f_k$. 四个观察:</p>
+          <ul>
+            <li>$h_k \ge 0$ a.e. (因为 $f_k \le f_1$, 序列单调递减).</li>
+            <li>$h_k \in \IL$ (线性, Prop 4.11.14).</li>
+            <li>$(h_k)$ 单调递增: $k \le k'$ ⟹ $f_{k'} \le f_k$ ⟹ $h_{k'} \ge h_k$.</li>
+            <li>$h_k \to f_1 - f$ pointwise a.e.</li>
+          </ul>
+
+          <p>由单调性, 数列 $(\int f_k)$ 单调递减且 $\ge \int f \ge 0$, 故收敛到某个 $\ell \ge \int f$. 计算:
+          $$\sup_k \int h_k = \int f_1 - \inf_k \int f_k = \int f_1 - \ell \le \int f_1 < \infty.$$
+          套 MCT (Thm 4.11.18) on $(h_k)$:
+          $$\int(f_1 - f) = \sup_k \int h_k = \int f_1 - \ell.$$
+          线性: $\int f_1 - \int f = \int f_1 - \ell$, 故 $\ell = \int f$, 即 $\lim_k \int f_k = \int f$. $\square$</p>
+
+          <p><strong>Remark</strong>: 假设 $\int f < \infty$ 必不可少 — 没了它 MCT 用不动, $\ell$ 可能 $= +\infty$ 与 $\int f$ 都没法挂钩. 减少版 MCT 实战中用于 truncation $f_k = f \cdot \mathbf{1}_{\{|f| \le k\}} \uparrow |f|$ 的对偶情形 ($f_k \downarrow$ 时).</p>
+        </div>
+      </details>
+
+      <!-- ======================================================== -->
+      <h2 id="p4">Problem 4 (H&amp;H Exercise 4.11.8, 4 parts)</h2>
+
+      <div class="box example">
+        <span class="box-title">题面</span>
+        <p>设 $f \in \IL(\R)$, $F(x) := \int_0^x f(t)\, dt$ (符号约定: $x \ge 0$ 时 $\int_{[0,x]} f$, $x < 0$ 时 $-\int_{[x,0]} f$).</p>
+        <p><strong>(a)</strong> 证 $F$ 连续.</p>
+        <p><strong>(b)</strong> 证 Lebesgue 框架下的分部积分: 若 $f, g \in \IL(\R)$, $F(x) = \int_0^x f$, $G(x) = \int_0^x g$, 则
+        $$\int_a^b f(t) G(t)\, dt = F(b)G(b) - F(a)G(a) - \int_a^b F(t) g(t)\, dt.$$</p>
+        <p><strong>(c)</strong> 设 $f, F$ 如 (a). 证若 $F \in \IL$ 则 $\lim_{x\to\pm\infty} F(x) = 0$.</p>
+        <p><strong>(d)</strong> 同 (b) 假设 + $F \in \IL$ + $G$ 有界, 证
+        $$\int_{-\infty}^\infty f(t) G(t)\, dt = -\int_{-\infty}^\infty F(t) g(t)\, dt.$$</p>
+      </div>
+
+      <details>
+        <summary>展开 (a) 详解</summary>
+        <div class="details-body">
+          <p>固定 $x \in \R$, 取 $x_n \to x$. 定义 $I_n := [\min(x, x_n), \max(x, x_n)]$ 与 $g_n(t) := \sgn(x_n - x) \cdot f(t) \cdot \mathbf{1}_{I_n}(t)$. 则 $F(x_n) - F(x) = \int_\R g_n(t)\, dt$.</p>
+
+          <p>两个关键观察:</p>
+          <ul>
+            <li>$\abs{g_n(t)} \le \abs{f(t)}$ pointwise; $\abs f \in \IL$ 是 dominator.</li>
+            <li>$g_n \to 0$ pointwise on $\R \setminus \{x\}$: 给 $t \ne x$, 取 $n_0$ 使 $\abs{x_n - x} < \abs{t - x}$ 对 $n \ge n_0$, 则 $t \notin I_n$, $g_n(t) = 0$. 单点 $\{x\}$ 测度零.</li>
+          </ul>
+
+          <p>由 DCT (Thm 4.11.19), $F(x_n) - F(x) = \int_\R g_n \to 0$. 故 $F$ 在 $x$ 连续. $\square$</p>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">📖 DCT 应用拆解 (P4(a) 是一个"DCT 教科书式标准应用")</span>
+        <p><strong>核心 reformulation</strong>: 把<em>连续性</em>这个 pointwise 命题, 通过 $g_n$ 转化为<em>积分级数</em>命题 $\int g_n \to \int 0$ — 这样才能上 DCT.
+        $$F(x_n) - F(x) = \int_x^{x_n} f(t)\, dt = \int_\R \underbrace{\sgn(x_n - x)\cdot f(t)\cdot \mathbf{1}_{I_n}(t)}_{g_n(t)}\, dt.$$
+        $\sgn$ 处理 $x_n &lt; x$ 与 $x_n &gt; x$ 两种情形, $\mathbf{1}_{I_n}$ 把积分限制在收缩区间.</p>
+
+        <p><strong>三个 DCT hypotheses 逐项兑现</strong>:</p>
+        <ul>
+          <li><strong>(i) 每个 $g_n \in \IL$</strong>: $g_n = \pm f\cdot\mathbf{1}_{I_n}$, 而 $f\in\IL$ 与 $\mathbf{1}_{I_n}$ 是有界 $\IR$ 函数; 由 Prop 4.11.15 (乘以有界 $\IR$ 保持 $\IL$), $g_n\in\IL$.</li>
+          <li><strong>(ii) Dominator $\abs{g_n} \le F\in\IL$, $F$ 不随 $n$ 漂</strong>: $\abs{g_n(t)} = \abs{f(t)}\cdot\mathbf{1}_{I_n}(t) \le \abs{f(t)}$. 取 $F := \abs f \in \IL$. <em>关键</em>: $F$ 独立于 $n$ — 否则要上 generalized DCT (Problem 8).</li>
+          <li><strong>(iii) $g_n \to 0$ a.e.</strong>: 对 $t \ne x$, 取 $n_0$ 使 $\abs{x_n - x} &lt; \abs{t-x}$ 对 $n\ge n_0$, 则 $I_n$ (以 $x$ 为端点之一, 长度 $\abs{x_n-x}$) 不含 $t$, 故 $g_n(t) = 0$. 例外集 $\{x\}$ 测度零.</li>
+        </ul>
+
+        <p><strong>套结论</strong>: DCT 给 $\int g_n \to \int 0 = 0$, 即 $F(x_n) - F(x) \to 0$, 完毕.</p>
+
+        <p><strong>可复用模板 (适用 MT2 所有 §4.11 DCT 题)</strong>:</p>
+        <ol>
+          <li>把目标量 (差 / 极限 / sup 等) 写成 $\int g_n$ 的形式;</li>
+          <li>找<u>不随 $n$ 漂</u>的 dominator $F\in\IL$ 使 $\abs{g_n}\le F$;</li>
+          <li>证 $g_n \to g$ a.e. (通常 $g = 0$ 或某个明显的极限);</li>
+          <li>套 DCT 直接得 $\int g_n \to \int g$.</li>
+        </ol>
+
+        <p><strong>什么时候这个模板失效?</strong> 答: 当 dominator <em>找不到一个不随 $n$ 漂的</em>. 这时改用:</p>
+        <ul>
+          <li><strong>Generalized DCT</strong> (<a href="#p8">P8</a>): dominator 允许漂 ($g_k\to g$ a.e. + $\int g_k\to\int g$).</li>
+          <li><strong>Scheffé</strong> (<a href="#p9">P9</a>): 不要 dominator, 但要求 $\int\abs{f_k}\to\int\abs f$.</li>
+          <li><strong>Fatou</strong> (<a href="#p1">P1</a>): 只需要单边不等式, 没 dominator 也行.</li>
+        </ul>
+        <p>本题 dominator $\abs f$ 是"白送"的 — 这就是 DCT 最干净的应用. 见 P8 / P9 对比, 那里 dominator 要漂或不存在.</p>
+      </div>
+
+      <details>
+        <summary>展开 (b) 详解</summary>
+        <div class="details-body">
+          <p>WLOG $0 \le a \le b$ (其他情形分割 $\int_a^b = \int_a^0 + \int_0^b$). 定义 $h(s, t) := f(t) g(s)$ 在
+          $$T := \{(s, t) : 0 \le s \le t,\ a \le t \le b\}.$$</p>
+
+          <p><strong>验证 $h \in \IL(\R^2)$</strong>: $T$ 有界 pavable. $\tilde f(t) := f(t) \mathbf{1}_{[a, b]}(t)$ 与 $\tilde g(s) := g(s) \mathbf{1}_{[0, b]}(s)$ 都 $\in \IL(\R)$ 有界支集. 它们的 tensor 积 $\tilde f(t)\tilde g(s) \in \IL(\R^2)$ (Fubini 逆向, Thm 4.11.21). $h = \tilde f \tilde g \cdot \mathbf{1}_T \in \IL(\R^2)$ (乘以 bounded R-integrable $\mathbf{1}_T$, Prop 4.11.15).</p>
+
+          <p>套 Fubini 两个顺序:</p>
+
+          <p><em>顺序 1 (先 $s$):</em> 固定 $t \in [a,b]$, $s$-slice = $[0, t]$:
+          $$\int_T h = \int_a^b f(t) \left(\int_0^t g(s)\, ds\right) dt = \int_a^b f(t) G(t)\, dt.$$</p>
+
+          <p><em>顺序 2 (先 $t$):</em> $s$-range = $[0, b]$. $t$-slice at $s$ = $[\max(s, a), b]$. 分割 $[0,b] = [0,a] \cup [a,b]$:
+          $$\int_T h = \int_0^a g(s) \underbrace{(F(b) - F(a))}_{\text{constant}} ds + \int_a^b g(s) (F(b) - F(s))\, ds$$
+          $$= G(a)(F(b) - F(a)) + F(b)(G(b) - G(a)) - \int_a^b F(s) g(s)\, ds$$
+          $$= F(b)G(b) - F(a)G(a) - \int_a^b F(s) g(s)\, ds.$$</p>
+
+          <p>两个顺序相等给所求恒等式. $\square$</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>展开 (c) 详解</summary>
+        <div class="details-body">
+          <p>$L_+ := \lim_{x\to\infty} F(x)$ 存在 (作 $\int_0^x f \to \int_0^\infty f = \int_\R f \cdot \mathbf{1}_{[0, \infty)}$, 一个有限实数因 $f \in \IL$).</p>
+
+          <p>假设 $L_+ \ne 0$ (反证), 不妨 $L_+ > 0$. 取 $M$ 使 $F(x) > L_+/2$ 对所有 $x \ge M$. 则对任意 $N > M$:
+          $$\int_M^N \abs F\, dt \ge \int_M^N \frac{L_+}{2}\, dt = \frac{L_+ (N - M)}{2} \to \infty \text{ as } N \to \infty,$$
+          矛盾 $F \in \IL$. 故 $L_+ = 0$. $-\infty$ 同样论证. $\square$</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>展开 (d) 详解</summary>
+        <div class="details-body">
+          <p>由 (a) + (c), $F: \R \to \R$ 连续且 $\to 0$ at $\pm\infty$, 故 bounded: $\abs F \le M_F$. $\abs G \le M_G$ 假设. </p>
+
+          <p>两个被积函数都 $\in \IL$:</p>
+          <ul>
+            <li>$\abs{fG} \le M_G \abs f$, 由 Prop 4.11.15 (乘以 bounded R-integrable $G$ — 在每个 bounded 区间上 R-integrable) $fG \in \IL$.</li>
+            <li>$\abs{Fg} \le M_F \abs g$, 类似 $Fg \in \IL$.</li>
+          </ul>
+
+          <p>由 (b), 对任意 $a \le b$:
+          $$\int_a^b f G\, dt = F(b) G(b) - F(a) G(a) - \int_a^b F g\, dt.$$</p>
+
+          <p>取 $a \to -\infty, b \to +\infty$:</p>
+          <ul>
+            <li>$F(b) G(b) \to 0$ (因 $F(b) \to 0$ 由 (c), $G$ 有界).</li>
+            <li>$F(a) G(a) \to 0$ 类似.</li>
+            <li>$\int_a^b fG \to \int_\R fG$ 由 DCT, dominator $M_G \abs f$.</li>
+            <li>$\int_a^b Fg \to \int_\R Fg$ 由 DCT, dominator $M_F \abs g$.</li>
+          </ul>
+
+          <p>取极限: $\int_\R fG = 0 - 0 - \int_\R Fg$, 即 $\int_\R fG\, dt = -\int_\R Fg\, dt$. $\square$</p>
+        </div>
+      </details>
+
+      <!-- ======================================================== -->
+      <h2 id="p5">Problem 5 (H&amp;H Exercise 4.11.12)</h2>
+
+      <div class="box example">
+        <span class="box-title">题面</span>
+        <p>$f(x, y) = x^a y^b$ 何时在 $A := \{0 \le x \le y,\ xy \le 1\}$ 上 Lebesgue 可积? (提示: $u = xy, v = y/x$.)</p>
+      </div>
+
+      <details>
+        <summary>展开详解</summary>
+        <div class="details-body">
+          <p><strong>设置 CoV</strong>: 在 $\mathring A = \{0 < x < y, xy < 1\}$ 上, $\Psi(x, y) := (xy, y/x) = (u, v)$. 约束:</p>
+          <ul>
+            <li>$0 \le x \le y$ ⟺ $y/x \ge 1$ ⟺ $v \ge 1$.</li>
+            <li>$xy \le 1$ ⟺ $u \le 1$.</li>
+          </ul>
+          <p>故 $\Psi$ 映 $A^\circ$ 到 $B := \{0 < u \le 1,\ v \ge 1\}$. $\Psi$ 的导数:
+          $$[D\Psi] = \begin{pmatrix} y & x \\ -y/x^2 & 1/x \end{pmatrix}, \quad \det[D\Psi] = \frac{y}{x} + \frac{y}{x} = \frac{2y}{x} = 2v > 0.$$</p>
+
+          <p><strong>反函数</strong>: $xy = u, y/x = v$ ⟹ $y^2 = uv, x^2 = u/v$, 故
+          $$\Phi(u, v) = \Psi^{-1}(u, v) = (\sqrt{u/v}, \sqrt{uv}).$$
+          由 IFT shortcut: $\abs{\det[D\Phi(u, v)]} = 1/\abs{\det[D\Psi(\Phi(u, v))]} = 1/(2v)$.</p>
+
+          <p>$\partial A$ (直线 $x = y$, $x = 0$, 双曲线 $xy = 1$ 的部分) 2-测度零, Thm 4.11.20 适用.</p>
+
+          <p><strong>变量代换</strong>: $f(\Phi(u, v)) = (u/v)^{a/2} (uv)^{b/2} = u^{(a+b)/2} v^{(b-a)/2}$. 故 (取 $\abs f$):
+          $$\int_A \abs f = \int_B u^{(a+b)/2} v^{(b-a)/2} \cdot \frac{1}{2v}\, du\, dv = \frac{1}{2} \int_0^1 u^{(a+b)/2} du \cdot \int_1^\infty v^{(b-a)/2 - 1} dv.$$</p>
+
+          <p><strong>收敛判别</strong>:</p>
+          <ul>
+            <li>$\int_0^1 u^{(a+b)/2}\, du < \infty$ ⟺ $(a+b)/2 > -1$ ⟺ $a + b > -2$.</li>
+            <li>$\int_1^\infty v^{(b-a)/2 - 1}\, dv < \infty$ ⟺ $(b-a)/2 - 1 < -1$ ⟺ $b < a$.</li>
+          </ul>
+
+          <p><strong>结论</strong>: $f = x^a y^b \in \IL(A)$ 当且仅当
+          $$\boxed{a + b > -2 \quad \text{且} \quad a > b.}$$
+          积分值 (在二条件都成立时):
+          $$\int_A x^a y^b\, dV = \frac{1}{2} \cdot \frac{2}{a+b+2} \cdot \frac{2}{a-b} = \frac{2}{(a+b+2)(a-b)}.$$</p>
+
+          <p><strong>Remark</strong>: 两个条件干净 decouple — $u = xy$ 控制角落 $\{x = y = 0\}$ (要求 $a+b$ 不太负), $v = y/x$ 控制 tail $\{x \to 0^+, y \to \infty\}$ 沿双曲线 (要求 $b - a$ 足够负). IFT shortcut 在这里关键: 直接微分 $\Phi$ 的平方根太烦.</p>
+        </div>
+      </details>
+
+      <!-- ======================================================== -->
+      <h2 id="p6">Problem 6 (H&amp;H §4.10 代表题: Example 4.10.18, Exercises 4.10.9, 4.10.12, 4.10.13)</h2>
+
+      <div class="box example">
+        <span class="box-title">题面</span>
+        <p>研究下列 §4.10 题型. 我把 3 道 Exercise 完整解答; Example 4.10.18 概述.</p>
+      </div>
+
+      <details>
+        <summary>Exercise 4.10.9: 椭球 octant 求 $\int xyz$</summary>
+        <div class="details-body">
+          <p>$V = \{x, y, z > 0,\ (x/a)^2 + (y/b)^2 + (z/c)^2 \le 1\}$. 求 $\int_V xyz\, dV$.</p>
+
+          <p><em>Step 1 (linear scaling)</em>: $T(u, v, w) = (au, bv, cw)$ 映单位球 octant $B^+$ 到 $V$, $\det T = abc$. 由 Thm 4.9.1:
+          $$\int_V xyz\, dV = \int_{B^+} \underbrace{(au)(bv)(cw)}_{xyz\,=\,abc\cdot uvw}\cdot \underbrace{abc}_{|\det T|}\, du\, dv\, dw = (abc)^2 \int_{B^+} uvw\, du\, dv\, dw.$$</p>
+
+          <div class="box remark">
+            <span class="box-title">为什么是 $(abc)^2$ 而不是 $abc$?</span>
+            <p>"Determinant scales volume" 给出的 Jacobian 因子只有 <strong>一次方</strong> $|\det T| = abc$, 但被积函数本身在变换下也"被拉伸"了一次: $xyz = (au)(bv)(cw) = abc\cdot uvw$. 两个 $abc$ 相乘 = $(abc)^2$. 反例对照: 若被积函数为常数 $1$ (即求体积), 则只剩一个 $abc$, 给出 $\vol(V) = abc\cdot \vol(B^+) = \pi abc/6$ (椭球 octant 体积).</p>
+          </div>
+
+          <p><em>Step 2 (spherical)</em>: $u = r\cos\theta\cos\varphi$, $v = r\sin\theta\cos\varphi$, $w = r\sin\varphi$ (latitude 约定: $\varphi$ 从赤道量起), Jacobian $r^2\cos\varphi$ (推导见下方折叠框). Octant: $r \in (0,1), \theta \in (0, \pi/2), \varphi \in (0, \pi/2)$.
+          $$uvw \cdot r^2\cos\varphi = r^5 \cos\theta\sin\theta \cos^3\varphi\sin\varphi.$$
+          三个 1D 积分分离:
+          $$\int_0^1 r^5 dr \cdot \int_0^{\pi/2}\cos\theta\sin\theta\, d\theta \cdot \int_0^{\pi/2}\cos^3\varphi\sin\varphi\, d\varphi = \frac{1}{6} \cdot \frac{1}{2} \cdot \frac{1}{4} = \frac{1}{48}.$$</p>
+
+          <p>合: $\boxed{\int_V xyz\, dV = \dfrac{a^2 b^2 c^2}{48}.}$</p>
+
+          <details style="margin-top: 1em;">
+            <summary>Spherical Jacobian $\det[DS] = r^2\cos\varphi$ 的显式推导</summary>
+            <div style="padding-left: 1em;">
+              <p>对 $S(r,\theta,\varphi) = (r\cos\theta\cos\varphi,\, r\sin\theta\cos\varphi,\, r\sin\varphi)$, Jacobian 矩阵 (列序 $r,\theta,\varphi$):
+              $$[DS] = \begin{pmatrix} \cos\theta\cos\varphi & -r\sin\theta\cos\varphi & -r\cos\theta\sin\varphi \\ \sin\theta\cos\varphi & r\cos\theta\cos\varphi & -r\sin\theta\sin\varphi \\ \sin\varphi & 0 & r\cos\varphi \end{pmatrix}.$$</p>
+
+              <p>沿<strong>第三行</strong>展开 (该行含一个 $0$, 最省事):
+              $$\det[DS] = \sin\varphi\cdot M_{31} \;-\; 0 \;+\; r\cos\varphi\cdot M_{33}.$$</p>
+
+              <p>子式 1 (划掉第 3 行第 1 列):
+              $$M_{31} = \begin{vmatrix} -r\sin\theta\cos\varphi & -r\cos\theta\sin\varphi \\ \;r\cos\theta\cos\varphi & -r\sin\theta\sin\varphi \end{vmatrix} = r^2\sin^2\theta\cos\varphi\sin\varphi + r^2\cos^2\theta\sin\varphi\cos\varphi = r^2\sin\varphi\cos\varphi.$$</p>
+
+              <p>子式 2 (划掉第 3 行第 3 列):
+              $$M_{33} = \begin{vmatrix} \cos\theta\cos\varphi & -r\sin\theta\cos\varphi \\ \sin\theta\cos\varphi & \;r\cos\theta\cos\varphi \end{vmatrix} = r\cos^2\theta\cos^2\varphi + r\sin^2\theta\cos^2\varphi = r\cos^2\varphi.$$</p>
+
+              <p>合并:
+              $$\det[DS] = \sin\varphi\cdot r^2\sin\varphi\cos\varphi + r\cos\varphi\cdot r\cos^2\varphi = r^2\cos\varphi\,\underbrace{(\sin^2\varphi+\cos^2\varphi)}_{=\,1} = r^2\cos\varphi.$$</p>
+
+              <p>由于 $\varphi\in(0,\pi/2)$ 时 $\cos\varphi > 0$, 所以 $|\det[DS]| = r^2\cos\varphi$. </p>
+
+              <p><strong>与 colatitude 版本对照</strong>: H&amp;H 文本中常用 $z = r\cos\varphi$ ($\varphi$ 从北极量起, $\varphi\in(0,\pi)$), 那个版本的 Jacobian 是 $r^2\sin\varphi$. 两套约定通过 $\varphi_{\text{lat}} = \pi/2 - \varphi_{\text{co}}$ 互换, $\sin\leftrightarrow\cos$ 自动对上. Lec 5.3 用 latitude 约定, 故出现 $r^2\cos\varphi$.</p>
+            </div>
+          </details>
+        </div>
+      </details>
+
+      <details>
+        <summary>Exercise 4.10.12: Quarter-ball iterated integral</summary>
+        <div class="details-body">
+          <p>$I = \int_{-2}^2 \int_0^{\sqrt{4-x^2}} \int_0^{\sqrt{4-x^2-y^2}} (x^2+y^2+z^2)^{3/2}\, dz\, dy\, dx$.</p>
+
+          <p>区域 = $\{x^2+y^2+z^2 \le 4, y \ge 0, z \ge 0\}$ — radius-2 球的 quarter.</p>
+
+          <p>球坐标 (with $z = r\sin\varphi$):
+          $y \ge 0$ ⟺ $\sin\theta \ge 0$ ⟺ $\theta \in [0, \pi]$; $z \ge 0$ ⟺ $\varphi \in [0, \pi/2]$. 被积函数 $= r^3$. 与 Jacobian $r^2\cos\varphi$ 合并:
+          $$I = \int_0^{\pi/2}\cos\varphi\, d\varphi \cdot \int_0^\pi d\theta \cdot \int_0^2 r^5\, dr = 1 \cdot \pi \cdot \frac{64}{6} = \boxed{\dfrac{32\pi}{3}.}$$</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Exercise 4.10.13: 锥与抛物面之间的体积</summary>
+        <div class="details-body">
+          <p>锥 $z^2 = x^2 + y^2$ (上 sheet $z = r$ in cylindrical) 与抛物面 $z = x^2 + y^2 = r^2$ 之间的区域.</p>
+
+          <p>交线: $r = r^2$ ⟹ $r = 0$ 或 $r = 1$. 在 $0 \le r \le 1$ 内 $r^2 \le r$, 抛物面在下, 锥在上. 故
+          $$W = \{0 \le r \le 1,\ 0 \le \theta < 2\pi,\ r^2 \le z \le r\}.$$</p>
+
+          <p>柱坐标 Jacobian $= r$:
+          $$\vol_3(W) = \int_0^{2\pi}\int_0^1 \int_{r^2}^r r\, dz\, dr\, d\theta = 2\pi \int_0^1 r(r - r^2)\, dr = 2\pi\left(\frac{1}{3} - \frac{1}{4}\right) = \boxed{\dfrac{\pi}{6}.}$$</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Example 4.10.18 (boundary-driven CoV 概述)</summary>
+        <div class="details-body">
+          <p>区域 $X = \{1 \le xy \le 2,\ x^2 \le y \le 2x^2\}$. Level-set form ⟹ 选 $u = xy, v = y/x^2$. Inverse $\Phi(u, v) = (u^{1/3} v^{-1/3}, u^{2/3} v^{1/3})$. IFT shortcut: $\abs{\det[D\Phi]} = 1/(3v)$. 面积 $= \int_1^2 \int_1^2 \frac{1}{3v}\, du\, dv = (1/3)\ln 2$.</p>
+          <p>这是 Problem 5 (Exercise 4.11.12) 的"姊妹题" — 同样用 $u = xy$ 控制一族双曲线, 另一变量控制另一族曲线. 几乎是 boundary-driven design pattern 的<em>定义性例题</em>.</p>
+        </div>
+      </details>
+
+      <!-- ======================================================== -->
+      <h2 id="p7">Problem 7 (H&amp;H Proposition 4.9.5: 体积 of $n$-parallelogram)</h2>
+
+      <div class="box example">
+        <span class="box-title">题面</span>
+        <p>设 $v_1, \ldots, v_n \in \R^n$. 证
+        $$\vol_n P(v_1, \ldots, v_n) = \abs{\det[v_1, \ldots, v_n]}.$$</p>
+      </div>
+
+      <details>
+        <summary>展开详解</summary>
+        <div class="details-body">
+          <p>令 $T$ 是线性映射 with $T e_i = v_i$, 即 $[T] = [v_1 | \cdots | v_n]$. 则
+          $$T(Q_n) = T(P(e_1, \ldots, e_n)) = \{t_1 v_1 + \cdots + t_n v_n : 0 \le t_i \le 1\} = P(v_1, \ldots, v_n).$$
+          由 Thm 4.9.1 (DSV):
+          $$\vol_n P(v_1, \ldots, v_n) = \vol_n T(Q_n) = \abs{\det T} \cdot \vol_n Q_n = \abs{\det[v_1, \ldots, v_n]} \cdot 1.\quad\square$$</p>
+
+          <p><strong>Remark</strong>: 行列式的几何含义 — $\abs{\det}$ 度量由列向量张成的 parallelepiped 的体积. 带符号 $\det$ 携带 orientation (Ch 5-6 微分形式). 这条 Prop 是 DSV 的 "specialisation" — 把"线性映射 $T$ 作用于 pavable 集 $A$"特化到"$A = Q_n$"上.</p>
+        </div>
+      </details>
+
+      <!-- ======================================================== -->
+      <h2 id="p8">Problem 8 (Generalized Dominated Convergence)</h2>
+
+      <div class="box example">
+        <span class="box-title">题面</span>
+        <p>设 $f_k, g_k, f, g \in \IL$, $g_k, g \ge 0$ a.e. 设 (i) $f_k \to f$ a.e. 与 $g_k \to g$ a.e.; (ii) $\abs{f_k} \le g_k$ a.e.; (iii) $\int g_k \to \int g$. 证 $\int f_k \to \int f$.</p>
+      </div>
+
+      <details>
+        <summary>展开详解</summary>
+        <div class="details-body">
+          <p><strong>策略</strong>: Fatou-on-both-sides — 对 $g_k + f_k$ 和 $g_k - f_k$ 分别套 Fatou.</p>
+
+          <p><strong>Sequence A</strong>: $g_k + f_k \ge 0$ a.e. (因 $\abs{f_k} \le g_k$ ⟹ $-g_k \le f_k$). 每个 $\in \IL$. 极限 $g + f$. 套 Fatou (Problem 1):
+          $$\int(g + f) \le \liminf \int(g_k + f_k) = \int g + \liminf \int f_k$$
+          (用 $\int g_k \to \int g$). 减 $\int g$:
+          $$\int f \le \liminf \int f_k. \quad(A)$$</p>
+
+          <p><strong>Sequence B</strong>: $g_k - f_k \ge 0$ a.e. (因 $f_k \le g_k$). 极限 $g - f$. 套 Fatou:
+          $$\int(g - f) \le \liminf \int(g_k - f_k) = \int g - \limsup \int f_k.$$
+          减 $\int g$:
+          $$-\int f \le -\limsup \int f_k, \quad \text{即} \quad \limsup \int f_k \le \int f. \quad(B)$$</p>
+
+          <p>合 (A) + (B):
+          $$\int f \le \liminf \int f_k \le \limsup \int f_k \le \int f,$$
+          故三者相等, $\lim \int f_k = \int f$. $\square$</p>
+
+          <p><strong>Remark</strong>: 标准 DCT (Thm 4.11.19) 是 $g_k \equiv g = F$ 固定 dominator 的 special case. 推广允许 dominator 移动, 只要总 mass $\int g_k \to \int g$ 收敛. 这是 Vitali 收敛定理 / generalized DCT 的核心.</p>
+        </div>
+      </details>
+
+      <!-- ======================================================== -->
+      <h2 id="p9">Problem 9 (Scheffé's lemma)</h2>
+
+      <div class="box example">
+        <span class="box-title">题面</span>
+        <p>设 $f_k, f \in \IL$, $f_k \to f$ a.e. 证
+        $$\int\abs{f_k - f} \to 0 \quad \Longleftrightarrow \quad \int\abs{f_k} \to \int\abs f.$$</p>
+      </div>
+
+      <details>
+        <summary>展开 ($\Rightarrow$) 平凡方向</summary>
+        <div class="details-body">
+          <p>由 reverse 三角不等式 $\bigl|\abs{f_k} - \abs f\bigr| \le \abs{f_k - f}$ pointwise. 积分:
+          $$\abs{\int\abs{f_k} - \int\abs f} \le \int\bigl|\abs{f_k} - \abs f\bigr| \le \int\abs{f_k - f} \to 0. \quad\square$$</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>展开 ($\Leftarrow$) 实质方向</summary>
+        <div class="details-body">
+          <p>定义 $h_k := \abs{f_k - f} - \abs{f_k} + \abs f$. 两个性质:</p>
+
+          <p><strong>(i) $h_k \ge 0$ pointwise</strong>. 由 reverse 三角: $\abs{f_k - f} \ge \bigl|\abs{f_k} - \abs f\bigr| \ge \abs f - \abs{f_k}$, 重排 $\Rightarrow h_k \ge 0$.</p>
+
+          <p><strong>(ii) $h_k \le 2\abs f$ pointwise</strong>. 由三角: $\abs{f_k - f} \le \abs{f_k} + \abs f$, 故 $h_k \le \abs{f_k} + \abs f - \abs{f_k} + \abs f = 2\abs f$.</p>
+
+          <p>$h_k \to 0$ a.e. (因 $f_k \to f$ a.e. ⟹ $\abs{f_k - f} \to 0$ a.e., $\abs{f_k} \to \abs f$ a.e.).</p>
+
+          <p>由 (ii), dominator $2\abs f \in \IL$. 套 DCT (Thm 4.11.19): $\int h_k \to 0$, 即
+          $$\int\abs{f_k - f} - \int\abs{f_k} + \int\abs f \to 0.$$
+          假设 $\int\abs{f_k} \to \int\abs f$ 把后两项相消, 故 $\int\abs{f_k - f} \to 0$. $\square$</p>
+
+          <p><strong>Remark</strong>: Scheffé 心脏在 ($\Leftarrow$). 它把"pointwise a.e. 收敛 + $L^1$-norm 守恒"升级到"$L^1$ 收敛". 比 DCT 严格弱的 hypothesis (不需要 single dominator), 在概率密度收敛中常用 ($f_k, f$ 是概率密度 ⟹ $\int \abs{f_k} = \int \abs f = 1$ 自动 ⟹ Scheffé 立刻给 $L^1$ 收敛).</p>
+        </div>
+      </details>
+
+      <hr style="margin: 60px 0 20px; border: 0; border-top: 1px solid #d8d3c4;">
+      <p style="font-size: 13px; color: #888; text-align: center;">MATH 31CH 复习指南 · MT2 Practice · H&amp;H §4.9-4.11</p>
+
+    </main>
+  </div>
+
+</body>
+</html>

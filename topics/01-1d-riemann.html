@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Topic 01: 1D Riemann 积分 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev nav-disabled" href="#">无</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="02-nd-riemann.html">Topic 02</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#motivation">§1 动机</a></li>
+        <li><a href="#prereq">§2 前置知识</a></li>
+        <li><a href="#definitions">§3 核心定义</a></li>
+        <li><a href="#theorems">§4 主要定理</a></li>
+        <li><a href="#examples">§5 Worked Examples</a></li>
+        <li><a href="#pitfalls">§6 常见陷阱</a></li>
+        <li><a href="#exercises">§7 练习</a></li>
+        <li><a href="#cheat">§8 速查表</a></li>
+        <li><a href="#further">§9 进一步阅读</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>Topic 01: 1D Riemann 积分</h1>
+      <p class="subtitle">Source: Lec 1.1 · H&amp;H §4.1 (1D 雏形) · 14 topics 中第 1 个</p>
+
+      <!-- §1 动机 -->
+      <h2 id="motivation">§1 动机</h2>
+      <p>这门课的主线是<strong>高维积分</strong> — 给定 $f \colon A \subseteq \R^n \to \R$ (有界), 我们想严格地定义 $\int_A f\, dV$, 并发展它的性质 (线性、Fubini、变量代换). 但在跳进 $\R^n$ 之前, 我们用一节课把<strong>一维 Riemann 积分</strong>的逻辑重新走一遍 — 不是为了从头教积分, 而是为了把后续高维理论里所有的"招式"先在一维这个最熟悉的舞台上看清楚: 划分一个区间、在每块上取 sup/inf、堆砌上和下和、用 $\eps$-argument 把它们逼近.</p>
+
+      <p>直觉上, $\int_a^b f(x)\,dx$ 就是"$y = f(x)$ 曲线下的有向面积". Riemann 的做法是把它分解成<strong>许多窄长方形面积之和</strong>: 把 $(a,b)$ 切成许多小区间 $I_k$, 在 $I_k$ 上选一个高度 (sup, inf, 或任意点的函数值), 高 × 宽 求和, 再让分割越来越细 — 极限就是积分. 关键问题是: 这个极限存不存在? 存在的话, 对不同的分割方式会不会给出不同的极限值? 这正是<strong>Riemann 可积性</strong>要回答的.</p>
+
+      <p>本页的最终目的是一个 operational 判据 — <strong>Cauchy 准则</strong>: $f$ 可积当且仅当对任意 $\eps > 0$ 存在某个划分使 $U(\mathcal{P}, f) - L(\mathcal{P}, f) < \eps$. 这条准则把"积分是否存在"翻译成"上下和的差能否任意小", 让我们不需要直接计算 $U(f)$, $L(f)$ 就能判断可积性. 它是 Topic 02 (n-维) 和 Topic 06 (Lebesgue 准则) 的逻辑起点 — 一切后续都建立在这里.</p>
+
+      <!-- §2 前置知识 -->
+      <h2 id="prereq">§2 前置知识</h2>
+      <div class="box prereq">
+        <span class="box-title">在阅读本页前，你应该已经掌握:</span>
+        <ul>
+          <li>实数的 LUB (least-upper-bound) 性质: 任何上有界的非空子集 $S \subset \R$ 有 sup; 等价地, 下有界子集有 inf. (MATH 31BH)</li>
+          <li>数列收敛的 $\eps$-$N$ 定义、函数极限的 $\eps$-$\delta$ 定义 与 sequential 定义的等价性 (H&amp;H Prop 1.5.28).</li>
+          <li>点处连续 $f$ at $x_0$: $\lim_{x \to x_0} f(x) = f(x_0)$, 等价于 sequential characterization.</li>
+          <li>单调有界数列收敛定理 (MCT) — 在 Cauchy 准则证明里隐含使用.</li>
+          <li>本页所有数学内容都假定 $f$ 是<strong>有界</strong>函数 — 无界 Riemann 可积要等到 Topic 12 (Lebesgue 积分) 才处理.</li>
+        </ul>
+      </div>
+
+      <!-- §3 核心定义 -->
+      <h2 id="definitions">§3 核心定义</h2>
+      <p>建造 Riemann 积分需要三层定义: 先有"划分", 然后是"上和下和", 最后是"可积性". 它们环环相扣 — 缺一不可.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 1.1 (区间的划分, partition of $(a,b)$)</span>
+        <p>设 $(a,b) \subset \R$ 是一个开区间. $(a,b)$ 的一个<strong>划分 (partition)</strong> 是一个有限子区间集合
+        $$\mathcal{P} = \{I_0, I_1, \ldots, I_n\}$$
+        满足:</p>
+        <ol>
+          <li><strong>覆盖 (covering)</strong>: $\bigcup_{j=0}^n I_j = (a,b)$.</li>
+          <li><strong>几乎不相交 (almost disjoint)</strong>: $I_\ell$ 与 $I_j$ 的<strong>内部</strong>不相交 ($\ell \ne j$), 即只能共享端点.</li>
+        </ol>
+        <p>具体地, 一个划分由分点 $a = a_0 &lt; a_1 &lt; \cdots &lt; a_{n+1} = b$ 决定, 子区间为 $I_k = [a_k, a_{k+1}]$ (端点归属由 half-open convention 处理). 每个子区间的<strong>长度</strong>记作 $|I_k| = a_{k+1} - a_k$.</p>
+      </div>
+
+      <p><strong>直觉</strong>: "划分"就是把区间切成几段不重叠的小区间. "几乎不相交"是技术让步 — 严格不相交对开区间办不到 (相邻子区间必然在某点会面), 所以我们容忍端点重叠, 这不会影响后续的求和因为单点对长度的贡献为 0.</p>
+
+      <p>一个典型例子: 把 $(0,1)$ 均匀分成 $k$ 块, 即 $I_j = [j/k,\,(j+1)/k]$ for $j = 0, 1, \ldots, k-1$, 每块长度 $1/k$. 这叫<strong>均匀划分 (uniform partition)</strong> $\mathcal{P}_k$. 当 $k \to \infty$ 时划分越来越细 — 这是"取极限"的标准方法之一.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 1.2 (划分的细化, refinement)</span>
+        <p>若划分 $\mathcal{P}'$ 是在划分 $\mathcal{P}$ 的所有分点上再加入若干新分点得到, 则称 $\mathcal{P}'$ 是 $\mathcal{P}$ 的<strong>细化 (refinement)</strong>, 记 $\mathcal{P}' \succeq \mathcal{P}$. 等价地, $\mathcal{P}'$ 的每个子区间都包含在 $\mathcal{P}$ 的某个子区间内.</p>
+        <p>对任意两个划分 $\mathcal{P}_1, \mathcal{P}_2$, 它们的<strong>公共细化 (common refinement)</strong> $\mathcal{P}_1 \vee \mathcal{P}_2$ 是把两组分点合并而成的划分, 它同时细化 $\mathcal{P}_1$ 与 $\mathcal{P}_2$.</p>
+      </div>
+
+      <p>细化是控制"两个不同划分"的关键工具 — 比较两个划分的 sums 时, 常常先取公共细化, 让它们都"投影"到同一个比它们更细的划分上去比. 这个技巧在 Cauchy 准则的证明里会用到.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 1.3 (子区间上的 sup/inf 与 oscillation)</span>
+        <p>设 $f \colon (a,b) \to \R$ 有界, $\mathcal{P} = \{I_0, \ldots, I_n\}$ 一个划分. 对每个子区间 $I_k$:
+        $$M_k := \sup_{x \in I_k} f(x), \qquad m_k := \inf_{x \in I_k} f(x).$$
+        因 $f$ 有界, $M_k, m_k \in \R$ 都有定义. 子区间上的<strong>振荡 (oscillation)</strong> 是
+        $$\osc_{I_k}(f) := M_k - m_k \ge 0.$$
+        在 H&amp;H 第 4 章里这两个量分别记作 $M_{I_k}(f)$ 与 $m_{I_k}(f)$ (Def 4.1.3).</p>
+      </div>
+
+      <p>$M_k, m_k$ 控制 $f$ 在 $I_k$ 上的最高/最低高度. $\osc_{I_k}(f)$ 量化 $f$ 在这块小区间里"波动多大" — 后面 Cauchy 准则的核心就是把 $U - L$ 重写成 $\sum_k \osc_{I_k}(f) \cdot |I_k|$ (振荡总贡献).</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 1.4 (上和与下和, upper/lower Riemann sums)</span>
+        <p>$f$ 关于划分 $\mathcal{P}$ 的<strong>上和 (upper sum)</strong> 与 <strong>下和 (lower sum)</strong>:
+        $$U(\mathcal{P}, f) := \sum_{k=0}^n M_k\,|I_k|, \qquad L(\mathcal{P}, f) := \sum_{k=0}^n m_k\,|I_k|.$$
+        几何上, $U(\mathcal{P}, f)$ 是用"从上方外接"$f$ 的窄长方形总面积; $L(\mathcal{P}, f)$ 是"从下方内接"$f$ 的窄长方形总面积. 对任意划分 $\mathcal{P}$,
+        $$L(\mathcal{P}, f) \le U(\mathcal{P}, f).$$</p>
+      </div>
+
+      <p>更一般的 <strong>Riemann 和 (Riemann sum)</strong> 是 $\sum_k f(x_k^*)|I_k|$, 其中 $x_k^* \in I_k$ 任意采样点. 因 $m_k \le f(x_k^*) \le M_k$, 任何 Riemann 和都被夹在 $L(\mathcal{P}, f)$ 与 $U(\mathcal{P}, f)$ 之间. 两个常见特殊采样:</p>
+
+      <ul>
+        <li><strong>左和 (left sum)</strong>: $\mathcal{L}(\mathcal{P}, f) = \sum_k f(a_k)\,|I_k|$ (取左端点).</li>
+        <li><strong>右和 (right sum)</strong>: $\mathcal{R}(\mathcal{P}, f) = \sum_k f(a_{k+1})\,|I_k|$ (取右端点).</li>
+      </ul>
+
+      <p>左右和的具体值都被 $L \le \cdot \le U$ 夹住, 所以"上和下和能逼近同一个数"自动蕴含"左右和也都收敛到同一个数".</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 1.5 (上积分与下积分, upper/lower integrals)</span>
+        <p>设 $\Pi$ 是 $(a,b)$ 的所有划分构成的集合. $f$ 的<strong>上积分 (upper integral)</strong> 和 <strong>下积分 (lower integral)</strong>:
+        $$U(f) := \inf_{\mathcal{P} \in \Pi} U(\mathcal{P}, f), \qquad L(f) := \sup_{\mathcal{P} \in \Pi} L(\mathcal{P}, f).$$
+        二者均为实数 (因 $f$ 有界, $U(\mathcal{P}, f)$ 集合下有界, $L(\mathcal{P}, f)$ 集合上有界).</p>
+        <p><strong>关键不等式</strong>: 对任意两个划分 $\mathcal{P}, \mathcal{Q}$, 有 $L(\mathcal{P}, f) \le U(\mathcal{Q}, f)$ (取公共细化即得). 故
+        $$L(f) \le U(f).$$</p>
+      </div>
+
+      <p>这里 $U(f)$ 是"<em>最优</em>上估计" — 越细的划分给出越紧的上界, 取所有划分的下确界就是最紧的可能上界. $L(f)$ 同理.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 1.6 (Riemann 可积性 & 积分值)</span>
+        <p>有界函数 $f \colon (a,b) \to \R$ 称为 <strong>Riemann 可积 (Riemann integrable)</strong>, 若
+        $$U(f) = L(f).$$
+        此时它们的公共值称为 $f$ 在 $(a,b)$ 上的<strong>积分</strong>:
+        $$\int_a^b f(x)\, dx := U(f) = L(f).$$</p>
+      </div>
+
+      <p><strong>直觉</strong>: 可积性等价于"最优上估计与最优下估计之间没有 gap" — 上和下和能彼此逼近到任意接近. 一旦两侧夹紧, 积分就唯一确定 — 不管你用哪种采样方式 (左和、右和、midpoint、随机点), 都收敛到这个公共值.</p>
+
+      <!-- §4 主要定理 -->
+      <h2 id="theorems">§4 主要定理</h2>
+
+      <p>本页只有一个核心定理 — <strong>Cauchy 准则</strong>. 它把可积性的<em>定义</em> ($U(f) = L(f)$) 换成一个<em>operational</em> 条件 (存在划分使 $U - L$ 任意小), 在实际判断可积时更顺手. 我们还会得到一个 corollary: 闭区间上的连续函数总可积.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 1.1 (Cauchy 准则, H&amp;H Thm 4.3.1 的 1D 雏形)</span>
+        <p>设 $f \colon (a,b) \to \R$ 有界. 则 $f$ 可积 $\Longleftrightarrow$ 对任意 $\eps > 0$ 存在划分 $\mathcal{P}_\eps$ 使
+        $$U(\mathcal{P}_\eps, f) - L(\mathcal{P}_\eps, f) < \eps.$$
+        等价地, $\sum_k \osc_{I_k}(f)\,|I_k| < \eps$.</p>
+      </div>
+
+      <p><strong>Proof sketch.</strong> </p>
+
+      <p>"$\Rightarrow$" 方向: 设 $f$ 可积, 即 $U(f) = L(f)$. 给定 $\eps > 0$. 由 $U(f) = \inf_{\mathcal{P}} U(\mathcal{P}, f)$, 存在 $\mathcal{P}_1$ 使 $U(\mathcal{P}_1, f) < U(f) + \eps/2$; 由 $L(f) = \sup_{\mathcal{P}} L(\mathcal{P}, f)$, 存在 $\mathcal{P}_2$ 使 $L(\mathcal{P}_2, f) > L(f) - \eps/2$. 取公共细化 $\mathcal{P}_\eps := \mathcal{P}_1 \vee \mathcal{P}_2$. 细化只让上和下和"挤得更紧": $U(\mathcal{P}_\eps, f) \le U(\mathcal{P}_1, f)$ 和 $L(\mathcal{P}_\eps, f) \ge L(\mathcal{P}_2, f)$. 所以
+      $$U(\mathcal{P}_\eps, f) - L(\mathcal{P}_\eps, f) \le U(\mathcal{P}_1, f) - L(\mathcal{P}_2, f) < (U(f) + \eps/2) - (L(f) - \eps/2) = \eps.$$</p>
+
+      <p>"$\Leftarrow$" 方向: 假设对任意 $\eps > 0$ 存在 $\mathcal{P}_\eps$ 使 $U(\mathcal{P}_\eps, f) - L(\mathcal{P}_\eps, f) < \eps$. 由定义
+      $$L(f) \ge L(\mathcal{P}_\eps, f), \qquad U(f) \le U(\mathcal{P}_\eps, f).$$
+      所以 $0 \le U(f) - L(f) \le U(\mathcal{P}_\eps, f) - L(\mathcal{P}_\eps, f) < \eps$. 由于 $\eps > 0$ 任意, $U(f) = L(f)$, 即 $f$ 可积. $\square$</p>
+
+      <details>
+        <summary>展开完整证明 (技术细节)</summary>
+        <div class="details-body">
+          <p>完整证明见 typed notes <code>1.1_notes.pdf</code> §9, 或 H&amp;H §4.3 (Thm 4.3.1) 的 $\R^n$ 版本. 关键技术点:</p>
+          <ul>
+            <li><strong>"细化使上和不增, 下和不减" 引理</strong>: 若 $\mathcal{P}' \succeq \mathcal{P}$, 则 $U(\mathcal{P}', f) \le U(\mathcal{P}, f)$ 且 $L(\mathcal{P}', f) \ge L(\mathcal{P}, f)$. 证明: 划分 $\mathcal{P}$ 的一个子区间 $I_k$ 在 $\mathcal{P}'$ 里被切成 $I_{k,1} \cup \cdots \cup I_{k,r}$, sup 在小区间上 $\le$ sup 在大区间上 ($\sup_{I_{k,j}} f \le \sup_{I_k} f = M_k$). 总贡献 $\sum_j (\sup_{I_{k,j}} f) |I_{k,j}| \le M_k \sum_j |I_{k,j}| = M_k |I_k|$. 累加得 $U(\mathcal{P}', f) \le U(\mathcal{P}, f)$. 下和镜像论证.</li>
+            <li><strong>$L(\mathcal{P}_1, f) \le U(\mathcal{P}_2, f)$ 对任意 $\mathcal{P}_1, \mathcal{P}_2$</strong>: 取公共细化 $\mathcal{P}' = \mathcal{P}_1 \vee \mathcal{P}_2$. 则 $L(\mathcal{P}_1, f) \le L(\mathcal{P}', f) \le U(\mathcal{P}', f) \le U(\mathcal{P}_2, f)$.</li>
+            <li><strong>取 sup/inf 切换</strong>: 由上一条, 对固定 $\mathcal{P}_2$, $\sup_{\mathcal{P}_1} L(\mathcal{P}_1, f) \le U(\mathcal{P}_2, f)$, 即 $L(f) \le U(\mathcal{P}_2, f)$. 再对 $\mathcal{P}_2$ 取 inf: $L(f) \le U(f)$. 这就是 Def 1.5 末尾那个关键不等式.</li>
+            <li><strong>$\eps$ 任意性原理</strong>: 若 $0 \le A < \eps$ 对所有 $\eps > 0$ 成立, 则 $A = 0$. 准则的 "$\Leftarrow$" 方向就是把这个原理应用于 $A = U(f) - L(f)$.</li>
+          </ul>
+        </div>
+      </details>
+
+      <p>本准则的意义: 我们不需要直接计算 $U(f)$ 或 $L(f)$ 这种 inf/sup over all partitions 的复杂对象 — 只需<strong>构造一个</strong>合适的 $\mathcal{P}_\eps$, 使得它<em>这一个</em>划分上的 $U - L &lt; \eps$. 这把判断可积性的工作从"全局优化"降为"局部 witness 构造".</p>
+
+      <div class="box thm">
+        <span class="box-title">Corollary 1.2 (连续函数总可积)</span>
+        <p>若 $f \colon [a, b] \to \R$ 在闭区间 $[a, b]$ 上连续, 则 $f$ Riemann 可积.</p>
+      </div>
+
+      <p><strong>Proof sketch.</strong> 闭区间上连续 $\Rightarrow$ 一致连续 (Heine 定理 / EVT 派生). 即对任意 $\eps > 0$, 存在 $\delta > 0$ 使 $|x - y| < \delta$ 蕴含 $|f(x) - f(y)| < \eps/(b-a)$. 取均匀划分 $\mathcal{P}_k$ with $|I_k| < \delta$ (即 $k > (b-a)/\delta$). 在每个子区间 $I_k$ 上, $\osc_{I_k}(f) \le \eps/(b-a)$ (任意两点的函数值之差 $\le \eps/(b-a)$). 故
+      $$U(\mathcal{P}_k, f) - L(\mathcal{P}_k, f) = \sum_k \osc_{I_k}(f)\,|I_k| \le \frac{\eps}{b-a} \cdot (b-a) = \eps.$$
+      由 Thm 1.1, $f$ 可积. $\square$</p>
+
+      <p>这个 corollary 是"为什么我们关心 Riemann 积分"的第一个 reassurance: 你在 calculus 学过的所有"友好"函数 ($e^x$, $\sin x$, 多项式, $\sqrt{x}$ on $[1,2]$, 等等) 都自动可积. Lebesgue 准则 (Topic 06) 后续会大幅推广这条 — 实际上只需要"几乎处处连续".</p>
+
+      <!-- §5 Worked Examples -->
+      <h2 id="examples">§5 Worked Examples</h2>
+
+      <div class="box example">
+        <span class="box-title">Example 1.1 (常数函数, sanity check)</span>
+        <p>$f \equiv c$ on $(a, b)$, 求 $\int_a^b f\,dx$.</p>
+        <p>对任意划分 $\mathcal{P} = \{I_0, \ldots, I_n\}$, 每块上 $M_k = m_k = c$. 故 $U(\mathcal{P}, f) = L(\mathcal{P}, f) = \sum_k c\,|I_k| = c\,(b - a)$. 取 inf/sup over 所有划分, $U(f) = L(f) = c(b-a)$. 所以 $f$ 可积, $\int_a^b c\,dx = c(b-a)$. 与"矩形面积 = 高 × 宽"一致.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 1.2 (一次函数 $f(x) = x$ on $[0, 1]$)</span>
+        <p>用均匀划分 $\mathcal{P}_k$ with $I_j = [j/k, (j+1)/k]$, $j = 0, \ldots, k-1$.</p>
+        <p>$f$ 单调递增, 在 $I_j$ 上 $m_j = j/k$ (左端点取得 inf), $M_j = (j+1)/k$ (右端点取得 sup). 故
+        $$L(\mathcal{P}_k, f) = \sum_{j=0}^{k-1} \frac{j}{k} \cdot \frac{1}{k} = \frac{1}{k^2} \sum_{j=0}^{k-1} j = \frac{1}{k^2} \cdot \frac{k(k-1)}{2} = \frac{k-1}{2k}.$$
+        $$U(\mathcal{P}_k, f) = \sum_{j=0}^{k-1} \frac{j+1}{k} \cdot \frac{1}{k} = \frac{1}{k^2} \sum_{j=1}^{k} j = \frac{k+1}{2k}.$$
+        $$U(\mathcal{P}_k, f) - L(\mathcal{P}_k, f) = \frac{k+1}{2k} - \frac{k-1}{2k} = \frac{1}{k}.$$
+        给定 $\eps > 0$, 取 $k > 1/\eps$, 则 $U - L < \eps$. 由 Cauchy 准则 (Thm 1.1) $f$ 可积. 取 $k \to \infty$, 二者都收敛到 $1/2$, 故 $\int_0^1 x\,dx = 1/2$.</p>
+        <p>这个例子展示了准则的标准用法 — 用均匀划分把 $U - L$ 算成 $1/k$, 由 $k$ 任意大得到可积性 + 积分值.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 1.3 (Dirichlet 函数 $\mathbf{1}_\Q$ 不可积)</span>
+        <p>令 $f \colon [0, 1] \to \R$, $f(x) = 1$ 若 $x \in \Q$, 否则 $f(x) = 0$.</p>
+        <p>对任意划分 $\mathcal{P}$, 每个 $I_k$ 都是非退化区间, 含有有理点和无理点 (因为有理数与无理数都在 $\R$ 中稠密). 故 $M_k = 1$, $m_k = 0$, $\osc_{I_k}(f) = 1$. 所以
+        $$U(\mathcal{P}, f) = \sum_k 1 \cdot |I_k| = 1, \qquad L(\mathcal{P}, f) = \sum_k 0 \cdot |I_k| = 0.$$
+        因此 $U(f) = 1 \ne 0 = L(f)$, $f$ <strong>不可积</strong>. 等价地, $U - L = 1$ 对任意划分都成立, Cauchy 准则的 "$\eps$ 任意小" 永远办不到 (取 $\eps = 1/2$ 即矛盾).</p>
+        <p>这是经典反例: $f$ 处处不连续, 振荡永远是 1, 划分再细也救不了. Topic 06 的 Lebesgue 准则会从更高视角解释这件事 — $\Disc(f) = [0,1]$ 不是测度零.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 1.4 (单调函数总可积, 哪怕有跳跃)</span>
+        <p>设 $f \colon [a, b] \to \R$ 单调 (e.g. 单调递增), 但可有间断 (跳跃). 证 $f$ Riemann 可积.</p>
+        <p>$f$ 单调 $\Rightarrow$ $f$ 有界 ($m = f(a) \le f \le f(b) = M$). 取均匀划分 $\mathcal{P}_k$ with $|I_j| = (b-a)/k$. 在每个 $I_j$ 上, $\sup f = f(a_{j+1})$ (右端点), $\inf f = f(a_j)$ (左端点) — 单调性给的. 故
+        $$U(\mathcal{P}_k, f) - L(\mathcal{P}_k, f) = \sum_{j=0}^{k-1} (f(a_{j+1}) - f(a_j)) \cdot \frac{b-a}{k} = \frac{b-a}{k} \cdot \big(f(b) - f(a)\big),$$
+        因为这是个 telescoping 和. 取 $k > (b-a)(f(b)-f(a))/\eps$, 则 $U - L < \eps$. 由 Cauchy 准则可积. $\square$</p>
+        <p>本例的意义: 连续不是必要条件. 单调函数可以有可数无限多跳跃 (e.g. $f(x) = \sum_{n: 1/n \le x} 1/n^2$ on $[0,1]$ 在每个 $1/n$ 处有跳跃) 但仍可积. 单调性给的 telescoping 是关键 — 不需要一致连续.</p>
+      </div>
+
+      <!-- §6 常见陷阱 -->
+      <h2 id="pitfalls">§6 常见陷阱</h2>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 1.1 — "划分越细 $U$ 越大" 的方向搞反</span>
+        <p>正确方向: 划分越细 (refinement), <strong>上和不增, 下和不减</strong>. 即 $\mathcal{P}' \succeq \mathcal{P}$ 蕴含 $U(\mathcal{P}', f) \le U(\mathcal{P}, f)$ 和 $L(\mathcal{P}', f) \ge L(\mathcal{P}, f)$. 直觉: 切得更细, 每块的 sup 不会变大 (sup 在小子集上 $\le$ sup 在大集上), 总上和只能减小或不变. 下和镜像.</p>
+        <p>错误想法: "划分越细每块越小, 所以上和下和都增大". 这把"块数"和"块和"混了. 块数变多但每块更窄, 整体趋势是 $U$ 下降 + $L$ 上升, 两者在中间相遇 (如果可积).</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 1.2 — 忘记 $f$ 必须有界</span>
+        <p>Def 1.4 的 $M_k, m_k$ 都用 sup/inf 定义. 若 $f$ 无界 (e.g. $f(x) = 1/\sqrt{x}$ on $(0, 1]$, 在 $0$ 附近无界), 则在含 $0$ 邻域的子区间上 $M_k = +\infty$, $U(\mathcal{P}, f) = +\infty$ — 整套机器崩溃, Def 1.6 的可积性根本不适用.</p>
+        <p>无界函数的积分需要<em>改良的</em>定义 (improper Riemann integral, 或 Lebesgue 积分 — Topic 12). $\int_0^1 1/\sqrt{x}\,dx = 2$ 在 improper sense 下成立, 但<strong>不</strong>在我们这页定义的 Riemann sense 下. 记住: 本页所有的"可积"都默认<strong>有界 + 有界支集</strong> (1D 这里有界区间已经够).</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 1.3 — "存在 $\mathcal{P}$ 使 $U - L < \eps$" $\ne$ "$U(\mathcal{P}, f) - L(\mathcal{P}, f) \to 0$ 对所有 $\mathcal{P}$"</span>
+        <p>Cauchy 准则只要求<strong>存在一个</strong>划分让 gap $< \eps$, 不要求所有划分都让 gap 小. 实际上, 即使 $f$ 可积, 你也可以构造一个非常"粗糙"的划分让 $U - L$ 接近 $\osc_{(a,b)}(f) \cdot (b-a)$ (取 $\mathcal{P}$ = 平凡划分 $\{(a,b)\}$, $U - L = \osc_{(a,b)}(f) \cdot (b-a)$).</p>
+        <p>正确的极限陈述是: 当划分的<strong>mesh</strong> (最大子区间长度) $\to 0$ 时, $U(\mathcal{P}, f) \to U(f)$ 且 $L(\mathcal{P}, f) \to L(f)$. 这是 Darboux 的整理. 不可积的 Dirichlet 例子里 mesh $\to 0$ 但 $U - L = 1$ 不动 — 因为它 inf $U$ 与 sup $L$ 本来就不等.</p>
+      </div>
+
+      <!-- §7 练习 -->
+      <h2 id="exercises">§7 练习</h2>
+      <p>展开 <code>&lt;details&gt;</code> 查看答案 (建议先自己想 10 分钟再看).</p>
+
+      <div class="exercise">
+        <p><span class="ex-num">1.</span> 设 $f \colon [0, 1] \to \R$, $f(x) = x^2$. 用均匀划分 $\mathcal{P}_k$ 计算 $U(\mathcal{P}_k, f)$ 与 $L(\mathcal{P}_k, f)$, 估计 $U - L$, 并用 Cauchy 准则证明 $f$ 可积. 求 $\int_0^1 x^2\,dx$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>$f$ 单调递增于 $[0,1]$. $I_j = [j/k, (j+1)/k]$, 长度 $1/k$. $m_j = (j/k)^2$, $M_j = ((j+1)/k)^2$.</p>
+            <p>$L(\mathcal{P}_k, f) = \frac{1}{k}\sum_{j=0}^{k-1} (j/k)^2 = \frac{1}{k^3} \sum_{j=0}^{k-1} j^2 = \frac{1}{k^3} \cdot \frac{(k-1)k(2k-1)}{6}$.</p>
+            <p>$U(\mathcal{P}_k, f) = \frac{1}{k}\sum_{j=0}^{k-1} ((j+1)/k)^2 = \frac{1}{k^3} \sum_{j=1}^{k} j^2 = \frac{1}{k^3} \cdot \frac{k(k+1)(2k+1)}{6}$.</p>
+            <p>$U - L = \frac{1}{k^3}\big[\frac{k(k+1)(2k+1)}{6} - \frac{(k-1)k(2k-1)}{6}\big] = \frac{1}{k^3} \cdot \frac{k(6k^2)}{6} \cdot$ (展开后简化) $= \frac{1}{k}$. 实际更简单的看法: $U - L = M_{k-1}/k - m_0/k \cdot$ telescoping, 但反正 $U - L \to 0$. 取 $k > 1/\eps$ 即可使 $< \eps$. 由 Cauchy 准则可积.</p>
+            <p>极限: $L(\mathcal{P}_k, f) \to \int_0^1 x^2\,dx$. 计算 $\lim_{k\to\infty} \frac{(k-1)k(2k-1)}{6k^3} = \frac{2}{6} = 1/3$. 所以 $\int_0^1 x^2\,dx = 1/3$.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">2.</span> 证: 若 $f \in \IR((a,b))$ 且 $c \in \R$, 则 $c f \in \IR((a,b))$ 且 $\int_a^b cf = c \int_a^b f$ (积分的齐次性).</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>分情况. 情况 $c \ge 0$: $\sup_{I_k}(cf) = c \sup_{I_k} f = cM_k$ (sup 在乘正常数下保持). 所以 $U(\mathcal{P}, cf) = c U(\mathcal{P}, f)$, 同理 $L(\mathcal{P}, cf) = c L(\mathcal{P}, f)$. 取 inf/sup over $\mathcal{P}$: $U(cf) = c U(f)$ 和 $L(cf) = c L(f)$. 因 $f$ 可积 $U(f) = L(f)$, 故 $U(cf) = L(cf) = c \int f$. $cf$ 可积, 积分 $= c \int f$.</p>
+            <p>情况 $c &lt; 0$: $\sup_{I_k}(cf) = c \inf_{I_k} f = cm_k$ (乘负数翻转 sup/inf). $U(\mathcal{P}, cf) = c L(\mathcal{P}, f)$, $L(\mathcal{P}, cf) = c U(\mathcal{P}, f)$. 取 inf/sup: $U(cf) = c L(f)$, $L(cf) = c U(f)$. 用 $U(f) = L(f) = \int f$: $U(cf) = L(cf) = c \int f$. 同样可积, 积分 $= c\int f$.</p>
+            <p>(本题在 Topic 03 会再次出现, 与加法一起组成"线性".)</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">3.</span> ("证明或反例") 若 $f, g$ 都有界但不可积, $f + g$ 一定不可积吗?</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>反例</strong>: 不一定. 取 $f = \mathbf{1}_\Q$ on $[0,1]$ (Dirichlet, 不可积). 取 $g = 1 - \mathbf{1}_\Q$ (无理点 1, 有理点 0, 也不可积 — 对称地). 则 $f + g \equiv 1$, 处处常值, 可积 with $\int (f+g) = 1$.</p>
+            <p>本题的 takeaway: 可积的"和"不需要每个加数都可积 — 不可积的两项可以互相抵消. 但反之, 如果 $f, g$ 都可积, 则 $f + g$ 必可积 (积分线性 — Topic 03).</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">4.</span> 设 $f \colon [0,1] \to \R$ 满足 $f(x) = 0$ for $x \ne 1/2$, $f(1/2) = 100$. 问 $f$ 可积吗? 若可积, 积分等于多少? (这题展示"单点修改不改变积分"的雏形.)</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>可积, $\int = 0$</strong>. 用 Cauchy 准则. 给定 $\eps > 0$. 构造划分 $\mathcal{P}_\eps$ 让 $1/2$ 落入一个特别窄的子区间. 具体地, 取分点 $0, 1/2 - \delta, 1/2 + \delta, 1$ (这里 $\delta < \eps/200$).</p>
+            <p>三个子区间: $I_0 = [0, 1/2-\delta]$, $I_1 = [1/2-\delta, 1/2+\delta]$, $I_2 = [1/2+\delta, 1]$. 在 $I_0, I_2$ 上 $f \equiv 0$, 故 $\osc = 0$. 在 $I_1$ 上 $\osc \le 100$, $|I_1| = 2\delta < \eps/100$. 故 $U - L \le 100 \cdot 2\delta < \eps$. 由 Cauchy 准则可积.</p>
+            <p>$L(\mathcal{P}_\eps, f) = 0$ 对所有划分 (因 inf 在含无 $1/2$ 的子区间上是 $0$, 含 $1/2$ 的子区间上 inf 仍是 $0$). 故 $L(f) = 0 = \int f$. 单点 spike 对积分无贡献 — 这是 measure zero 的雏形 (Topic 05/06 推广).</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">5.</span> 用 Cauchy 准则证: $f \colon [0,1] \to \R$, $f(x) = x$ for $x$ 有理, $f(x) = 0$ for $x$ 无理. 问 $f$ 可积吗?</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>不可积</strong> (在 $(0, 1]$ 上). 任何子区间 $I_k = [a, b] \subset [0, 1]$ with $b > 0$ 都含有理点 (稠密) 和无理点. $\sup_{I_k} f \ge $ (sup of $x$ over 有理 $x \in I_k$) $= b$ (有理点稠密任意接近右端). $\inf_{I_k} f = 0$ (无理点稠密任意接近 $0$).</p>
+            <p>故 $\osc_{I_k}(f) \ge b - 0 = b = a_{k+1}$. $U(\mathcal{P}, f) - L(\mathcal{P}, f) \ge \sum_k a_{k+1} \cdot |I_k|$.</p>
+            <p>把最后一个子区间 $I_{n-1} = [a_n, 1]$ 单独看, 它贡献 $\osc \cdot |I_{n-1}| \ge 1 \cdot (1 - a_n)$. 加上倒数第二个 $I_{n-2} = [a_{n-1}, a_n]$ 贡献 $\ge a_n \cdot (a_n - a_{n-1})$. 累加下去, 总和至少是 $\int_0^1 x\,dx = 1/2$ 的某种离散版 (左 Riemann 和 of $x$). 至少 $\ge $ 某固定正常数 (e.g. $1/4$, 用 telescoping 或具体估计).</p>
+            <p>正式地: 取 $\eps = 1/4$, 任何划分 $\mathcal{P}$ 都有 $U - L \ge \sum_k a_{k+1}(a_{k+1} - a_k) \ge $ 左 Riemann 和 $\to 1/2$. 故 $U(f) - L(f) \ge 1/4 > 0$, 不可积.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">6.</span> 设 $f \colon [a, b] \to \R$ 有界且可积. 证: 对任意 $c \in (a, b)$, $f$ 在 $[a, c]$ 和 $[c, b]$ 上都可积, 且 $\int_a^b f = \int_a^c f + \int_c^b f$ (区间可加性).</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>给定 $\eps > 0$. 由 $f$ 在 $[a, b]$ 可积, 存在划分 $\mathcal{P}_\eps$ 使 $U(\mathcal{P}_\eps, f) - L(\mathcal{P}_\eps, f) < \eps$. WLOG 假设 $c$ 是 $\mathcal{P}_\eps$ 的一个分点 (否则把 $c$ 加进去做一个细化, 这只让 $U - L$ 更小, 仍 $&lt; \eps$).</p>
+            <p>把 $\mathcal{P}_\eps$ 分裂为 $\mathcal{P}_1$ ($[a, c]$ 的划分) 和 $\mathcal{P}_2$ ($[c, b]$ 的划分). 则 $U(\mathcal{P}_\eps, f) = U(\mathcal{P}_1, f) + U(\mathcal{P}_2, f)$ 和 $L(\mathcal{P}_\eps, f) = L(\mathcal{P}_1, f) + L(\mathcal{P}_2, f)$. 所以
+            $$(U(\mathcal{P}_1, f) - L(\mathcal{P}_1, f)) + (U(\mathcal{P}_2, f) - L(\mathcal{P}_2, f)) < \eps.$$
+            每一项都 $\ge 0$, 故各项 $< \eps$. 由 Cauchy 准则 $f$ 在 $[a, c]$ 和 $[c, b]$ 上都可积.</p>
+            <p>积分相等: $\int_a^c f + \int_c^b f = \lim (L(\mathcal{P}_1, f) + L(\mathcal{P}_2, f)) = \lim L(\mathcal{P}_\eps, f) = \int_a^b f$. $\square$</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">7.</span> ("反例构造") 给一个有界函数 $f \colon [0, 1] \to \R$ 使得均匀划分的右 Riemann 和 $\mathcal{R}(\mathcal{P}_k, f)$ 收敛, 但 $f$ <strong>不</strong>可积. (说明: 右和收敛只是必要不是充分.)</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>取 $f = \mathbf{1}_\Q$ on $[0,1]$ (Dirichlet 函数). 在均匀划分 $\mathcal{P}_k$ 下, 右端点 $a_{j+1} = (j+1)/k$ 全是有理数. 故 $f(a_{j+1}) = 1$ 对所有 $j$. $\mathcal{R}(\mathcal{P}_k, f) = \sum_{j=0}^{k-1} 1 \cdot 1/k = 1$, 对所有 $k$. 故右和"收敛到 $1$".</p>
+            <p>但 $f$ 不可积 (Example 1.3). 这说明: <strong>对一个特定采样方式的 Riemann 和收敛, 不蕴含可积性</strong>. 可积性要求<strong>所有</strong>采样方式 (包括 sup/inf, 即 $U, L$) 都收敛到同一个值. 这里左和 $\mathcal{L}(\mathcal{P}_k, f)$ 也是 $1$ (左端点也都有理), 但 $L(\mathcal{P}_k, f) = 0$ (因为 inf 在每个非退化子区间上取 $0$, 由无理点稠密). 所以 $L \ne \mathcal{L}$ — 普通 Riemann 和(取端点) 跟最优 inf-Riemann 和不是一回事.</p>
+            <p>这个 subtlety 是 Cauchy 准则用 $U$ 与 $L$ (而不是 $\mathcal{L}, \mathcal{R}$) 的关键原因.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">8.</span> 设 $f \colon [a, b] \to \R$ 可积. 证: 对每个划分 $\mathcal{P}$, $L(\mathcal{P}, f) \le \int_a^b f \le U(\mathcal{P}, f)$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>由 Def 1.5, $L(\mathcal{P}, f) \le \sup_{\mathcal{Q}} L(\mathcal{Q}, f) = L(f) = \int_a^b f$. 同理 $U(\mathcal{P}, f) \ge \inf_{\mathcal{Q}} U(\mathcal{Q}, f) = U(f) = \int_a^b f$.</p>
+            <p>合起来 $L(\mathcal{P}, f) \le \int_a^b f \le U(\mathcal{P}, f)$. $\square$</p>
+            <p>本题的实用价值: 给积分一个<strong>具体的上下界估计</strong> — 选一个具体划分, 计算 $L, U$, 立刻得 $\int f$ 的区间. 这是数值积分的"误差控制"基础.</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- §8 速查表 -->
+      <h2 id="cheat">§8 速查表</h2>
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def">🟦 <strong>划分 (Def 1.1)</strong>: $(a,b)$ 的一个 finite cover by 几乎不相交子区间; 分点 $a = a_0 < \cdots < a_{n+1} = b$.</li>
+          <li class="cs-def">🟦 <strong>上和/下和 (Def 1.4)</strong>: $U(\mathcal{P}, f) = \sum M_k |I_k|$, $L(\mathcal{P}, f) = \sum m_k |I_k|$, 其中 $M_k = \sup_{I_k} f$, $m_k = \inf_{I_k} f$.</li>
+          <li class="cs-def">🟦 <strong>可积 (Def 1.6)</strong>: $f$ 有界 + $U(f) := \inf_{\mathcal{P}} U(\mathcal{P}, f) = \sup_{\mathcal{P}} L(\mathcal{P}, f) =: L(f)$. 公共值 = $\int_a^b f$.</li>
+          <li class="cs-thm">🟨 <strong>Cauchy 准则 (Thm 1.1)</strong>: $f$ 可积 $\Longleftrightarrow$ $\forall \eps > 0,\ \exists \mathcal{P}_\eps$ 使 $U(\mathcal{P}_\eps, f) - L(\mathcal{P}_\eps, f) = \sum \osc_{I_k}(f)|I_k| < \eps$.</li>
+          <li class="cs-thm">🟨 <strong>连续函数总可积 (Cor 1.2)</strong>: $f$ 连续于闭 $[a,b]$ $\Rightarrow$ $f$ Riemann 可积 (借助均匀连续).</li>
+          <li class="cs-tech">🟢 <strong>细化引理</strong>: $\mathcal{P}' \succeq \mathcal{P}$ $\Rightarrow$ $U(\mathcal{P}', f) \le U(\mathcal{P}, f)$ 且 $L(\mathcal{P}', f) \ge L(\mathcal{P}, f)$. 公共细化 $\mathcal{P}_1 \vee \mathcal{P}_2$ 让两个划分都"投影"到一处.</li>
+          <li class="cs-tech">🟢 <strong>判可积模板</strong>: (1) 选均匀划分 $\mathcal{P}_k$; (2) 算 $U(\mathcal{P}_k, f) - L(\mathcal{P}_k, f)$; (3) 证明它 $\to 0$ as $k \to \infty$; (4) 由 Cauchy 准则可积; (5) 算 $\lim L(\mathcal{P}_k, f) = \int f$.</li>
+          <li class="cs-pitfall">🟥 <strong>陷阱</strong>: $f$ 必须<strong>有界</strong>才适用本套定义. 无界 (如 $1/x$ near 0) 需要 improper / Lebesgue 框架.</li>
+          <li class="cs-pitfall">🟥 <strong>陷阱</strong>: 细化让 $U$ <em>降</em>, $L$ <em>升</em> (不是"都增大"). 它们向中间夹.</li>
+          <li class="cs-pitfall">🟥 <strong>陷阱</strong>: 单独 Riemann 和 (左/右/midpoint) 的收敛 $\ne$ 可积性. 必须 $U(f) = L(f)$ 才行.</li>
+        </ul>
+      </div>
+
+      <!-- §9 进一步阅读 -->
+      <h2 id="further">§9 进一步阅读</h2>
+      <ul>
+        <li><strong>H&amp;H 教材</strong>: §4.1 (Definitions 4.1.3–4.1.8) 直接进入 $\R^n$ dyadic 版本; 1D 雏形隐含其中. Theorem 4.1.13 (Lebesgue 准则) 是本主题的最终归宿.</li>
+        <li><strong>Typed lecture notes</strong>:
+          <ul>
+            <li><code>../../Notes/Typed/1.1_notes/1.1_notes.pdf</code> — 本页的源文档, 含 sequence/limit/continuity 复习与 1D Riemann 完整设置</li>
+          </ul>
+        </li>
+        <li><strong>关联 review topics</strong>:
+          <ul>
+            <li><a href="02-nd-riemann.html">Topic 02</a>: n-维 Riemann 积分 — 把本页的所有 idea 推广到 $\R^n$ 用 dyadic cubes, 并完整证明 $\R^n$ Cauchy 准则. 见 Topic 02 <strong>Prop 2.4</strong> 严格证明 dyadic 极限定义与本页 Def 1.5 的 inf/sup over all partitions 等价</li>
+            <li><a href="03-algebra-properties.html">Topic 03</a>: 积分的代数性质 — 线性 (本页 Exercise 2 的扩展)、单调性、$|f|$, $f^+/f^-$、product</li>
+            <li><a href="06-lebesgue-criterion.html">Topic 06</a>: Lebesgue 准则 — 把"$f$ 可积"刻画成"$\Disc(f)$ 测度零", 本页 Example 1.3 (Dirichlet) 与 Example 1.4 (单调) 都在 Lebesgue 视角下立刻解释</li>
+          </ul>
+        </li>
+        <li><strong>同主题外读</strong>: Spivak, <em>Calculus</em>, Ch 13 — 经典 1D Riemann 处理, 同样的 Cauchy-style 准则; Rudin, <em>Principles of Mathematical Analysis</em>, Ch 6 — 严谨但简洁的版本.</li>
+      </ul>
+
+      <hr style="margin: 60px 0 20px; border: 0; border-top: 1px solid #d8d3c4;">
+      <p style="font-size: 13px; color: #888; text-align: center;">MATH 31CH 复习指南 · Topic 01 · 1D Riemann 积分</p>
+
+    </main>
+  </div>
+
+</body>
+</html>

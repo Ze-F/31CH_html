@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Topic 05: 测度零 — 定义与基本性质 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="04-volume-pavable.html">Topic 04</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="06-lebesgue-criterion.html">Topic 06</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#motivation">§1 动机</a></li>
+        <li><a href="#prereq">§2 前置知识</a></li>
+        <li><a href="#definitions">§3 核心定义</a></li>
+        <li><a href="#theorems">§4 主要定理</a></li>
+        <li><a href="#examples">§5 Worked Examples</a></li>
+        <li><a href="#pitfalls">§6 常见陷阱</a></li>
+        <li><a href="#exercises">§7 练习</a></li>
+        <li><a href="#cheat">§8 速查表</a></li>
+        <li><a href="#further">§9 进一步阅读</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>Topic 05: 测度零 — 定义与基本性质</h1>
+      <p class="subtitle">Source: Lec 3.1, 3.2 (前半) · H&amp;H §4.3 · 14 topics 中第 5 个</p>
+
+      <!-- §1 动机 -->
+      <h2 id="motivation">§1 动机</h2>
+      <p>在 <a href="04-volume-pavable.html">Topic 04</a> 我们用 Riemann 积分的语言定义了"体积" — $\vol_n(A) := \int \mathbf{1}_A\,dV$，当这个积分存在时. 这个定义有一个内禀的限制: 它要求 $A$ <em>有界</em> 且 $\mathbf{1}_A$ <em>Riemann 可积</em> (即 $A$ 是 pavable 的). 一旦集合不 pavable, "体积零" 这个概念就根本不适用. 而我们将来很想说的句子, 像"集合 $\Q \cap [0,1]$ 是可忽略的", 在 Riemann 框架下连一个合法的语义都找不到 — Dirichlet 函数 $\mathbf{1}_{\Q \cap [0,1]}$ 不可积, 所以"$\Q \cap [0,1]$ 的体积是 $0$" 这句话<em>不是错的</em>, 而是<em>没意义</em>.</p>
+
+      <p>这就把我们逼向了一个新的、更宽松的"小集合"概念 — <strong>测度零 (measure zero)</strong>. 它不要求集合有界, 不要求 pavable, 而是用 "<em>可以被可数多个开盒子覆盖, 且总体积任意小</em>" 来直接定义. 这看似只是一个技术性放宽, 但带来三个本质上新的能力: (1) 可以谈论<em>无界集</em>的"零大小"; (2) 类<em>可数无穷</em>的集合 (如 $\Q$、可数离散点集) 都能被归类为"零大小"; (3) <em>可数</em>个测度零集的并仍然是测度零, 这是 Riemann 体积零所没有的性质 (单点体积为零, 但 $\Q \cap [0,1]$ 不 pavable, 故无法说它"体积为零").</p>
+
+      <p>测度零是我们走向 Lebesgue 理论的第一块基石. 本页围绕它的<em>定义和基本性质</em>展开 — 没有"判可积"的内容 (那是下一章 <a href="06-lebesgue-criterion.html">Topic 06</a> 的 Lebesgue 准则), 没有可积函数的相关推论. 任务只有: 把"几乎处处" (a.e.) 这个词的语义建立起来, 证明几条最常用的封闭性 (可数 union、平移、线性像), 并把一些常见集合 (低维子空间、可数集) 归类为测度零. 这些事实本身就构成了后面所有 measure-theoretic 论证的工作语言.</p>
+
+      <!-- §2 前置知识 -->
+      <h2 id="prereq">§2 前置知识</h2>
+      <div class="box prereq">
+        <span class="box-title">在阅读本页前，你应该已经掌握:</span>
+        <ul>
+          <li><a href="04-volume-pavable.html">Topic 04</a>: 体积的定义 $\vol_n(A) = \int \mathbf{1}_A\,dV$、pavable 集、平移与缩放不变性</li>
+          <li><a href="02-nd-riemann.html">Topic 02</a>: dyadic paving $\mathcal{D}_N(\R^n)$、上下和、$U_N(f)$、$L_N(f)$</li>
+          <li>体积零的<strong>刻画</strong>: $X$ 有体积零 $\Longleftrightarrow$ $\forall \eps$, $\exists N$ 使 $\sum_{C \in \mathcal{D}_N,\, C \cap X \ne \emptyset} \vol_n(C) < \eps$</li>
+          <li>实数完备性、$\Q$ 在 $\R$ 中的稠密性、可数集 (countable set) 的基本性质 (可数 × 可数 = 可数)</li>
+          <li>几何级数 $\sum_{j=1}^\infty 1/2^j = 1$ — 后面 $\eps/2^j$ trick 的代数核心</li>
+        </ul>
+      </div>
+
+      <!-- §3 核心定义 -->
+      <h2 id="definitions">§3 核心定义</h2>
+
+      <p>测度零的定义看似只是"用可数多个小盒子盖住", 但每一个修饰词都有 nontrivial 的作用. 我们一步步建立, 并解释每个限定为什么不能放松.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 5.1 (测度零, measure zero)</span>
+        <p>集合 $X \subseteq \R^n$ 称为有 <strong>测度零</strong> (或 <strong>Lebesgue 测度零</strong>), 若 $\forall\, \eps > 0$, $\exists$ 一个<em>可数</em>序列的开盒 (open boxes / open cubes / open balls) $\{B_j\}_{j \in \N}$ — 允许为空 — 使得
+        $$X \;\subseteq\; \bigcup_{j=1}^\infty B_j \qquad \text{且} \qquad \sum_{j=1}^\infty \vol_n(B_j) \;\le\; \eps.$$</p>
+      </div>
+
+      <p><strong>关键细节</strong>:</p>
+      <ul>
+        <li><strong>可数, 不是有限</strong>. 改成 "有限多个开盒" 会大大削弱: 单点集 $\{0\}$ 还可以用有限盒覆盖, 但 $\Q$ 这种可数无穷集就不能 — 任意有限盒只能盖住有限多个有理数. 可数性是把"可数无穷集 $\Rightarrow$ 测度零"这条捷径变成可能的唯一原因.</li>
+        <li><strong>开盒, 不是闭盒</strong>. 开 vs 闭对总体积没有影响 (闭盒可以放进稍微大一点的开盒, 体积只差任意小量). 但开性方便后续用 compactness/Heine-Borel — 如果集合还是<em>紧的</em>, 可以从可数开覆盖里抽出有限子覆盖.</li>
+        <li><strong>盒子形状灵活</strong>. 用开方块、开矩形、开球都<em>等价</em>: 任意开球都能装进一个体积可比的开方块, 反之亦然. 这种灵活性让"是不是测度零"成为一个内禀概念, 不依赖于盒子的具体形状.</li>
+        <li><strong>"$\le \eps$" 还是 "$< \eps$"?</strong> 没有区别. 若 $\sum \le \eps$ 总能做到, 就可以把 $\eps$ 换成 $\eps/2$ 重做一次, 得到 $\sum \le \eps/2 < \eps$. 文献里两种写法都见, H&amp;H 用 $\le$.</li>
+        <li><strong>不要求 $X$ 有界, 也不要求 $X$ pavable</strong>. 这是测度零与体积零最大的区别. 整条<em>实轴</em>嵌入 $\R^2$ 是测度零的 (Example 5.1 下面会推广), 它显然不有界; $\Q \cap [0,1]$ 是测度零的, 它不 pavable.</li>
+      </ul>
+
+      <div class="box def">
+        <span class="box-title">Definition 5.2 (几乎处处, almost everywhere — a.e.)</span>
+        <p>称某个性质 $P(x)$ 在 $\R^n$ 上 <strong>几乎处处成立</strong> (almost everywhere, 缩写 a.e.), 若集合 $\{x : P(x) \text{ 不成立}\}$ 有测度零.</p>
+        <p>特别地, 对两个函数 $f, g \colon \R^n \to \R$, 说 "$f = g$ a.e." 即 $\{x : f(x) \ne g(x)\}$ 测度零.</p>
+      </div>
+
+      <p><strong>直觉</strong>: a.e. 是 measure theory 的"工作语言". 它允许我们"模 (mod) 一个测度零的例外集"做断言 — 这种宽容性让很多极端 pathology 自动消失. 比如下面会看到, $f$ 和 $\tilde{f}$ 在一个测度零集上不同, 但<em>积分等</em>; "$f$ 处处连续"与"$f$ a.e. 连续"差着一整套理论 — 后者才是 Lebesgue 准则关心的对象 (但准则在 <a href="06-lebesgue-criterion.html">Topic 06</a>, 不在本页).</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 5.3 (体积零 vs 测度零 — 区分速记)</span>
+        <p>为方便对照, 重述两个概念:</p>
+        <ul>
+          <li><strong>体积零 (Riemann 框架)</strong>: $X \subseteq \R^n$ <em>有界</em>且 $\mathbf{1}_X \in \IR(\R^n)$, 满足 $\int \mathbf{1}_X \, dV = 0$. 等价: $\exists N$, $\sum_{C \in \mathcal{D}_N,\, C \cap X \ne \emptyset} \vol_n(C)$ 任意小. <em>有限多</em>个 dyadic 盒覆盖 + 这些盒总体积小.</li>
+          <li><strong>测度零 (Lebesgue 框架)</strong>: <em>不要求</em>有界 / pavable. <em>可数多</em>个开盒覆盖 + 这些盒总体积小.</li>
+        </ul>
+      </div>
+
+      <p>读到这里需要把这两者的差距记牢: 体积零是 Riemann 内部的概念 (要求 $\mathbf{1}_X$ 可积, 是一种 <em>测试函数已经合法</em>之后的特例); 测度零是绕开 Riemann 直接定义的<em>更基本</em>的"小". 下一节我们证明这个差距是单向的: 体积零 $\Rightarrow$ 测度零, 反过来不成立.</p>
+
+      <!-- §4 主要定理 -->
+      <h2 id="theorems">§4 主要定理</h2>
+
+      <p>本节有四个核心结果, 互相紧密配合: (1) 体积零 $\Rightarrow$ 测度零 (不可逆); (2) 可数 union 仍是测度零 — 这是测度零最重要的封闭性, 也是 $\eps/2^j$ trick 第一次登场; (3) $k$-维子空间 ($k < n$) 是测度零 — 把 (2) 应用在一个具体几何场景; (4) 平移与线性像保持测度零. 顺序按"基础 → 工具 → 几何 → 不变性"展开.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 5.1 (体积零 $\Rightarrow$ 测度零)</span>
+        <p>设 $X \subseteq \R^n$ 是有界集且 $\vol_n(X) = 0$ (Riemann 体积零). 则 $X$ 有测度零.</p>
+        <p><em>反之不成立</em>: 存在测度零的 $X$ 不 pavable (因此谈"体积零"无意义), 例: $\Q \cap [0,1]$.</p>
+      </div>
+
+      <p><strong>Proof.</strong> 给定 $\eps > 0$. 由体积零的 dyadic 刻画 (前置), 存在 $N \in \N$ 使
+      $$\sum_{\substack{C \in \mathcal{D}_N(\R^n) \\ C \cap X \ne \emptyset}} \vol_n(C) \;\le\; \frac{\eps}{2}.$$
+      由 $X$ 有界, 只有<em>有限多个</em>这样的 cube; 记为 $C_1, \dots, C_k$.</p>
+
+      <p>对每个 $j \in \{1, \dots, k\}$, 选一个开方块 $B_j$ 与 $C_j$ 同中心、稍大, 使得
+      $$\vol_n(B_j) \;<\; \vol_n(C_j) + \frac{\eps}{2k}.$$
+      (闭方块边长 $s$ 总可放进同心开方块边长 $> s$.) 对 $j > k$, 取 $B_j = \emptyset$.</p>
+
+      <p>则 $\{B_j\}_{j \in \N}$ 是可数开盒序列, 且</p>
+      <ul>
+        <li><strong>覆盖</strong>: $X \subseteq \bigcup_{j=1}^k C_j \subseteq \bigcup_{j=1}^\infty B_j$.</li>
+        <li><strong>体积控制</strong>:
+        $$\sum_{j=1}^\infty \vol_n(B_j) = \sum_{j=1}^k \vol_n(B_j) < \sum_{j=1}^k \vol_n(C_j) + k \cdot \frac{\eps}{2k} \le \frac{\eps}{2} + \frac{\eps}{2} = \eps.$$</li>
+      </ul>
+      <p>$\eps$ 任意, $X$ 测度零. $\square$</p>
+
+      <p><strong>反向反例</strong>: $\Q \cap [0,1]$ 是可数集, 由后面 Theorem 5.2 加 Example 5.3 知测度零. 但其 indicator 函数为 Dirichlet 函数, 不 Riemann 可积 — 故 $\Q \cap [0,1]$ 不 pavable, "体积零" 概念不适用. 这单向性<strong>不是技术瑕疵</strong>, 而恰恰说明<em>测度零是一个真正更宽的概念</em>.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 5.2 (可数 union 仍测度零)</span>
+        <p>设 $\{X_k\}_{k \in \N}$ 是 $\R^n$ 中的<em>可数</em>测度零集序列. 则
+        $$\bigcup_{k=1}^\infty X_k$$
+        也是测度零.</p>
+      </div>
+
+      <p><strong>Proof.</strong> 给定 $\eps > 0$. 对每个 $j \in \N$, 由 $X_j$ 测度零, 存在可数开盒 $\{B_k^{(j)}\}_{k \in \N}$ 满足
+      $$X_j \subseteq \bigcup_{k} B_k^{(j)}, \qquad \sum_{k} \vol_n(B_k^{(j)}) \;\le\; \frac{\eps}{2^j}.$$
+      </p>
+      <p>把所有 $\{B_k^{(j)}\}_{j, k}$ 合并成一个双指标族. 它是<em>可数 × 可数 = 可数</em>的 (Cantor 对角列举即可). 覆盖性立刻给出:
+      $$\bigcup_{j=1}^\infty X_j \;\subseteq\; \bigcup_{j \in \N} \bigcup_{k \in \N} B_k^{(j)}.$$
+      总体积:
+      $$\sum_{j=1}^\infty \sum_{k=1}^\infty \vol_n(B_k^{(j)}) \;\le\; \sum_{j=1}^\infty \frac{\eps}{2^j} \;=\; \eps.$$
+      $\square$</p>
+
+      <p><strong>关键技术 — $\eps/2^j$ trick</strong>: 把误差预算 $\eps$ <em>不平均地</em>分给可数多个子任务, 让第 $j$ 个分到 $\eps/2^j$. 几何级数 $\sum 2^{-j} = 1$ 保证总和仍为 $\eps$. 这个 trick 在 measure theory 里反复出现 — 后面 $k$-维子空间为零 (Theorem 5.3) 和 Lebesgue 良定性 (<a href="13-well-definedness.html">Topic 13</a>) 都会再用.</p>
+
+      <p><strong>"可数"不能放松成"不可数"</strong>: 反例最明显的是 $[0,1] = \bigcup_{x \in [0,1]} \{x\}$ — 每个单点 $\{x\}$ 测度零, 但不可数 union $[0,1]$ 测度为 $1$ (它的 indicator 函数可积且积分为 $1$). 一个测度零分解的"步骤数"必须保持在可数范围内, 否则分配 $\eps$ 的策略就崩溃.</p>
+
+      <details>
+        <summary>展开: 为什么"双指标族可数"等于"可数"</summary>
+        <div class="details-body">
+          <p>双指标 $(j, k) \in \N \times \N$ 给出可数族, 是因为 $\N \times \N$ 自身可数. 一种经典对角列举: 把 $(j,k)$ 排成
+          $$(1,1), (1,2), (2,1), (1,3), (2,2), (3,1), (1,4), \dots$$
+          沿反对角线方向. 每条反对角线 $j + k = $ 常数 上只有有限多 pair, 因此可以列成一个可数序列. 这意味着我们可以把双指标 sum
+          $$\sum_{j=1}^\infty \sum_{k=1}^\infty a_{j,k}$$
+          作为一个单可数 sum 处理 — 在所有 $a_{j,k} \ge 0$ 时, Tonelli 类的结论保证 sum order 不影响结果, 等于双指标全集的 sup.</p>
+        </div>
+      </details>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 5.3 ($k$-维子空间 ($k < n$) 测度零)</span>
+        <p>设 $X \subseteq \R^n$ 是 $k$-维线性子空间, 且 $k < n$. 则 $X$ 有 $n$-维测度零.</p>
+        <p>更一般地, $X$ 的任何平移 $X + v$ ($v \in \R^n$) 测度零; 对任意线性 $T \colon \R^n \to \R^n$, $T(X)$ 测度零.</p>
+      </div>
+
+      <p><strong>证明思路</strong>: 通过选择 $\R^n$ 一组适配 $X$ 的正交基, 不妨设 $X = \R^k \times \{0\}^{n-k} \subseteq \R^n$ (剩下 $n-k$ 维正交). 主要工作分三步:</p>
+
+      <p><strong>Step 1 — $X$ 上 dyadic paving $\mathcal{D}_N(X)$ 可数</strong>. 由 $\Q$ 在 $\R$ 中稠密, 每个非空开/闭 $k$-cube 内都含一个 $\Q^k$ 点. 故映射 $C \mapsto q_C \in C \cap \Q^k$ (对每个 cube $C \in \mathcal{D}_N(X)$ 选一个 $\Q^k$ 见证点) 是单射 (不同 cube 不相交). 单射进 $\Q^k$ (可数) $\Rightarrow$ $\mathcal{D}_N(X)$ 可数.</p>
+
+      <p><strong>Step 2 — 把每个 $k$-cube 加上薄 $(n-k)$-厚度做成 $n$-盒子</strong>. 设 $\eps > 0$. 列举 $\mathcal{D}_N(X) = \{C_1, C_2, \dots\}$. 每个 $C_j$ 是 $k$-cube, $\vol_k(C_j) = (1/2^N)^k$. 对每个 $j$, 取 $X^\perp$ 中的开 $(n-k)$-cube $C_j'$ 使
+      $$\vol_{n-k}(C_j') < \frac{\eps}{2^j \cdot \vol_k(C_j)}.$$
+      构造 $B_j := C_j^\circ \times C_j' \subseteq \R^n$, 其中 $C_j^\circ$ 是 $C_j$ 的略微开放大 (确保 $B_j$ 是开盒). 则
+      $$\vol_n(B_j) = \vol_k(C_j^\circ) \cdot \vol_{n-k}(C_j') < \vol_k(C_j) \cdot \frac{\eps}{2^j \cdot \vol_k(C_j)} = \frac{\eps}{2^j}.$$</p>
+
+      <p><strong>Step 3 — 覆盖与求和</strong>. $\bigcup_j C_j = X$ (dyadic cube paving 整个 $\R^k$), 故 $\bigcup_j B_j \supseteq X \times \{0\} = X$. 总体积
+      $$\sum_{j=1}^\infty \vol_n(B_j) < \sum_{j=1}^\infty \frac{\eps}{2^j} = \eps.$$
+      $\eps$ 任意 $\Rightarrow$ $X$ 测度零.</p>
+
+      <p><strong>平移版本</strong>: 把每个 $B_j$ 平移成 $B_j + v$ — 仍是开盒, 体积不变, 现在覆盖 $X + v$. 总体积仍 $< \eps$. 故 $X + v$ 测度零.</p>
+
+      <p><strong>线性像版本</strong>: $T \colon \R^n \to \R^n$ 线性, $T(X)$ 仍是线性子空间且 $\dim T(X) \le \dim X = k < n$. 应用主结论于 $T(X)$ (作为 $\R^n$ 内的 $\le k$-维子空间) $\Rightarrow$ $T(X)$ 测度零. $\square$</p>
+
+      <div class="box thm">
+        <span class="box-title">Corollary 5.4 (线性嵌入 $\R^n \to \R^{n+m}$ 也保持测度零)</span>
+        <p>设 $m \in \N \cup \{0\}$, $T \colon \R^n \to \R^{n+m}$ 任意线性. 若 $X \subseteq \R^n$ 是 $k$-维子空间 ($k < n$), 则 $T(X) \subseteq \R^{n+m}$ 有 $(n+m)$-维测度零.</p>
+      </div>
+
+      <p><strong>Proof.</strong> $T(X)$ 是 $\R^{n+m}$ 中的线性子空间, $\dim T(X) \le \dim X = k < n \le n + m$. 在 $\R^{n+m}$ 中应用 Theorem 5.3. $\square$</p>
+
+      <p>这个推论的几何意义: <em>低维子空间</em>嵌入<em>任意更高维</em>的 ambient 空间, 都是测度零. 例: $\R^2$ 嵌入 $\R^5$ 是 $5$-维测度零; 抛物线作为参数曲线在 $\R^3$ 中的像是 $3$-维测度零 (它落在某个 $2$-维子空间里, 而 $2 < 3$).</p>
+
+      <div class="box remark">
+        <span class="box-title">Remark 5.5 (连续像<em>不</em>保持测度零)</span>
+        <p>Theorem 5.3 / Corollary 5.4 的"线性"假设不能放松到"连续". 这有一个经典反例:</p>
+        <p><strong>空间填充曲线 (space-filling curves)</strong>: Peano (1890) 和 Hilbert (1891) 构造了连续满射 $f \colon [0,1] \to [0,1]^2$. 把 $[0,1]$ 视为 $\R^2$ 中的水平线段, 它是 $2$-维测度零的 ($1$-维子集嵌入 $\R^2$). 但 $f([0,1]) = [0,1]^2$, 后者 $2$-维体积为 $1$, 远<em>非</em>测度零.</p>
+        <p>结论: 连续映射可以把测度零集"膨胀"成正测度集. 因此变量代换公式 (<a href="08-linear-cov.html">Topic 08</a>, <a href="09-nonlinear-cov.html">Topic 09</a>) 要求映射 <em>光滑</em> (至少 $C^1$ 且 Lipschitz) — 光滑性是控制"局部体积扭曲"的关键, 单纯连续不够.</p>
+      </div>
+
+      <div class="box thm">
+        <span class="box-title">Corollary 5.6 (无界集的测度零 — 球穷竭法)</span>
+        <p>设 $X \subseteq \R^n$ 使得 $\vol_n(X \cap B_k(0)) = 0$ 对所有 $k \ge 1$ ($B_k(0)$ 是中心原点半径 $k$ 的闭球). 则 $X$ 有测度零.</p>
+      </div>
+
+      <p><strong>Proof.</strong> 把 $X$ 写成可数 union $X = \bigcup_{k=1}^\infty (X \cap B_k(0))$. 每个 $X \cap B_k(0)$ 有界 + 体积零, 由 Theorem 5.1 测度零. 由 Theorem 5.2 (可数 union), $X$ 测度零. $\square$</p>
+
+      <p>这个推论的实用价值: 想证明<em>无界</em>集 $X$ 是测度零, 不必直接构造可数开覆盖. 只要能证 "$X$ 在每个有界球内的部分有体积零" (用 Riemann 框架的工具就能查), 就自动得到 $X$ 测度零. 这是 Riemann 工具与 Lebesgue 概念之间的一座干净桥梁.</p>
+
+      <!-- §5 Worked Examples -->
+      <h2 id="examples">§5 Worked Examples</h2>
+
+      <div class="box example">
+        <span class="box-title">Example 5.1 (正半 $x$-轴 $[0,\infty) \times \{0\}$ 在 $\R^2$ 中测度零)</span>
+        <p>集合 $E = [0,\infty) \times \{0\} \subset \R^2$ — 正半 $x$-轴 — 有 $2$-维测度零.</p>
+        <p><strong>证明</strong>: 给定 $\eps > 0$. 取 $\eps_1$ 使 $0 < \eps_1 < \eps$. 对每个 $j \in \N$, 定义矩形
+        $$B_j = [j-1, j] \times \left[-\frac{\eps_1}{2^{j+1}},\; \frac{\eps_1}{2^{j+1}}\right] \subseteq \R^2.$$
+        则:</p>
+        <ul>
+          <li>每个 $B_j$ 在第 $x$-段 $[j-1, j]$ 上覆盖该段的 $x$-轴 ($[j-1, j] \times \{0\} \subseteq B_j$).</li>
+          <li>$\vol_2(B_j) = 1 \cdot \dfrac{\eps_1}{2^j} = \dfrac{\eps_1}{2^j}$.</li>
+          <li>$\bigcup_{j=1}^\infty B_j$ 覆盖 $\bigcup_{j=1}^\infty [j-1, j] \times \{0\} = [0,\infty) \times \{0\} = E$.</li>
+        </ul>
+        <p>总体积:
+        $$\sum_{j=1}^\infty \vol_2(B_j) = \sum_{j=1}^\infty \frac{\eps_1}{2^j} = \eps_1 \cdot \sum_{j=1}^\infty \frac{1}{2^j} = \eps_1 \cdot 1 = \eps_1 < \eps.$$
+        故 $E$ 测度零. (注意 $B_j$ 取闭矩形 — 等价做法是取略微大一点的开矩形, 体积上多加任意小量, 不影响结论. 定义里"开"主要为后续 compactness 用.)</p>
+      </div>
+
+      <p>这个例子的<em>精髓</em>是: 让"厚度" (在 $y$ 方向) <strong>几何级数衰减</strong>, 总体积有限. 每段 $x$-轴宽 $1$ 是固定的, 但厚度 $\eps_1 / 2^{j+1}$ 越来越小. 它直接推广到所有 $k$-维子空间 (Theorem 5.3 就是这条思路的一般化).</p>
+
+      <div class="box example">
+        <span class="box-title">Example 5.2 (单点集 $\{x_0\} \subseteq \R^n$ 测度零)</span>
+        <p>任何单点集 $\{x_0\} \subseteq \R^n$ 有测度零.</p>
+        <p><strong>证明</strong> (直接用定义): 给定 $\eps > 0$. 取 $B_1$ 为中心 $x_0$、边长 $\delta$ 的开 $n$-方块, $\delta$ 选小到 $\delta^n < \eps$. 取 $B_j = \emptyset$ 对 $j \ge 2$. 则 $\{x_0\} \subseteq B_1$, $\sum \vol_n(B_j) = \delta^n < \eps$. $\square$</p>
+        <p><strong>另一种证明</strong> (用 Theorem 5.1): $\{x_0\}$ 是 $0$-维"子空间" (或视为有界 + 体积零). $\mathbf{1}_{\{x_0\}}$ 处处为零除了一个点, Riemann 可积且积分为零 $\Rightarrow$ 体积零 $\Rightarrow$ 测度零.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 5.3 (可数集测度零 — 经典应用)</span>
+        <p>$\R^n$ 中任何可数集 $S = \{s_1, s_2, \dots\}$ 有测度零.</p>
+        <p><strong>证明 (直接)</strong>: 给定 $\eps > 0$. 把每个 $s_j$ 包在中心 $s_j$、体积 $\eps / 2^{j+1}$ 的开 $n$-方块 $B_j$ 里 (取边长 $\delta_j = (\eps / 2^{j+1})^{1/n}$). 则 $S \subseteq \bigcup_j B_j$, 总体积
+        $$\sum_j \vol_n(B_j) = \sum_j \frac{\eps}{2^{j+1}} = \frac{\eps}{2} \cdot \sum_j \frac{1}{2^j} = \frac{\eps}{2} \cdot 1 = \frac{\eps}{2} < \eps.$$
+        $\square$</p>
+        <p><strong>证明 (用 Theorem 5.2)</strong>: 每个 $\{s_j\}$ 由 Example 5.2 测度零; $S = \bigcup_{j \in \N} \{s_j\}$ 是可数 union; 由 Theorem 5.2 测度零. — 这种"分解 + 引用"的链是后面所有 a.e. 论证的标准范式.</p>
+        <p><strong>直接推论</strong>:</p>
+        <ul>
+          <li>$\Q \subseteq \R$ 测度零 (有理数可数).</li>
+          <li>$\Q^n \subseteq \R^n$ 测度零 (可数 × 可数 × ... × 可数 = 可数).</li>
+          <li>所有代数数 $\overline{\Q} \cap \R$ 测度零 (代数数可数).</li>
+          <li>任何离散点集 (例: $\Z^n$) 测度零.</li>
+        </ul>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 5.4 (圆周 $S^1 \subset \R^2$ 测度零)</span>
+        <p>单位圆周 $S^1 = \{(x,y) : x^2 + y^2 = 1\} \subseteq \R^2$ 有 $2$-维测度零.</p>
+        <p><strong>证明 1 (用 Theorem 5.1 — 体积零路径)</strong>: $S^1$ 有界且 pavable, $\vol_2(S^1) = 0$ — 这可以由 $S^1$ 作为光滑 $1$-维曲线被有限多个 dyadic cube 触及的总面积可任意小直接看出 (或: $\mathbf{1}_{S^1}$ 几乎处处为零, 满足 Lebesgue 准则前置). 由 Theorem 5.1 $\Rightarrow$ 测度零.</p>
+        <p><strong>证明 2 (参数化 + $\eps/2^j$ 思想)</strong>: $S^1$ 可以用 $\theta \in [0, 2\pi]$ 参数化. 把 $[0, 2\pi]$ 分成 $K$ 段, 每段在圆周上长 $2\pi/K$ — 用宽 $2\pi/K$、薄度 $\eps/K$ 的小矩形覆盖一段圆周片段 (沿切线方向). $K$ 段总体积 $K \cdot (2\pi/K) \cdot (\eps/K) = 2\pi \eps / K \to 0$ 当 $K \to \infty$. — 形式上稍麻烦, 但避免了 Riemann 框架, 直接给可数 (实际有限) 开盒覆盖.</p>
+      </div>
+
+      <p>本例的意义: <em>所有光滑闭曲线、所有光滑 $k$-维子流形 ($k < n$)</em> 在 $\R^n$ 中都是测度零. 这是变量代换 (Topic 09) 和 Stokes (Ch 6) 中"边界 $\partial X$ 测度零"假设的一个 instance — 数学物理里几乎所有合理的"光滑边界"自动满足.</p>
+
+      <!-- §6 常见陷阱 -->
+      <h2 id="pitfalls">§6 常见陷阱</h2>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 5.1 — 把"可数"误读为"有限"</span>
+        <p>测度零定义里的"可数序列开盒"是<strong>真的允许无穷多个</strong>盒子, 不要在做题时偷换成"有限多个". 否则会得到错误结论:</p>
+        <ul>
+          <li>$\Q \cap [0,1]$ 用"有限多开盒"覆盖且总体积 $< \eps$ — <strong>不可能</strong>. 有限多个区间至多盖住有限多个 $\Q$ 点 (除非区间长度合起来盖住整个 $[0,1]$, 此时总体积 $\ge 1$). 真正的覆盖需要枚举 $\Q \cap [0,1] = \{q_1, q_2, \dots\}$ 然后用<em>可数无穷</em>个收缩盒子.</li>
+          <li>等价地, "有限多开盒 + 总体积任意小" 这个条件刻画的是 <strong>体积零</strong>, 不是测度零. 两者的本质区别就在 "可数 vs 有限" 这一步.</li>
+        </ul>
+        <p><strong>记忆要点</strong>: 测度零定义里看见 $\sum_{j=1}^\infty$, 务必意识到这个 $\infty$ 是<em>可数无穷</em>, 不是 finite sum 写成 $\sum_{j=1}^k$ 的简写.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 5.2 — 试图把 Theorem 5.2 推广到"不可数 union"</span>
+        <p>"可数 union 仍测度零" 中<strong>可数</strong>是必要条件. 不可数 union 几乎总会失败:</p>
+        <p><strong>反例</strong>: $[0,1] = \bigcup_{x \in [0,1]} \{x\}$. 每个 $\{x\}$ 测度零 (Example 5.2), 但 $[0,1]$ 体积为 $1$, 显然不测度零.</p>
+        <p><strong>为什么 $\eps/2^j$ trick 不工作</strong>: 若 union 不可数, 没有方法把 $\eps$ "分配"给每个集合 — 几何级数 $\sum 1/2^j$ 仅对可数 index 收敛.</p>
+        <p>一个常见误用: 想说"每条曲线 $\gamma_t$ ($t \in [0,1]$) 都测度零 $\Rightarrow$ $\bigcup_t \gamma_t$ 测度零". 错! 比如 $\gamma_t = \{(x, t) : x \in [0,1]\}$ 是水平线段 (测度零), 但 $\bigcup_{t \in [0,1]} \gamma_t = [0,1]^2$ 是正测度.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 5.3 — 把"测度零"等同于"内部为空"或"边界"</span>
+        <p>测度零 $\ne$ 内部为空, 也 $\ne$ 边界集. 这是 topology 和 measure 的<em>独立</em>性质.</p>
+        <ul>
+          <li><strong>测度零但内部非空</strong>? — 不可能. 任何非空开集 $U \subseteq \R^n$ 含一个开方块, 故 $\vol_n(U) > 0$, 不测度零. 这是测度零的 topology 必要条件.</li>
+          <li><strong>内部为空但测度非零</strong>? — 是的. <strong>胖 Cantor 集 (fat Cantor set)</strong> 是 $[0,1]$ 中的<em>无内部点</em>闭集 (类似经典 Cantor 集, 但每步去掉的中间区间更小), 它的 Lebesgue 测度严格正 (例: $1/2$). 所以"无内部"不蕴含"测度零".</li>
+          <li><strong>边界集测度可能非零</strong>: 一个 pavable 集 $A$ 的边界 $\partial A$ 是测度零 (这是 pavability 的等价定义之一), 但更一般集合的"拓扑边界"可以正测度.</li>
+        </ul>
+        <p><strong>记忆要点</strong>: topology 和 measure 在 $\R^n$ 里只是<em>松散关联</em>. 测度零是关于"被多少厚度的盒子盖住", topology 性质是关于"局部稠密 / 闭包 / 内部". 别把它们对应等同.</p>
+      </div>
+
+      <!-- §7 练习 -->
+      <h2 id="exercises">§7 练习</h2>
+      <p>展开 <code>&lt;details&gt;</code> 查看答案 (建议先自己想 5-10 分钟再看).</p>
+
+      <div class="exercise">
+        <p><span class="ex-num">1.</span> 证明: $\R \times \{0\} \subseteq \R^2$ (整条 $x$-轴) 测度零. (Example 5.1 只证了正半轴; 这里要全 $\R$.)</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>方法 1 (Example 5.1 加 Theorem 5.2)</strong>: 全 $x$-轴 = (正半轴) $\cup$ (负半轴) $\cup \{(0,0)\}$. 每个都测度零 (Example 5.1 + 对称性 + Example 5.2), 三者是可数 union (实际是<em>有限</em> union, 平凡地满足 Theorem 5.2 的可数性 hypothesis). $\square$</p>
+            <p><strong>方法 2 (直接定义)</strong>: 给定 $\eps > 0$. 对 $j \in \Z$ (双向), 取 $B_j = [j, j+1] \times [-\eps / 2^{|j|+3}, \eps / 2^{|j|+3}]$. $\sum_j \vol_2(B_j) = \sum_j \eps / 2^{|j|+2} = 2 \cdot \eps/4 \cdot \sum_{j \ge 0} 1/2^j = \eps$. $\square$</p>
+            <p><strong>方法 3 (Theorem 5.3)</strong>: $\R \times \{0\}$ 是 $\R^2$ 的 $1$-维线性子空间, $1 < 2$. 直接由 Theorem 5.3 测度零. — 最干净最快.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">2.</span> 设 $E \subseteq \R^n$ 测度零, $F \subseteq E$. 证: $F$ 测度零. (测度零的子集仍测度零 — 即测度零对取子集封闭.)</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>给定 $\eps > 0$. 由 $E$ 测度零, $\exists$ 可数开盒 $\{B_j\}$ 使 $E \subseteq \bigcup B_j$ 且 $\sum \vol_n(B_j) \le \eps$. 由 $F \subseteq E \subseteq \bigcup B_j$, 同一个 $\{B_j\}$ 也覆盖 $F$. 总体积仍 $\le \eps$. 故 $F$ 测度零. $\square$</p>
+            <p><strong>意义</strong>: 这是 measure zero 的"hereditary"性质 — 比"可数 union 封闭"还基本. 它说测度零的子集层级是稳定的, 不会"长出"正测度.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">3.</span> 证: $\Z^n \times \R \subseteq \R^{n+1}$ 测度零.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>方法 1 (可数 union 平面)</strong>: $\Z^n \times \R = \bigcup_{\mathbf{k} \in \Z^n} (\{\mathbf{k}\} \times \R)$. 每个 $\{\mathbf{k}\} \times \R$ 是 $\R^{n+1}$ 中的 $1$-维子空间的平移, 由 Theorem 5.3 (含平移版本) $(n+1)$-维测度零. $\Z^n$ 可数 $\Rightarrow$ 可数 union $\Rightarrow$ 仍测度零 (Theorem 5.2). $\square$</p>
+            <p><strong>方法 2 (Corollary 5.6 — 球穷竭)</strong>: $\Z^n \times \R \cap B_k(0)$ 有界且体积零 (它是有限多个 $1$-维线段的 union, $\mathbf{1}$ 函数可积积分为零). 由 Corollary 5.6, $\Z^n \times \R$ 测度零.</p>
+            <p><strong>意义</strong>: 整数格交一根连续轴, 是测度零的 "细网" — 不应该被误判为"很多". 测度对 $\Z^n$-离散性免疫.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">4.</span> ("证明或反例") 设 $E, F \subseteq \R^n$ 测度零. $E \cap F$ 是否测度零? $E \setminus F$ 呢? $E \cup F$ 呢?</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>全部<strong>真</strong> (都测度零).</p>
+            <p><strong>$E \cap F$</strong>: $E \cap F \subseteq E$, 由 Exercise 2 (子集封闭性) 测度零.</p>
+            <p><strong>$E \setminus F$</strong>: $E \setminus F \subseteq E$, 同理子集封闭性给出测度零.</p>
+            <p><strong>$E \cup F$</strong>: 这是<em>两个</em>测度零集的 union, 即可数 union 的特殊情形 $(k = 2)$. 由 Theorem 5.2 测度零. 也可以直接证: 取 $E$ 的开盒覆盖总体积 $\le \eps/2$, $F$ 的 $\le \eps/2$, 合并 $\le \eps$.</p>
+            <p><strong>意义</strong>: 测度零集对所有有限/可数 Boolean 操作 (除 complement) 封闭. Complement 不封闭: $\R^n \setminus E$ 一般是<em>全空间减一个测度零集</em>, 显然不测度零 (除非 $E = \R^n$).</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">5.</span> 给出 $\R^2$ 中一个集合 $E$, 满足: $E$ <em>不可数</em>, 但 $E$ 测度零.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>最自然的例子: <strong>Cantor 集 $C \subseteq [0,1]$</strong>, 视作 $\R^2$ 子集 $C \times \{0\}$.</p>
+            <ul>
+              <li><strong>不可数</strong>: 经典构造 (反复去掉中间三分) 给出 $C$ 与 $\{0,1\}^\N$ 一一对应, 不可数.</li>
+              <li><strong>测度零</strong>: $C \subseteq [0,1] \times \{0\}$, 后者是 $\R \times \{0\}$ 的有界子集, 测度零 (Exercise 1 + Exercise 2 子集封闭性).</li>
+            </ul>
+            <p>另一个例子: $\R \times \{0\}$ 本身 — 整条 $x$-轴是不可数的, 测度零 (Exercise 1).</p>
+            <p><strong>意义</strong>: "不可数"和"正测度"是<em>独立</em>性质. 测度零并不蕴含可数; 可数蕴含测度零但反之不真. Cantor 集是这个不等价性的经典见证.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">6.</span> 设 $f \colon [0, 1] \to \R$ 是<em>处处</em>定义的、$f = 0$ 在 $[0, 1] \setminus \Q$ 上, $f = 1$ 在 $[0, 1] \cap \Q$ 上 (即 Dirichlet 函数). 证明 $f = 0$ a.e.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>$\{x : f(x) \ne 0\} = \Q \cap [0,1]$. 由 Example 5.3 ($\Q$ 可数 $\Rightarrow$ 测度零) 加 Exercise 2 (子集封闭), $\Q \cap [0,1]$ 测度零. 由 a.e. 定义 (Definition 5.2), $f = 0$ a.e.. $\square$</p>
+            <p><strong>意义</strong>: Dirichlet 函数 a.e. 等于零函数 — 它"几乎是"零函数, 只是在测度零集上偏离. 这种 a.e. 改写是 Lebesgue 框架"忽略测度零差异"的精髓 — Dirichlet 不 Riemann 可积, 但 Lebesgue 可积且积分为零 (Topic 12 会精确化).</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">7.</span> 设 $T \colon \R^2 \to \R^2$ 由 $T(x,y) = (2x + y, x - y)$. 证: 若 $E \subseteq \R^2$ 测度零, 则 $T(E)$ 也测度零.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>$T$ 是线性映射, 矩阵 $\begin{pmatrix} 2 & 1 \\ 1 & -1 \end{pmatrix}$, $\det T = -2 - 1 = -3 \ne 0$ — $T$ 同构 (双射).</p>
+            <p>给定 $\eps > 0$. 由 $E$ 测度零, $\exists$ 可数开盒 $\{B_j\}$ 使 $E \subseteq \bigcup B_j$, $\sum \vol_2(B_j) \le \eps / |det T| = \eps / 3$.</p>
+            <p>$T(B_j)$ 是 $\R^2$ 中的<em>开平行四边形</em> (线性同构保持开性). 由"determinant scales volume" 定理 (<a href="08-linear-cov.html">Topic 08</a> Thm 8.x), $\vol_2(T(B_j)) = |det T| \cdot \vol_2(B_j) = 3 \vol_2(B_j)$.</p>
+            <p>故 $T(E) \subseteq \bigcup T(B_j)$ (开覆盖), $\sum \vol_2(T(B_j)) = 3 \sum \vol_2(B_j) \le 3 \cdot \eps/3 = \eps$. $T(E)$ 测度零.</p>
+            <p><strong>但等等</strong>: 测度零定义里的"开盒"特指开方块, 而 $T(B_j)$ 是平行四边形, 不是方块. 是否破坏定义? 不: 定义允许"开盒 / 开球 / 开矩形等"灵活形状; 任意有界开集都可被一族体积相当的开方块覆盖. 所以 $T(E)$ 可被一族开方块覆盖, 总体积 $\le \eps$. 实际细节: 把每个 $T(B_j)$ 用其外接开方块替换, 体积上多加一个因子 (依赖 $|T|$ 与维数的常数), 重新分配 $\eps$ 即可.</p>
+            <p><strong>意义</strong>: 测度零对任意可逆线性变换不变 — 这是 measure 的一个 "covariant" 性质. 后面非线性变量代换 (Topic 09) 把这条扩展到 Lipschitz $C^1$ 映射.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">8.</span> ("证明或反例") 任何<em>闭</em>集 $C \subseteq \R^n$, 若内部为空 ($C^\circ = \emptyset$), 必测度零.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>反例</strong>. <strong>胖 Cantor 集</strong> (Smith-Volterra-Cantor 集) 是 $[0,1]$ 的闭子集, 构造: 第一步去掉中间长 $1/4$ 的区间, 第二步从剩下两段各去掉中间 $1/16$, 第 $n$ 步去掉总长 $2^{n-1} \cdot 1/4^n = (1/4) \cdot (1/2)^{n-1}$. 总去除 $\sum_{n=1}^\infty (1/4)(1/2)^{n-1} = 1/2$. 剩下闭集 $C$ 的 Lebesgue 测度 $= 1 - 1/2 = 1/2 > 0$, 故 $C$ 不测度零.</p>
+            <p>检查 $C^\circ = \emptyset$: 类似经典 Cantor 集, 任何点 $x \in C$ 的任意邻域里都含一个 "已被去掉" 的开区间 — 即 $x$ 不是 $C$ 的内点. 故 $C^\circ = \emptyset$.</p>
+            <p><strong>意义</strong>: "内部空"是 topology 性质, "测度零"是 measure 性质 — 二者独立 (见 Pitfall 5.3). 闭集 + 内部空仍可有正测度. 反过来, 测度零必然内部空 (Pitfall 5.3 第一条).</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- §8 速查表 -->
+      <h2 id="cheat">§8 速查表</h2>
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def"><strong>测度零 (Def 5.1)</strong>: $\forall \eps$, $\exists$ 可数开盒 $\{B_j\}$ 使 $X \subseteq \bigcup B_j$ 且 $\sum \vol_n(B_j) \le \eps$. <em>不要求 $X$ 有界或 pavable</em>.</li>
+          <li class="cs-def"><strong>a.e. (Def 5.2)</strong>: 性质 $P$ a.e. 成立 $\Longleftrightarrow$ $\{x : P(x) \text{ 不成立}\}$ 测度零.</li>
+          <li class="cs-thm"><strong>体积零 $\Rightarrow$ 测度零 (Thm 5.1)</strong>: 有界 + Riemann 体积零 $\Rightarrow$ Lebesgue 测度零. 反之不成立 ($\Q \cap [0,1]$ 测度零但不 pavable).</li>
+          <li class="cs-thm"><strong>可数 union 仍测度零 (Thm 5.2)</strong>: $\bigcup_{k \in \N} X_k$ 测度零 (若每个 $X_k$ 测度零). 关键技术: <strong>$\eps/2^j$ trick</strong> + $\sum 2^{-j} = 1$.</li>
+          <li class="cs-thm"><strong>$k$-维子空间 ($k < n$) 测度零 (Thm 5.3)</strong>: 证明 = "dyadic paving $\mathcal{D}_N$ 可数 (由 $\Q$ 稠密) + 每 $k$-cube 加薄 $(n-k)$-厚度 + $\eps/2^j$". 平移和线性像也测度零.</li>
+          <li class="cs-thm"><strong>球穷竭法 (Cor 5.6)</strong>: 若 $\vol_n(X \cap B_k(0)) = 0$ $\forall k$, 则 $X$ 测度零 — 把"无界"问题分解成"有界 + 可数 union".</li>
+          <li class="cs-tech"><strong>典型测度零集</strong>: 单点、可数集 ($\Q$, $\Q^n$, $\Z^n$)、$k$-维 ($k<n$) 子空间/光滑子流形/光滑曲线/曲面、Cantor 集. <em>非</em>测度零: 任何非空开集; 胖 Cantor 集.</li>
+          <li class="cs-tech"><strong>子集封闭</strong>: $F \subseteq E$ 测度零 $\Rightarrow$ $F$ 测度零 (Exercise 2).</li>
+          <li class="cs-pitfall"><strong>陷阱 1</strong>: "可数"$\ne$"有限". 有限多开盒 + 总体积小 = 体积零, 不是测度零.</li>
+          <li class="cs-pitfall"><strong>陷阱 2</strong>: 不可数 union 一般<em>不</em>保持测度零 ($[0,1] = \bigcup_{x} \{x\}$ 反例).</li>
+          <li class="cs-pitfall"><strong>陷阱 3</strong>: <em>连续</em>映射不保持测度零 (空间填充曲线); 只有<em>线性 / Lipschitz $C^1$</em> 才保持.</li>
+        </ul>
+      </div>
+
+      <!-- §9 进一步阅读 -->
+      <h2 id="further">§9 进一步阅读</h2>
+      <ul>
+        <li><strong>H&amp;H 教材</strong>: §4.3 (Measure of sets and integrability), 包括 Def 4.3.1 测度零、Prop 4.3.2 (体积 $\Rightarrow$ 测度) 和 Thm 4.3.4 (可数 union). 4.3 节末尾也讨论了 Lebesgue 准则的预备 (本课程 Topic 06 主题).</li>
+        <li><strong>Typed lecture notes</strong>:
+          <ul>
+            <li><code>../../Notes/Typed/3.1_notes/3.1_notes.pdf</code> — 体积进一步性质 (平移/缩放) + 测度零定义 + a.e. + 正半 $x$-轴例 + $k$-维子空间陈述 + 可数 union + 球穷竭推论</li>
+            <li><code>../../Notes/Typed/3.2_notes/3.2_notes.pdf</code> 前半 — 体积零 $\Rightarrow$ 测度零完整证明 + $k$-维子空间测度零完整证明 + 线性像推论 + 空间填充曲线警告</li>
+          </ul>
+        </li>
+        <li><strong>关联 review topics</strong>:
+          <ul>
+            <li><a href="04-volume-pavable.html">Topic 04</a>: 体积的 Riemann 定义、pavable 集、平移/缩放不变性 — 本页的 Riemann-side 对照</li>
+            <li><a href="06-lebesgue-criterion.html">Topic 06</a>: <strong>Lebesgue 准则</strong> — 把本页 a.e. 概念用回去, 给出 Riemann 可积性的最终刻画. Thomae 函数在此处出现.</li>
+            <li><a href="08-linear-cov.html">Topic 08</a>: "determinant scales volume" — 让线性 $T$ 不仅保持测度零, 还精确计算 $\vol(T(A)) = |det T| \vol(A)$.</li>
+            <li><a href="13-well-definedness.html">Topic 13</a>: Lebesgue 良定性证明 — 大量使用本页 $\eps/2^j$ 和 measure zero 的工具.</li>
+          </ul>
+        </li>
+        <li><strong>同主题外读</strong>:
+          <ul>
+            <li>Royden &amp; Fitzpatrick, <em>Real Analysis</em>, Ch 2 — 标准 Lebesgue 测度论 (outer measure, measurable set 全体). 我们本页用的 "measure zero" 是 outer measure $= 0$ 的特殊情形.</li>
+            <li>Tao, <em>An Introduction to Measure Theory</em>, §1.1 — 用 elementary measure (Jordan content) 和 Lebesgue 外测度对比, 对应本页的 "vol vs measure" 区分.</li>
+            <li>Stein &amp; Shakarchi, <em>Real Analysis</em>, Ch 1 — 测度零集合的拓扑/几何例子, 包含 Cantor 集和胖 Cantor 集详细分析.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <hr style="margin: 60px 0 20px; border: 0; border-top: 1px solid #d8d3c4;">
+      <p style="font-size: 13px; color: #888; text-align: center;">MATH 31CH 复习指南 · Topic 05 · Phase 3</p>
+
+    </main>
+  </div>
+
+</body>
+</html>

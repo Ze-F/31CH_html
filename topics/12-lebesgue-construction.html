@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Topic 12: Lebesgue 积分的构造 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="11-limits-riemann.html">Topic 11</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="13-well-definedness.html">Topic 13</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#motivation">§1 动机</a></li>
+        <li><a href="#prereq">§2 前置知识</a></li>
+        <li><a href="#definitions">§3 核心定义</a></li>
+        <li><a href="#theorems">§4 主要定理</a></li>
+        <li><a href="#examples">§5 Worked Examples</a></li>
+        <li><a href="#pitfalls">§6 常见陷阱</a></li>
+        <li><a href="#exercises">§7 练习</a></li>
+        <li><a href="#cheat">§8 速查表</a></li>
+        <li><a href="#further">§9 进一步阅读</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>Topic 12: Lebesgue 积分的构造</h1>
+      <p class="subtitle">Source: Lec 7.1 · H&amp;H §4.11 · 14 topics 中第 12 个 (climax)</p>
+
+      <!-- §1 动机 -->
+      <h2 id="motivation">§1 动机</h2>
+      <p>这是整个 Chapter 4 的 <strong>高潮</strong>。我们用了 11 个 topic 仔细打磨 Riemann 积分 — 从 1D 上下和、到 dyadic paving、到测度零、到 Fubini、到变量代换、再到极限交换 — 但始终在 Riemann 框架内。<a href="11-limits-riemann.html">Topic 11</a> 给了两个 paradigm 反例 (traveling box, tall spike), 说明 <strong>没有 uniform convergence, 哪怕 $f_k \in \IR$ 且 $f_k \to f$ pointwise, 也可能 $\lim\int f_k \ne \int\lim f_k$</strong>。但那两个反例还算 “温和” — 极限 $f \equiv 0$ 至少是 Riemann 可积的, 失败发生在 “$\int$ 错位” 而不是 “$\int$ 不存在”。</p>
+
+      <p>本页的开篇还要再给一个反例 — <strong>cumulative-Dirichlet 序列</strong> — 它更彻底: $f_k \to f =$ Dirichlet 函数, 而 $f \notin \IR$, 所以 “$\int\lim f_k$” 在 Riemann 意义下 <em>根本无法定义</em>。这是 Riemann 框架的最后一根稻草: 不是积分值算错了, 而是连 “算什么积分” 都说不清楚。我们必须扩张 “可积” 的语义本身。</p>
+
+      <p>解决方案就是 <strong>Lebesgue 积分</strong>。本页讲它的 <strong>构造</strong> — 即如何把 “Riemann 可积” 的概念严格扩张到一个更大的类 $\IL(\R^n) \supsetneq \IR(\R^n)$。我们采用的方法叫 <strong>Daniell-Stone 构造</strong>: 把 Lebesgue 可积函数定义为 “Riemann 砖块 (Riemann bricks) 的绝对可和级数 (absolutely-summable series) 的 a.e. 求和”。直觉上: $f = f_1 + f_2 + f_3 + \cdots$ a.e., 每个 $f_k \in \IR$, 且 $\sum_k \int|f_k| < \infty$ — 然后定义 $\int f \, dV_L := \sum_k \int f_k \, dV$。两个支撑技术: (a) 一个 “Riemann 版本” 的 DCT (H&amp;H Thm 4.11.6), 它把 uniform convergence 削弱为 a.e. 收敛 + uniform 点态界; (b) 一个 Beppo-Levi 型命题, 保证绝对可和级数 a.e. 收敛。整个构造把 Riemann 积分作为 “砖块”, 拼出一个更大的 “建筑物” — Lebesgue 积分。</p>
+
+      <p>本 topic 结束时, 我们将看到两个例子: <strong>(i) Dirichlet</strong> 函数 $\mathbf{1}_{\Q \cap [0,1]}$ — Riemann 不可积 (太不连续), 但 Lebesgue 可积, $\int = 0$; <strong>(ii) 无界对数</strong> 函数 $-\ln x \cdot \mathbf{1}_{(0,1]}$ — Riemann 不可积 (太无界), 但 Lebesgue 可积, $\int = 1$。这两个例子分别针对 $\IR$ 的两种 “失败模式” — <em>太不连续</em> 和 <em>太无界</em> — 展示 $\IL$ 同时治愈了它们。</p>
+
+      <!-- §2 前置知识 -->
+      <h2 id="prereq">§2 前置知识</h2>
+      <div class="box prereq">
+        <span class="box-title">在阅读本页前，你应该已经掌握:</span>
+        <ul>
+          <li><a href="01-1d-riemann.html">Topic 01</a>, <a href="02-nd-riemann.html">Topic 02</a>: Riemann 积分定义、Cauchy 准则、上下和</li>
+          <li><a href="03-algebra-properties.html">Topic 03</a>: 积分的线性、单调、$|f| \in \IR$、$\int|f| \ge |\int f|$ — 在本页的 Beppo-Levi 论证里关键</li>
+          <li><a href="05-measure-zero-basics.html">Topic 05</a>: 测度零 (measure zero) 的定义、a.e. 语言、可数 union 测度零</li>
+          <li><a href="06-lebesgue-criterion.html">Topic 06</a>: <strong>Lebesgue 准则</strong> (Riemann 可积 ⟺ a.e. 连续) — 本页要不断引用以判别 “砖块” $f_k \in \IR$</li>
+          <li><a href="11-limits-riemann.html">Topic 11</a>: <strong>Uniform convergence theorem</strong> + traveling box / tall spike 反例 — 本页是它的直接续篇 (我们要补一个更恶劣的反例, 然后给出救赎)</li>
+          <li>级数收敛、绝对收敛与条件收敛的区别; geometric series $\sum 1/2^k = 1$ 之类的基本求和</li>
+        </ul>
+      </div>
+
+      <!-- §3 核心定义 -->
+      <h2 id="definitions">§3 核心定义</h2>
+
+      <p>本节有三个定义: 一个 “过渡用” 的 cumulative-Dirichlet 序列 (用来 motivation), 然后是核心的 “$=_L$” 等价关系和 “$f \in \IL$” 定义。</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 12.1 (cumulative-Dirichlet 序列, 见 Lec 7.1 Ex 1.1)</span>
+        <p>将 $\Q \cap [0,1]$ 枚举为 $\{a_1, a_2, a_3, \dots\}$ (可数无穷). 定义
+        $$f_k(x) := \begin{cases} 1, & x \in \{a_1, a_2, \dots, a_k\}, \\ 0, & \text{otherwise}. \end{cases}$$</p>
+        <p>每个 $f_k$ 是有限点集 (测度零) 的指示函数, 故 $f_k \in \IR([0,1])$ (Lebesgue 准则), 且 $\int_0^1 f_k \, dV = 0$ 对所有 $k$ 成立。</p>
+      </div>
+
+      <p><strong>直觉</strong>: 这是 “逐步填充有理点” 的序列。$f_1$ 在一个点取 $1$; $f_2$ 在两个点取 $1$; ……; pointwise 极限是 $\mathbf{1}_{\Q \cap [0,1]}$ — 经典 Dirichlet。每一步都 Riemann 可积 (积分都是 $0$), 但极限不 Riemann 可积。这是 “$\int\lim$ 在 Riemann 框架里彻底无定义” 的最干净例子, 比 Topic 11 的两个反例更彻底 — 不是 “$\int$ 错位”, 而是 “$\int$ 不存在”。</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 12.2 (Lebesgue 积分级数等价 $=_L$)</span>
+        <p>设 $(f_k)_{k \in \N}, (g_k)_{k \in \N} \subset \IR(\R^n)$ 两个 Riemann 可积函数序列, 满足
+        $$\sum_{k=1}^{\infty}\int_{\R^n}|f_k| \, dV < \infty, \qquad \sum_{k=1}^{\infty}\int_{\R^n}|g_k| \, dV < \infty.$$
+        (这种序列称为 <strong>绝对可和的 Riemann 砖块序列</strong>, absolutely-summable Riemann brick sequence.)</p>
+        <p>由 Beppo-Levi (Thm 12.2, 下) 知 $\sum_k f_k$ 和 $\sum_k g_k$ 都 a.e. 收敛。我们说
+        $$\sum_{k=1}^{\infty} f_k \;=_L\; \sum_{k=1}^{\infty} g_k \quad \Longleftrightarrow \quad \sum_{k=1}^{\infty} f_k(x) = \sum_{k=1}^{\infty} g_k(x) \text{ for a.e. } x \in \R^n.$$</p>
+      </div>
+
+      <p>这是一个 <strong>等价关系</strong>: 把 “两个绝对可和级数代表同一个函数” 形式化。注意 “$=_L$” 不是数值等于, 而是 <em>函数 a.e. 相等</em>。它把 “a.e. 等于” 这个 measure-theoretic 关系搬到了级数层面。这个等价关系是必要的, 因为一旦我们定义 $f \in \IL$, $f$ 通常有多个砖块分解, 我们必须知道不同分解 “等价”, 它们都代表同一个 $f$ 且给出同一个积分值。</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 12.3 (Lebesgue 可积 / Lebesgue 积分, H&amp;H §4.11)</span>
+        <p>函数 $f \colon \R^n \to \R$ 称为 <strong>Lebesgue 可积 (Lebesgue integrable)</strong>, 记 $f \in \IL(\R^n)$, 若存在序列 $(f_k)_{k \in \N} \subset \IR(\R^n)$ 满足
+        $$\sum_{k=1}^{\infty}\int_{\R^n}|f_k| \, dV < \infty \qquad \text{且} \qquad \sum_{k=1}^{\infty} f_k \;=_L\; f$$
+        (后者即 $\sum_k f_k(x) = f(x)$ for a.e. $x$). 此时定义 $f$ 的 <strong>Lebesgue 积分</strong> 为
+        $$\int_{\R^n} f \, dV_L \;:=\; \sum_{k=1}^{\infty}\int_{\R^n} f_k \, dV.$$
+        (右侧绝对收敛, 因为 $|\sum_k \int f_k| \le \sum_k \int|f_k| < \infty$.)</p>
+      </div>
+
+      <p><strong>砖块分解 (brick decomposition) 视角</strong>: 把 Lebesgue 可积函数想象为 “Riemann 砖块的可数无穷和”:
+      $$f = f_1 + f_2 + f_3 + \cdots \quad \text{(a.e.)}, \qquad f_k \in \IR, \quad \sum_k \int|f_k| < \infty.$$
+      每块砖 $f_k$ 都是 “规规矩矩” 的 Riemann 可积函数。$f$ 本身可能 <em>无界</em>、可能 <em>处处不连续</em>、可能违反一切 Riemann 框架的限制 — 但只要它能被 <strong>某个</strong> Riemann 砖块的绝对可和级数 “a.e. 拼出来”, 它就是 Lebesgue 可积的。Lebesgue 积分就是砖块积分的可数和。</p>
+
+      <p>这个视角和 “测度论从 simple function 出发逐步逼近” 的做法 (Royden, Folland) 不一样 — 那是 <strong>Carathéodory-Lebesgue</strong> 方法。我们走的是 <strong>Daniell-Stone</strong> 方法: 从 $\IR$ 出发, 通过 “绝对可和级数 a.e. 求和” 一步扩张。两条路殊途同归 — 最终得到的类 $\IL$ 和积分值一样。但 Daniell-Stone 在我们这门课里更自然, 因为我们已经把 $\IR$ 打磨好了, 直接 “往外推” 比 “先建测度论, 再回头定义积分” 要顺。</p>
+
+      <!-- §4 主要定理 -->
+      <h2 id="theorems">§4 主要定理</h2>
+
+      <p>本节有四个结果, 按逻辑次序排列。Thm 12.1 是 Riemann 版 DCT — 整个构造的引擎。Thm 12.2 (Beppo-Levi) 保证 Def 12.2 / 12.3 里的 “a.e. 求和” 有意义。Thm 12.3 是良定性定理 (well-definedness) — Lebesgue 积分值不依赖砖块选择 (本页只陈述, 证明留 <a href="13-well-definedness.html">Topic 13</a>)。Thm 12.4 把 Riemann 嵌入 Lebesgue, 给出 $\IR \subset \IL$ 和积分值一致。</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 12.1 (Riemann 版 DCT, H&amp;H Thm 4.11.6)</span>
+        <p>设 $(f_k)_{k \in \N} \subset \IR(\R^n)$, 且存在常数 $R > 0$, $M > 0$ 使:
+        <br>(i) $\supp(f_k) \subset B_R(0)$ 对所有 $k$ (公共有界支集);
+        <br>(ii) $|f_k(x)| < M$ 对所有 $k$ 和 $x$ (uniform pointwise bound).
+        <br>再假设 $f \in \IR(\R^n)$ <em>已知</em>, 且
+        $$\lim_{k \to \infty} f_k(x) = f(x) \quad \text{for a.e. } x \in \R^n.$$
+        则
+        $$\lim_{k \to \infty}\int_{\R^n} f_k \, dV = \int_{\R^n} f \, dV.$$</p>
+      </div>
+
+      <p><strong>与 Topic 11 主定理的对照</strong> (重要！):</p>
+      <ul>
+        <li>Topic 11 (uniform convergence theorem): hypothesis 更强 (uniform convergence), conclusion 更强 (额外给出 $f \in \IR$ 作为结论, 不需 hypothesize). 这是 “白送” 可积性。</li>
+        <li>Thm 12.1 (DCT for Riemann): hypothesis 更弱 (a.e. 收敛, 加 uniform 点态界 $M$), 但 <strong>必须先假设 $f \in \IR$</strong>。这个 hypothesis 是真的 “付费” — 因为我们不能从 a.e. 收敛免费推出极限可积 (Dirichlet 反例)。</li>
+      </ul>
+
+      <p>注意 “dominated” 在这里的意思就是 “uniform 点态界 $M$”。每个 $f_k$ 被常数函数 $M \cdot \mathbf{1}_{B_R(0)}$ “dominate”。这个常数函数本身可积 — 它是 “dominating function”, 所以叫 “dominated convergence”。一旦 $\IL$ 建立, 真正的 Lebesgue DCT 会把 “常数 $M\mathbf{1}_{B_R}$” 替换成 “任意非负 Lebesgue 可积函数 $g$” — 那是更宽松的形式。</p>
+
+      <p>本课程不证明 Thm 12.1 (证明是 H&amp;H §4.11 的技术核心)。我们把它当 “黑箱” 引擎使用 — 它直接驱动 Thm 12.3 (良定性) 的证明 (见 <a href="13-well-definedness.html">Topic 13</a>)。</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 12.2 (Beppo-Levi 型命题: 绝对积分可和 ⟹ a.e. 收敛)</span>
+        <p>设 $(f_k)_{k \in \N} \subset \IR(\R^n)$ 满足
+        $$\sum_{k=1}^{\infty}\int_{\R^n}|f_k| \, dV < \infty.$$
+        则 $\sum_{k=1}^{\infty} f_k(x)$ 对几乎所有 $x \in \R^n$ 收敛。</p>
+      </div>
+
+      <p><strong>Proof sketch (Chebyshev 风格)</strong>. 定义部分绝对和 $S_N(x) := \sum_{k=1}^{N}|f_k(x)|$。每个 $S_N \in \IR$ (有限 Riemann 函数之和), $S_N$ 在 $N$ 上 pointwise 单调递增, 且
+      $$\int S_N \, dV = \sum_{k=1}^{N}\int|f_k| \, dV \le \sum_{k=1}^{\infty}\int|f_k| \, dV =: C < \infty.$$
+      令 $E := \{x : \lim_N S_N(x) = +\infty\}$ — 即 $\sum_k |f_k(x)| = \infty$ 的点集。若 $E$ 不是测度零, 则可以找到一个正体积子集 $E' \subset E$ 上做 cutoff 论证: 在 $E'$ 上 $S_N$ 趋于无穷, 结合 $\int_{E'} S_N \le \int S_N \le C$ 推出矛盾。故 $E$ 测度零, 即 $\sum_k |f_k(x)| < \infty$ a.e.。<strong>绝对收敛 ⟹ 收敛</strong>, 故 $\sum_k f_k(x)$ a.e. 收敛。$\square$</p>
+
+      <details>
+        <summary>展开 Chebyshev cutoff 的细节</summary>
+        <div class="details-body">
+          <p>关键技术: 用 $S_N$ 的 “Markov 估计 / Chebyshev 不等式” 控制 $E$ 的体积。对任意 $\lambda > 0$, 令 $E_\lambda^N := \{x : S_N(x) > \lambda\}$. 则
+          $$\lambda \cdot \vol_n(E_\lambda^N) \le \int_{E_\lambda^N} S_N \, dV \le \int_{\R^n} S_N \, dV \le C,$$
+          即 $\vol_n(E_\lambda^N) \le C/\lambda$. 注意 $E \subset \bigcap_\lambda \bigcup_N E_\lambda^N$ (更精确: 每个 $x \in E$ 满足 $S_N(x) \to \infty$, 故对任意 $\lambda$ 存在 $N$ 使 $x \in E_\lambda^N$). 取 $\lambda \to \infty$ 并配合测度零的 ε-cover 定义即得 $E$ 测度零。</p>
+          <p>这个 cutoff 论证是 measure theory 的 “大锤”, Folland §2.2 / Royden Ch 4 都讲。但在 H&amp;H 的 Riemann 框架里, 我们用的是 “体积估计 + 测度零” 而不是 “Lebesgue 测度”。</p>
+        </div>
+      </details>
+
+      <p><strong>为什么这是构造的 “技术铰链”</strong>: Def 12.3 写 “$\sum_k f_k = f$ a.e.”。但凭什么左边作为 “a.e. 定义的函数” 有意义？ 那就要 $\sum_k f_k(x)$ 至少在 “测度零集之外” 收敛 — 这正是 Thm 12.2 保证的。<em>没有这个命题, Def 12.3 是空洞的。</em></p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 12.3 (Lebesgue 积分良定性, H&amp;H §4.11)</span>
+        <p>设 $(f_k)_{k \in \N}, (g_k)_{k \in \N} \subset \IR(\R^n)$ 两个绝对可和 Riemann 砖块序列, 且
+        $$\sum_{k=1}^{\infty} f_k(x) = \sum_{k=1}^{\infty} g_k(x) \quad \text{for a.e. } x.$$
+        则
+        $$\sum_{k=1}^{\infty}\int_{\R^n} f_k \, dV = \sum_{k=1}^{\infty}\int_{\R^n} g_k \, dV.$$</p>
+      </div>
+
+      <p>这是整个构造的 <strong>关键正确性陈述</strong>: Lebesgue 积分值不依赖砖块分解的选择。换言之, 公式 $\int f \, dV_L := \sum_k \int f_k \, dV$ 真的只依赖 $f$, 不依赖 $(f_k)$。</p>
+
+      <p><strong>为什么不显然</strong>: 朴素地我们想说 “$\sum f_k = \sum g_k$ a.e. ⟹ $\sum(f_k - g_k) = 0$ a.e. ⟹ 项对项积分为 $0$”。但 $f_k, g_k$ 没有任何自然配对方式 (两个独立序列), 也不能简单地 “逐项相减”。真正的证明用 Thm 12.1 (DCT for Riemann) 作引擎: 把 $f_k - g_k$ 的部分和用一个 Riemann 可积的 dominator bound 住, 然后 invoke DCT。这就是为什么 Thm 12.1 必须先建立 — 它是 Thm 12.3 的支柱。证明的细节是 <a href="13-well-definedness.html">Topic 13</a> 的内容 (全课最技术化的一个证明, 涉及 truncation + dyadic paving + Markov-style 估计)。本页只陈述, 不证。</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 12.4 (Riemann ⟹ Lebesgue, 且积分一致)</span>
+        <p>对每个 $f \in \IR(\R^n)$, 有 $f \in \IL(\R^n)$, 且
+        $$\int_{\R^n} f \, dV_L = \int_{\R^n} f \, dV_R.$$
+        (脚标 $R$ 标 Riemann 积分; 脚标 $L$ 标 Lebesgue 积分.)</p>
+      </div>
+
+      <p><strong>Proof.</strong> 取 “平凡砖块分解”:
+      $$f_1 := f, \qquad f_k := 0 \text{ for all } k \ge 2.$$
+      则每个 $f_k \in \IR$ (要么是 $f$, 要么是零函数, 都 Riemann 可积). 绝对积分级数
+      $$\sum_{k=1}^{\infty}\int|f_k| \, dV = \int|f| \, dV < \infty$$
+      (有限因为 $f \in \IR ⟹ |f| \in \IR$, 见 <a href="03-algebra-properties.html">Topic 03</a>). 级数和
+      $$\sum_{k=1}^{\infty} f_k(x) = f(x) + 0 + 0 + \cdots = f(x) \qquad \forall x \in \R^n$$
+      (<em>处处</em>相等, 不只是 a.e.). 故 $\sum_k f_k =_L f$, 即 $f \in \IL$. 积分值
+      $$\int f \, dV_L := \sum_{k=1}^{\infty}\int f_k \, dV = \int f \, dV_R + 0 + 0 + \cdots = \int f \, dV_R. \qquad \square$$</p>
+
+      <p>这个证明几乎是定义的展开。它的意义是: <strong>$\IL$ 是 $\IR$ 的扩张</strong> — Riemann 可积的函数都自动 Lebesgue 可积, 而且 “新积分” 和 “旧积分” 数值上一致。结合下面 §5 的 Dirichlet 例子 (Dirichlet $\in \IL \setminus \IR$), 我们得 <strong>$\IR(\R^n) \subsetneq \IL(\R^n)$</strong> — 严格扩张, 不是退化等同。</p>
+
+      <div class="box remark">
+        <span class="box-title">Remark 12.1 — 两个 “key properties” 的总结</span>
+        <p>Thm 12.3 和 Thm 12.4 联合起来, 给出 Lebesgue 积分的两个 “key properties”:</p>
+        <ol>
+          <li><strong>独立于砖块表示</strong> (Thm 12.3 的直接 corollary): 给定 $f \in \IL$, 不同的合法砖块序列 $(f_k), (g_k)$ 给出同一个 $\int f \, dV_L$ 值。</li>
+          <li><strong>$\IR \subsetneq \IL$ 严格扩张</strong> (Thm 12.4 + Dirichlet 例子): Riemann 可积函数自动 Lebesgue 可积, 积分一致; 但 Lebesgue 类严格更大。</li>
+        </ol>
+        <p>两条加在一起意味着: Lebesgue 积分是 Riemann 积分的 <em>合法扩张</em> — 在 $\IR$ 上 “兼容” (积分不变), 在 $\IL \setminus \IR$ 上 “新增” (覆盖新的函数)。这就是 “扩张论” 应有的样子。</p>
+      </div>
+
+      <!-- §5 Worked Examples -->
+      <h2 id="examples">§5 Worked Examples</h2>
+
+      <p>三个例子, 按难度递增。Ex 12.1 是 “Riemann 框架最后失败” 的反例 (motivation 部分的形式化, Def 12.1 已有), 这里给出完整论证。Ex 12.2 是 Dirichlet 的 Lebesgue 化 — 治 “太不连续”。Ex 12.3 是无界对数的 Lebesgue 化 — 治 “太无界”。</p>
+
+      <div class="box example">
+        <span class="box-title">Example 12.1 (Cumulative-Dirichlet 反例: 比 Topic 11 反例更恶劣)</span>
+        <p>用 Def 12.1 的 $f_k = \mathbf{1}_{\{a_1, \dots, a_k\}}$. 我们证明:</p>
+        <ol>
+          <li>$f_k \in \IR([0,1])$ for all $k$, $\int_0^1 f_k = 0$ for all $k$, 故 $\lim_k \int_0^1 f_k = 0$.</li>
+          <li>$f_k \to f$ pointwise, 其中 $f = \mathbf{1}_{\Q \cap [0,1]}$ 是 Dirichlet.</li>
+          <li>$f \notin \IR([0,1])$, 故 $\int_0^1 (\lim_k f_k) dV$ 在 Riemann 意义下 <strong>无定义</strong>.</li>
+          <li>还满足 “共同有界支集” ($\supp f_k \subset [0,1]$) 和 “uniform 点态界” ($|f_k| \le 1$) — 即 Topic 11 主定理的两个 hypothesis 都成立, <em>除了</em> uniform convergence。</li>
+        </ol>
+        <p><strong>论证</strong>: (1) $f_k$ 是有限点集 $\{a_1, \dots, a_k\}$ 的指示函数。该集合测度零 (有限集), 故 $\Disc(f_k) = \{a_1, \dots, a_k\}$ 测度零, 加上 $|f_k| \le 1$ 有界, 由 Lebesgue 准则 (<a href="06-lebesgue-criterion.html">Topic 06</a>) 知 $f_k \in \IR$. 积分 $\int_0^1 f_k = 0$, 因为 $f_k$ 只在测度零集上非零 (<a href="06-lebesgue-criterion.html">Topic 06</a> 正性引理的 application).</p>
+        <p>(2) 对任意 $x \in [0,1]$: 若 $x = a_j \in \Q$, 则 $k \ge j$ 时 $f_k(x) = 1$, 故 $\lim_k f_k(x) = 1$. 若 $x \notin \Q$, 则 $f_k(x) = 0$ 对所有 $k$, 故 $\lim_k f_k(x) = 0$. 极限就是 Dirichlet.</p>
+        <p>(3) Dirichlet 函数 $\Disc(f) = [0,1]$ 不是测度零 (它的体积为 $1$), 由 Lebesgue 准则 $f \notin \IR$.</p>
+        <p>(4) Hypothesis 检验: $\supp(f_k) \subset \{a_1, \dots, a_k\} \subset [0,1]$ 公共有界. $|f_k(x)| \le 1$ 处处. 但 <em>没有 uniform convergence</em>: 任取 $\eps < 1$ 和 $N$, 取 $k = N$ 和 $x = a_{N+1}$ — $f_N(x) = 0$, $f(x) = 1$, $|f_N(x) - f(x)| = 1 > \eps$. 故 Topic 11 的 uniform convergence theorem 不适用。</p>
+        <p><strong>关键观察</strong>: 这比 Topic 11 的 traveling box / tall spike 反例更恶劣 — 那两个的极限是 $f \equiv 0 \in \IR$, 失败是 “$\int = 1 \ne 0 = \int\lim$” 的<em>值错位</em>。这里极限 $f \notin \IR$, 失败是 “$\int\lim$ 本身没意义” 的<em>无定义</em>。这是 Riemann 框架的死结 — 必须升级到 Lebesgue。</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 12.2 (Dirichlet $\in \IL$, 治 “太不连续”)</span>
+        <p>令 $f = \mathbf{1}_{\Q \cap [0,1]}$。我们已知 $f \notin \IR$ (Ex 12.1)。我们证明 $f \in \IL(\R)$, $\int_\R f \, dV_L = 0$。</p>
+        <p><strong>砖块构造</strong>: 枚举 $\Q \cap [0,1] = \{a_1, a_2, a_3, \dots\}$, 取
+        $$f_k(x) := \mathbf{1}_{\{a_k\}}(x) = \begin{cases} 1, & x = a_k, \\ 0, & \text{otherwise}. \end{cases}$$
+        每个 $f_k$ 是单点指示函数 — 单点是 “最小测度零集”。</p>
+        <p><strong>验证三个条件</strong>:</p>
+        <ul>
+          <li><em>$f_k \in \IR$</em>: $|f_k| \le 1$ 有界, $\supp f_k = \{a_k\}$ 单点 (测度零), $\Disc(f_k) = \{a_k\}$ 测度零, 由 Lebesgue 准则 $f_k \in \IR$.</li>
+          <li><em>$\int|f_k| = 0$</em>: $f_k$ 只在单点非零, $\int f_k = 0$ (正性引理 a.e. 论证). 故 $\sum_k \int|f_k| = 0 < \infty$ — 满足绝对可和条件 (而且<em>极致</em>: 整个级数等于 $0$).</li>
+          <li><em>$\sum_k f_k = f$ 处处</em>: 给定 $x \in \R$。若 $x = a_j$ 是某个有理数, 则 $f_k(x) = 1$ 当且仅当 $k = j$ (每个有理点恰好在一个 $f_k$ 里贡献 $1$), 故 $\sum_k f_k(x) = 1 = f(x)$. 若 $x \notin \Q$ 或 $x \notin [0,1]$, 则 $f_k(x) = 0$ for all $k$, 故 $\sum_k f_k(x) = 0 = f(x)$.</li>
+        </ul>
+        <p><strong>结论</strong>: $\sum_k f_k =_L f$ (实际<em>处处</em>相等, a fortiori a.e.), 故 $f \in \IL$, 积分
+        $$\int_\R f \, dV_L := \sum_{k=1}^{\infty}\int_\R f_k \, dV = \sum_{k=1}^{\infty} 0 = 0.$$</p>
+        <p><strong>直觉评论</strong>: Lebesgue 积分给 Dirichlet 赋值 $0$ — 这非常合理。$f$ 除了在可数 (测度零) 集合上, 处处为 $0$, 所以它 “本质上” 是零函数。两种经典积分直觉 “曲线下面积” 和 “平均值 × 测度” 都给出 $0$。Riemann 之所以失败, 是它的上和过于保守 — 任何 partition 里, 每个 cube 都包含有理点, 所以 $M_C(f) = 1$, $U(P,f) = 1$, 永不下降。Riemann 看不到 “有理点有多稀薄”; Lebesgue 看得到。</p>
+        <p><strong>替代砖块</strong>: 也可以用 cumulative 序列 $\tilde f_k = \mathbf{1}_{\{a_1, \dots, a_k\}}$ from Def 12.1 — 但要注意 $\sum_k \tilde f_k(x) = \infty$ 在 $\Q$ 上 (每个 $a_j$ 在 $k \ge j$ 的每个 $\tilde f_k$ 里都贡献 $1$, 级数发散!)。但 $\Q$ 是测度零, 所以 “$\sum_k \tilde f_k = f$ a.e.” 仍成立 (在 $\R \setminus \Q$ 处 $\sum_k \tilde f_k(x) = 0 = f(x)$). 由良定性 Thm 12.3, 不同分解给出同一个 $\int f \, dV_L = 0$。这是良定性的一个 “实操确认”。</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 12.3 (无界函数 $-\ln x \cdot \mathbf{1}_{(0,1]} \in \IL$, 治 “太无界”)</span>
+        <p>令
+        $$f(x) := \begin{cases} -\ln x, & x \in (0, 1], \\ 0, & \text{otherwise}. \end{cases}$$
+        注意 $f \ge 0$, 且 $f(x) \to +\infty$ 当 $x \to 0^+$, 故 $f$ 在 $(0, 1]$ 上<strong>无界</strong>。Riemann 积分要求 integrand 有界 (否则上和 $= +\infty$), 故 $f \notin \IR(\R)$。我们证明 $f \in \IL(\R)$, $\int_\R f \, dV_L = 1$。</p>
+        <p><strong>砖块构造 (dyadic 切分)</strong>: 把 $(0, 1]$ 切成 dyadic 区间
+        $$I_k := \left(\tfrac{1}{2^k}, \tfrac{1}{2^{k-1}}\right], \qquad k = 1, 2, 3, \dots$$
+        于是 $I_1 = (\tfrac{1}{2}, 1]$, $I_2 = (\tfrac{1}{4}, \tfrac{1}{2}]$, $I_3 = (\tfrac{1}{8}, \tfrac{1}{4}]$, ..., 且
+        $$\bigsqcup_{k=1}^{\infty} I_k = (0, 1] \quad \text{(disjoint union)}.$$
+        定义
+        $$f_k(x) := \mathbf{1}_{I_k}(x) \cdot (-\ln x).$$</p>
+        <p><strong>验证</strong>:</p>
+        <ul>
+          <li><em>$f_k \in \IR$</em>: 在 $I_k$ 上, $x \in (1/2^k, 1/2^{k-1}]$, 故 $-\ln x \in [(k-1)\ln 2, k\ln 2]$, 有界. $f_k$ 在 $I_k$ 上连续 (复合 $-\ln$ 与限制), 外部为 $0$, 故 $\Disc(f_k) \subset \{1/2^k, 1/2^{k-1}\}$ (两个端点, 测度零). 由 Lebesgue 准则 $f_k \in \IR$.</li>
+          <li><em>$\sum_k f_k = f$ 处处</em>: 若 $x \notin (0,1]$, 则 $f_k(x) = 0 = f(x)$ for all $k$, 求和 $= 0$. 若 $x \in (0, 1]$, 则 $x$ 落在恰好一个 $I_k$ 里 (disjoint union 性质), 故 $\sum_k f_k(x) = f_k(x) = -\ln x = f(x)$ 对那个唯一的 $k$.</li>
+          <li><em>计算 $\int f_k$</em>: 用反导 $\int \ln x \, dx = x\ln x - x$ (IBP):
+          $$\begin{aligned}
+            \int_\R f_k \, dV &= \int_{1/2^k}^{1/2^{k-1}} (-\ln x) \, dx \\
+            &= -[x\ln x - x]_{1/2^k}^{1/2^{k-1}}.
+          \end{aligned}$$
+          代入 $\ln(1/2^j) = -j\ln 2$:
+          $$[x\ln x - x]_{x=1/2^j} = \tfrac{1}{2^j}\cdot(-j\ln 2) - \tfrac{1}{2^j} = -\tfrac{j\ln 2}{2^j} - \tfrac{1}{2^j}.$$
+          故
+          $$\begin{aligned}
+            \int_\R f_k \, dV &= -\left[\left(-\tfrac{(k-1)\ln 2}{2^{k-1}} - \tfrac{1}{2^{k-1}}\right) - \left(-\tfrac{k\ln 2}{2^k} - \tfrac{1}{2^k}\right)\right] \\
+            &= \tfrac{(k-1)\ln 2}{2^{k-1}} + \tfrac{1}{2^{k-1}} - \tfrac{k\ln 2}{2^k} - \tfrac{1}{2^k} \\
+            &= \underbrace{\left(\tfrac{1}{2^{k-1}} - \tfrac{1}{2^k}\right)}_{=\, 1/2^k} + \ln 2 \cdot \underbrace{\left(\tfrac{k-1}{2^{k-1}} - \tfrac{k}{2^k}\right)}_{=\, (k-2)/2^k}.
+          \end{aligned}$$
+          (因 $f_k \ge 0$, $|f_k| = f_k$, 同表达式给出 $\int|f_k|$.)</li>
+          <li><em>级数和: $\sum_k \int|f_k| = 1$</em>. 用两个 telescoping 求和.
+          <br><em>第一部分</em>: 令 $u_k = 1/2^{k-1}$, 则 $u_k - u_{k+1} = 1/2^{k-1} - 1/2^k$. 部分和
+          $$\sum_{k=1}^{N}(u_k - u_{k+1}) = u_1 - u_{N+1} = 1 - \tfrac{1}{2^N} \xrightarrow{N \to \infty} 1.$$
+          <em>第二部分</em>: 令 $v_k = k\ln 2/2^k$, 则 $v_{k-1} - v_k = \tfrac{(k-1)\ln 2}{2^{k-1}} - \tfrac{k\ln 2}{2^k}$. 部分和
+          $$\sum_{k=1}^{N}(v_{k-1} - v_k) = v_0 - v_N = 0 - \tfrac{N\ln 2}{2^N} \xrightarrow{N \to \infty} 0$$
+          (因 $N/2^N \to 0$, 指数压倒线性).
+          <em>合计</em>:
+          $$\sum_{k=1}^{\infty}\int|f_k| \, dV = 1 + 0 = 1 < \infty.$$</li>
+        </ul>
+        <p><strong>结论</strong>: $(f_k)$ 是合法砖块序列, $\sum_k f_k = f$ 处处, 故 $f \in \IL$, 积分
+        $$\int_\R f \, dV_L := \sum_{k=1}^{\infty}\int_\R f_k \, dV = 1.$$</p>
+        <p><strong>与 improper Riemann 的对照</strong>: 经典 improper Riemann
+        $$\int_0^1 (-\ln x) \, dx = \lim_{\eps \to 0^+}\int_\eps^1 (-\ln x) \, dx = \lim_{\eps \to 0^+}\bigl[1 + \eps\ln\eps - \eps\bigr] = 1$$
+        (用 $\eps\ln\eps \to 0$). Lebesgue 给出同样的 $1$ — 但 Lebesgue 不需要 “improper limit” 的临时定义, 它的 $1$ 是<em>真正的 (非 improper)</em> 积分值。这就是 Lebesgue 框架的统一性: 没有 “proper” / “improper” 之分。</p>
+        <p><strong>砖块直觉</strong>: $f$ 在 $0$ 附近 “无界爆炸”, 但<em>爆炸区域是稀薄的</em> — dyadic 切分把它分成无穷多个 “规规矩矩” 的 bounded 砖块 $f_k$, 每块体积 $\sim 1/2^k$ 几何衰减, 加上 $-\ln x$ 在 $I_k$ 上 $\le k\ln 2$ 仅线性增长, 故砖块积分总和有限。这是 Daniell-Stone 构造的典型 win: 把 “局部无界” 用 “可数稀薄分解” 救活。</p>
+      </div>
+
+      <div class="box remark">
+        <span class="box-title">Remark 12.2 — 两个例子的对照表</span>
+        <p>Lebesgue 治愈了 Riemann 的两种失败模式:</p>
+        <table style="margin: 10px 0; border-collapse: collapse;">
+          <tr><td style="padding: 4px 12px;"></td><td style="padding: 4px 12px;"><strong>Ex 12.2 (Dirichlet)</strong></td><td style="padding: 4px 12px;"><strong>Ex 12.3 (Log)</strong></td></tr>
+          <tr><td style="padding: 4px 12px;">为何 $f \notin \IR$</td><td style="padding: 4px 12px;">处处不连续 (太不连续)</td><td style="padding: 4px 12px;">无界 (太无界)</td></tr>
+          <tr><td style="padding: 4px 12px;">砖块</td><td style="padding: 4px 12px;">$\mathbf{1}_{\{a_k\}}$ (单点)</td><td style="padding: 4px 12px;">$-\ln x \cdot \mathbf{1}_{I_k}$ (dyadic 区间)</td></tr>
+          <tr><td style="padding: 4px 12px;">$\int f_k$</td><td style="padding: 4px 12px;">全 $0$</td><td style="padding: 4px 12px;">$\tfrac{1}{2^k} + \tfrac{(k-2)\ln 2}{2^k}$</td></tr>
+          <tr><td style="padding: 4px 12px;">$\sum_k \int|f_k|$</td><td style="padding: 4px 12px;">$0$</td><td style="padding: 4px 12px;">$1$</td></tr>
+          <tr><td style="padding: 4px 12px;">$\int f \, dV_L$</td><td style="padding: 4px 12px;">$0$</td><td style="padding: 4px 12px;">$1$</td></tr>
+        </table>
+        <p>注意两种失败模式都<em>不是</em>失败在 “$f$ 在某些点取病态值” — Dirichlet 取的值只有 $0$ 和 $1$ (很温和), Log 在 $(\eps, 1]$ 任何固定区间上是有界连续函数 (也很温和)。失败在 “失败结构 dispersed” — Dirichlet 的不连续点 dense, Log 的奇异点 (但只有<em>一个</em>奇异点!) 让函数<em>整个</em>无界。Lebesgue 用 “可数分解” 把 dispersed 失败 “聚集起来” 处理, 这是它的核心威力。</p>
+      </div>
+
+      <!-- §6 常见陷阱 -->
+      <h2 id="pitfalls">§6 常见陷阱</h2>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 12.1 — 把 Lebesgue 准则 (Topic 06) 当作 Lebesgue 积分 (本页) 的判据</span>
+        <p>两个 “Lebesgue” 名字相同但意思<strong>完全不同</strong>:</p>
+        <ul>
+          <li><a href="06-lebesgue-criterion.html">Topic 06</a> 的 “Lebesgue 准则” (criterion): 这是 <em>Riemann 可积</em> 的判据 — $f \in \IR$ ⟺ $\Disc(f)$ 测度零 (加上 $f$ 有界等). 它的输出是 “$f$ 是不是 Riemann 可积”.</li>
+          <li>本页的 “Lebesgue 积分” (integral): 这是一个 <em>新积分</em>, 一个不同于 Riemann 的运算. 它的可积类 $\IL \supsetneq \IR$, 而且<strong>不要</strong> $\Disc(f)$ 测度零 — Dirichlet $\Disc(f) = [0,1]$ 非测度零, 但仍然 $\in \IL$.</li>
+        </ul>
+        <p>反例 Dirichlet 把这两个混淆推到极致: 它 “不满足 Lebesgue 准则” (故 $\notin \IR$), 但 “是 Lebesgue 可积” (故 $\in \IL$). 同一个函数, 两个 “Lebesgue” 判据给出相反答案 — 因为它们问的是不同的问题。</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 12.2 — 误以为 “$\sum_k \int|f_k| < \infty$” 蕴含 “$\sum_k f_k$ 处处收敛”</span>
+        <p>Beppo-Levi (Thm 12.2) 只保证 <strong>a.e. 收敛</strong>, <em>不</em>保证处处收敛。比如 Dirichlet 的 cumulative 分解 $\tilde f_k = \mathbf{1}_{\{a_1, \dots, a_k\}}$: 在每个 $a_j \in \Q$ 处, $\sum_k \tilde f_k(a_j) = \sum_{k \ge j} 1 = +\infty$ 发散! 但 $\Q$ 测度零, 所以 “a.e. 收敛” 仍成立。</p>
+        <p>这就是为什么 Def 12.3 用 “$=_L$” (a.e. 等于) 而不是 “$=$” (处处等于): 任由级数在测度零集上爱怎么发散就怎么发散, 不影响积分定义。Lebesgue 的 “a.e.” 容忍度比 Riemann 高得多, 这正是它的力量来源 — 但初学者很容易 mistakenly 要求 “处处收敛”。</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 12.3 — 误以为 Thm 12.1 (Riemann 版 DCT) 可以推 $f \in \IR$</span>
+        <p>Thm 12.1 (DCT for Riemann) 要求 $f \in \IR$ 作为 <strong>hypothesis</strong>, 不是 conclusion。和 Topic 11 的 uniform convergence theorem 反过来 — 那个把 $f \in \IR$ 当作 conclusion 免费送, DCT 不送。</p>
+        <p>反例: cumulative Dirichlet (Ex 12.1) 满足 DCT 的 “共同有界支集 + uniform 点态界 + a.e. 收敛” 三个 hypothesis (实际是 pointwise convergence, 更强), 但极限 $f =$ Dirichlet $\notin \IR$, 故 DCT 的 hypothesis $f \in \IR$ 不成立, DCT 不适用。这就是为什么 Riemann DCT “救不了” Dirichlet — 它对 “$f \in \IR$” 这一前提条件是<em>付费</em>使用的, 你必须先 prove 极限 Riemann 可积, 才能 invoke DCT。</p>
+        <p><strong>记忆要点</strong>: Topic 11 主定理 (uniform conv) “白送” 极限可积 — 因为 uniform 这个 hypothesis 已经 “付够钱” 了; Thm 12.1 (DCT) 不送 — 因为 a.e. 收敛 + uniform 界这个 hypothesis “不够强”, 所以 $f \in \IR$ 要单独 “付钱”。</p>
+      </div>
+
+      <!-- §7 练习 -->
+      <h2 id="exercises">§7 练习</h2>
+      <p>展开 <code>&lt;details&gt;</code> 查看答案 (建议先自己想 10 分钟再看)。</p>
+
+      <div class="exercise">
+        <p><span class="ex-num">1.</span> 证明 cumulative Dirichlet 序列 $f_k = \mathbf{1}_{\{a_1, \dots, a_k\}}$ 不 uniform 收敛到 Dirichlet (即, Topic 11 的 hypothesis 失败的具体验证).</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>取 $\eps_0 = 1/2$. 对任意 $N \in \N$, 取 $k = N$ 和 $x = a_{N+1}$ (枚举的第 $N+1$ 个有理数). 则 $f_N(x) = 0$ (因为 $a_{N+1} \notin \{a_1, \dots, a_N\}$), 而 $f(x) = \mathbf{1}_\Q(a_{N+1}) = 1$. 故
+            $$|f_N(x) - f(x)| = 1 > 1/2 = \eps_0.$$
+            即对任意 $N$, 存在 $k = N$ 和 $x$ 使误差 $\ge \eps_0$, 故 uniform convergence 失败。</p>
+            <p>注意: pointwise 收敛仍然成立 — 对固定 $x$, 若 $x = a_j$ 则 $k \ge j$ 时 $f_k(x) = 1$; 若 $x \notin \Q$ 则 $f_k(x) = 0$ 恒成立. 但 “$k$ 何时大到让 $f_k(x)$ 接近 $f(x)$” 依赖于 $x$ (具体是 $x = a_j$ 的 index $j$) — 即 $N$ 不能选成与 $x$ 无关. 这正是 “pointwise but not uniform” 的精髓。</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">2.</span> 设 $E \subset [0,1]$ 是任意可数集 (不必是 $\Q$), 令 $f := \mathbf{1}_E$. 证明 $f \in \IL([0,1])$ 且 $\int f \, dV_L = 0$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>枚举 $E = \{b_1, b_2, b_3, \dots\}$ (可数, 可能有限或无穷). 令 $f_k := \mathbf{1}_{\{b_k\}}$. 每个 $f_k \in \IR$, $\int|f_k| = 0$, 故 $\sum_k \int|f_k| = 0 < \infty$. 级数和 $\sum_k f_k(x) = \mathbf{1}_E(x) = f(x)$ 处处 (类似 Ex 12.2). 故 $f \in \IL$, $\int f \, dV_L = 0$.</p>
+            <p>评论: 这告诉我们 “可数集的指示函数” 在 $\IL$ 中都积分为 $0$. 这与 Riemann 的反应不同 — Riemann 对 $\mathbf{1}_\Q$ 无法定义积分, 但对 $\mathbf{1}_{\{1/2\}}$ (单点) 可以 (积分 $= 0$); Lebesgue 统一处理, 不分大小。</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">3.</span> 给一个 $f \in \IL(\R)$ 的例子, 其值在某些点取 $+\infty$. (Hint: 我们不要求 $f$ 处处取实数值, 因为 “a.e.” 容忍异常点.)</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>取 Ex 12.3 的 $-\ln x \cdot \mathbf{1}_{(0,1]}$, 但 “强制” 在 $x = 0$ 处定义 $f(0) := +\infty$ (其它点不变). 现在 $f$ 在 $\{0\}$ 处取 $+\infty$, 其余处与 Ex 12.3 的 $f$ 相同。</p>
+            <p>砖块 $f_k = -\ln x \cdot \mathbf{1}_{I_k}$ 仍然 $\in \IR$ (在 $\{0\}$ 之外的定义不变, 而 $\{0\}$ 测度零), 且 $\sum_k f_k(x) = f(x)$ 对所有 $x \ne 0$ (即 a.e.). 在 $x = 0$ 处 $\sum_k f_k(0) = 0 \ne +\infty = f(0)$, 但 $\{0\}$ 测度零, 故 “$\sum_k f_k =_L f$” 仍成立. 由 Def 12.3, $f \in \IL$, $\int f \, dV_L = 1$.</p>
+            <p>评论: “$f$ 在测度零集上取 $+\infty$” 是 Lebesgue 理论里完全可接受的情形。在标准设定下, 我们把 $\IL$ 定义为 “a.e. 取实数值” 的函数类, 让 $\{f(x) = \pm\infty\}$ 测度零的函数也是 Lebesgue 可积的。Riemann 框架完全做不到这点 — 它要求 $f$ 处处有定义且有界。</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">4.</span> ("证明或反例") 若 $f \in \IL(\R^n)$ 且 $g \in \IL(\R^n)$, 那么 $f + g \in \IL(\R^n)$, 且 $\int(f+g) \, dV_L = \int f \, dV_L + \int g \, dV_L$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>真</strong>。证: 取 $f$ 的砖块 $(f_k) \subset \IR$ 满足 $\sum_k \int|f_k| < \infty$, $\sum_k f_k =_L f$; 类似 $g$ 的砖块 $(g_k)$。“交错砖块” 构造: 定义
+            $$h_{2k-1} := f_k, \qquad h_{2k} := g_k.$$
+            则 $(h_m)_{m \in \N} \subset \IR$, 且
+            $$\sum_m \int|h_m| = \sum_k \int|f_k| + \sum_k \int|g_k| < \infty.$$
+            部分和 $\sum_{m=1}^{2N} h_m = \sum_{k=1}^N f_k + \sum_{k=1}^N g_k$, $N \to \infty$ 给 $\sum_m h_m =_L f + g$ (a.e. 处). 故 $f + g \in \IL$, 积分
+            $$\int(f+g) \, dV_L = \sum_m \int h_m \, dV = \sum_k \int f_k + \sum_k \int g_k = \int f \, dV_L + \int g \, dV_L.$$
+            </p>
+            <p>这是 Lebesgue 积分线性性的一半 (加法). 标量乘法 $cf \in \IL$ 类似 (砖块 $cf_k$). 完整线性性是 Topic 14 的初等性质之一。</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">5.</span> 设 $f \in \IL(\R^n)$ 且 $f = 0$ a.e.。 证明 $\int f \, dV_L = 0$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>由 $f \in \IL$, 存在砖块 $(f_k) \subset \IR$ 满足 $\sum_k \int|f_k| < \infty$ 和 $\sum_k f_k =_L f$. 由 hypothesis $f = 0$ a.e., 即 $\sum_k f_k =_L 0$ (the zero function).</p>
+            <p>令 $g_k := 0$ (常零函数) for all $k$. $(g_k)$ 也是合法砖块序列 (绝对积分和 $= 0$), 且 $\sum_k g_k = 0$. 故 $\sum_k f_k =_L \sum_k g_k$ (都 a.e. $= 0$). 由良定性 Thm 12.3,
+            $$\sum_k \int f_k \, dV = \sum_k \int g_k \, dV = 0.$$
+            即 $\int f \, dV_L = 0$.</p>
+            <p>评论: 这是 “a.e. zero ⟹ integral zero” 的 Lebesgue 版本. Topic 14 会反过来证 “$f \ge 0$ 且 $\int f \, dV_L = 0$ ⟹ $f = 0$ a.e.” — 即正性引理在 Lebesgue 框架里的对应物。</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">6.</span> 用砖块分解算 $\int_\R \mathbf{1}_{[0, 1]} \, dV_L$. (即: 把一个 “显然 Riemann 可积” 的函数走一遍 Lebesgue 流程.)</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>这是 Thm 12.4 的具体演示. 取砖块 $f_1 := \mathbf{1}_{[0,1]}$, $f_k := 0$ for $k \ge 2$. 则 $f_1 \in \IR$ (它是 box, 测度零不连续集 $\{0, 1\}$, 由 Lebesgue 准则 $\in \IR$). $\int f_1 = \vol_1([0,1]) = 1$. 绝对积分和 $\sum_k \int|f_k| = 1 + 0 + \cdots = 1 < \infty$. 级数 $\sum_k f_k(x) = \mathbf{1}_{[0,1]}(x) = f(x)$ 处处. 故 $f \in \IL$,
+            $$\int_\R \mathbf{1}_{[0,1]} \, dV_L = \sum_k \int f_k \, dV = 1 + 0 + 0 + \cdots = 1.$$
+            和 Riemann 答案一致 — Thm 12.4 在具体例子上的验证。</p>
+            <p>当然也可以用 “非平凡” 砖块, 比如 $f_k := \mathbf{1}_{[1-1/k, 1-1/(k+1)]}$ (但要小心 disjoint 与端点). 良定性保证两种分解给同样积分值 $1$.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">7.</span> ("证明或反例") 若 $f \in \IL(\R^n)$, 则 $|f| \in \IL(\R^n)$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>真</strong> — 但 “显然” 的证明会卡住, 因为 $\sum_k |f_k|$ 与 $|\sum_k f_k| = |f|$ 不直接相等 (三角不等式给 $|\sum f_k| \le \sum|f_k|$, 不等号一般成立). 真正的证明需要更精细的砖块工程。</p>
+            <p>砖块构造 (思路, 完整证明留 Topic 14): 对 Riemann 砖块 $(f_k)$, $|f_k| \in \IR$ (Riemann $|f|$ 性质, Topic 03). 部分和 $S_N = \sum_{k \le N} f_k \in \IR$, $|S_N| \in \IR$. 取砖块 $h_k := |S_k| - |S_{k-1}|$ ($S_0 := 0$). 验证 $\sum_k h_k = |f|$ a.e., $\sum_k \int|h_k| \le \sum_k \int |f_k| + \int |f_{k-1}| < \infty$ (用 $||S_k| - |S_{k-1}|| \le |f_k|$ via 反向三角不等式), 故 $|f| \in \IL$.</p>
+            <p>评论: 这道题的正确性 “显然”, 但严格证明需要 Lebesgue 框架的更多技术。Topic 14 会处理。Lebesgue 的好处之一: 一旦 “$|f| \in \IL$” 建立, $\int|f| \, dV_L$ 与 $|\int f \, dV_L|$ 之间有标准三角 $|\int f| \le \int|f|$, 与 Riemann 一致。</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">8.</span> 考虑 $f := \mathbf{1}_{[0, +\infty)}$. 问 $f \in \IL(\R)$ 吗? 给出严格论证 (是 / 否, 都要解释).</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>否</strong>, $f \notin \IL(\R)$. 直觉: $f$ “下面的面积” 是 $+\infty$.</p>
+            <p>严格论证: 假设 $f \in \IL$ 反证。则存在砖块 $(f_k) \subset \IR$, $\sum_k \int|f_k| < \infty$, $\sum_k f_k =_L f$. 现取部分和 $S_N := \sum_{k=1}^N f_k$. 由 $\sum_k f_k \to f$ a.e., $S_N \to f$ a.e., 即 $S_N(x) \to 1$ 对几乎所有 $x \ge 0$. </p>
+            <p>但 $\int |S_N| \le \sum_{k=1}^N \int|f_k| \le \sum_k \int|f_k| =: C < \infty$. 现在用 Beppo-Levi 风格 cutoff: 取 $M$ 大, $E_M := \{x \in [0, M] : S_N(x) \ge 1/2 \text{ for some } N\}$. 对足够大 $N$, $E_M \supseteq [0, M] \setminus (\text{测度零})$, 即 $\vol_1(E_M) \to M$. 但 $\int|S_N| \ge (1/2) \vol_1(E_M) \to M/2$ 当 $M \to \infty$, 矛盾 $\int|S_N| \le C$.</p>
+            <p>正式严格论证需要 Topic 14 的 Lebesgue 测度论工具 (Markov 不等式 Lebesgue 版). 但直觉是: $\IL$ 要求 “绝对积分收敛”, 这排除了 “infinite area” 函数。这与 Riemann 一致 — 注意 $f = \mathbf{1}_{[0,\infty)}$ 也不 Riemann 可积 (无界支集).</p>
+            <p>评论: $\IL$ 扩张了 $\IR$, 但不扩张到 “一切函数”. 它仍然是 “可积函数类”, 必须有有限积分。本课程的 $\IL$ 是 “Lebesgue 可积” 类, 不是 “Lebesgue 可测” 类 — 后者包括 $\mathbf{1}_{[0,\infty)}$ 但允许 $\int = +\infty$。两者差一个 “finite integral” 条件。</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- §8 速查表 -->
+      <h2 id="cheat">§8 速查表</h2>
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def"><strong>砖块分解 (brick decomposition)</strong>: $f \in \IL(\R^n)$ ⟺ $\exists (f_k) \subset \IR$ s.t. $\sum_k \int|f_k| < \infty$ 且 $\sum_k f_k =_L f$. 然后 $\int f \, dV_L := \sum_k \int f_k \, dV$.</li>
+          <li class="cs-def"><strong>$=_L$ (Lebesgue 级数等价)</strong>: $\sum_k f_k =_L \sum_k g_k$ ⟺ $\sum_k f_k(x) = \sum_k g_k(x)$ a.e..</li>
+          <li class="cs-def"><strong>绝对可和 (absolutely summable)</strong>: $\sum_k \int|f_k| < \infty$. 这是 $\IL$ 的核心条件 — 比 “$\sum_k f_k$ 处处收敛” 弱.</li>
+          <li class="cs-thm"><strong>Riemann 版 DCT (Thm 12.1, H&amp;H 4.11.6)</strong>: $(f_k) \subset \IR$ 公共有界支集 + uniform 界 $M$, $f \in \IR$ 假设, $f_k \to f$ a.e. ⟹ $\int f_k \to \int f$. 注: $f \in \IR$ 是<em>付费</em>的 hypothesis.</li>
+          <li class="cs-thm"><strong>Beppo-Levi (Thm 12.2)</strong>: $\sum_k \int|f_k| < \infty$ ⟹ $\sum_k f_k(x)$ a.e. 收敛 (Chebyshev cutoff). 这是 Def 12.3 的 “a.e. 求和” 有意义的保证。</li>
+          <li class="cs-thm"><strong>良定性 (Thm 12.3)</strong>: 两个等价砖块序列给同一积分值. 证明留 Topic 13 — 用 Riemann DCT 作引擎.</li>
+          <li class="cs-thm"><strong>$\IR \subsetneq \IL$ (Thm 12.4)</strong>: 平凡砖块 $f_1 := f, f_k := 0$ for $k \ge 2$ 证 $f \in \IL$, 积分相同. 严格因 Dirichlet $\in \IL \setminus \IR$.</li>
+          <li class="cs-tech"><strong>判 $f \in \IL$ 流程</strong>: (1) 找一个 Riemann 砖块序列 $(f_k)$ 使 a.e.-级数和 = $f$; (2) 验证 $\sum_k \int|f_k| < \infty$; 若两个都 “是”, $f \in \IL$, 积分就是 $\sum_k \int f_k$.</li>
+          <li class="cs-tech"><strong>Dirichlet 砖块</strong>: $f_k = \mathbf{1}_{\{a_k\}}$ (单点指示, $\int = 0$), $\sum_k = $ Dirichlet, $\int_L = 0$. 治 “太不连续”.</li>
+          <li class="cs-tech"><strong>对数砖块</strong>: $f_k = -\ln x \cdot \mathbf{1}_{I_k}$ with $I_k = (1/2^k, 1/2^{k-1}]$, $\sum_k \int = 1$ (两个 telescoping), 治 “太无界”.</li>
+          <li class="cs-pitfall"><strong>陷阱 (同名词混淆)</strong>: “Lebesgue 准则” (Riemann 可积判据, Topic 06) ≠ “Lebesgue 积分” (Daniell 构造, 本页). Dirichlet 在前者不满足 ($\notin \IR$), 在后者满足 ($\in \IL$).</li>
+          <li class="cs-pitfall"><strong>陷阱 (a.e. vs everywhere)</strong>: “$\sum_k f_k = f$” 仅 a.e. 收敛, 测度零集上可发散到 $\pm\infty$. Def 12.3 用 “$=_L$” 不是 “$=$” 是核心要点.</li>
+        </ul>
+      </div>
+
+      <!-- §9 进一步阅读 -->
+      <h2 id="further">§9 进一步阅读</h2>
+      <ul>
+        <li><strong>H&amp;H 教材</strong>: §4.11 — 完整的 Lebesgue 积分构造 (Thm 4.11.6 是我们的 Thm 12.1; Thm 4.11.8/9 是良定性和 $\IR \subset \IL$). H&amp;H 称之为 “Daniell construction”.</li>
+        <li><strong>Typed lecture notes</strong>:
+          <ul>
+            <li><code>../../Notes/Typed/7.1_notes/7.1_notes.pdf</code> — 本页的主要 source. 含 cumulative Dirichlet 反例的形式化, 两个例子的完整计算.</li>
+            <li><code>../../Notes/Typed/7.2_notes/7.2_notes.pdf</code> — 良定性定理的<strong>证明</strong> (Topic 13 主体).</li>
+            <li><code>../../Notes/Typed/7.3_notes/7.3_notes.pdf</code> — Lebesgue 积分的初等性质 (Topic 14: 线性、单调、$|f| \in \IL$、$\IR \cdot \IL \subset \IL$、$1/\sqrt{x}$ 反例等).</li>
+          </ul>
+        </li>
+        <li><strong>关联 review topics</strong>:
+          <ul>
+            <li><a href="11-limits-riemann.html">Topic 11</a>: Riemann 框架下的极限交换 — 本页是它的直接续篇, cumulative Dirichlet 反例是 Topic 11 反例的 “终极版本”.</li>
+            <li><a href="05-measure-zero-basics.html">Topic 05</a>: 测度零的定义 — 本页 Beppo-Levi (Thm 12.2) 和 “$=_L$” 等价关系都建立在 a.e. 语言上.</li>
+            <li><a href="06-lebesgue-criterion.html">Topic 06</a>: Lebesgue 准则 — 本页判断砖块 $f_k \in \IR$ 时反复使用. 同时 §6 Pitfall 12.1 强调它和 “Lebesgue 积分” 是不同概念.</li>
+            <li><a href="13-well-definedness.html">Topic 13</a>: 良定性定理 (Thm 12.3) 的证明 — 全课最技术化的一个证明, truncation + dyadic paving + Markov-style 估计.</li>
+            <li><a href="14-lebesgue-properties.html">Topic 14</a>: $\IL$ 的初等性质 — 线性、单调、$|f|$、与 bounded Riemann 函数乘积、$1/\sqrt{|x|}$ 这样的例子.</li>
+          </ul>
+        </li>
+        <li><strong>同主题外读</strong>:
+          <ul>
+            <li>Folland, <em>Real Analysis</em>, Ch 2 — 标准 measure-theoretic 路径 (与 Daniell-Stone 不同), 但最终的 $\IL$ 一致.</li>
+            <li>Royden &amp; Fitzpatrick, <em>Real Analysis</em>, Ch 4 — Lebesgue 测度优先, 然后定义积分.</li>
+            <li>Stone, M. H. (1948). “Notes on integration, I-IV.” — Daniell 方法的原始系统化.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <hr style="margin: 60px 0 20px; border: 0; border-top: 1px solid #d8d3c4;">
+      <p style="font-size: 13px; color: #888; text-align: center;">MATH 31CH 复习指南 · Topic 12 · Phase 3</p>
+
+    </main>
+  </div>
+
+</body>
+</html>

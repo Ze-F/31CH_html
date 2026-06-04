@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MT2-B: §4.10 非线性 CoV + 三种 design pattern | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\Area': '\\operatorname{Area}',
+        '\\Vol': '\\operatorname{Vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\diam': '\\operatorname{diam}',
+        '\\Lip': '\\operatorname{Lip}',
+        '\\Jac': '\\operatorname{Jac}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="MT2-A_linear_cov.html">MT2-A</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="MT2-C_lebesgue.html">MT2-C</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#cheatsheet">§1 速查表</a></li>
+        <li><a href="#theorems">§2 关键定理 + 重证</a></li>
+        <li><a href="#problem-types">§3 题型聚簇</a></li>
+        <li><a href="#pitfalls">§4 常考陷阱</a></li>
+        <li><a href="#textbook-index">§5 课本例题速查</a></li>
+        <li><a href="#exercises">§6 模拟练习</a></li>
+        <li><a href="#crossref">§7 Topics cross-reference</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>MT2-B: 非线性 CoV + 三种 design pattern</h1>
+      <p class="subtitle">H&amp;H §4.10 · Lec 5.3, 6.1 · MT2 复习 · 配套 <a href="../topics/09-nonlinear-cov.html">Topic 09</a> &amp; <a href="../topics/10-cov-patterns.html">Topic 10</a></p>
+
+      <!-- §1 -->
+      <h2 id="cheatsheet">§1 速查表</h2>
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-thm"><strong>非线性 CoV (Thm B.1, H&amp;H Thm 4.10.12)</strong>: $X$ 紧, $\vol_n(\partial X) = 0$, $U \supset X$ 开, $\Phi \in C^1(U)$ 在 $X\setminus\partial X$ 上单射, $[D\Phi]$ 在 $X\setminus\partial X$ 处处可逆, $[D\Phi]$ 在 $X$ 上 Lipschitz $\Rightarrow$ $\int_{\Phi(X)} f\, dV = \int_X (f\circ\Phi)\,\abs{\det[D\Phi]}\, dV$.</li>
+          <li class="cs-thm"><strong>Lipschitz / $C^1$ (Lemma B.1)</strong>: 紧集上 $C^1 \Rightarrow$ Lipschitz, 常数 $C = \sup\norm{[Df]}_{\text{op}}$, 由 MVT.</li>
+          <li class="cs-tech"><strong>极坐标 (Thm B.2 part 1)</strong>: $P(r,\theta) = (r\cos\theta, r\sin\theta)$, $\boxed{\abs{\det[DP]} = r}$. $dx\,dy = r\,dr\,d\theta$.</li>
+          <li class="cs-tech"><strong>球坐标 latitude (Thm B.2 part 2)</strong>: $S(r,\theta,\varphi) = (r\cos\theta\cos\varphi, r\sin\theta\cos\varphi, r\sin\varphi)$, $\varphi \in (-\pi/2, \pi/2)$, $\boxed{\abs{\det[DS]} = r^2\cos\varphi}$. ($z = r\sin\varphi$ 是 H&amp;H 约定.)</li>
+          <li class="cs-tech"><strong>柱坐标 (Thm B.2 part 3)</strong>: $C(r,\theta,z) = (r\cos\theta, r\sin\theta, z)$, $\boxed{\abs{\det[DC]} = r}$. block-diagonal 直接读出.</li>
+          <li class="cs-tech"><strong>三大坐标 ↔ 三种对称</strong>: 平面绕原点旋转 $\to$ 极; 球对称 $\to$ 球; 绕 $z$-轴旋转 $\to$ 柱.</li>
+          <li class="cs-tech"><strong>Design pattern 1: Symmetry-driven</strong>: 区域/被积函数对称 $\Rightarrow$ 选对应坐标. 难点不在选坐标, 在选<em>积分顺序</em>.</li>
+          <li class="cs-tech"><strong>Design pattern 2: Boundary-driven</strong>: 边界由 level set $\{g_i = c_i\}$ 描述 $\Rightarrow$ $\Psi = (g_1, \ldots, g_n)$ 把区域映成 axis-aligned box. 用 $\Phi = \Psi^{-1}$.</li>
+          <li class="cs-tech"><strong>Design pattern 3: Slice-driven</strong>: $z$-切片是 parametric 形状 $\Rightarrow$ $\Phi = (\text{slice param.}, z)$, 末行 $(0,0,1)$ 把 $3\times 3$ det 折叠到左上 $2\times 2$.</li>
+          <li class="cs-tech"><strong>IFT shortcut (boundary-driven 关键)</strong>: $\det[D\Phi](\Psi(x)) = 1/\det[D\Psi](x)$. $\Phi$ 含 fractional power 时<em>不要</em>直接微分 $\Phi$, 而是微分 $\Psi$ 再取倒数.</li>
+          <li class="cs-tech"><strong>Bottom-row collapse (slice-driven 关键)</strong>: $[D\Phi]$ 末行 $(0, 0, 1)$ $\Rightarrow$ 沿末行 cofactor 展开 $\Rightarrow$ $\det = $ 左上 $2 \times 2$ 子 det.</li>
+          <li class="cs-tech"><strong>Thm B.1 验证 checklist</strong>: (C1) $X$ compact + $\partial X$ 测度零; (C2) $\Phi$ 在 $X\setminus\partial X$ 单射 (通常通过 explicit inverse 验证); (C3) $\det[D\Phi]$ 内部非零 — 边界退化 OK; (C4) $[D\Phi]$ Lipschitz, $\Phi \in C^2$ on compact 时自动.</li>
+          <li class="cs-pitfall"><strong>陷阱</strong>: 公式是 $\abs{\det[D\Phi]}$, 不是 $\det[D\Phi]$ — Ch 4 是 unsigned theory, Ch 5-6 forms 才用 signed.</li>
+          <li class="cs-pitfall"><strong>陷阱</strong>: latitude $\varphi \in (-\pi/2, \pi/2)$ 用 $\cos\varphi$; colatitude $\phi \in (0, \pi)$ 用 $\sin\phi$. 看 Jacobian 长成 $\cos$ 还是 $\sin$ 判断约定.</li>
+          <li class="cs-pitfall"><strong>陷阱</strong>: 忘记单射 — 极坐标 $\theta \in [0, 2\pi)$ 半开, 别让 $\Phi$ 把同一点覆盖两次.</li>
+          <li class="cs-pitfall"><strong>陷阱</strong>: 把 $X = \Phi^{-1}(Y)$ 还是 $Y = \Phi(X)$ 搞反 — 公式右边 $\int_X (f\circ\Phi)\abs{\det[D\Phi]}$, Jacobian 贴在<em>源</em>区域 $X$ 上.</li>
+        </ul>
+      </div>
+
+      <!-- §2 -->
+      <h2 id="theorems">§2 关键定理 + 极简重证</h2>
+
+      <p>本页核心: <strong>非线性 CoV 主定理</strong> 把 Topic 08 / MT2-A 的 Linear CoV "常数 $\abs{\det T}$ 在积分号外"推广到 "pointwise $\abs{\det[D\Phi(x)]}$ 在积分号内". Lemma B.1 处理 hypothesis 中的 Lipschitz 条件; Thm B.2 把主定理特化到三大经典坐标系.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem B.1 (Nonlinear Change of Variables, ≡ <a href="../topics/09-nonlinear-cov.html">Topic 09</a> Thm 9.1 / H&amp;H Thm 4.10.12)</span>
+        <p>设</p>
+        <ul>
+          <li>$X \subset \R^n$ 紧集, $\vol_n(\partial X) = 0$;</li>
+          <li>$U \subset \R^n$ 开集, $X \subset U$;</li>
+          <li>$\Phi \colon U \to \R^n$ 满足: (i) $\Phi \in C^1(U)$; (ii) $\Phi$ 在 $X \setminus \partial X$ 上单射; (iii) $[D\Phi(x)]$ 在 $X \setminus \partial X$ 处处可逆; (iv) $[D\Phi]$ 在 $X$ 上 Lipschitz.</li>
+        </ul>
+        <p>令 $Y := \Phi(X)$. 则 $f \colon Y \to \R$ 在 $Y$ 上可积当且仅当 $(f \circ \Phi) \cdot \abs{\det[D\Phi]}$ 在 $X$ 上可积, 且此时
+        $$\int_Y f(y)\, dV_Y \;=\; \int_X f\bigl(\Phi(x)\bigr)\,\abs{\det[D\Phi(x)]}\, dV_X.$$</p>
+      </div>
+
+      <p><strong>30-sec 重证骨架</strong> (full proof: <a href="../topics/09-nonlinear-cov.html">Topic 09 §4</a>; H&amp;H §4.10):</p>
+      <ol>
+        <li><strong>局部线性化</strong>: 对每个内点 $x_0 \in X\setminus\partial X$, 用 $\Phi$ 在 $x_0$ 的最佳线性逼近 $[D\Phi(x_0)]$ 替代 $\Phi$, 把 <a href="MT2-A_linear_cov.html">MT2-A</a> Thm A.2 (linear CoV) 局部套用.</li>
+        <li><strong>一致控制 Taylor 余项</strong>: $\Phi(x_0 + h) - \Phi(x_0) - [D\Phi(x_0)]h$ 的 size 由 $[D\Phi]$ 的 Lipschitz 常数控制 — 这是 hypothesis (iv) 的核心作用. 给出 $O(\abs{h}^2)$ 的一致 Taylor 余项, 对 $X$ 上所有点统一.</li>
+        <li><strong>Dyadic 剖分组装</strong>: 把 $X$ 剖成小 dyadic cube $\mathcal{D}_N$, 每块上调用 Step 1 的局部 linear CoV, 用 Step 2 的一致控制把误差总和压到 $0$.</li>
+        <li><strong>边界处理</strong>: hypothesis (i) 把 $\partial X$ 测度零 + Jacobian 在那里允许退化打通 — 边界对积分无贡献.</li>
+      </ol>
+
+      <p><strong>每条 hypothesis 的作用</strong> (高频考点):</p>
+      <ul>
+        <li><em>紧 + $\vol_n(\partial X) = 0$</em>: 保证 $X$ pavable, $\int_X$ 有意义.</li>
+        <li><em>$X\setminus\partial X$ 上单射</em>: 公式按"每点一次"计数 $Y$. $\partial X$ 上允许碰撞 (e.g. 极坐标 $\theta = 0 \equiv \theta = 2\pi$).</li>
+        <li><em>$[D\Phi]$ 内部可逆</em>: 由 IFT, $\Phi$ 内部局部 diffeomorphism. <strong>允许</strong> $\partial X$ 处退化 (e.g. 极坐标 $r = 0$).</li>
+        <li><em>$[D\Phi]$ Lipschitz</em>: 量化的二阶光滑性, 保证 Taylor 余项一致控制.</li>
+      </ul>
+
+      <div class="box thm">
+        <span class="box-title">Lemma B.1 (紧集上 $C^1 \Rightarrow$ Lipschitz, ≡ <a href="../topics/09-nonlinear-cov.html">Topic 09</a> §3 注记)</span>
+        <p>设 $K \subset \R^n$ 紧 + 凸 (或道路连通且每对点可由 $K$ 内短曲线连接), $f \colon K \to \R^m$ 在 $K$ 的邻域上 $C^1$. 则 $f$ 在 $K$ 上 Lipschitz, 常数 $C = \sup_{x \in K}\norm{[Df(x)]}_{\text{op}} < \infty$.</p>
+      </div>
+
+      <p><strong>30-sec 重证</strong>: $[Df]$ 是矩阵元素都连续的矩阵函数, 故 $x \mapsto \norm{[Df(x)]}_{\text{op}}$ 在紧 $K$ 上连续 $\Rightarrow$ 由 EVT 有上确界 $C < \infty$. 对 $x, y \in K$, 沿连接 $x, y$ 的直线 (假设 $K$ 凸) 用 MVT 形式
+        $$f(x) - f(y) = \int_0^1 [Df(y + t(x-y))]\,(x - y)\, dt,$$
+        取模 $\abs{f(x) - f(y)} \le \int_0^1 \norm{[Df(\cdot)]}_{\text{op}} \cdot \abs{x-y}\, dt \le C\abs{x-y}$. ✓</p>
+
+      <p><strong>意义</strong>: Thm B.1 hypothesis (iv) 要 $[D\Phi]$ Lipschitz $\Leftrightarrow \Phi \in C^{1,1}$. Lemma B.1 给一个简洁判据: 若 $\Phi \in C^2$ on 紧集, 则 $[D\Phi]$ 自身 $C^1$ on compact $\Rightarrow$ Lipschitz. 实战中三大坐标系 (polar/spherical/cylindrical) 都 $C^\infty$, 一切自动.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem B.2 (经典 Jacobian 表, ≡ <a href="../topics/09-nonlinear-cov.html">Topic 09</a> Props 9.2-9.4 / H&amp;H §4.10)</span>
+        <p>三大经典坐标系 (Thm B.1 的特化):</p>
+        <ol>
+          <li><strong>极坐标</strong>: $P \colon (0,\infty) \times [0, 2\pi) \to \R^2 \setminus \{0\}$, $P(r,\theta) = (r\cos\theta, r\sin\theta)$. 则 $\det[DP] = r$, $\abs{\det[DP]} = r$.</li>
+          <li><strong>球坐标 (latitude)</strong>: $S \colon (0,\infty) \times [0, 2\pi) \times (-\pi/2, \pi/2) \to \R^3$, $S(r,\theta,\varphi) = (r\cos\theta\cos\varphi, r\sin\theta\cos\varphi, r\sin\varphi)$. 则 $\det[DS] = r^2\cos\varphi$.</li>
+          <li><strong>柱坐标</strong>: $C \colon (0,\infty) \times [0, 2\pi) \times \R \to \R^3$, $C(r,\theta,z) = (r\cos\theta, r\sin\theta, z)$. 则 $\det[DC] = r$.</li>
+        </ol>
+      </div>
+
+      <p><strong>30-sec 重证 (三个 Jacobian)</strong>:</p>
+      <ol>
+        <li><strong>极坐标</strong>: $[DP] = \begin{pmatrix}\cos\theta & -r\sin\theta \\ \sin\theta & r\cos\theta\end{pmatrix}$, $\det = r\cos^2\theta + r\sin^2\theta = r$. ✓</li>
+        <li><strong>柱坐标</strong>: $[DC]$ 是 block-diagonal $\begin{pmatrix}[DP]&0 \\ 0&1\end{pmatrix}$, $\det = \det[DP]\cdot 1 = r$. ✓</li>
+        <li><strong>球坐标 (cofactor 沿末行)</strong>:
+        $$[DS] = \begin{pmatrix}
+          \cos\theta\cos\varphi & -r\sin\theta\cos\varphi & -r\cos\theta\sin\varphi \\
+          \sin\theta\cos\varphi & r\cos\theta\cos\varphi & -r\sin\theta\sin\varphi \\
+          \sin\varphi & 0 & r\cos\varphi
+        \end{pmatrix}.$$
+        末行有零, cofactor 展开: $\det[DS] = \sin\varphi\cdot M_{31} + r\cos\varphi\cdot M_{33}$, 其中 $M_{31} = r^2\sin\varphi\cos\varphi$, $M_{33} = r\cos^2\varphi$. 合起来 $\det = r^2\sin^2\varphi\cos\varphi + r^2\cos^3\varphi = r^2\cos\varphi(\sin^2\varphi + \cos^2\varphi) = r^2\cos\varphi$. ✓ $\varphi \in (-\pi/2, \pi/2) \Rightarrow \cos\varphi > 0$ 故无需另写绝对值.</li>
+      </ol>
+
+      <p>详证 + 几何动机: 见 <a href="../topics/09-nonlinear-cov.html">Topic 09 §4 Props 9.2-9.4</a>; H&amp;H §4.10.</p>
+
+      <p><strong>Bridge from MT2-A</strong>: Thm B.1 应用到线性 $\Phi(x) = Tx$ 时, $[D\Phi(x)] \equiv T$ 是常数, $\abs{\det[D\Phi]} = \abs{\det T}$ 提到积分号外, 恢复 <a href="MT2-A_linear_cov.html">MT2-A</a> Thm A.2. 所以 nonlinear CoV 是 linear CoV 的 pointwise 推广.</p>
+
+      <!-- §3 -->
+      <h2 id="problem-types">§3 题型聚簇</h2>
+
+      <p>MT2-B 出题主要落在 <strong>3 个坐标系</strong> (§3.1-§3.3) 和 <strong>3 个 design pattern</strong> (§3.4-§3.6) 的 cross product 上. 实战中先识别坐标系 (or 设计 $\Phi$), 再套对应 pattern 选积分顺序. 大多数题目用一两个 pattern 即可, 但 twisted-ellipsoid 这类题需要明确"为什么选 slice-driven 而不是 boundary-driven".</p>
+
+      <h3 id="cluster-polar">§3.1 极坐标 setup</h3>
+
+      <p><strong>识别信号</strong>: $\R^2$ 中的圆盘 / 圆环 / 扇形 / 对原点旋转对称的 region; 被积函数含 $x^2 + y^2$ 或 $\sqrt{x^2+y^2}$.</p>
+
+      <p><strong>标准做法</strong>:</p>
+      <ol>
+        <li>把 region 描述写成 $r$ 与 $\theta$ 不等式: $r \in [r_1(\theta), r_2(\theta)]$, $\theta \in [\theta_1, \theta_2]$ 其中 $\theta_2 - \theta_1 \le 2\pi$.</li>
+        <li>Source 区域 $X \subset (0, \infty) \times [0, 2\pi)$ 写明 (检查 $\theta$ 区间长度 $\le 2\pi$).</li>
+        <li>验证: $X$ 紧 + $\partial X$ 测度零 (通常自动); $P$ 在 $X\setminus\partial X$ 单射 ($r > 0, \theta \in $ 开区间 $\subset [0, 2\pi)$ 时单射); $\abs{\det[DP]} = r$.</li>
+        <li>计算 $\int_X f(r\cos\theta, r\sin\theta)\cdot r\, dr\, d\theta$.</li>
+      </ol>
+
+      <div class="box example" id="example-B-1">
+        <span class="box-title">Example B.1 (圆盘上 $\int(x^2+y^2)$, ≡ <a href="../topics/09-nonlinear-cov.html">Topic 09</a> Ex 9.3)</span>
+        <p>求 paraboloid $z = x^2 + y^2$ 与 $z = 0$, $x^2 + y^2 \le R^2$ 围成的立体体积. 即计算 $V = \int_{D_R} (x^2 + y^2)\, dx\, dy$.</p>
+
+        <p><strong>解</strong>. 用极坐标映射
+        $$P\colon B \to D_R, \qquad P(r,\theta) = (r\cos\theta,\, r\sin\theta), \qquad B = [0, R]\times [0, 2\pi].$$
+        ($P$ 就是 <a href="#cluster-polar">§3.1</a> / Thm B.2 part 1 里那个标准极坐标. 取 $B$ 为<em>闭</em>矩形是为了把边界点都涵盖, 单射性只在<em>内部</em> $(0,R)\times(0,2\pi)$ 上要求.)</p>
+
+        <p>验证 Thm B.1 的 4 条 hypotheses:</p>
+        <ul>
+          <li><strong>$B$ 紧 + $\partial B$ 测度零</strong>: $B$ 是闭矩形, 边界由 4 条线段组成, 测度零. ✓</li>
+          <li><strong>$P$ 在内部 $(0,R)\times(0,2\pi)$ 上单射</strong>: $r > 0$ 保证不退化到原点; $\theta \in (0, 2\pi)$ 半开区间防止 $\theta = 0$ 与 $\theta = 2\pi$ 撞到同一射线. ✓</li>
+          <li><strong>$[DP]$ 在内部可逆</strong>: $\det[DP] = r > 0$ 在 $r > 0$ 处 (边界 $r = 0$ 处退化是<em>允许</em>的, 见 <a href="#pitfall-B-10">P-B.10</a>). ✓</li>
+          <li><strong>$[DP]$ Lipschitz</strong>: $P \in C^\infty$, 在紧集 $B$ 上 $[DP]$ 是 $C^1$, 自动 Lipschitz (Lemma B.1). ✓</li>
+        </ul>
+
+        <p>Jacobian:
+        $$[DP] = \begin{pmatrix} \cos\theta &amp; -r\sin\theta \\ \sin\theta &amp; r\cos\theta \end{pmatrix},\qquad \abs{\det[DP]} = r(\cos^2\theta + \sin^2\theta) = r.$$
+        被积函数沿 $P$ 拉回: $(f\circ P)(r,\theta) = (r\cos\theta)^2 + (r\sin\theta)^2 = r^2$.</p>
+
+        <p>套 Thm B.1:
+        $$V = \int_{D_R} f\, dV_Y = \int_B (f\circ P)\cdot \abs{\det[DP]}\, dV_X = \int_0^{2\pi}\!\!\int_0^R r^2 \cdot r\, dr\, d\theta = 2\pi\cdot \frac{R^4}{4} = \boxed{\frac{\pi R^4}{2}.}$$
+        </p>
+
+        <p><strong>Takeaway</strong>: 看到 $x^2 + y^2$ 立刻上极坐标, 被积函数 $\to r^2$, Jacobian 贡献额外一个 $r$, 总积分 $\int r^3$ — polynomial in $r$, 简洁.</p>
+      </div>
+
+      <p><strong>常见变体</strong>:</p>
+      <ul>
+        <li><strong>圆环</strong>: $r \in [r_1, r_2]$, 与圆盘没区别, 只是 $r$ 下界非零.</li>
+        <li><strong>扇形</strong>: $\theta \in [\theta_1, \theta_2]$ 而非整个 $[0, 2\pi]$.</li>
+        <li><strong>椭圆</strong>: 先用 <a href="MT2-A_linear_cov.html">MT2-A</a> Thm A.2 (diagonal $T$) 把椭圆映成单位圆, 再上极坐标 — 两步代换的复合.</li>
+        <li><strong>Gaussian</strong>: $\int_{\R^2} e^{-(x^2+y^2)}\, dV$, 极坐标变 $\int r e^{-r^2}\, dr$, 一步积出, 用此推 $\int_\R e^{-t^2}\, dt = \sqrt{\pi}$.</li>
+      </ul>
+
+      <h3 id="cluster-spherical">§3.2 球坐标 setup (H&amp;H latitude 约定)</h3>
+
+      <p><strong>识别信号</strong>: $\R^3$ 中的球 / 球壳 / 球冠 / 球与锥的交; 被积函数球对称 (含 $\norm{x}$, $x^2+y^2+z^2$).</p>
+
+      <p><strong>标准做法</strong>:</p>
+      <ol>
+        <li>使用 <strong>H&amp;H latitude 约定</strong>: $\varphi \in (-\pi/2, \pi/2)$ 从赤道算, $z = r\sin\varphi$, $\abs{\det[DS]} = r^2\cos\varphi$. <em>不要</em>用 colatitude 约定 (从北极算, $z = r\cos\phi$, Jacobian $r^2\sin\phi$).</li>
+        <li>翻译约束: $z \ge 0 \Leftrightarrow \varphi \in [0, \pi/2]$; $z \le 0 \Leftrightarrow \varphi \in [-\pi/2, 0]$; $x^2+y^2 \le z^2$ (锥内, $z \ge 0$ 侧) $\Leftrightarrow \varphi \ge \pi/4$ (因 $\tan^2\varphi \ge 1$, $\varphi \in (0, \pi/2)$).</li>
+        <li>Source $X \subset (0, \infty)\times[0, 2\pi]\times(-\pi/2, \pi/2)$.</li>
+        <li>计算 $\int_X (f\circ S)\cdot r^2\cos\varphi\, dr\, d\theta\, d\varphi$. 通常三变量分离 $\to$ baby Fubini.</li>
+      </ol>
+
+      <div class="box example" id="example-B-2">
+        <span class="box-title">Example B.2 (球与锥的交 = ice-cream cone, HW3 P4.10.18 改编)</span>
+        <p>求 $\{x^2+y^2+z^2 \le 4, z^2 \ge x^2+y^2, z > 0\}$ 体积.</p>
+        <p><strong>解</strong>: 这是半径 $2$ 球被上锥 $z = \sqrt{x^2+y^2}$ 截上部. 球坐标 (latitude):</p>
+        <ul>
+          <li>$x^2+y^2+z^2 \le 4 \Leftrightarrow r \le 2$;</li>
+          <li>$z > 0 \Leftrightarrow \sin\varphi > 0 \Leftrightarrow \varphi \in (0, \pi/2)$;</li>
+          <li>$z^2 \ge x^2 + y^2 \Leftrightarrow r^2\sin^2\varphi \ge r^2\cos^2\varphi \Leftrightarrow \sin\varphi \ge \cos\varphi \Leftrightarrow \varphi \ge \pi/4$.</li>
+        </ul>
+        <p>合: $r \in [0, 2], \theta \in [0, 2\pi], \varphi \in [\pi/4, \pi/2]$. 三变量分离:
+        $$V = \int_0^{2\pi}\!\!\int_{\pi/4}^{\pi/2}\!\!\int_0^2 r^2\cos\varphi\, dr\, d\varphi\, d\theta = 2\pi \cdot [\sin\varphi]_{\pi/4}^{\pi/2} \cdot \tfrac{8}{3} = 2\pi(1 - \tfrac{\sqrt{2}}{2}) \cdot \tfrac{8}{3} = \tfrac{8\pi(2-\sqrt{2})}{3}.$$</p>
+        <p><strong>Takeaway</strong>: 把"锥角度"翻成 $\varphi \ge \pi/4$ 是关键. 这只在 latitude 约定下成立; colatitude 约定下变成 $\phi \le \pi/4$ — 同样合理但定义域反着. 永远 stick 一个约定.</p>
+      </div>
+
+      <div class="box example" id="example-B-3">
+        <span class="box-title">Example B.3 (Stretched 球坐标 / 椭球 octant, HW3 P4.10.9 改编)</span>
+        <p>设 $V = \{x^2/a^2 + y^2/b^2 + z^2/c^2 \le 1, x, y, z \ge 0\}$ 为椭球正八卦 (positive octant). 计算 $\int_V xyz\, dV$.</p>
+        <p><strong>解</strong>: 用 <em>stretched</em> 球坐标 $\Phi = D \circ S$ 其中 $D = \mathrm{diag}(a, b, c)$, $S$ 为标准球坐标:
+        $$\Phi(\rho, \theta, \varphi) = (a\rho\cos\theta\cos\varphi,\ b\rho\sin\theta\cos\varphi,\ c\rho\sin\varphi).$$
+        Jacobian 链式: $\det[D\Phi] = \det D \cdot \det[DS] = abc \cdot \rho^2\cos\varphi$.</p>
+        <p>正八卦对应 $\rho \in (0, 1), \theta \in (0, \pi/2), \varphi \in (0, \pi/2)$ (用 $\cos\theta, \sin\theta, \cos\varphi, \sin\varphi > 0$).</p>
+        <p>Integrand: $xyz = abc \cdot \rho^3\cos^2\varphi\sin\varphi\cos\theta\sin\theta$. 乘 Jacobian: $a^2b^2c^2 \cdot \rho^5\cos^3\varphi\sin\varphi\cos\theta\sin\theta$.
+        $$\int_V xyz\, dV = a^2b^2c^2 \int_0^1\!\rho^5\, d\rho \cdot \int_0^{\pi/2}\!\cos^3\varphi\sin\varphi\, d\varphi \cdot \int_0^{\pi/2}\!\cos\theta\sin\theta\, d\theta = a^2b^2c^2 \cdot \tfrac{1}{6} \cdot \tfrac{1}{4} \cdot \tfrac{1}{2} = \tfrac{a^2b^2c^2}{48}.$$
+        中间用 $\int_0^{\pi/2}\cos^3\varphi\sin\varphi\, d\varphi = [-\cos^4\varphi/4]_0^{\pi/2} = 1/4$.</p>
+        <p><strong>Takeaway</strong>: "线性 + 球坐标" 复合是 H&amp;H §4.10 的经典: 把椭球先用 diagonal $T$ 拉成单位球, 再上球坐标. Jacobian 通过链式相乘.</p>
+      </div>
+
+      <p><strong>常见变体</strong>:</p>
+      <ul>
+        <li><strong>半球 / 四分之一球</strong>: 限制 $\theta, \varphi$ 区间.</li>
+        <li><strong>球面坐标积分</strong> ($\int_S$ 而非 $\int_V$): 这超出 Ch 4 范围, 留给 Ch 5-6 differential forms.</li>
+        <li><strong>球冠 ($z \ge h$ 截)</strong>: 翻译 $r\sin\varphi \ge h$ 即 $\sin\varphi \ge h/r$, $r$ 与 $\varphi$ 耦合 $\Rightarrow$ 用柱坐标可能更简单.</li>
+      </ul>
+
+      <h3 id="cluster-cylindrical">§3.3 柱坐标 setup</h3>
+
+      <p><strong>识别信号</strong>: $\R^3$ 中绕 $z$-轴旋转对称的 region — 圆柱 / 圆锥 / paraboloid / 旋转曲面; 被积函数含 $x^2 + y^2$ 但不含 $z^2$, 或 $z$ 出现得简单.</p>
+
+      <p><strong>标准做法</strong>:</p>
+      <ol>
+        <li>翻译约束: $x^2+y^2 \le f(z)^2 \Leftrightarrow r \le f(z)$; $z^2 \ge x^2 + y^2 \Leftrightarrow r \le \abs{z}$; 等等.</li>
+        <li>Source $X \subset (0, \infty)\times[0, 2\pi)\times\R$. 决定积分顺序 — 哪个变量范围最干净放外层.</li>
+        <li>$\abs{\det[DC]} = r$. 计算 $\int_X (f\circ C)\cdot r\, dr\, d\theta\, dz$.</li>
+      </ol>
+
+      <div class="box example" id="example-B-4">
+        <span class="box-title">Example B.4 (圆锥上 $\int(x^2+y^2)z$, ≡ <a href="../topics/10-cov-patterns.html">Topic 10</a> Ex 10.1)</span>
+        <p>计算 $I = \int_A (x^2+y^2)\,z\, dV$, $A = \{x^2+y^2 \le z^2, 0 \le z \le 1\}$ (实心右圆锥).</p>
+        <p><strong>解</strong>: 柱坐标. 约束 $x^2+y^2 \le z^2 \Leftrightarrow r \le z$. Source $X = \{0 \le r \le z, 0 \le z \le 1, 0 \le \theta \le 2\pi\}$. Integrand $r^2 \cdot z \cdot r = r^3 z$.</p>
+        <p><strong>积分顺序选择</strong>: 用 $dz\, dr\, d\theta$, 即 $z$-innermost from $r$ to $1$:
+        $$\begin{aligned}
+        I &= \int_0^{2\pi}\!\!\int_0^1\!\!\int_r^1 r^3 z\, dz\, dr\, d\theta \\
+        &= 2\pi \int_0^1 r^3 \cdot \tfrac{1-r^2}{2}\, dr = \pi\int_0^1(r^3 - r^5)\, dr = \pi\bigl(\tfrac{1}{4} - \tfrac{1}{6}\bigr) = \tfrac{\pi}{12}.
+        \end{aligned}$$</p>
+        <p><strong>对比另一顺序</strong>: $dr\, dz\, d\theta$, $r$-innermost from $0$ to $z$:
+        $$I = \int_0^{2\pi}\!\!\int_0^1\!z\int_0^z r^3\, dr\, dz\, d\theta = 2\pi\int_0^1 z\cdot\tfrac{z^4}{4}\, dz = 2\pi\cdot\tfrac{1}{24} = \tfrac{\pi}{12}.$$
+        Fubini 保证两种顺序同结果. Lec 5.3 用后者, Lec 6.1 用前者 — 都正确.</p>
+      </div>
+
+      <p><strong>常见变体</strong>:</p>
+      <ul>
+        <li><strong>Paraboloid 下方 $z = x^2+y^2$</strong>: $r \le \sqrt{z}$ 或 $z \ge r^2$, $z$ 与 $r$ 耦合.</li>
+        <li><strong>圆柱穿球</strong>: $x^2+y^2 \le R_1^2, x^2+y^2+z^2 \le R_2^2$ — Steinmetz 类问题.</li>
+        <li><strong>旋转曲面体积</strong>: $V = 2\pi\int_a^b f(z)^2/2\, dz = \pi\int f(z)^2\, dz$ 由柱坐标 + $r$-innermost 推出 (Pappus / Solid of revolution).</li>
+      </ul>
+
+      <h3 id="cluster-symmetry">§3.4 Design pattern 1: Symmetry-driven</h3>
+
+      <p><strong>识别信号</strong>: 区域 $A$ 和/或被积函数 $f$ 有显式对称性 — 绕原点旋转, 球对称, 或绕某轴对称. 多数情况下这等同于 §3.1-§3.3 的直接套用.</p>
+
+      <p><strong>标准做法</strong>:</p>
+      <ol>
+        <li>识别对称类型 (planar rotation / spherical / axial).</li>
+        <li>套对应坐标系 (polar / spherical / cylindrical).</li>
+        <li><strong>关键</strong>: 选积分顺序. 哪个变量的范围"最干净" (即不依赖其他变量) 放最外层; 范围最依赖外层变量的放最内层.</li>
+      </ol>
+
+      <p><strong>积分顺序判断</strong> (cone example): 约束 $0 \le r \le z, 0 \le z \le 1$. 一种顺序: $r$ 范围依赖 $z$ ($r \in [0, z]$), $z$ 范围独立 ($z \in [0, 1]$). 把 $r$ 放最内层, $z$ 中层, $\theta$ 最外层 (因 $\theta$ 完全独立). 另一种顺序: 反过来把 $z$ 放最内层, $z \in [r, 1]$ 依赖 $r$. 两种都 work, Fubini 给同结果, 但 antiderivative 形式不同 — 实战中选 antiderivative 干净的那种.</p>
+
+      <p><strong>常见变体</strong>:</p>
+      <ul>
+        <li>"半" region (半球, 上半圆盘 etc.) 限制角度变量范围.</li>
+        <li>奇函数对称区间积 = 0 — 极坐标/球坐标也可帮助 detect ($\int_0^{2\pi}\cos\theta\, d\theta = 0$).</li>
+      </ul>
+
+      <h3 id="cluster-boundary">§3.5 Design pattern 2: Boundary-driven (IFT shortcut)</h3>
+
+      <p><strong>识别信号</strong>: 区域 $A$ 的边界由若干 level set $\{g_i(x) = c_i\}$ 给出, 且每个 $g_i$ 在 $A$ 上取值范围是<em>有限区间</em>.</p>
+
+      <p><strong>标准做法</strong>:</p>
+      <ol>
+        <li>定义 $\Psi(x) := (g_1(x), \ldots, g_n(x))$. 在 $A$ 上 $\Psi$ 把区域映到 axis-aligned box $\prod[c_i^{\min}, c_i^{\max}]$.</li>
+        <li>插入 Thm B.1 的 $\Phi = \Psi^{-1}$. 验证 $\Psi$ 在 $A$ 内部可逆 — 通常显式解出 $\Phi$ 或论证 $\Psi$ 内部单射.</li>
+        <li><strong>用 IFT shortcut 计算 Jacobian</strong>: $\det[D\Phi](\Psi(x)) = 1/\det[D\Psi](x)$. 不要直接微分 $\Phi$ (它常含 fractional power, 麻烦); 微分 $\Psi$ (polynomial/rational, 简单) 后取倒数.</li>
+        <li>在 box 上积分.</li>
+      </ol>
+
+      <div class="box example" id="example-B-5">
+        <span class="box-title">Example B.5 (Curvilinear quadrilateral, ≡ <a href="../topics/10-cov-patterns.html">Topic 10</a> Ex 10.2)</span>
+        <p>求 $\Area(A)$, $A = \{(x,y) : 1 \le xy \le 2, x^2 \le y \le 2x^2\}$.</p>
+        <p><strong>解</strong>: 边界是 $xy = c$ 和 $y/x^2 = c$. 取 $\Psi(x,y) = (xy, y/x^2)$, $u = xy, v = y/x^2$. 在 $A$ 上 $u, v \in [1, 2]$. 显式反解:
+        $$v = \frac{u/x}{x^2} = \frac{u}{x^3} \Rightarrow x = u^{1/3}v^{-1/3},\ y = u/x = u^{2/3}v^{1/3}.$$
+        $$\Phi(u, v) = (u^{1/3}v^{-1/3}, u^{2/3}v^{1/3}).$$</p>
+        <p><strong>Jacobian — IFT shortcut</strong>: 求 $\det[D\Psi]$ 容易:
+        $$[D\Psi] = \begin{pmatrix} y & x \\ -2y/x^3 & 1/x^2\end{pmatrix},\ \det[D\Psi] = \frac{y}{x^2} - x\cdot\frac{-2y}{x^3} = \frac{y}{x^2} + \frac{2y}{x^2} = \frac{3y}{x^2} = 3v.$$
+        故 $\det[D\Phi] = 1/(3v)$, $\abs{\cdot} = 1/(3v)$.</p>
+        <p><strong>计算</strong>:
+        $$\Area(A) = \int_1^2\!\!\int_1^2 \frac{1}{3v}\, du\, dv = \tfrac{1}{3}\cdot 1\cdot [\ln v]_1^2 = \frac{\ln 2}{3}.$$
+        <strong>Takeaway</strong>: $\Phi$ 含 $u^{1/3}v^{-1/3}$ 等 cube root, 直接对它求偏导极麻烦 (易错). 对 polynomial-rational 的 $\Psi$ 微分后取倒数, <em>同样的数, 三分之一行数</em>. IFT shortcut 是 Lec 6.1 最重要的"省力 trick".</p>
+      </div>
+
+      <div class="box example" id="example-B-6">
+        <span class="box-title">Example B.6 (Exponential boundary, HW3 P4.10.17 改编)</span>
+        <p>$Q_a = [0, a]^2$, $\Phi(u, v) = (u - v, e^u + e^v)$, $A = \Phi(Q_a)$. 验证 $\Phi$ 单射, 算 $\det[D\Phi]$, 并计算 $\int_A y\, dx\, dy$.</p>
+        <p><strong>解</strong>:</p>
+        <p><strong>单射</strong>: 设 $\Phi(u_1, v_1) = \Phi(u_2, v_2)$. 从第一坐标 $u_1 - v_1 = u_2 - v_2 =: d$, 即 $u_i = v_i + d$. 代入第二坐标:
+        $$e^{v_1+d} + e^{v_1} = e^{v_2+d} + e^{v_2} \Leftrightarrow e^{v_1}(e^d + 1) = e^{v_2}(e^d + 1).$$
+        $e^d + 1 > 0$ 故 $e^{v_1} = e^{v_2}$, $v_1 = v_2$, 进而 $u_1 = u_2$. ✓</p>
+        <p><strong>Jacobian</strong>: $[D\Phi] = \begin{pmatrix}1 & -1 \\ e^u & e^v\end{pmatrix}$, $\det[D\Phi] = e^v - (-1)e^u = e^u + e^v > 0$.</p>
+        <p><strong>积分</strong>: 这是 boundary-driven 的<em>变体</em> — 这里 $\Phi$ (从 box 到 $A$) 已经直接给出, 不需要反解. 套 Thm B.1 with $f(x,y) = y$ ($y \circ \Phi = e^u + e^v$):
+        $$\begin{aligned}
+        \int_A y\, dx\, dy &= \int_0^a\!\!\int_0^a (e^u + e^v)(e^u + e^v)\, du\, dv \\
+        &= \int_0^a\!\!\int_0^a (e^{2u} + 2e^{u+v} + e^{2v})\, du\, dv.
+        \end{aligned}$$
+        三段分别: $a\cdot\frac{e^{2a}-1}{2}$, $2(e^a-1)^2$, $a\cdot\frac{e^{2a}-1}{2}$. 合:
+        $$\int_A y\, dx\, dy = a(e^{2a}-1) + 2(e^a-1)^2.$$</p>
+      </div>
+
+      <p><strong>常见变体</strong>:</p>
+      <ul>
+        <li><strong>$\Phi$ 直接给出 (无需反解)</strong>: 像 HW3 P4.10.17, P4.10.19 — 题目直接告诉你 $\Phi \colon Q \to A$, 不用解 $\Psi^{-1}$, 直接验证单射 + 算 $\det[D\Phi]$ + 积分.</li>
+        <li><strong>$\Phi$ 反向 ($A \to Q$ form)</strong>: 像本例 B.5, 自己定义 $\Psi$, 用 IFT 取倒.</li>
+        <li><strong>"直线"边界</strong>: 即使 $g_i$ 是 linear (e.g. $u = y - x$), boundary-driven 仍有用 — 避免 case discussion.</li>
+      </ul>
+
+      <h3 id="cluster-slice">§3.6 Design pattern 3: Slice-driven (bottom-row collapse)</h3>
+
+      <p><strong>识别信号</strong>: 区域 $A \subset \R^n$ 可按某个坐标 (通常 $z$ 或 $x_n$) 切片, 每个切片是<em>简单 parametric 形状</em> (disk, ellipse, square) 其参数依赖该坐标.</p>
+
+      <p><strong>标准做法</strong>:</p>
+      <ol>
+        <li>识别切片形状与参数依赖. E.g. $z$-切片是椭圆 with semi-axes $a(z), b(z)$.</li>
+        <li>构造 $\Phi(r, \theta, z) = (\text{slice param.},\ z)$, 让最后一坐标 $z$ 原样 pass through.</li>
+        <li><strong>用 bottom-row collapse 算 Jacobian</strong>: $[D\Phi]$ 的最后一行是 $(\partial\Phi_3/\partial r, \partial\Phi_3/\partial\theta, \partial\Phi_3/\partial z) = (0, 0, 1)$. 沿末行 cofactor 展开:
+        $$\det[D\Phi] = 1 \cdot \det(\text{左上 } 2\times 2).$$
+        于是 $3 \times 3$ det 折叠到一个 polar-like $2 \times 2$ det.</li>
+        <li>积分.</li>
+      </ol>
+
+      <div class="box example" id="example-B-7">
+        <span class="box-title">Example B.7 (Twisted ellipsoid, ≡ <a href="../topics/10-cov-patterns.html">Topic 10</a> Ex 10.3)</span>
+        <p>计算 $\Vol(T)$, $T = \{(x,y,z) : (x/(1-z))^2 + (y/(1+z))^2 \le 1, \abs{z} < 1\}$.</p>
+        <p><strong>解</strong>: $z$-切片是椭圆 semi-axes $1-z, 1+z$. Slice-driven:
+        $$\Phi(r, \theta, z) = (r(1-z)\cos\theta,\ r(1+z)\sin\theta,\ z).$$
+        Source $X = [0, 1]\times[0, 2\pi]\times[-1, 1]$ (闭, 边界 $z = \pm 1$ 退化 OK).</p>
+        <p><strong>单射 (内部)</strong>: $z_1 = z_2 =: z$ 立即. 然后 $r_1(1-z)\cos\theta_1 = r_2(1-z)\cos\theta_2$ 与 $r_1(1+z)\sin\theta_1 = r_2(1+z)\sin\theta_2$, 因 $z \in (-1, 1)$ 故 $1 \pm z > 0$ 可约掉, $\Rightarrow r_1\cos\theta_1 = r_2\cos\theta_2, r_1\sin\theta_1 = r_2\sin\theta_2$. 平方和 $r_1 = r_2$, 然后 $\theta_1 = \theta_2$ 在 $(0, 2\pi)$ 上唯一. ✓</p>
+        <p><strong>Bottom-row collapse</strong>:
+        $$[D\Phi] = \begin{pmatrix}
+          (1-z)\cos\theta & -r(1-z)\sin\theta & -r\cos\theta \\
+          (1+z)\sin\theta & r(1+z)\cos\theta & r\sin\theta \\
+          0 & 0 & 1
+        \end{pmatrix}.$$
+        沿末行 cofactor:
+        $$\begin{aligned}
+        \det[D\Phi] &= 1 \cdot \det\begin{pmatrix}(1-z)\cos\theta & -r(1-z)\sin\theta \\ (1+z)\sin\theta & r(1+z)\cos\theta\end{pmatrix} \\
+        &= r(1-z)(1+z)(\cos^2\theta + \sin^2\theta) = r(1 - z^2).
+        \end{aligned}$$
+        $\abs{\cdot} = r(1-z^2) > 0$ 内部.</p>
+        <p><strong>积分</strong>:
+        $$\Vol(T) = \int_0^{2\pi}\!\!\int_{-1}^1\!\!\int_0^1 r(1-z^2)\, dr\, dz\, d\theta = 2\pi\cdot\tfrac{1}{2}\cdot\int_{-1}^1(1-z^2)\, dz = \pi\cdot\tfrac{4}{3} = \frac{4\pi}{3}.$$</p>
+        <p><strong>Cavalieri 巧合</strong>: $\Vol(T) = 4\pi/3 = \Vol(B_3)$ 等于单位球体积! 因为 $T$ 的 $z$-切片是面积 $\pi(1-z)(1+z) = \pi(1-z^2)$ 的椭圆, $B_3$ 的 $z$-切片是面积 $\pi(1-z^2)$ 的圆 — 逐 slice 等面积 $\Rightarrow$ Cavalieri 同体积. Slice-driven CoV 本质上就是 "Cavalieri wearing Jacobian costume".</p>
+      </div>
+
+      <div class="box example" id="example-B-8">
+        <span class="box-title">Example B.8 (HW3 P4.10.4 — $z^3$-twisted ellipsoid)</span>
+        <p>求 $\Omega = \{(x,y,z) : x^2/(z^3-1)^2 + y^2/(z^3+1)^2 \le 1, -1 \le z \le 1\}$ 体积.</p>
+        <p><strong>解</strong>: $z$-切片椭圆 semi-axes $\abs{z^3-1} = 1-z^3$ (因 $z \le 1$) 与 $\abs{z^3+1} = 1+z^3$ (因 $z \ge -1$). Slice-driven:
+        $$\Phi(r, \theta, z) = (r(1-z^3)\cos\theta,\ r(1+z^3)\sin\theta,\ z),\ (r, \theta, z) \in [0, 1]\times[0, 2\pi)\times[-1, 1].$$</p>
+        <p><strong>Bottom-row collapse</strong>:
+        $$[D\Phi] = \begin{pmatrix}
+          (1-z^3)\cos\theta & -r(1-z^3)\sin\theta & -3z^2 r\cos\theta \\
+          (1+z^3)\sin\theta & r(1+z^3)\cos\theta & 3z^2 r\sin\theta \\
+          0 & 0 & 1
+        \end{pmatrix},$$
+        $$\det[D\Phi] = (1-z^3)(1+z^3)\cdot r = r(1-z^6).$$</p>
+        <p><strong>积分</strong>:
+        $$\Vol(\Omega) = \int_{-1}^1\!\!\int_0^{2\pi}\!\!\int_0^1 r(1-z^6)\, dr\, d\theta\, dz = \pi\int_{-1}^1(1-z^6)\, dz = 2\pi(1 - \tfrac{1}{7}) = \tfrac{12\pi}{7}.$$</p>
+        <p><strong>Takeaway</strong>: 同样的 slice-driven, $z$ 依赖换成 $z^3$ — Jacobian 的<em>形式</em>不变 ($r \times $ semi-axis product), 只是 semi-axis 函数复杂. 这是 slice-driven 的力量: 模板化, semi-axis 函数怎么变都套同一公式.</p>
+      </div>
+
+      <p><strong>常见变体</strong>:</p>
+      <ul>
+        <li><strong>切片是圆盘</strong>: $\Phi = (r\rho(z)\cos\theta, r\rho(z)\sin\theta, z)$, $\det = r\rho(z)^2$.</li>
+        <li><strong>切片是椭圆</strong>: $\Phi = (ra(z)\cos\theta, rb(z)\sin\theta, z)$, $\det = ra(z)b(z)$.</li>
+        <li><strong>切片是 square / rectangle</strong>: $\Phi = (u\cdot a(z), v\cdot b(z), z)$ where $u, v \in [-1, 1]$, $\det = a(z)b(z)$ (no $r$).</li>
+        <li><strong>沿 $x_1$ 切片 (不 $z$)</strong>: 同理, 把单位向量放到对应 row, cofactor 沿那 row.</li>
+      </ul>
+
+      <!-- §4 -->
+      <h2 id="pitfalls">§4 常考陷阱清单</h2>
+
+      <p>每条点击跳到详细 cluster 或 pitfall 块.</p>
+
+      <ul>
+        <li><a href="#pitfall-B-1"><strong>P-B.1</strong></a>: 忘记 $\abs{\det[D\Phi]}$ 的绝对值. (Ch 4 unsigned theory.)</li>
+        <li><a href="#pitfall-B-2"><strong>P-B.2</strong></a>: 球坐标 latitude vs colatitude 约定混淆 — H&amp;H 用 latitude $\varphi \in (-\pi/2, \pi/2)$, $z = r\sin\varphi$, Jacobian $r^2\cos\varphi$.</li>
+        <li><a href="#pitfall-B-3"><strong>P-B.3</strong></a>: 跳过单射性验证. 极坐标 $\theta$ 范围不能 $> 2\pi$; $\Phi(u, v) = (u^2, v)$ 这种偶次幂 不单射 (除非限制 $u \ge 0$).</li>
+        <li><a href="#pitfall-B-4"><strong>P-B.4</strong></a>: Boundary-driven 中用<em>直接</em>微分 $\Phi$ (含 fractional power) 而非用 IFT shortcut $1/\det[D\Psi]$.</li>
+        <li><strong>P-B.5</strong>: 把 IFT 取反 — 误写 $\det[D\Phi] = \det[D\Psi]$ 而非 $1/\det[D\Psi]$.</li>
+        <li><strong>P-B.6</strong>: 公式方向搞反 — 把 $f \circ \Phi$ 写成 $f \circ \Phi^{-1}$, 或把 $\abs{\det[D\Phi]}$ 贴到 $Y$ 那一侧而非 $X$ 那一侧.</li>
+        <li><strong>P-B.7</strong>: $\partial X$ 不测度零时仍用 Thm B.1 — hypothesis 违反, 定理不直接适用.</li>
+        <li><strong>P-B.8</strong>: 忘记 hypothesis (iv) $[D\Phi]$ Lipschitz. 大多数 $C^2$ 函数自动 (Lemma B.1), 但是 $C^1$ 不够 (e.g. $f' = x^{1/3}$).</li>
+        <li><strong>P-B.9</strong>: 把 Jacobian 矩阵写成转置形式 (行列偏导排列错). 标准是 $[D\Phi]_{ij} = \partial\Phi_i/\partial x_j$ — 第 $i$ 个分量对第 $j$ 个变量求导.</li>
+        <li><strong>P-B.10</strong>: 把内部 Jacobian 退化的 region (e.g. 极坐标 $r = 0$) 当作 disqualifier — 实际上边界退化<em>允许</em>, 内部退化才 disqualify.</li>
+        <li><strong>P-B.11</strong>: Cylindrical / spherical 中积分顺序选错 — 把范围最依赖外层的放最外层导致内层积分困难.</li>
+        <li><strong>P-B.12</strong>: 把 source $X$ (即 $\Phi$ 的定义域) 和 target $Y = \Phi(X)$ 弄反.</li>
+      </ul>
+
+      <div class="box pitfall" id="pitfall-B-1">
+        <span class="box-title">Pitfall B.1 — 公式必须用 $\abs{\det[D\Phi]}$</span>
+        <p>Thm B.1 公式右边是 $\abs{\det[D\Phi(x)]}$, <strong>不是</strong> $\det[D\Phi(x)]$. 体积 (和 $\int$ 在 unsigned theory 里) 非负, scaling factor 必须非负.</p>
+        <p><strong>什么时候绝对值非 vacuous</strong>: 涉及 orientation-reversing 的 $\Phi$. E.g. $\Phi(u, v) = (v, u)$ (交换坐标) 有 $\det = -1$, 必须 $\abs{\cdot} = 1$. 三大经典坐标系 (polar/spherical-latitude/cylindrical) 在内部都 $\det > 0$, 故绝对值看似 vacuous — 但养成<em>永远</em>写 $\abs{\cdot}$ 的习惯, 才能在不熟悉的 $\Phi$ 上不翻车.</p>
+        <p><strong>预告 Ch 5-6</strong>: 微分形式 (differential forms) 引入 signed 积分, 那里 $\det$ 不取绝对值 — 符号正好编码 orientation 信息. 但在 Ch 4 范围内 (本课 MT2 范围), 绝对值不可省.</p>
+      </div>
+
+      <div class="box pitfall" id="pitfall-B-2">
+        <span class="box-title">Pitfall B.2 — Latitude vs Colatitude 约定混乱</span>
+        <p>球坐标有两套主流约定:</p>
+        <ul>
+          <li><strong>Latitude (H&amp;H 用)</strong>: $\varphi \in (-\pi/2, \pi/2)$, 从赤道算. $z = r\sin\varphi$. Jacobian $\abs{\det[DS]} = r^2\cos\varphi$.</li>
+          <li><strong>Colatitude (物理书常用)</strong>: $\phi \in (0, \pi)$, 从北极算. $z = r\cos\phi$. Jacobian $r^2\sin\phi$.</li>
+        </ul>
+        <p>二者由 $\phi = \pi/2 - \varphi$ 互换, $\sin\phi = \cos\varphi$, 数值上 Jacobian 一致 — 但区间不同. 比如<em>上半球</em>: latitude $\varphi \in [0, \pi/2]$ (赤道到北极); colatitude $\phi \in [0, \pi/2]$ (北极到赤道). 区间巧合相同, 不出错. 但<em>下半球</em>: latitude $\varphi \in [-\pi/2, 0]$; colatitude $\phi \in [\pi/2, \pi]$. 完全不同, 搞混 region 就丢一半.</p>
+        <p><strong>判断 Jacobian 用的是哪个约定</strong>: 看公式里是 $\cos\varphi$ 还是 $\sin\phi$. $\cos$ $\to$ latitude; $\sin$ $\to$ colatitude.</p>
+        <p><strong>建议</strong>: 本课考试一律用 H&amp;H latitude. 写下来 "$z = r\sin\varphi$, Jacobian $r^2\cos\varphi$" 作为座右铭.</p>
+      </div>
+
+      <div class="box pitfall" id="pitfall-B-3">
+        <span class="box-title">Pitfall B.3 — 跳过 injectivity 验证</span>
+        <p>Thm B.1 要求 $\Phi$ 在 $X \setminus \partial X$ 上单射. 常见错误:</p>
+        <ul>
+          <li><strong>极坐标 $\theta$ 超过 $2\pi$</strong>: 若误写 $\theta \in [0, 4\pi]$, 把每个点算了两遍. 永远 $\theta \in [0, 2\pi)$ (半开).</li>
+          <li><strong>偶次幂代换</strong>: $\Phi(u, v) = (u^2, v)$, $\Phi(\pm u, v)$ 都映到 $(u^2, v)$. 必须限制 $u \ge 0$ 或换 $\Phi$.</li>
+          <li><strong>球坐标 $\varphi = \pm\pi/2$</strong>: 在 $\varphi = \pi/2$, 整个 $\theta$ 维度 collapse 到北极 — 不单射. 但 $\varphi = \pm\pi/2$ 是边界 (测度零), 允许.</li>
+        </ul>
+        <p><strong>验证方法</strong>:</p>
+        <ol>
+          <li><em>Explicit inverse</em>: 显式解 $x = \Phi^{-1}(y)$. 如果只能写 "$x = \pm\sqrt{\cdot}$" 即不单射.</li>
+          <li><em>直接论证</em>: 设 $\Phi(p_1) = \Phi(p_2)$, 推 $p_1 = p_2$ (像 Ex B.7 twisted ellipsoid 的做法).</li>
+        </ol>
+      </div>
+
+      <div class="box pitfall" id="pitfall-B-4">
+        <span class="box-title">Pitfall B.4 — 硬算 Jacobian 而忘记 IFT shortcut</span>
+        <p>Boundary-driven 中 $\Phi = \Psi^{-1}$ 常含 fractional power (cube root, square root), 直接对它微分长且易错. IFT 给一行 shortcut:
+        $$\det[D\Phi](\Psi(x)) = \frac{1}{\det[D\Psi](x)}.$$
+        $\Psi$ 通常 polynomial/rational, 微分秒算.</p>
+        <p><strong>Example B.5 的对比</strong>: $\Phi(u, v) = (u^{1/3}v^{-1/3}, u^{2/3}v^{1/3})$. 直接求 4 个不平凡偏导 + $2 \times 2$ det = $1/(3v)$. <em>反过来</em>: $\Psi(x, y) = (xy, y/x^2)$, 4 个简单偏导 + det = $3v$, 倒数 = $1/(3v)$ — 同样的答案, 三分之一行数, 错的可能性也只剩三分之一.</p>
+        <p><strong>记忆</strong>: 看到 $\Phi$ 公式里有 fractional power, <em>立刻</em>问 "我能不能反着用 $\Psi$?".</p>
+      </div>
+
+      <!-- §5 -->
+      <h2 id="textbook-index">§5 课本例题速查</h2>
+
+      <table class="textbook-index">
+        <thead><tr><th>H&amp;H 编号</th><th>主题</th><th>Takeaway</th></tr></thead>
+        <tbody>
+          <tr><td>Thm 4.10.12</td><td>Nonlinear CoV 主定理</td><td>本页主定理 Thm B.1</td></tr>
+          <tr><td>§4.10 polar 推导</td><td>极坐标 Jacobian</td><td>$\abs{\det[DP]} = r$, $dx\,dy = r\,dr\,d\theta$</td></tr>
+          <tr><td>§4.10 spherical 推导</td><td>球坐标 Jacobian (latitude)</td><td>$z = r\sin\varphi$, $\abs{\det[DS]} = r^2\cos\varphi$</td></tr>
+          <tr><td>§4.10 cylindrical 推导</td><td>柱坐标 Jacobian</td><td>$\abs{\det[DC]} = r$, block-diagonal 从极坐标继承</td></tr>
+          <tr><td>Example 4.10.1</td><td>圆盘面积 $\pi R^2$</td><td>极坐标两步推导, $\int r\,dr = R^2/2$</td></tr>
+          <tr><td>Example 4.10.3</td><td>球体积 $4\pi R^3/3$</td><td>球坐标 + baby Fubini, 三因子相乘</td></tr>
+          <tr><td>Exercise 4.10.4</td><td>$z^3$-twisted ellipsoid</td><td>Slice-driven, 答案 $12\pi/7$ (HW3 题源)</td></tr>
+          <tr><td>Exercise 4.10.9</td><td>椭球 octant $\int xyz$</td><td>Stretched 球坐标 $D \circ S$, 答案 $a^2b^2c^2/48$ (HW3)</td></tr>
+          <tr><td>Exercise 4.10.12</td><td>1/4 球上 $(x^2+y^2+z^2)^{3/2}$</td><td>球坐标, 答案 $32\pi/3$ (HW3)</td></tr>
+          <tr><td>Exercise 4.10.17</td><td>$(u-v, e^u+e^v)$ 代换</td><td>Boundary-driven 变体, $\Phi$ 直接给; $\det = e^u+e^v$ (HW3)</td></tr>
+          <tr><td>Exercise 4.10.18</td><td>Ice-cream cone</td><td>球坐标 + 锥角 $\varphi \ge \pi/4$, 答案 $8\pi(2-\sqrt{2})/3$ (HW3)</td></tr>
+          <tr><td>Exercise 4.10.19</td><td>$(u-v^2, u^2+v)$ parabolic 代换</td><td>$\det = 1 + 4uv$; 单射性需仔细论证 (HW3)</td></tr>
+          <tr><td>§4.10 Lemniscate</td><td>$r^2 = \cos 2\theta$</td><td>用极坐标 polar 方程直接积, 右叶面积 $= 1/2$</td></tr>
+          <tr><td>§4.10 Paraboloid 体积</td><td>$\int(x^2+y^2)$ over disk</td><td>$\pi R^4/2$ via 极坐标, 见 Ex B.1</td></tr>
+          <tr><td>§4.10 Steinmetz solid</td><td>双圆柱交集</td><td>柱坐标 + 切片, 体积 $16/3$ (Lec 4.1 内容)</td></tr>
+        </tbody>
+      </table>
+
+      <!-- §6 -->
+      <h2 id="exercises">§6 模拟练习</h2>
+      <p>展开 <code>&lt;details&gt;</code> 查看答案. 难度递增: 3 routine → 3 mid → 2 stretch.</p>
+
+      <div class="exercise">
+        <p><span class="ex-num">1.</span> <em>(Routine)</em> 用极坐标计算 $\int_D (x^2+y^2)^{3/2}\, dV$, $D = $ 半径 $1$ 单位圆盘.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>$(x^2+y^2)^{3/2} = r^3$ 在极坐标下. 乘 Jacobian $r$ 得 $r^4$.
+            $$\int_D (x^2+y^2)^{3/2}\, dV = \int_0^{2\pi}\!\!\int_0^1 r^4\, dr\, d\theta = 2\pi \cdot \tfrac{1}{5} = \frac{2\pi}{5}.$$</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">2.</span> <em>(Routine)</em> 用球坐标 (H&amp;H latitude) 计算 $\int_B z^2\, dV$, $B = $ 单位球.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>$z = r\sin\varphi$, $z^2 = r^2\sin^2\varphi$. 乘 Jacobian $r^2\cos\varphi$ 得 $r^4\sin^2\varphi\cos\varphi$. 三变量分离:
+            $$\int_B z^2\, dV = \int_0^{2\pi}d\theta\int_{-\pi/2}^{\pi/2}\sin^2\varphi\cos\varphi\, d\varphi\int_0^1 r^4\, dr.$$
+            分别: $2\pi$; $\int_{-\pi/2}^{\pi/2}\sin^2\varphi\cos\varphi\, d\varphi = [\sin^3\varphi/3]_{-\pi/2}^{\pi/2} = 2/3$; $1/5$. 乘积: $2\pi \cdot 2/3 \cdot 1/5 = 4\pi/15$.</p>
+            <p>(Sanity: 球上 $\int x^2 = \int y^2 = \int z^2 = (1/3)\int r^2\, dV = (1/3)\cdot 4\pi/5 = 4\pi/15$. ✓)</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">3.</span> <em>(Routine)</em> 用柱坐标计算圆锥 $A = \{x^2+y^2 \le z^2, 0 \le z \le 1\}$ 的体积. 校验答案 $= \pi/3$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>柱坐标 $X = \{0 \le r \le z, 0 \le z \le 1, 0 \le \theta \le 2\pi\}$. Integrand $1$, 乘 Jacobian $r$:
+            $$V = \int_0^{2\pi}\!\!\int_0^1\!\!\int_0^z r\, dr\, dz\, d\theta = 2\pi\int_0^1\tfrac{z^2}{2}\, dz = 2\pi\cdot\tfrac{1}{6} = \tfrac{\pi}{3}.$$
+            匹配几何公式 $V = \tfrac{1}{3}\pi r^2 h = \tfrac{1}{3}\pi \cdot 1 \cdot 1 = \pi/3$. ✓</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">4.</span> <em>(Mid, ≡ HW3 P4.10.12)</em> 计算
+        $$\int_{-2}^2\!\!\int_0^{\sqrt{4-x^2}}\!\!\int_0^{\sqrt{4-x^2-y^2}}(x^2+y^2+z^2)^{3/2}\, dz\, dy\, dx.$$</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>积分区域: $x \in [-2, 2], y \ge 0, z \ge 0, x^2+y^2+z^2 \le 4$ — 半径 $2$ 球的 $y, z \ge 0$ 四分之一. 球坐标 (latitude): $r \in [0, 2], \theta \in [0, \pi]$ (从 $y \ge 0$ 即 $\sin\theta \ge 0$), $\varphi \in [0, \pi/2]$ (从 $z = r\sin\varphi \ge 0$). Integrand $= r^3$, 乘 Jacobian $r^2\cos\varphi$ 得 $r^5\cos\varphi$:
+            $$\int = \int_0^\pi d\theta\int_0^{\pi/2}\cos\varphi\, d\varphi\int_0^2 r^5\, dr = \pi\cdot[\sin\varphi]_0^{\pi/2}\cdot\tfrac{64}{6} = \pi\cdot 1\cdot\tfrac{32}{3} = \tfrac{32\pi}{3}.$$</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">5.</span> <em>(Mid, ≡ HW3 P4.10.18)</em> 求 $\{x^2+y^2+z^2 \le 4, z^2 \ge x^2+y^2, z > 0\}$ 体积.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>(Ex B.2 详细做过.) 球坐标 (latitude): $r \le 2, z > 0 \Leftrightarrow \varphi > 0$, 锥约束 $z^2 \ge x^2+y^2 \Leftrightarrow \tan^2\varphi \ge 1 \Leftrightarrow \varphi \ge \pi/4$. 区域 $r \in [0, 2], \theta \in [0, 2\pi], \varphi \in [\pi/4, \pi/2]$.
+            $$V = \int_0^{2\pi}\!\!\int_{\pi/4}^{\pi/2}\!\!\int_0^2 r^2\cos\varphi\, dr\, d\varphi\, d\theta = 2\pi\cdot[\sin\varphi]_{\pi/4}^{\pi/2}\cdot\tfrac{8}{3} = 2\pi\cdot(1 - \tfrac{\sqrt{2}}{2})\cdot\tfrac{8}{3} = \tfrac{8\pi(2 - \sqrt{2})}{3}.$$</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">6.</span> <em>(Mid, ≡ HW3 P4.10.4)</em> 计算 $\Vol(\Omega)$, $\Omega = \{x^2/(z^3-1)^2 + y^2/(z^3+1)^2 \le 1, -1 \le z \le 1\}$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>(Ex B.8 详细做过.) Slice-driven. $z$-切片椭圆 semi-axes $1-z^3, 1+z^3$. $\Phi(r, \theta, z) = (r(1-z^3)\cos\theta, r(1+z^3)\sin\theta, z)$. Bottom-row cofactor: $\det[D\Phi] = r(1-z^3)(1+z^3) = r(1-z^6)$.
+            $$\Vol = \int_{-1}^1\!\!\int_0^{2\pi}\!\!\int_0^1 r(1-z^6)\, dr\, d\theta\, dz = \pi\int_{-1}^1(1-z^6)\, dz = 2\pi(1 - \tfrac{1}{7}) = \tfrac{12\pi}{7}.$$</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">7.</span> <em>(Stretch, ≡ HW3 P4.10.9)</em> $V = \{x^2/a^2 + y^2/b^2 + z^2/c^2 \le 1, x, y, z > 0\}$ (椭球正八卦). 计算 $\int_V xyz\, dV$ (其中 $a, b, c > 0$).</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>(Ex B.3 详细做过.) Stretched 球坐标 $\Phi(\rho, \theta, \varphi) = (a\rho\cos\theta\cos\varphi, b\rho\sin\theta\cos\varphi, c\rho\sin\varphi)$, $\det[D\Phi] = abc\rho^2\cos\varphi$. 正八卦 $\Leftrightarrow \rho \in (0, 1), \theta \in (0, \pi/2), \varphi \in (0, \pi/2)$ (使 $\cos\theta, \sin\theta, \cos\varphi, \sin\varphi$ 都正).</p>
+            <p>$xyz = abc\,\rho^3\cos^2\varphi\sin\varphi\cos\theta\sin\theta$. 乘 Jacobian $abc\rho^2\cos\varphi$: 总 $= a^2b^2c^2\rho^5\cos^3\varphi\sin\varphi\cos\theta\sin\theta$.
+            $$\int = a^2b^2c^2 \int_0^1\rho^5\, d\rho\int_0^{\pi/2}\cos^3\varphi\sin\varphi\, d\varphi\int_0^{\pi/2}\cos\theta\sin\theta\, d\theta = a^2b^2c^2\cdot\tfrac{1}{6}\cdot\tfrac{1}{4}\cdot\tfrac{1}{2} = \tfrac{a^2b^2c^2}{48}.$$
+            ($\int_0^{\pi/2}\cos^3\varphi\sin\varphi\, d\varphi = [-\cos^4\varphi/4]_0^{\pi/2} = 1/4$. $\int_0^{\pi/2}\cos\theta\sin\theta\, d\theta = [\sin^2\theta/2]_0^{\pi/2} = 1/2$.)</p>
+            <p><strong>Takeaway</strong>: 复合 $\Phi = D\circ S$ 让 Jacobian 链式 $\det[D\Phi] = \det D \cdot \det[DS]$ — 这是把 linear (MT2-A) 和 nonlinear (MT2-B) CoV 拼起来的标准技巧.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">8.</span> <em>(Stretch, ≡ HW3 P4.10.19)</em> $Q = [0,1]^2$, $\Phi(u, v) = (u - v^2, u^2 + v)$, $A = \Phi(Q)$. (a) 证明 $\Phi$ 在 $Q$ 上单射; (b) 计算 $\int_A x\, dx\, dy$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>(a) 单射性</strong>: 设 $\Phi(u_1, v_1) = \Phi(u_2, v_2)$, 令 $\alpha = u_1 - u_2$, $\beta = v_1 - v_2$. 第一坐标:
+            $$u_1 - v_1^2 = u_2 - v_2^2 \Rightarrow \alpha = v_1^2 - v_2^2 = \beta(v_1 + v_2).$$
+            第二坐标:
+            $$u_1^2 + v_1 = u_2^2 + v_2 \Rightarrow \beta = -(u_1^2 - u_2^2) = -\alpha(u_1 + u_2).$$
+            代第二个入第一个:
+            $$\alpha = -\alpha(u_1+u_2)(v_1+v_2) \Rightarrow \alpha[1 + (u_1+u_2)(v_1+v_2)] = 0.$$
+            因 $u_i, v_i \in [0, 1]$, $(u_1+u_2)(v_1+v_2) \ge 0$, 故 bracket $\ge 1 > 0$, 所以 $\alpha = 0$, $u_1 = u_2$. 代回 $v_1^2 = v_2^2$ 加 $v_i \ge 0$ 给 $v_1 = v_2$. ✓</p>
+            <p><strong>(b) 积分</strong>: $[D\Phi] = \begin{pmatrix}1 & -2v \\ 2u & 1\end{pmatrix}$, $\det[D\Phi] = 1 + 4uv > 0$ on $Q$. $x \circ \Phi = u - v^2$.
+            $$\begin{aligned}
+            \int_A x\, dx\, dy &= \int_0^1\!\!\int_0^1 (u - v^2)(1 + 4uv)\, du\, dv \\
+            &= \int_0^1\!\!\int_0^1(u + 4u^2v - v^2 - 4uv^3)\, du\, dv.
+            \end{aligned}$$
+            内层 $u$ 积:
+            $$\int_0^1(u + 4u^2v - v^2 - 4uv^3)\, du = \tfrac{1}{2} + \tfrac{4v}{3} - v^2 - 2v^3.$$
+            外层 $v$ 积:
+            $$\int_0^1\bigl(\tfrac{1}{2} + \tfrac{4v}{3} - v^2 - 2v^3\bigr)\, dv = \tfrac{1}{2} + \tfrac{2}{3} - \tfrac{1}{3} - \tfrac{1}{2} = \tfrac{1}{3}.$$
+            <strong>Takeaway</strong>: $\Phi$ 直接给出, 不需要 $\Psi$ — 这是 boundary-driven 的"直接形式". 单射性要 careful argument 因为 $\Phi$ 含 $u^2, v^2$ (偶次幂在不限制象限时危险), 但 $u, v \in [0, 1]$ 给的非负性正是单射的关键.</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- §7 -->
+      <h2 id="crossref">§7 与 Topics 的 Cross-Reference</h2>
+      <ul>
+        <li><a href="../topics/09-nonlinear-cov.html"><strong>Topic 09: 非线性 CoV 定理与标准坐标</strong></a> — 本页 §2 Thm B.1 + Thm B.2 的完整 typed reference. 包含定理的 4 条 hypothesis 详细解释、Lipschitz vs $C^1$ 关系、polar/spherical/cylindrical Jacobian 完整推导 (包括球坐标的 cofactor 展开).</li>
+        <li><a href="../topics/10-cov-patterns.html"><strong>Topic 10: CoV 实战 — 三种设计模式</strong></a> — 本页 §3.4-§3.6 的完整 typed reference. Symmetry/boundary/slice three patterns 详细讨论, IFT shortcut 推导, twisted ellipsoid + Cavalieri 巧合.</li>
+        <li><a href="MT2-A_linear_cov.html"><strong>MT2-A: 线性 CoV (sibling page)</strong></a> — Thm B.1 的 zero-order 特例: 常数 Jacobian $\abs{\det T}$ 提到积分号外. Stretched 球坐标 (Ex B.3) 就是 linear $D = \mathrm{diag}(a, b, c)$ 复合 nonlinear $S$.</li>
+        <li><a href="../topics/08-linear-cov.html"><strong>Topic 08</strong></a> — DSV 与 linear CoV 详尽 — Thm B.1 证明的局部线性化 step 直接调用 Topic 08 Thm 8.2.</li>
+        <li><a href="../topics/07-fubini.html"><strong>Topic 07</strong></a> — Fubini 定理 — CoV 之后大部分积分都用 Fubini 实际计算. Slice-driven pattern 本质就是 "Fubini wearing Jacobian".</li>
+        <li><strong>Typed lecture notes</strong>:
+          <ul>
+            <li><code>../../Notes/Typed/5.3_notes/5.3_notes.pdf</code> — Linear CoV 完整证明 (Section II-V) + Nonlinear CoV statement + 三大经典坐标 Jacobian 推导 + 经典 examples (ellipse, paraboloid, lemniscate, half-ball z-moment, cone $\int(x^2+y^2)z$ via $r$-innermost)</li>
+            <li><code>../../Notes/Typed/6.1_notes/6.1_notes.pdf</code> — 三种 design pattern 完整描述 + cone 例的 $z$-innermost 顺序 + curvilinear quadrilateral + twisted ellipsoid + Cavalieri 巧合</li>
+          </ul>
+        </li>
+        <li><a href="MT2-C_lebesgue.html"><strong>MT2-C (next page)</strong></a> — Lebesgue 积分构造与性质 — Ch 4 三大模块的最后一块.</li>
+        <li><strong>H&amp;H 教材</strong>: §4.10 (Thm 4.10.12 主定理 + 经典坐标 + 大量 examples + Exercises 4.10.4, 4.10.9, 4.10.12, 4.10.17, 4.10.18, 4.10.19 — HW3 全部题源).</li>
+        <li><strong>🆕 Practice MT2</strong>: <code>../../HW/Response/PracticeMT2_response.pdf</code> — <strong>Problem 6</strong> 直接引用 H&amp;H Example 4.10.18 + Exercises 4.10.9 (椭球 octant, $a^2 b^2 c^2/48$), 4.10.12 (quarter-ball, $32\pi/3$), 4.10.13 (cone $\cap$ paraboloid, $\pi/6$). <strong>Problem 5</strong> (Exercise 4.11.12, $x^a y^b$ on $\{0\le x\le y, xy\le 1\}$) 也是 nonlinear CoV — 用 $u=xy, v=y/x$ 的 boundary-driven 套路 + IFT shortcut $\abs{\det[D\Phi]} = 1/(2v)$.</li>
+      </ul>
+
+      <hr style="margin: 60px 0 20px; border: 0; border-top: 1px solid #d8d3c4;">
+      <p style="font-size: 13px; color: #888; text-align: center;">MATH 31CH 复习指南 · MT2-B · H&amp;H §4.10</p>
+
+    </main>
+  </div>
+
+</body>
+</html>

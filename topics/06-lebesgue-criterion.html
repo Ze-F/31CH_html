@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Topic 06: Lebesgue 准则与 a.e. 推论 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="05-measure-zero-basics.html">Topic 05</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="07-fubini.html">Topic 07</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#motivation">§1 动机</a></li>
+        <li><a href="#prereq">§2 前置知识</a></li>
+        <li><a href="#definitions">§3 核心定义</a></li>
+        <li><a href="#theorems">§4 主要定理</a></li>
+        <li><a href="#examples">§5 Worked Examples</a></li>
+        <li><a href="#pitfalls">§6 常见陷阱</a></li>
+        <li><a href="#exercises">§7 练习</a></li>
+        <li><a href="#cheat">§8 速查表</a></li>
+        <li><a href="#further">§9 进一步阅读</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>Topic 06: Lebesgue 准则与 a.e. 推论</h1>
+      <p class="subtitle">Source: Lec 3.2 (后半), 3.3 · H&amp;H §4.1 · 14 topics 中第 6 个</p>
+
+      <!-- §1 动机 -->
+      <h2 id="motivation">§1 动机</h2>
+      <p>Riemann 可积的判定我们已经有了一个 <em>operational</em> 准则 — <strong>Cauchy 准则</strong> (Topic 02): 对任意 $\eps > 0$，存在足够细的 paving 使得 $U_N(f) - L_N(f) < \eps$。这个准则计算上可用，但 <em>概念上</em> 它问的不是"$f$ 本身有什么性质"，而是"我们能不能找到一个好的 paving"。两个视角之间隔着一层 — 我们想问的真正问题是: <strong>究竟什么样的 $f$ 是可积的？</strong></p>
+
+      <p><strong>Lebesgue 准则 (Lebesgue criterion)</strong> 给出了一个干净的答案: <em>$f$ 在闭盒上有界且 Riemann 可积，当且仅当它的不连续点集是测度零的</em>。也就是说，可积性完全由"$f$ 不连续的程度"决定 — 与 paving 无关，与 oscillation 的具体大小无关，只与"差到家的点究竟有多少"有关。这把可积性从 paving 层面的技术问题，提升到了 $f$ 自身的内在性质。</p>
+
+      <p>这个准则是 measure theory 与 Riemann theory 的桥梁。它解释了为什么 Dirichlet 函数 (处处不连续) 不可积 — 不连续点集是整个区间，肯定不是测度零；而 Thomae 函数 (处处有理点不连续) 却可积 — 因为有理点是可数的，自然测度零。本页围绕这个准则展开，并补充一个结构性后续: <strong>正性引理 (positivity lemma)</strong>，即 $f \ge 0$ 且 $\int f = 0$ $\Rightarrow$ $f = 0$ a.e. — 它把测度零的语言用回到了积分的 algebra 层面。</p>
+
+      <!-- §2 前置知识 -->
+      <h2 id="prereq">§2 前置知识</h2>
+      <div class="box prereq">
+        <span class="box-title">在阅读本页前，你应该已经掌握:</span>
+        <ul>
+          <li><a href="01-1d-riemann.html">Topic 01</a> 或 <a href="02-nd-riemann.html">Topic 02</a>: Riemann 可积性、上下和、Cauchy 准则</li>
+          <li><a href="03-algebra-properties.html">Topic 03</a>: 积分的单调性、$|f|$ 可积、product 性质</li>
+          <li><a href="05-measure-zero-basics.html">Topic 05</a>: <strong>测度零 (measure zero) 的定义</strong>、可数 union 性质、$k$-维子空间为测度零</li>
+          <li>本课程的 oscillation 记号 $\osc_C(f) := M_C(f) - m_C(f)$ (Topic 02)</li>
+        </ul>
+      </div>
+
+      <!-- §3 核心定义 -->
+      <h2 id="definitions">§3 核心定义</h2>
+      <p>Lebesgue 准则需要三个紧密相连的概念: "点 $x$ 处的不连续性"、"不连续点集 $\Disc(f)$"、以及"测度零的不连续点集"。我们一个一个建立 (前两个在本节，第三个来自 <a href="05-measure-zero-basics.html">Topic 05</a>)。</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 6.1 (点处连续与 oscillation 刻画)</span>
+        <p>设 $A \subseteq \R^n$ 为 $f$ 的有界支集所在域，$x_0 \in A$。称 <strong>$f$ 在 $x_0$ 处连续 (continuous at $x_0$)</strong>，若 $\forall \eps > 0,\ \exists \delta > 0$ 使得 $|x - x_0| < \delta$ 蕴含 $|f(x) - f(x_0)| < \eps$。</p>
+        <p>等价地，$f$ 在 $x_0$ 处连续 $\Longleftrightarrow$
+        $$\lim_{r \to 0^+}\osc_{B_r(x_0)}(f) = 0,$$
+        其中 $\osc_C(f) = \sup_C f - \inf_C f$ 是 $f$ 在 $C$ 上的振荡 (oscillation)。</p>
+      </div>
+
+      <p><strong>直觉</strong>: 第一行是标准的 $\eps$-$\delta$ 连续。第二行是它的等价表述: "在 $x_0$ 越来越小的邻域上看 $f$，振荡幅度趋近于零"。后者是 Lebesgue 准则证明里的 working definition — 因为 Riemann 积分本来就用 oscillation 控制误差，oscillation 刻画的连续性能让两个理论无缝对话。</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 6.2 (不连续点集 $\Disc(f)$)</span>
+        <p>$$\Disc(f) := \{x \in A : f \text{ 在 } x \text{ 处不连续}\}.$$</p>
+        <p>等价地，$\Disc(f) = \{x : \lim_{r \to 0^+}\osc_{B_r(x_0)}(f) > 0\}$。</p>
+      </div>
+
+      <p>这是一个 <strong>子集</strong>，不是数值，也不是测度。Lebesgue 准则的内容就是把 $\Disc(f)$ 这个集合的<em>大小</em>用测度零的概念去衡量。</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 6.3 (几乎处处, almost everywhere)</span>
+        <p>称某个性质 $P(x)$ <strong>几乎处处成立</strong> (写作 "$P$ a.e." 或 "$P$ holds a.e.")，若集合 $\{x : P(x) \text{ 不成立}\}$ 是测度零的。</p>
+      </div>
+
+      <p>"a.e." 是 measure theory 最常用的语言之一: <em>除掉测度零的例外集后，性质 $P$ 处处成立</em>。本页里，"$f$ a.e. 连续"就是"$\Disc(f)$ 测度零"的同义改写。准则的核心结论就用这门语言表述。</p>
+
+      <!-- §4 主要定理 -->
+      <h2 id="theorems">§4 主要定理</h2>
+
+      <p>本节有两个主要结果。第一个是本页的中心 — <strong>Lebesgue 准则</strong>，把 Riemann 可积性翻译成 "$f$ a.e. 连续"。第二个是它的一个 algebra 层面应用 — <strong>正性引理</strong>，让我们能从 "$\int f = 0$" 直接得到 "$f = 0$ a.e."。</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 6.1 (Lebesgue 准则, H&amp;H Thm 4.1.13)</span>
+        <p>设 $f \colon A \to \R$ 在 $A \subset \R^n$ 上有界支集且有界。则
+        $$f \in \IR(\R^n) \quad \Longleftrightarrow \quad \Disc(f) \text{ 是测度零的}.$$
+        即: <em>有界函数 Riemann 可积当且仅当它几乎处处连续</em>。</p>
+      </div>
+
+      <p><strong>Proof sketch.</strong> 两个方向都依赖把 $\Disc(f)$ 用 <em>$\eps$-bad cube</em> 的语言重写: 对 $\eps > 0$, 定义 $B_\eps := \{x : \limsup_{r \to 0^+}\osc_{B_r(x)}(f) \ge \eps\}$ — 即 $x$ 处的局部振荡至少 $\eps$ 的点集。注意 $\Disc(f) = \bigcup_{k=1}^\infty B_{1/k}$。</p>
+
+      <p>"$\Rightarrow$" 方向: 设 $f$ Riemann 可积。要证每个 $B_{1/k}$ 测度零 (则可数 union 仍测度零, 即 $\Disc(f)$ 测度零)。固定 $k$, 用 Cauchy 准则: 存在 paving $\mathcal{P}$ 使 $U_{\mathcal{P}}(f) - L_{\mathcal{P}}(f) < \eps / k$. 那些"含 $B_{1/k}$ 点"的 cube 必须有 $\osc \ge 1/k$, 否则与 $B_{1/k}$ 的定义矛盾. 总 oscillation contribution $\ge (1/k) \cdot \vol(\text{这些 cube})$, 故这些 cube 的总体积 $< \eps$. $\eps$ 任意, $B_{1/k}$ 测度零.</p>
+
+      <p>"$\Leftarrow$" 方向: 设 $\Disc(f)$ 测度零，要证 $f$ 可积. 固定 $\eps$. 用 oscillation 把 $A$ 划分为 "good points" (邻域上 $\osc < \eps$) 和 "bad points" (即 $B_\eps$). 后者测度零 (因为 $B_\eps \subset \Disc(f)$), 可被有限多个开 box 覆盖且总 vol $< \eps$. Good points 的局部 $\eps$-邻域形成开覆盖, 用 compactness 取有限子覆盖. 合起来构造 paving 让 $U - L < \eps \cdot \vol(A) + 2M \cdot \eps$ ($M = \sup|f|$). 这是 Cauchy 准则要求的形式。</p>
+
+      <details>
+        <summary>展开完整证明 (技术细节)</summary>
+        <div class="details-body">
+          <p>完整证明见 H&amp;H §4.1 (Thm 4.1.13) 或 typed notes <code>Lec 3.2_notes.tex</code> 的 §4. 关键技术点:</p>
+          <ul>
+            <li><strong>Bad set 闭性</strong>: $B_\eps$ 是闭集 (因为 $x \mapsto \limsup \osc_{B_r(x)}$ 是上半连续). 闭 + 有界 + 测度零 $\Rightarrow$ 可用有限多 box 覆盖 (compactness).</li>
+            <li><strong>Good set 局部 oscillation 控制</strong>: 对 $x \notin B_\eps$, $\exists r_x > 0$ 使 $\osc_{B_{r_x}(x)}(f) < \eps$. 这族 $B_{r_x}(x)$ 覆盖 $A \setminus B_\eps$.</li>
+            <li><strong>Paving 拼装</strong>: 取一个充分细的 dyadic paving, 让每个 cube 要么完全在某个 good $B_{r_x}$ 里 ($\Rightarrow$ $\osc < \eps$), 要么落入 bad box 覆盖里 (总 vol $< \eps$, 各 cube $\osc \le 2M$).</li>
+            <li><strong>组装 $U - L$</strong>: $\sum_C \osc_C \cdot \vol(C) \le \eps \cdot \vol(A) + 2M\eps$. 取 $\eps$ 充分小即得 Cauchy 准则。</li>
+          </ul>
+          <p>这是 measure theory 课程中 "open cover + compactness + measure zero" 三件套的典型应用.</p>
+        </div>
+      </details>
+
+      <p>本准则的意义: <strong>可积性是一个 measure-theoretic 性质</strong>. 你可以一边手做 Riemann 积分一边脑里默念 "可积 = 几乎处处连续", 这比 Cauchy 准则更接近"事物的本质"。</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 6.2 (正性引理 / 积分严格正)</span>
+        <p>设 $f \in \IR(\R^n)$ 且 $f \ge 0$ a.e.. 则
+        $$\int_{\R^n} f \, dV = 0 \quad \Longleftrightarrow \quad f = 0 \text{ a.e.}$$
+        换言之: <em>非负可积函数的积分为零 $\Longleftrightarrow$ 函数几乎处处为零</em>。</p>
+      </div>
+
+      <p><strong>Proof sketch.</strong> "$\Leftarrow$" 显然: 若 $f = 0$ a.e., 把 $f$ 改成处处 $= 0$ 不改变积分 (因为差异在测度零集上), 而 $\int 0 = 0$.</p>
+
+      <p>"$\Rightarrow$" 反证: 假设 $\int f = 0$ 但 $f$ 不是 a.e. 为零. 则 $\{x : f(x) > 0\}$ 不是测度零, 故存在某个 $f(x_0) > 0$ 且 $x_0$ 是 $f$ 的连续点 (用 Thm 6.1: $\Disc(f)$ 测度零, 所以"严格正点 + 连续点"非空). 由 $x_0$ 处的连续性, $\exists$ 小球 $B_r(x_0)$ 使 $f(x) > f(x_0)/2$ 对所有 $x \in B_r(x_0)$. 那么 $\int f \ge (f(x_0)/2) \cdot \vol(B_r(x_0)) > 0$, 矛盾.</p>
+
+      <p>这个引理把 measure zero 的语言搭桥到 algebra 层面: 积分等式 $\int f = \int g$ 在 $f, g$ 都可积时， 等价于 $f = g$ a.e. (推论, 取 $h := |f - g|$ 套用). 这是 Lec 3.3 的核心 takeaway.</p>
+
+      <!-- §5 Worked Examples -->
+      <h2 id="examples">§5 Worked Examples</h2>
+
+      <div class="box example">
+        <span class="box-title">Example 6.1 (Dirichlet 函数, 经典反例)</span>
+        <p>令 $f(x) = \mathbf{1}_{\Q}(x)$ on $[0,1]$ — 有理点取 $1$, 无理点取 $0$. 我们用 Thm 6.1 论证 $f \notin \IR$.</p>
+        <p>$\Disc(f) = [0,1]$ — 任何一点的任何小邻域里都既有有理也有无理点, $\osc = 1 \ne 0$. 整个 $[0,1]$ 不是测度零集 (它的体积是 $1$; vol $0$ $\Rightarrow$ measure $0$ 但反之需要更多 — 这里 $[0,1]$ 体积 $1 \ne 0$, 不可能测度零). 故 $\Disc(f)$ <em>不是</em>测度零, 由 Lebesgue 准则 $f \notin \IR$.</p>
+      </div>
+
+      <p>Dirichlet 是 Lebesgue 准则不可积一侧的 textbook 例子. 它"坏到极致" — 处处不连续. 但 Thomae 函数告诉我们: <strong>处处不连续的 dense 子集</strong>不足以让函数不可积, 关键是不连续点集的<em>测度</em>.</p>
+
+      <div class="box example">
+        <span class="box-title">Example 6.2 (Thomae 函数, $\IR$ 不可少的明星例子)</span>
+        <p>定义 $f \colon [0,1] \to \R$ 为:
+        $$f(x) = \begin{cases} 1/q, &amp; x = p/q \in \Q \text{ (最简分数)}, \\ 0, &amp; x \notin \Q. \end{cases}$$</p>
+        <p><strong>断言</strong>: $\Disc(f) = \Q \cap [0,1]$, 因此 $\Disc(f)$ 可数, 测度零, 由 Lebesgue 准则 $f \in \IR$.</p>
+        <p><strong>证明 $\Disc(f) = \Q$</strong>:</p>
+        <ul>
+          <li><em>$\Q \subset \Disc(f)$</em>: 对 $x_0 = p/q$ 有理, $f(x_0) = 1/q > 0$. 但 $x_0$ 任意邻域包含无理点 $x$ 让 $f(x) = 0$. 故 $\osc \ge 1/q > 0$, $x_0 \in \Disc(f)$.</li>
+          <li><em>$\R \setminus \Q \subset (\Disc(f))^c$</em>: 对 $x_0$ 无理, $f(x_0) = 0$. 给 $\eps > 0$, 取 $N$ 使 $1/N < \eps$. 在 $[0,1]$ 中, 最简分母 $\le N$ 的有理数<strong>有限多</strong>个 (具体: 每个分母 $q \le N$ 最多 $q$ 个 numerator $\le q$). 取 $\delta$ 使 $B_\delta(x_0)$ 避开这些有限点. 则 $B_\delta(x_0) \cap \Q$ 的分子都 $> N$, 故 $f$ 在 $B_\delta(x_0)$ 内取值 $\le 1/N < \eps$. 即 $x_0$ 处连续.</li>
+        </ul>
+        <p>有趣的是 $f$ 在每个有理点不连续而在每个无理点连续 — 一个"间断点处处稠密但测度为零"的函数. 这恰好告诉我们: <strong>Riemann 可积不需要函数处处接近连续</strong>, 只需 dense 的不连续点集仍然"够稀疏" (在测度意义下).</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 6.3 (正性引理直接应用)</span>
+        <p>设 $f, g \in \IR(\R^n)$ 满足 $f \le g$ 处处, 且 $\int f = \int g$. 则 $f = g$ a.e.</p>
+        <p><strong>证</strong>: 令 $h := g - f \ge 0$ 处处. 由 Riemann 积分的线性, $h \in \IR$, $\int h = \int g - \int f = 0$. 由 Thm 6.2, $h = 0$ a.e., 即 $f = g$ a.e..</p>
+        <p>这个结论看似平凡, 但在 measure theory 教学里非常重要: 它意味着 Riemann 积分作为线性泛函在 "$=$ a.e." 这个等价关系下是<strong>单射</strong>的. 没有"两个本质不同的函数有相同积分"这种 pathology.</p>
+      </div>
+
+      <!-- §6 常见陷阱 -->
+      <h2 id="pitfalls">§6 常见陷阱</h2>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 6.1 — "可数 = 测度零 = 可积" 的过度概括</span>
+        <p>Lebesgue 准则告诉你 <em>$\Disc(f)$ 测度零 $\Rightarrow$ $f \in \IR$</em>, 但<strong>前提是 $f$ 有界</strong>. 没有有界性 hypothesis, Riemann 积分定义本身就不工作 (上和会无界). $f(x) = 1/x$ on $(0, 1]$ 处处连续 ($\Disc(f) = \emptyset$ 显然测度零), 但 $f$ 不可积 — 因为无界. </p>
+        <p><strong>记忆要点</strong>: 准则有<em>两个</em> hypothesis (有界 + 有界支集), 不能只查测度零就下结论.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 6.2 — 把 "$\Disc(f)$ 测度零" 误读为 "$f$ a.e. 可微"</span>
+        <p>$f$ a.e. 连续<strong>不蕴含</strong> $f$ a.e. 可微. Thomae 函数在所有无理点连续 (测度 $1$ 的集合), 但它在<strong>每一个</strong>无理点都不可微 — 因为周围太稠密的有理点搅扰. 可积性 (Lebesgue 准则的输出) 是个比可微弱得多的条件.</p>
+        <p>反之亦然: $f(x) = |x|$ 在 $0$ 处连续不可微; $f$ 在 $0$ 这一点是 <em>连续</em>点 — Lebesgue 准则的 "$\Disc$ 测度零" 与可微性毫无关系.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 6.3 — 用 Lebesgue 准则推 Lebesgue 可积性</span>
+        <p>Lebesgue 准则是 <strong>Riemann 可积性</strong>的准则, <strong>不是</strong> Lebesgue 可积性的准则. $\mathbf{1}_{\Q \cap [0,1]}$ (Dirichlet) 不满足 Lebesgue 准则 — 它不 Riemann 可积. 但它<em>是</em> Lebesgue 可积的 (Topic 12), 因为 Lebesgue 框架根本不要 $\Disc(f)$ 测度零这种 hypothesis.</p>
+        <p>初学者经常混淆 "Lebesgue 准则" (Riemann 可积性的判据) 和 "Lebesgue 积分" (一个新的 integral). <strong>同一个名字, 两个概念</strong>. 本页讨论的是前者.</p>
+      </div>
+
+      <!-- §7 练习 -->
+      <h2 id="exercises">§7 练习</h2>
+      <p>展开 <code>&lt;details&gt;</code> 查看答案 (建议先自己想 10 分钟再看).</p>
+
+      <div class="exercise">
+        <p><span class="ex-num">1.</span> 设 $f \colon [0,1] \to \R$ 由 $f(x) = \sin(1/x)$ for $x \ne 0$, $f(0) = 0$ 定义. 问 $f \in \IR([0,1])$ 吗? 用 Lebesgue 准则论证.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>是</strong>, $f \in \IR([0,1])$. $f$ 在 $(0, 1]$ 上是连续的初等函数复合, 在 $x = 0$ 处虽然 $f$ 的极限不存在 (强烈振荡), 但 $\Disc(f) = \{0\}$, 一个单点, 测度零. 又 $|f| \le 1$ 有界. 由 Lebesgue 准则 $f \in \IR$.</p>
+            <p>注意: 这里有意思的地方是 oscillation 在 $0$ 处可以是 $2$ (从 $-1$ 到 $1$ 全跨), 但 oscillation 大小不影响 Riemann 可积性 — 只有不连续点集的<strong>测度</strong>重要.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">2.</span> 给出 $f \colon [0,1] \to \R$ 的例子，满足 $f \in \IR$ 但 $\Disc(f)$ 是不可数的.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>令 $C \subset [0,1]$ 为 Cantor 集 (经典的"去掉中间三分"构造). $C$ 是不可数的, 但测度零 (它的标准构造在每一步去掉总长 $\frac{1}{3} + \frac{2}{9} + \cdots = 1$ 的内部).</p>
+            <p>取 $f := \mathbf{1}_C$. 则 $\Disc(f) = C$ — 不可数, 但测度零. $f$ 有界 ($\le 1$), 由 Lebesgue 准则 $f \in \IR$. 实际上 $\int_0^1 f\, dV = 0$ (Cantor 集体积为零).</p>
+            <p>这告诉我们: "不可数" 远远不等价于 "正测度". Cantor 集是这个差别的具象化.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">3.</span> 设 $f, g \in \IR(\R^n)$ 且 $f = g$ a.e.. 证 $\int_{\R^n} f = \int_{\R^n} g$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>令 $h := f - g$. 由线性 $h \in \IR$. 由 hypothesis, $\{x : h(x) \ne 0\}$ 测度零, 故 $|h| = 0$ a.e..</p>
+            <p>由 Thm 6.2 应用于 $|h| \ge 0$: $|h| = 0$ a.e. $\Rightarrow$ $\int |h| = 0$. 再用 $|\int h| \le \int |h| = 0$, 得 $\int h = 0$. 故 $\int f = \int g$.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">4.</span> ("证明或反例") 若 $f, g \in \IR(\R^n)$ 且 $f \ge g$ a.e. (但<strong>不</strong>处处), 是否仍有 $\int f \ge \int g$?</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>真</strong>, $\int f \ge \int g$. 关键: a.e. 不等式在积分下保持.</p>
+            <p>证: 令 $h := f - g$. 设 $E := \{x : h(x) < 0\}$ 测度零. 修改 $h$ 在 $E$ 上 (令它 $= 0$), 得到 $\tilde{h}$. 则 $\tilde{h} \ge 0$ 处处, 且 $\tilde{h} = h$ a.e.. 由 Exercise 3, $\int \tilde{h} = \int h$. 由非负函数的单调性 (Lec 2.1), $\int \tilde{h} \ge 0$. 故 $\int h \ge 0$, 即 $\int f \ge \int g$.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">5.</span> 找一个 $f \colon [0,1] \to \R$ 处处可定义、$|f| \le 1$、但 $f \notin \IR([0,1])$. (即: 处处有界还不够保证可积.)</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>Dirichlet 函数 $f = \mathbf{1}_{\Q}$ on $[0,1]$. 显然 $0 \le f \le 1$, 处处有界. 但 $\Disc(f) = [0,1]$ 不是测度零, 由 Lebesgue 准则 $f \notin \IR$.</p>
+            <p>这例子提醒我们: 有界性是必要条件但不充分. 真正的判据是 <strong>$\Disc(f)$ 的测度</strong>.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">6.</span> 设 $f \colon \R^n \to \R$ 有有界支集. 若 $f$ <em>仅在测度零集上</em>取非零值, 它一定可积吗?</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>不一定</strong>. 举反例: 取 $E = \Q \cap [0,1]$ (测度零), 定义 $f(p/q) = q$ for $p/q \in [0,1]$ 最简分数, $f$ 在无理点和 $[0,1]$ 外为 $0$. 这个 $f$ 仅在测度零集 $\Q$ 上非零, 但它<strong>无界</strong> ($f$ 可任意大), 不满足 Lebesgue 准则的有界 hypothesis. 故 $f \notin \IR$.</p>
+            <p>这道题的 takeaway: 测度零集本身是无害的, 但函数在那里能取多大才是关键. <em>有界</em> hypothesis 不可少.</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- §8 速查表 -->
+      <h2 id="cheat">§8 速查表</h2>
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def"><strong>$\Disc(f)$</strong>: $\{x : f \text{ 在 } x \text{ 处不连续}\} = \{x : \limsup_{r \to 0^+}\osc_{B_r(x)}(f) > 0\}$.</li>
+          <li class="cs-def"><strong>$P$ a.e.</strong>: $\{x : P(x) \text{ 不成立}\}$ 测度零.</li>
+          <li class="cs-thm"><strong>Lebesgue 准则 (Thm 6.1)</strong>: 有界 $f$ 有界支集 $\Rightarrow$ $f \in \IR$ $\Longleftrightarrow$ $\Disc(f)$ 测度零.</li>
+          <li class="cs-thm"><strong>正性引理 (Thm 6.2)</strong>: $f \ge 0$ a.e. $\Rightarrow$ ($\int f = 0$ $\Longleftrightarrow$ $f = 0$ a.e.).</li>
+          <li class="cs-thm"><strong>积分相等推 a.e. 相等</strong>: $f \le g$, $\int f = \int g$ $\Rightarrow$ $f = g$ a.e. (Thm 6.2 推论).</li>
+          <li class="cs-tech"><strong>判可积流程</strong>: (1) $f$ 是否有界且有界支集? (2) $\Disc(f)$ 测度零吗? 若两者都"是", $f \in \IR$.</li>
+          <li class="cs-tech"><strong>典型测度零集</strong>: 可数集、$k$-维子空间 ($k < n$)、Cantor 集、单点 — 都不阻碍可积.</li>
+          <li class="cs-pitfall"><strong>陷阱</strong>: 准则的 "$\Disc(f)$ 测度零" 必须配合 "$f$ 有界". 没有有界, $1/x$ 处处连续仍不可积.</li>
+          <li class="cs-pitfall"><strong>命名陷阱</strong>: "Lebesgue 准则" $\ne$ "Lebesgue 积分". 前者是 Riemann 可积的判据 (本页), 后者是另一种积分 (Topic 12).</li>
+        </ul>
+      </div>
+
+      <!-- §9 进一步阅读 -->
+      <h2 id="further">§9 进一步阅读</h2>
+      <ul>
+        <li><strong>H&amp;H 教材</strong>: §4.1, 特别是 Thm 4.1.13 (Lebesgue 准则). Section 4.4 有正性引理相关讨论.</li>
+        <li><strong>Typed lecture notes</strong>:
+          <ul>
+            <li><code>../../Notes/Typed/3.2_notes/3.2_notes.pdf</code> — Lebesgue 准则证明全细节</li>
+            <li><code>../../Notes/Typed/3.3_notes/3.3_notes.pdf</code> — 正性引理 + 应用</li>
+          </ul>
+        </li>
+        <li><strong>关联 review topics</strong>:
+          <ul>
+            <li><a href="05-measure-zero-basics.html">Topic 05</a>: 测度零的<em>定义</em>和基本性质 (本页的前置)</li>
+            <li><a href="03-algebra-properties.html">Topic 03</a>: $f^+$, $f^-$, $|f|$ 与单调性 — 本页 Thm 6.2 用到</li>
+            <li><a href="12-lebesgue-construction.html">Topic 12</a>: Lebesgue <em>积分</em> 构造 — 它用 "a.e." 语言更彻底</li>
+            <li><a href="13-well-definedness.html">Topic 13</a>: Lebesgue 良定性证明 — 也用 measure zero + dyadic 论证</li>
+          </ul>
+        </li>
+        <li><strong>同主题外读</strong>: Royden &amp; Fitzpatrick, <em>Real Analysis</em>, Ch 5 — 标准 measure theory 处理 a.e. 概念</li>
+      </ul>
+
+      <hr style="margin: 60px 0 20px; border: 0; border-top: 1px solid #d8d3c4;">
+      <p style="font-size: 13px; color: #888; text-align: center;">MATH 31CH 复习指南 · Topic 06 · Phase 1 POC</p>
+
+    </main>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MT2-C: §4.11 Lebesgue 积分 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\diam': '\\operatorname{diam}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|',
+        '\\trunc': '\\left[#1\\right]_R'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="MT2-B_nonlinear_cov.html">MT2-B</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="MT2-practice.html">MT2 Practice</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#cheatsheet">§1 速查表</a></li>
+        <li><a href="#theorems">§2 关键定理 + 重证</a></li>
+        <li><a href="#problem-types">§3 题型聚簇</a></li>
+        <li><a href="#pitfalls">§4 常考陷阱</a></li>
+        <li><a href="#textbook-index">§5 课本例题速查</a></li>
+        <li><a href="#exercises">§6 模拟练习</a></li>
+        <li><a href="#crossref">§7 Topics cross-reference</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>MT2-C: Lebesgue 积分的构造与性质</h1>
+      <p class="subtitle">H&amp;H §4.11 · Lec 6.2, 7.1, 7.2, 7.3 · MT2 复习 · 配套 <a href="../topics/11-limits-riemann.html">Topic 11</a>, <a href="../topics/12-lebesgue-construction.html">12</a>, <a href="../topics/13-well-definedness.html">13</a>, <a href="../topics/14-lebesgue-properties.html">14</a></p>
+
+      <!-- §1 -->
+      <h2 id="cheatsheet">§1 速查表</h2>
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def"><strong>记号</strong>: $\IR(\R^n)$ Riemann 可积类; $\IL(\R^n)$ Lebesgue 可积类. $\IR \subsetneq \IL$ (严格), 两个积分在 $\IR$ 上数值一致.</li>
+          <li class="cs-def"><strong>一致收敛 (uniform)</strong>: $\forall \eps,\ \exists N,\ \forall x,\ \forall k>N:\ |f_k(x)-f(x)|<\eps$. $N$ 与 $x$ <em>无关</em>.</li>
+          <li class="cs-def"><strong>逐点收敛 (pointwise)</strong>: $\forall x,\ \forall \eps,\ \exists N_x,\ \forall k>N_x:\ |f_k(x)-f(x)|<\eps$. $N_x$ <em>可</em>依赖 $x$. 量词次序差一档.</li>
+          <li class="cs-def"><strong>砖块分解 (brick decomposition)</strong>: $f \in \IL$ iff $\exists (f_k) \subset \IR$, $\sum_k \int|f_k|\,dV < \infty$, $\sum_k f_k =_L f$; 此时 $\int f\,dV_L := \sum_k \int f_k\,dV$.</li>
+          <li class="cs-def"><strong>$=_L$ 等价</strong>: $\sum_k f_k =_L \sum_k g_k$ iff $\sum_k f_k(x) = \sum_k g_k(x)$ <em>a.e.</em> (不是处处).</li>
+          <li class="cs-thm"><strong>Thm C.1 (Uniform Conv → swap, H&amp;H §4.11)</strong>: $(f_k) \subset \IR$, 公共有界 $\supp f_k \subset B$, $f_k \xrightarrow{uni} f$ ⟹ $f \in \IR$ <em>(白送!)</em> 且 $\lim \int f_k = \int f$.</li>
+          <li class="cs-thm"><strong>Thm C.2 (DCT for Riemann, H&amp;H Thm 4.11.6)</strong>: $(f_k) \subset \IR$ 公共有界 $B_R(0)$, $|f_k| < M$ uniform, <em>$f \in \IR$ 假设</em>, $f_k \to f$ a.e. ⟹ $\int f_k \to \int f$. (注: $f\in\IR$ 是<em>付费</em> hypothesis.)</li>
+          <li class="cs-thm"><strong>Thm C.3 (Beppo-Levi 命题)</strong>: $\sum_k \int|f_k| < \infty$ ⟹ $\sum_k f_k(x)$ <em>a.e.</em> 收敛. Chebyshev cutoff 论证.</li>
+          <li class="cs-thm"><strong>Thm C.4 (良定性, H&amp;H Thm 4.11.5)</strong>: 两个合法砖块分解给同一 $\int f\,dV_L$. 证明: 截断 $\trunc{H_l}$ + Cauchy-tail + dyadic A/B 分裂 + Markov + DCT, 总账 $|\int H_l| < 6\eps$.</li>
+          <li class="cs-thm"><strong>Thm C.5 (初等性质)</strong>: (a) <em>线性</em>: $af+bg \in \IL$; (b) <em>与 bounded $\IR$ 乘积</em>: $f \in \IL$, $g \in \IR$ 有界 ⟹ $fg \in \IL$; (c) <em>单调</em>: $f \le_L g$ ⟹ $\int f \le \int g$; (d) <em>三角</em>: $|\int f| \le \int |f|$. <strong>不</strong>含一般乘积.</li>
+          <li class="cs-tech"><strong>构造 $f \in \IL$ 流程</strong>: (1) 找 $(f_k) \subset \IR$ 使 $\sum f_k = f$ a.e.; (2) 验证 $\sum \int|f_k| < \infty$. 二者皆 ✓ ⟹ $f \in \IL$, $\int f\,dV_L = \sum \int f_k$.</li>
+          <li class="cs-tech"><strong>Dirichlet 砖块</strong>: $\mathbf{1}_{\Q\cap[0,1]} \in \IL \setminus \IR$. $f_k := \mathbf{1}_{\{a_k\}}$ (单点指示), $\int f_k = 0$ ∀$k$, $\int_L = 0$. 治 "太不连续".</li>
+          <li class="cs-tech"><strong>$-\ln x$ 砖块</strong>: $-\ln x\cdot\mathbf{1}_{(0,1]} \in \IL \setminus \IR$ (无界!). 用 dyadic $I_k = (1/2^k, 1/2^{k-1}]$, $\sum \int|f_k| = 1$ via 两 telescoping, $\int_L = 1$. 治 "太无界".</li>
+          <li class="cs-tech"><strong>$1/\sqrt{|x|}$ 砖块</strong>: $\mathbf{1}_{[-1,1]}/\sqrt{|x|} \in \IL$, $\int_L = 4$ (dyadic 切, 几何级数 $\sum 2^{-k/2}$).</li>
+          <li class="cs-pitfall"><strong>反例: traveling box</strong> $f_k = \mathbf{1}_{[k,k+1]}$: pointwise → 0, $\int f_k = 1$ ∀$k$. mass 逃 $\infty$. 破坏 H1 + H2.</li>
+          <li class="cs-pitfall"><strong>反例: tall thin spike</strong> $f_k = k\,\mathbf{1}_{(0,1/k]}$: pointwise → 0, $\int = 1$ ∀$k$. mass 集中 $0$. 仅破坏 H2.</li>
+          <li class="cs-pitfall"><strong>反例: cumulative Dirichlet</strong> $f_k = \mathbf{1}_{\{a_1,\ldots,a_k\}}$: pointwise → Dirichlet $\notin \IR$, $\int f_k = 0$ ∀$k$. $\int\lim$ 在 Riemann 意义<em>无定义</em> — 比上两个反例更恶劣.</li>
+          <li class="cs-pitfall"><strong>反例: $\IL$ 不对乘积封闭</strong>: $f = \mathbf{1}_{[-1,1]}/\sqrt{|x|} \in \IL$ 但 $f^2 = \mathbf{1}_{[-1,1]}/|x| \notin \IL$ (log 发散).</li>
+          <li class="cs-pitfall"><strong>陷阱</strong>: DCT for Riemann 要求 $f \in \IR$ <em>upfront</em>, 不送 — 与 Thm C.1 (送 $f\in\IR$) 不同.</li>
+          <li class="cs-pitfall"><strong>陷阱</strong>: 绝对求和条件是 $\sum \int |f_k| < \infty$ (绝对值在<em>积分内</em>!), 不是 $\sum |\int f_k| < \infty$.</li>
+          <li class="cs-pitfall"><strong>陷阱</strong>: "Lebesgue 准则" (Topic 06, $\IR$ 判据) ≠ "Lebesgue 积分" (本页). Dirichlet 前者不满足, 后者满足.</li>
+        </ul>
+      </div>
+
+      <div class="box remark">
+        <span class="box-title">🆕 Practice MT2 高频定理 (黑箱, H&amp;H §4.11 更深一层)</span>
+        <p>Practice MT2 显式 require 两条"黑箱"定理 — lecture 没专门讲, 作 black box 引用. 在本页 <a href="#thm-C-6">Thm C.6</a> (MCT for Lebesgue) 与 <a href="#thm-C-7">Thm C.7</a> (DCT for Lebesgue) 给完整 formal statement; 4 个高频推论 (Fatou, Fatou for a.e. limit, Generalized DCT, Scheffé) 列在 Thm C.7 后. </p>
+        <p>⚠ <strong>Thm C.6 (Lebesgue MCT) 和你熟悉的实数列 MCT 不是一回事</strong>: 后者是"单调有界数列必有极限"; 前者是函数版升级 — 保证极限函数 $f \in \IL$ 且 $\int f = \lim \int f_k$. 详见 Thm C.6 后的对照 remark.</p>
+      </div>
+
+      <!-- §2 -->
+      <h2 id="theorems">§2 关键定理 + 极简重证</h2>
+
+      <p>本页五个核心结果按逻辑顺序排列: <strong>Thm C.1</strong> (一致收敛 → 极限交换, 仍在 Riemann 框架内) 给一个 baseline; <strong>Thm C.2</strong> (DCT for Riemann) 弱化 hypothesis 但要付费; <strong>Thm C.3</strong> (Beppo-Levi) 保证砖块分解的 a.e.-级数有意义; <strong>Thm C.4</strong> (良定性) 是 Daniell-Stone 构造的核心齿轮; <strong>Thm C.5</strong> 是新积分的初等代数性质 + 关键反例.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem C.1 (Uniform Convergence Theorem, ≡ Topic 11 Thm 11.1 / H&amp;H §4.11)</span>
+        <p>设 $(f_k) \subset \IR(\R^n)$ 满足:
+        <strong>(H1)</strong> 公共有界支集 — $\exists$ pavable 有界 $B$ 使 $\supp(f_k) \subseteq B$ ∀$k$;
+        <strong>(H2)</strong> 一致收敛 — $f_k \xrightarrow{uni} f$.
+        则 (I) $f \in \IR(\R^n)$ <em>(自动)</em>; (II) $\lim_k \int f_k\,dV = \int f\,dV$.</p>
+      </div>
+
+      <p><strong>30-sec 重证骨架</strong> (5 步, $\eps$-夹逼 + Cauchy 准则):</p>
+      <ol>
+        <li><strong>全局 $\eps$ sandwich</strong>: 由 (H2) 取 $N$ 使 $\sup_x|f_k - f| < \eps$ 对所有 $k > N$, 即 $f_k - \eps < f < f_k + \eps$ 对所有 $x$ 同时.</li>
+        <li><strong>下界</strong>: 对 dyadic cube $C$ 取 $\inf$ 得 $\inf_C f_k - \eps \le \inf_C f$, 乘 $\vol_n(C)$ 累加: $L_K(f_k) - \eps\vol_n(B) \le L_K(f)$.</li>
+        <li><strong>上界</strong>: 取 $\sup$ 累加: $U_K(f) \le U_K(f_k) + \eps\vol_n(B)$.</li>
+        <li><strong>Cauchy 准则锁住 (I)</strong>: 相减并取 $k = N+1$: $U_K(f) - L_K(f) \le (U_K(f_{N+1}) - L_K(f_{N+1})) + 2\eps\vol_n(B)$. $f_{N+1} \in \IR$ 故第一项 → 0, 全式 $< \eps(1 + 2\vol_n(B))$, 由 $\eps$ 任意 $f \in \IR$.</li>
+        <li><strong>$K \to \infty$ 给 (II)</strong>: 在 (1)(2) 中令 $K \to \infty$, 得 $|\int f_k - \int f| \le \eps\vol_n(B)$ ∀$k > N$, 即 $\int f_k \to \int f$. ✓</li>
+      </ol>
+
+      <p>详证: <a href="../topics/11-limits-riemann.html">Topic 11 §4 Thm 11.1</a>; lecture 6.2; H&amp;H §4.11 开篇.</p>
+
+      <p><strong>每个假设用在哪</strong>: (H2) 是 Step 1 全局 $\eps$ 起作用的依据 (一个 $N$ 通用 $\forall x$, pointwise 不行); (H1) 是 Step 2-3 把 $\sum_C \vol(C)$ 收敛成 $\vol(B) < \infty$; $f_k \in \IR$ 用在 Step 4 Cauchy 准则 + Step 5 $L_K, U_K \to \int$.</p>
+
+      <div class="box remark">
+        <span class="box-title">Remark — Uniform 也保<em>连续性</em> (姐妹定理)</span>
+        <p>同一个 "uniform 把 $\eps$-管道里的好性质 transfer 到 limit" 思想还给出一条经典实分析定理: $f_k$ 都连续 + $f_k \xrightarrow{\text{uni}} f$ ⟹ $f$ 连续 (经典 $\eps/3$ trick: $|f(x) - f(x_0)| \le |f - f_k|(x) + |f_k(x) - f_k(x_0)| + |f_k - f|(x_0)$, 前后两项由 uniform 选 $k$, 中间项由 $f_k$ 连续选 $\delta$).</p>
+        <p><strong>Pointwise 不够</strong> — 反例 $f_k(x) = x^k$ on $[0,1]$: 每个连续, 但 pointwise 极限 $f(x) = \mathbf{1}_{\{x=1\}}$ 在 1 处不连续.</p>
+        <p>详见 <a href="../topics/11-limits-riemann.html">Topic 11</a> §3 Remark 11.1 (含完整 $\eps/3$ 证明 + 第二个反例 + Banach space 视角). 跟本页 Thm C.1 是用同一招对付两件 nice 性质 (连续性 / Riemann 可积性) 的姐妹定理.</p>
+      </div>
+
+      <div class="box thm">
+        <span class="box-title">Theorem C.2 (DCT for Riemann, ≡ Topic 12 Thm 12.1 / H&amp;H Thm 4.11.6)</span>
+        <p>设 $(f_k) \subset \IR(\R^n)$ 满足:
+        <strong>(i)</strong> 公共有界支集 — $\supp(f_k) \subset B_R(0)$ ∀$k$;
+        <strong>(ii)</strong> uniform 点态界 — $|f_k(x)| < M$ ∀$k, x$;
+        <strong>(iii)</strong> $f \in \IR(\R^n)$ <em>(已知假设, 不送!)</em>;
+        <strong>(iv)</strong> $f_k \to f$ a.e.
+        则 $\lim_k \int f_k\,dV = \int f\,dV$.</p>
+      </div>
+
+      <p><strong>30-sec 解读</strong> (不证, 本课黑箱): 与 Thm C.1 对照, hypothesis 一弱一强:</p>
+      <ul>
+        <li>$\xrightarrow{uni} f$ 削弱为 $\to f$ a.e. — 真的弱化.</li>
+        <li>但 $f \in \IR$ 从 "白送" 变成 "假设" — 这是<em>付费</em>: 不能从 a.e. 收敛免费推 $f \in \IR$ (Dirichlet 反例).</li>
+        <li>"Dominated" = 公共支集 $B_R$ + 点态界 $M$ 合起来由 dominator $M \cdot \mathbf{1}_{B_R(0)} \in \IR$ 控制.</li>
+      </ul>
+
+      <p>详证: H&amp;H §4.11 (技术核心, 本课不证); see also <a href="../topics/12-lebesgue-construction.html">Topic 12 Thm 12.1</a>. 在本页中 Thm C.2 是 Thm C.4 (良定性) 的<em>引擎</em>.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem C.3 (Beppo-Levi 型命题, ≡ Topic 12 Thm 12.2)</span>
+        <p>设 $(f_k) \subset \IR(\R^n)$ 满足 $\sum_k \int_{\R^n}|f_k|\,dV < \infty$. 则 $\sum_k f_k(x)$ 对几乎所有 $x \in \R^n$ 收敛.</p>
+      </div>
+
+      <p><strong>30-sec 重证骨架</strong> (Chebyshev cutoff):</p>
+      <ol>
+        <li>设 $S_N(x) := \sum_{k=1}^N |f_k(x)| \in \IR$, $S_N \uparrow$ (pointwise 单调递增).</li>
+        <li>$\int S_N = \sum_{k=1}^N \int|f_k| \le \sum_k \int|f_k| =: C < \infty$.</li>
+        <li>令 $E := \{x: \lim_N S_N(x) = +\infty\}$. Markov: $\vol_n\{S_N > \lambda\} \le \int S_N/\lambda \le C/\lambda$.</li>
+        <li>$\lambda \to \infty$ 得 $\vol_n(E) = 0$ (在测度零的覆盖意义下).</li>
+        <li>故 $\sum_k|f_k(x)| < \infty$ a.e., 绝对收敛 ⟹ 收敛 ⟹ $\sum_k f_k(x)$ a.e. 收敛.</li>
+      </ol>
+
+      <p><strong>意义</strong>: 这是砖块分解定义 (Topic 12 Def 12.3) 的"语法保证" — 没有它, $\sum_k f_k$ 作为 a.e. 定义的函数<em>没意义</em>. 详证: <a href="../topics/12-lebesgue-construction.html">Topic 12 §4 Thm 12.2</a>.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem C.4 (Lebesgue 积分良定性, ≡ Topic 13 Thm 13.1 / H&amp;H Thm 4.11.5)</span>
+        <p>设 $(f_k), (g_k) \subset \IR(\R^n)$ 两族绝对求和砖块序列, 且 $\sum_k f_k = \sum_k g_k$ a.e. 则
+        $$\sum_{k=1}^\infty \int_{\R^n} f_k\,dV \;=\; \sum_{k=1}^\infty \int_{\R^n} g_k\,dV.$$
+        即 $\int f\,dV_L$ <em>不依赖</em>于砖块分解的选择.</p>
+      </div>
+
+      <p><strong>30-sec 重证骨架 (TRUNCATION 套路, 5 步)</strong>:</p>
+      <ol>
+        <li><strong>简化为齐次</strong>: 令 $h_k := f_k - g_k$. 则 $(h_k) \subset \IR$, $\sum \int|h_k| < \infty$, $\sum h_k = 0$ a.e. 要证 $\sum \int h_k = 0$, 即 $\lim_l \int H_l = 0$ 其中 $H_l := \sum_{k=1}^l h_k$.</li>
+        <li><strong>选 $M$: Cauchy-tail (⋆)</strong> 取 $M$ 使 $\sum_{k>M}\int|h_k| < \eps$, 故 $\int|H_l - H_M| < \eps$ ∀$l>M$.</li>
+        <li><strong>选 $R$ + 截断</strong>: $H_M$ 有界 $\le K$ 且 $\supp \subset B_{R_1}(0)$, 取 $R := \max(R_1, 2K+1)$. 定义截断 $\trunc{H_l}$ (Def 13.1): 在 $B_R(0)$ 外为 0, 内部夹到 $[-R,R]$. 则 $\supp \subset \overline{B_R(0)}$, $|\trunc{H_l}| \le R$ — DCT 假设 ✓. 又 $\trunc{H_l} \to 0$ a.e. (球外恒零; 球内最终 $|H_l| \le R$ 故 $\trunc{H_l} = H_l \to 0$). 应用 Thm C.2 (DCT for Riemann): $\int \trunc{H_l} \to 0$, 故 $|\int\trunc{H_l}| < \eps$ eventually.</li>
+        <li><strong>Dyadic A/B 分裂 + Markov</strong>: 选 $N$ 使 $U_N(|H_l - H_M|) < \eps$ on $B_R(0)$. 分 $\mathcal{D}_N(B_R(0)) = \mathcal{A} \sqcup \mathcal{B}$ 其中 $\mathcal{A} := \{C: M_C(|H_l-H_M|) > R/2\}$. <em>Markov</em>: $(R/2)\vol_n(\mathcal{A}) \le U_N < \eps$ 给 $\vol_n(\mathcal{A}) < 2\eps/R$. <em>$\mathcal{B}$ 上</em>: $|H_l|\le |H_M|+R/2 \le R/2+R/2 = R$ a.e., 故 truncation invisible, $\int_\mathcal{B}|\trunc{H_l} - H_M| = \int_\mathcal{B}|H_l - H_M| \le (\star) < \eps$. <em>$\mathcal{A}$ 上</em>: 粗略 $|\trunc{H_l} - H_M| \le R + R/2 = 3R/2$, 故 $\int_\mathcal{A} \le (3R/2)(2\eps/R) = 3\eps$. 合: $\int|\trunc{H_l} - H_M| < 4\eps$.</li>
+        <li><strong>三角拼装</strong>: $\int|H_l - \trunc{H_l}| \le \int|H_l - H_M| + \int|\trunc{H_l} - H_M| < \eps + 4\eps = 5\eps$. 配合 (3) 的 $|\int\trunc{H_l}| < \eps$: $|\int H_l| < \eps + 5\eps = 6\eps$. $\eps$ 任意 ⟹ $\int H_l \to 0$. ✓</li>
+      </ol>
+
+      <p>ε 总账: $1$ (DCT) $+ 1$ ($\star$ pivot) $+ 1$ ($\mathcal{B}$) $+ 3$ ($\mathcal{A}$) $= 6\eps$. 详证: <a href="../topics/13-well-definedness.html">Topic 13 §5 Example 13.1</a>; lectures 7.2 + 7.3 (前半).</p>
+
+      <p><strong>两个直接 corollary</strong>: (a) $\int f\,dV_L$ 良定; (b) $\IR \subset \IL$ 且积分一致 (取平凡分解 $f_1 := f, f_k := 0$ for $k \ge 2$).</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem C.5 (初等性质, grouped, ≡ Topic 14 Prop 14.1-14.3 + Ex 14.2)</span>
+        <p>设 $f, g \in \IL(\R^n)$, $a, b \in \R$. 则:</p>
+        <ol>
+          <li><strong>(线性)</strong> $af + bg \in \IL$, $\int(af+bg)\,dV_L = a\int f\,dV_L + b\int g\,dV_L$.</li>
+          <li><strong>(乘积 with bounded $\IR$)</strong> 若 $g \in \IR(\R^n)$ 有界 ($\sup|g| \le M$), 则 $fg \in \IL$.</li>
+          <li><strong>(单调)</strong> $f \le_L g$ (i.e., $f \le g$ a.e.) ⟹ $\int f\,dV_L \le \int g\,dV_L$. 推论: $|\int f| \le \int|f|$.</li>
+          <li><strong>(<em>反</em>乘积闭性)</strong> 一般 $f, g \in \IL \not\Rightarrow fg \in \IL$. 反例: $f = \mathbf{1}_{[-1,1]}/\sqrt{|x|} \in \IL$ 但 $f^2 = \mathbf{1}_{[-1,1]}/|x| \notin \IL$.</li>
+        </ol>
+      </div>
+
+      <p><strong>30-sec 重证骨架</strong> (所有正面项都是"砖块拼装"风格):</p>
+      <ul>
+        <li><strong>(1) 线性</strong>: $(f_k), (g_k)$ 是 $f, g$ 砖块 ⟹ $h_k := af_k + bg_k \in \IR$, $\sum\int|h_k| \le |a|\sum\int|f_k| + |b|\sum\int|g_k| < \infty$, $\sum h_k = af + bg$ a.e. 由良定性 (Thm C.4) 积分为 $a\sum\int f_k + b\sum\int g_k$. ✓</li>
+        <li><strong>(2) Bounded $\IR$ 乘积</strong>: $(f_k g) \subset \IR$ ($\IR \times \IR$ 闭 by Lec 3.3, 两因子都有界); $|f_k g| \le M|f_k|$ ⟹ $\sum\int|f_k g| \le M\sum\int|f_k| < \infty$; $\sum f_k(x)g(x) = g(x)\sum f_k(x) = g(x)f(x)$ a.e. ✓ 关键: $g$ 有界把无穷级数控制在 $f$ 砖块预算之内.</li>
+        <li><strong>(3) 单调</strong>: 由 (1) 化为正性 $h \ge 0$ a.e. $\Rightarrow \int h \ge 0$. 关键引理 (本课 sketch): 每个 $h \ge 0$ a.e. 都有<em>非负砖块分解</em> $(\tilde h_k \ge 0$ a.e.$)$, 然后 $\int \tilde h_k \ge 0$ (Riemann 单调) 求和给 $\int h \ge 0$.</li>
+        <li><strong>(4) 反例 (∉ 乘积)</strong>: $f = \mathbf{1}_{[-1,1]}/\sqrt{|x|}$ 用 dyadic $I_k = (1/2^k, 1/2^{k-1}]$ 给砖块, $\sum\int|f_k| = 4(\sqrt 2 - 1)\sum 2^{-k/2} = 4 < \infty$; 而 $f^2 = \mathbf{1}_{[-1,1]}/|x|$ 同切法每块 $\int|\phi_k| = 2\ln 2$ 常数, $\sum = \infty$. 详见 Example C.5.</li>
+      </ul>
+
+      <p>详证: <a href="../topics/14-lebesgue-properties.html">Topic 14 §4 Prop 14.1-14.3 + §5 Ex 14.2</a>; lecture 7.3 (后半); H&amp;H §4.11.</p>
+
+      <p><strong>Riemann vs Lebesgue 代数对照</strong>:</p>
+      <ul>
+        <li>线性: $\IR$ ✓ / $\IL$ ✓</li>
+        <li>$|f|$ 可积: $\IR$ ✓ / $\IL$ ✓</li>
+        <li>乘积 (一般): $\IR$ ✓ (Lec 3.3) / $\IL$ <strong>✗</strong> (Ex C.5)</li>
+        <li>乘积 (一个有界): $\IR\times\IR$ ✓ / $\IL\times(\IR\text{ bounded})$ ✓ (Prop)</li>
+        <li>单调: $\IR$ ✓ / $\IL$ ✓ (技术稍多)</li>
+      </ul>
+
+      <p>差异聚焦在 "一般乘积" — 这正是 $\IL$ 容纳无界函数的代价.</p>
+
+      <h3 id="lebesgue-mct-dct">§2.5 黑箱定理: Lebesgue MCT &amp; DCT</h3>
+
+      <p>本课 lecture 没专门证下面两条定理 (H&amp;H §4.11 末尾), 但 Practice MT2 (Problem 1, 2, 3, 8, 9) 全部依赖它们. 这里把 formal statement 完整列出 — Thm C.6 (MCT) 是新的 limit-integral interchange 主力, 比 Thm C.1 (uniform convergence) 弱假设; Thm C.7 (DCT) 比 Thm C.2 (DCT for Riemann) 强结论 (不需要 $f \in \IR$ upfront).</p>
+
+      <div class="box thm" id="thm-C-6">
+        <span class="box-title">Theorem C.6 (MCT for Lebesgue, H&amp;H Thm 4.11.18)</span>
+        <p><strong>(单调递增版)</strong> 设 $(f_k) \subset \IL(\R^n)$ 满足:
+        <strong>(H1)</strong> $0 \le f_1 \le_L f_2 \le_L \cdots$ (即每一对 $f_k \le f_{k+1}$ a.e.);
+        <strong>(H2)</strong> $\sup_k \int f_k\,dV_L < \infty$.
+        则 (I) pointwise (a.e.) 极限 $f := \lim_k f_k \in \IL(\R^n)$; (II) $\int f\, dV_L = \sup_k \int f_k\,dV_L = \lim_k \int f_k\,dV_L$.</p>
+        <p><strong>(单调递减版, ≡ <a href="MT2-practice.html#p3">Practice MT2 Problem 3</a>)</strong> 设 $(f_k) \subset \IL$, $f_k \downarrow f$ a.e., $\int f\,dV_L > -\infty$ (或等价: 任一 $\int f_k$ 有限). 则 $\lim_k \int f_k\,dV_L = \int f\,dV_L$.
+        <em>证</em>: 用 $h_k := f_1 - f_k$ 翻转成单调增, 套递增版.</p>
+      </div>
+
+      <div class="box remark">
+        <span class="box-title">⚠ 别和"实数列 MCT"搞混</span>
+        <p>另一个同名定理 — <strong>实数列 MCT</strong> ("单调有界数列必有极限") — 是<em>实数序列</em>的结果, 不是函数列. Thm C.6 是它的<em>函数版升级</em>: 实数列 MCT 只保证 $(\int f_k)$ 这个<em>数列</em>收敛, 但 Thm C.6 多给出 <strong>(I) 极限函数 $f \in \IL$</strong> 与 <strong>(II) 积分号与极限可交换</strong>, 这才是真正非平凡的两步.</p>
+        <p>实际上 Thm C.6 的证明内部确实用到了实数列 MCT (来断言 $\lim_k \int f_k$ 存在), 但仅作为一小步.</p>
+      </div>
+
+      <div class="box thm" id="thm-C-7">
+        <span class="box-title">Theorem C.7 (DCT for Lebesgue, H&amp;H Thm 4.11.19)</span>
+        <p>设 $(f_k) \subset \IL(\R^n)$ 满足:
+        <strong>(H1)</strong> $f_k \to f$ a.e.;
+        <strong>(H2)</strong> $\exists F \in \IL(\R^n)$ ("dominator") 使 $\abs{f_k} \le_L F$ ∀$k$.
+        则 (I) $f \in \IL(\R^n)$; (II) $\lim_k \int \abs{f_k - f}\,dV_L = 0$, 特别地 $\lim_k \int f_k\,dV_L = \int f\,dV_L$.</p>
+        <p><strong>与 Thm C.2 (DCT for Riemann) 的区别</strong>: 后者要求 $f \in \IR$ <em>upfront</em>; Thm C.7 自动给出 $f \in \IL$, 不送假设. 反过来说: 在 Riemann 框架内 DCT 不能用来证明<em>新</em>的函数可积, 只能交换<em>已知</em>可积函数的极限和积分; Lebesgue 版本同时完成两件事.</p>
+      </div>
+
+      <p><strong>4 个推论 (Practice MT2 高频出题点)</strong>:</p>
+      <ul>
+        <li><strong>Fatou 引理</strong> (consequence of MCT, ≡ <a href="MT2-practice.html#p1">Problem 1</a>): $f_k \ge 0$ in $\IL$ ⟹ $\int\liminf f_k \le \liminf\int f_k$. 证: 令 $g_k := \inf_{j\ge k} f_j$, 单调增, 套 Thm C.6.</li>
+        <li><strong>Fatou for a.e. limit</strong> (≡ <a href="MT2-practice.html#p2">Problem 2</a>): $f_k \to f$ a.e. + $f \in \IL$ ⟹ $\int f \le \liminf\int f_k$. 直接套 Fatou.</li>
+        <li><strong>Generalized DCT</strong> (≡ <a href="MT2-practice.html#p8">Problem 8</a>): 变 dominator $g_k\to g$ + $\int g_k\to\int g$ + $\abs{f_k}\le g_k$ ⟹ $\int f_k\to\int f$. 证: Fatou 双侧 ($g_k - f_k \ge 0$, $g_k + f_k \ge 0$).</li>
+        <li><strong>Scheffé</strong> (≡ <a href="MT2-practice.html#p9">Problem 9</a>): $f_k \to f$ a.e. + $\int\abs{f_k}\to\int\abs{f}$ ⟺ $\int\abs{f_k - f}\to 0$. 证: $h_k := \abs{f_k - f} - \abs{f_k} + \abs{f} \ge 0$, $\le 2\abs{f}$, 套 Thm C.7.</li>
+      </ul>
+
+      <p><strong>原始引用</strong>: Thm 4.11.18 与 Thm 4.11.19 在 H&amp;H §4.11 末尾, 证明依赖 Daniell-Stone 构造 + 良定性 (Thm C.4) + Beppo-Levi (Thm C.3). 本课不展开证明, 当 black box 使用.</p>
+
+      <!-- §3 -->
+      <h2 id="problem-types">§3 题型聚簇</h2>
+
+      <p>本页出题主要在五个聚簇: <strong>(I)</strong> 判 $f \in \IR$ vs $\in \IL\setminus\IR$ vs $\notin\IL$; <strong>(II)</strong> 给定 $f$, 构造砖块分解; <strong>(III)</strong> 用 DCT for Riemann (Thm C.2) 交换极限/积分; <strong>(IV)</strong> 构造极限-积分交换的反例 (mass concentration / mass escape); <strong>(V)</strong> 用初等性质 (linearity, bounded product, monotonicity) 推论或反驳.</p>
+
+      <h3 id="cluster-r-vs-l">§3.1 决定 $\IR$ vs $\IL \setminus \IR$ vs $\notin \IL$</h3>
+
+      <p><strong>识别信号</strong>: 题目给一个具体的 $f$ (典型: 含 indicator 函数, 含奇点, 含 $1_\Q$ 之类), 问 $f$ 在哪一类.</p>
+
+      <p><strong>标准做法</strong>:</p>
+      <ol>
+        <li><strong>$f \in \IR$?</strong> 检查 (a) $f$ 有界, (b) $f$ 有界支集, (c) $\Disc(f)$ 测度零 (Lebesgue 准则, Topic 06). 三者皆 ✓ ⟹ $\in \IR$; 任一 ✗ ⟹ $\notin \IR$.</li>
+        <li><strong>$f \in \IL$?</strong> 即使 $f \notin \IR$, 试构造砖块分解 (§3.2 套路). 若 $\sum\int|f_k| < \infty$ ⟹ $\in \IL$.</li>
+        <li><strong>$f \notin \IL$?</strong> 通常通过 $\int|f| = \infty$ 反证 — 任何砖块分解都给 $\sum\int|f_k| = \infty$ (积分单调 + |·| 三角).</li>
+      </ol>
+
+      <div class="box example" id="example-C-1">
+        <span class="box-title">Example C.1 (典型函数的归类速查)</span>
+        <p>对下面每个 $f$, 判断 $f \in \IR$, $f \in \IL \setminus \IR$, 还是 $f \notin \IL$:</p>
+        <ol type="a">
+          <li>$f(x) = \cos(x) \cdot \mathbf{1}_{[0, 2\pi]}(x)$</li>
+          <li>$f(x) = \mathbf{1}_{\Q \cap [0, 1]}(x)$ (Dirichlet)</li>
+          <li>$f(x) = -\ln x \cdot \mathbf{1}_{(0, 1]}(x)$ (无界对数)</li>
+          <li>$f(x) = \mathbf{1}_{[-1, 1]}(x) / |x|$</li>
+          <li>$f(x) = \mathbf{1}_{[1, \infty)}(x) / x$</li>
+          <li>$f(x) = \mathbf{1}_{[-1, 1]}(x) / \sqrt{|x|}$</li>
+        </ol>
+        <p><strong>解</strong>:</p>
+        <ul>
+          <li><strong>(a) $\in \IR$ (因此自动 $\in \IL$)</strong>: 连续, 有界支集 $[0, 2\pi]$, $\Disc \subset \{0, 2\pi\}$ 测度零.</li>
+          <li><strong>(b) $\in \IL \setminus \IR$</strong>: $\Disc(f) = [0,1]$ 不是测度零 (体积 $1$), 故 $\notin \IR$ (Lebesgue 准则); 砖块 $f_k = \mathbf{1}_{\{a_k\}}$ ($a_k$ 枚举 $\Q\cap[0,1]$), 每个 $\int f_k = 0$, $\sum f_k = f$ 处处, 故 $\in \IL$, $\int = 0$.</li>
+          <li><strong>(c) $\in \IL \setminus \IR$</strong>: 无界 ⟹ $\notin \IR$; 用 dyadic $I_k = (1/2^k, 1/2^{k-1}]$, $\sum\int|f_k| = 1$, $\int_L = 1$ (Topic 12 Ex 12.3).</li>
+          <li><strong>(d) $\notin \IL$</strong>: 在 $0$ 处奇点 $1/|x|$, $\int_{-1}^1 dx/|x| = 2\int_0^1 dx/x = +\infty$. 任何砖块 $\sum\int|f_k| = \infty$.</li>
+          <li><strong>(e) $\notin \IL$</strong>: 无界支集 + $\int_1^\infty dx/x = +\infty$ (improper Riemann 发散). 不可积.</li>
+          <li><strong>(f) $\in \IL \setminus \IR$</strong>: 无界 ⟹ $\notin \IR$; dyadic 切法给 $\sum\int|f_k| = 4 < \infty$, $\int_L = 4$ (Topic 14 Ex 14.2).</li>
+        </ul>
+        <p><strong>记忆</strong>: 在 $0$ 附近, 奇点 $1/|x|^\alpha$ Lebesgue 可积 iff $\alpha < 1$. $\alpha = 1/2$ → 可积 (case f); $\alpha = 1$ → 不可积 (case d); 临界点是 1.</p>
+      </div>
+
+      <p><strong>常见变体</strong>:</p>
+      <ul>
+        <li><strong>奇点位置不在 0</strong>: $f(x) = \mathbf{1}_{[0,2]}/\sqrt{|x-1|}$ 类比 case (f) (奇点平移到 $x=1$). 同方法可积, $\int_L$ 同.</li>
+        <li><strong>多个奇点</strong>: $f = 1/\sqrt{|x|} + 1/\sqrt{|x-2|}$ 上 $[-1, 3]$, 用<em>砖块加法</em> (两个 $\IL$ 函数和仍在 $\IL$, Thm C.5(1)).</li>
+        <li><strong>奇点 + 振荡</strong>: $f(x) = \sin(1/x) \cdot \mathbf{1}_{(0,1]}$ — 有界! $\Disc \subset \{0\}$ 测度零, 故 $\in \IR$ (case a 类). 注意振荡 ≠ 无界.</li>
+      </ul>
+
+      <h3 id="cluster-brick">§3.2 构造砖块分解 (Daniell-Stone series)</h3>
+
+      <p><strong>识别信号</strong>: 给一个 $f \notin \IR$ (无界或处处不连续), 要求严格论证 $f \in \IL$ 并算 $\int f\,dV_L$. 必须显式给砖块.</p>
+
+      <p><strong>标准做法</strong> (两条经典模板):</p>
+      <ol>
+        <li><strong>"太不连续" 模板 (Dirichlet 类)</strong>: 若 $f$ 是 ${1}_{S}$, $S$ 可数, 枚举 $S = \{a_1, a_2, \ldots\}$, 取 $f_k := \mathbf{1}_{\{a_k\}}$. 每个 $\int f_k = 0$, $\sum\int|f_k| = 0 < \infty$, $\sum f_k = f$ 处处. ⟹ $\in \IL$, $\int_L = 0$.</li>
+        <li><strong>"太无界" 模板 (dyadic 切片)</strong>: 若 $f$ 在某点 $x_0$ 无界 (如 $-\ln x$ at $x=0$ 或 $1/\sqrt{|x|}$ at $x=0$), 把 $f$ 的支集按 dyadic 距离切: $I_k = (2^{-k}, 2^{-(k-1)}]$ (或类似). 在每个 $I_k$ 上 $f$ 有界连续, $f_k := f \cdot \mathbf{1}_{I_k} \in \IR$. 检验 $\sum\int|f_k| < \infty$ (几何级数 / telescoping).</li>
+      </ol>
+
+      <div class="box example" id="example-C-2">
+        <span class="box-title">Example C.2 (Dirichlet 砖块的两种合法分解)</span>
+        <p>令 $f = \mathbf{1}_{\Q \cap [0, 1]}$. 构造<em>两个不同</em>的砖块分解, 都验证 $f \in \IL$, $\int_L = 0$. 由良定性它们必给同一答案.</p>
+        <p><strong>分解 A (单点指示)</strong>: 枚举 $\Q\cap[0,1] = \{a_1, a_2, \ldots\}$, $f_k := \mathbf{1}_{\{a_k\}}$. 每个单点是测度零集, $f_k \in \IR$, $\int f_k = 0$. $\sum\int|f_k| = 0 < \infty$. 在 $x = a_j$ 处恰有 $k=j$ 一项贡献 $1$, 故 $\sum_k f_k(x) = 1 = f(x)$; 在 $x \notin \Q$ 处全 $0$. 故 $\sum f_k = f$ <strong>处处</strong>, 自然 a.e. ⟹ $f \in \IL$, $\int_L = 0$.</p>
+        <p><strong>分解 B (cumulative)</strong>: $\tilde f_k := \mathbf{1}_{\{a_1, \ldots, a_k\}}$. 每个 $\tilde f_k \in \IR$ (有限点集, 测度零 $\Disc$), $\int \tilde f_k = 0$. 但<em>等等</em>: $\tilde f_k$ <strong>不</strong>构成砖块分解, 因为 $\sum_k \tilde f_k(a_j) = \sum_{k \ge j} 1 = +\infty$ on $\Q$ — 级数<em>处处</em>发散在 $\Q$ 上.</p>
+        <p>修正: 用 $g_k := \tilde f_k - \tilde f_{k-1} = \mathbf{1}_{\{a_k\}}$ ($\tilde f_0 := 0$) — 哦, 这就是分解 A! 所以"cumulative" 走 telescoping 退回 single-point — 自然.</p>
+        <p>正确的备选: $h_k := \mathbf{1}_{\{a_{2k-1}\}} + \mathbf{1}_{\{a_{2k}\}}$ (打包两个点为一个砖块). $\sum\int|h_k| = 0$, $\sum h_k(x) = f(x)$ 处处. ⟹ $f \in \IL$, 由良定性 (Thm C.4) $\int_L = \sum\int h_k = 0$. ✓ 与 A 同.</p>
+        <p><strong>Takeaway</strong>: 砖块分解不唯一, 但<em>良定性</em>保证答案一致. 任何合法分解都行.</p>
+      </div>
+
+      <div class="box example" id="example-C-3">
+        <span class="box-title">Example C.3 (无界对数 $-\ln x \cdot \mathbf{1}_{(0,1]}$ 砖块构造)</span>
+        <p>证明 $f(x) := -\ln x \cdot \mathbf{1}_{(0,1]}(x) \in \IL(\R)$, 算 $\int f\,dV_L$.</p>
+        <p><strong>构造</strong>: dyadic 切, $I_k := (1/2^k, 1/2^{k-1}]$, $k = 1, 2, 3, \ldots$. $\bigsqcup_k I_k = (0, 1]$ disjoint union. 取 $f_k(x) := -\ln x \cdot \mathbf{1}_{I_k}(x)$.</p>
+        <p><strong>验证 $f_k \in \IR$</strong>: 在 $I_k$ 上 $x \in (2^{-k}, 2^{-(k-1)}]$, $-\ln x \in [(k-1)\ln 2, k\ln 2]$, 有界. $f_k$ 在 $I_k$ 内连续, 外部 0, $\Disc \subset \{1/2^k, 1/2^{k-1}\}$ 测度零. 由 Lebesgue 准则 $f_k \in \IR$.</p>
+        <p><strong>验证 $\sum f_k = f$ 处处</strong>: $x \notin (0,1]$ ⟹ 所有 $f_k(x) = 0 = f(x)$. $x \in (0,1]$ ⟹ $x$ 落在恰好一个 $I_k$ (disjoint), 故 $\sum_k f_k(x) = -\ln x = f(x)$.</p>
+        <p><strong>计算 $\int f_k$</strong>: IBP $\int \ln x\,dx = x\ln x - x$. 在 $1/2^j$ 处 $[x\ln x - x] = -j\ln 2/2^j - 1/2^j$.
+        $$\begin{aligned}
+          \int f_k\,dV &amp;= -[x\ln x - x]_{1/2^k}^{1/2^{k-1}} \\
+          &amp;= \left(\frac{1}{2^{k-1}} - \frac{1}{2^k}\right) + \ln 2 \cdot \left(\frac{k-1}{2^{k-1}} - \frac{k}{2^k}\right).
+        \end{aligned}$$
+        $f_k \ge 0$ 故 $|f_k| = f_k$, 同表达式 $= \int|f_k|$.</p>
+        <p><strong>$\sum\int|f_k| = 1$</strong> (两 telescoping):
+        $$\begin{aligned}
+          \sum_{k=1}^\infty \left(\frac{1}{2^{k-1}} - \frac{1}{2^k}\right) &amp;= \lim_N \left(1 - \frac{1}{2^N}\right) = 1; \\
+          \sum_{k=1}^\infty \left(\frac{k-1}{2^{k-1}} - \frac{k}{2^k}\right) &amp;= \lim_N \left(0 - \frac{N}{2^N}\right) = 0 \quad (\text{指数压倒线性}).
+        \end{aligned}$$
+        总和 $= 1 + 0 = 1 < \infty$. ✓</p>
+        <p>故 $f \in \IL$, $\int_R f\,dV_L = \sum\int f_k = 1$. (Improper Riemann $\int_0^1 (-\ln x)\,dx = [x(1-\ln x)]_0^1 = 1$ 一致.)</p>
+      </div>
+
+      <p><strong>常见变体</strong>:</p>
+      <ul>
+        <li><strong>奇点不在 0</strong>: $f(x) = 1/\sqrt{x-a}\cdot\mathbf{1}_{(a, a+1]}$ — 切 $I_k = (a + 2^{-k}, a + 2^{-(k-1)}]$, 类似处理.</li>
+        <li><strong>双奇点</strong>: $f = -\ln|x|\cdot\mathbf{1}_{[-1,1]\setminus\{0\}}$ — 两侧分别用 dyadic, $\sum\int = 2$ (对称).</li>
+        <li><strong>"先用模板, 再线性叠加"</strong>: Topic 14 Ex 14.1 把无界 ($-\ln x$) 与处处不连续 (Dirichlet) 用 Prop 14.1 线性组合.</li>
+      </ul>
+
+      <h3 id="cluster-dct">§3.3 用 DCT for Riemann 交换极限与积分</h3>
+
+      <p><strong>识别信号</strong>: 给 $(f_k) \subset \IR$, $f_k \to f$ (a.e. 或 pointwise), $|f_k|$ 有 uniform 界, 求 $\lim \int f_k$. <em>若极限 $f$ 已知或易于看出</em> $\in \IR$, 那就直接套 Thm C.2; 否则要么先证 $f \in \IR$ (反复用 Lebesgue 准则), 要么走 Thm C.1 一致收敛.</p>
+
+      <p><strong>标准做法</strong>:</p>
+      <ol>
+        <li>验证 (i)(ii): 公共有界支集 $B_R(0)$ + uniform 点态界 $M$.</li>
+        <li>识别 $f := \lim_k f_k$ a.e. 并独立证 $f \in \IR$ (Lebesgue 准则 / 已知形式).</li>
+        <li>套 Thm C.2: $\int f_k \to \int f$.</li>
+      </ol>
+
+      <div class="box example" id="example-C-4">
+        <span class="box-title">Example C.4 (用 DCT for Riemann 算极限)</span>
+        <p>计算 $\lim_{k\to\infty} \int_0^1 \frac{x^k}{1 + x^k}\,dx$.</p>
+        <p><strong>解</strong>: 设 $f_k(x) := \frac{x^k}{1+x^k} \cdot \mathbf{1}_{[0,1]}(x)$. 验证 DCT for Riemann 假设:</p>
+        <ul>
+          <li><strong>(i) 公共有界支集</strong>: $\supp f_k \subset [0, 1]$ ✓.</li>
+          <li><strong>(ii) Uniform 点态界</strong>: $0 \le f_k(x) \le 1$ 对所有 $x, k$ — 因为 $x^k/(1+x^k) = 1 - 1/(1+x^k) \le 1$ ✓ (取 $M = 1$).</li>
+          <li><strong>(iv) 逐点收敛 (强于 a.e.)</strong>: 对 $x \in [0, 1)$, $x^k \to 0$, 故 $f_k(x) \to 0$. 对 $x = 1$, $f_k(1) = 1/2$ 对所有 $k$. 故 $f_k \to f$ pointwise 其中 $f = 0$ on $[0,1)$, $f(1) = 1/2$ — 修改为 $f = 0$ on $[0,1)\cup\{1$ 测度零$\}$, 等价于 $f = 0$ a.e.</li>
+          <li><strong>(iii) $f \in \IR$</strong>: $f = 0$ a.e. (差在单点), 实际 $f \in \IR$ ($f$ 与 $0$ 在 $\IR$ 意义下相等 a.e. 给同一积分; 严格起见也可直接修改 $f(1) := 0$, 得 $f \equiv 0 \in \IR$) ✓.</li>
+        </ul>
+        <p>由 Thm C.2 (DCT for Riemann): $\lim_k \int_0^1 f_k\,dx = \int_0^1 f\,dx = 0$.</p>
+        <p><strong>替代方法对照</strong>: 用 Thm C.1 (uniform conv) 不行 — $\sup_{[0,1]}|f_k(x) - f(x)| \ge |f_k(1) - 0| = 1/2$, 不一致收敛 (修改 $f(1)$ 也不行, 因为 $f_k(x) \to 1/2$ at $x = 1$). 所以这道题恰好<em>必须</em>走 DCT for Riemann 这条路.</p>
+        <p><strong>Takeaway</strong>: 当 pointwise convergence 但非 uniform 时 (一致收敛失败), 而点态界 + 公共支集 + 极限可积都满足, DCT for Riemann 是干净的工具.</p>
+      </div>
+
+      <p><strong>常见变体</strong>:</p>
+      <ul>
+        <li><strong>用 Thm C.1 而非 Thm C.2</strong>: 若 uniform convergence 易证 (Topic 11 Ex 11.6 $g + 1/k$ 模板), 直接走 Thm C.1, 不必显示 $f \in \IR$.</li>
+        <li><strong>极限 $f \notin \IR$</strong>: 此时 DCT for Riemann <em>不</em>适用 (假设破). 需要走 Lebesgue 积分 + Lebesgue-DCT (本课不证, 但 mentions). 例如 cumulative Dirichlet.</li>
+      </ul>
+
+      <h3 id="cluster-counterexample">§3.4 构造 mass-loss 反例</h3>
+
+      <p><strong>识别信号</strong>: 题目让你"证明逐点收敛不蕴含 $\int$ 交换"或"显示 $\lim \int \ne \int \lim$ 可能发生".</p>
+
+      <p><strong>标准做法</strong>: 设计 $(f_k)$ 满足 $\int f_k = $ const (e.g. $1$), $f_k \to 0$ pointwise, 但 mass 通过两种方式之一"逃走":</p>
+      <ol>
+        <li><strong>Traveling box</strong>: $f_k = \mathbf{1}_{[k, k+1]}$ (在 $\R$), mass 逃到 $\infty$. 破坏公共有界支集 (H1) <em>和</em> uniform conv (H2).</li>
+        <li><strong>Tall thin spike</strong>: $f_k = k\cdot\mathbf{1}_{(0, 1/k]}$, mass 集中到点. 只破坏 uniform (H2), 公共有界 ($\subset [0,1]$) 保留.</li>
+        <li><strong>Cumulative Dirichlet</strong>: $f_k = \mathbf{1}_{\{a_1, \ldots, a_k\}}$ — 比上两者<em>更</em>恶劣, 极限 $\notin \IR$.</li>
+      </ol>
+
+      <div class="box example" id="example-C-5">
+        <span class="box-title">Example C.5 (设计 mass-concentration 反例)</span>
+        <p>构造一列 $f_k \colon \R \to \R$, 每个 $f_k \in \IR$, 满足:
+        (a) $\supp(f_k) \subset [0, 1]$ ∀$k$ (公共有界);
+        (b) $\int_\R f_k\,dx = 3$ ∀$k$;
+        (c) $f_k \to 0$ pointwise.
+        说明这些假设破坏了 Thm C.1 / Thm C.2 中的哪些条件.</p>
+        <p><strong>构造</strong>: $f_k(x) := 3k \cdot \mathbf{1}_{(0, 1/k]}(x)$. 验证:</p>
+        <ul>
+          <li>$f_k \in \IR$: step function, $\Disc \subset \{0, 1/k\}$ 测度零, 有界, 有界支集.</li>
+          <li>$\supp f_k = (0, 1/k] \subset [0, 1]$ ✓.</li>
+          <li>$\int f_k = 3k \cdot (1/k) = 3$ ✓.</li>
+          <li>对固定 $x$: 若 $x \le 0$ 或 $x > 1$, $f_k(x) = 0$ 永真. 若 $0 < x \le 1$, 取 $k > 1/x$ ⟹ $1/k < x$ ⟹ $f_k(x) = 0$. 若 $x = 0$, $f_k(0) = 0$ ($(0,1/k]$ 是左开). 故 $f_k \to 0$ pointwise.</li>
+        </ul>
+        <p><strong>分析失效</strong>:</p>
+        <ul>
+          <li>Thm C.1 (uniform): $\sup_x|f_k - 0| = 3k \to \infty$, <em>不</em>一致收敛. H1 ✓, H2 ✗. 故 Thm C.1 不适用.</li>
+          <li>Thm C.2 (DCT for Riemann): uniform 点态界 (ii) 失败 — $|f_k| \le 3k$ 不 uniform in $k$. 故 Thm C.2 也不适用.</li>
+        </ul>
+        <p><strong>结论</strong>: $\lim_k \int f_k = 3 \ne 0 = \int 0 = \int (\lim_k f_k)$. 这是 mass concentration (mass 集中到 $0$) 反例的<em>放大版</em>.</p>
+        <p><strong>Takeaway</strong>: 设计反例只需让 $\int f_k$ 保持一个固定正数, 而 supp 或 height 走极端使 $f_k \to 0$ pointwise.</p>
+      </div>
+
+      <p><strong>常见变体</strong>:</p>
+      <ul>
+        <li><strong>2D mass spike</strong>: $f_k(x, y) = k^2 \mathbf{1}_{[0, 1/k]^2}(x, y)$ — 单位体积保持, mass 集中到原点.</li>
+        <li><strong>moving + spreading</strong>: $f_k = (1/k)\mathbf{1}_{[0, k]}$ — uniform → 0 (H2 ✓!) 但 H1 失败 (supp = $[0, k]$ 走 $\infty$), $\int = 1$ ∀$k$. 显示 Thm C.1 真需要 H1.</li>
+        <li><strong>双向 mass loss</strong>: $f_k = \mathbf{1}_{[-k, -k+1]} + \mathbf{1}_{[k, k+1]}$ — 两个盒子各自逃 $\pm\infty$, mass 总 $2$.</li>
+      </ul>
+
+      <h3 id="cluster-elementary">§3.5 用初等性质推论与反驳</h3>
+
+      <p><strong>识别信号</strong>: "证 $f + g \in \IL$", "证 $fg \in \IL$ (或反例)", "证 $\int f \le \int g$" 等代数性质题目.</p>
+
+      <p><strong>标准做法</strong>:</p>
+      <ol>
+        <li><strong>线性 / 加法</strong>: 直接 Thm C.5(1). 若需要从砖块走, 用"交错砖块" $h_{2k-1} := f_k, h_{2k} := g_k$ (Topic 12 Ex 12.4) — 严格证.</li>
+        <li><strong>乘积</strong>: 若一因子 $\in \IR$ 有界, 用 Thm C.5(2). 否则: <em>小心反例</em> — 一般 $\IL \times \IL \not\subset \IL$.</li>
+        <li><strong>单调 / 三角</strong>: $|f| \le_L g$ + $g \in \IL$ ⟹ $f \in \IL$? — 注意这是更强结论, 单从单调不够 (需要"非负砖块"+ comparison test).</li>
+      </ol>
+
+      <div class="box example" id="example-C-6">
+        <span class="box-title">Example C.6 ($\IL$ 对乘积不封闭 — 经典反例的完整验证)</span>
+        <p>令 $f(x) := \mathbf{1}_{[-1, 1]}(x) / \sqrt{|x|}$. 证明 $f \in \IL(\R)$ (并算 $\int_L f = 4$), 但 $f^2 = \mathbf{1}_{[-1,1]}/|x| \notin \IL(\R)$.</p>
+        <p><strong>(i) $f \in \IL$, $\int_L f = 4$</strong>:</p>
+        <p>用 dyadic 双侧切: $I_k = (2^{-k}, 2^{-(k-1)}]$, 取 $f_k(x) := \mathbf{1}_{I_k \cup (-I_k)}(x) / \sqrt{|x|}$. 在 $I_k$ 上 $|x| \ge 2^{-k}$ ⟹ $|f_k| \le 2^{k/2}$ 有界, $f_k$ 连续 (在两小区间内), $\Disc(f_k) \subset \{\pm 2^{-k}, \pm 2^{-(k-1)}\}$ 测度零 ⟹ $f_k \in \IR$. </p>
+        <p>计算
+        $$\int |f_k|\,dx = 2\int_{2^{-k}}^{2^{-(k-1)}} \frac{dx}{\sqrt{x}} = 2[2\sqrt{x}]_{2^{-k}}^{2^{-(k-1)}} = 4(2^{-(k-1)/2} - 2^{-k/2}) = 4 \cdot 2^{-k/2}(\sqrt{2} - 1).$$
+        所以
+        $$\sum_k \int|f_k| = 4(\sqrt 2 - 1)\sum_{k=1}^\infty 2^{-k/2} = 4(\sqrt 2 - 1) \cdot \frac{2^{-1/2}}{1 - 2^{-1/2}} = 4(\sqrt 2 - 1) \cdot \frac{1}{\sqrt 2 - 1} = 4 < \infty.$$
+        $\sum_k f_k(x) = f(x)$ 处处 in $\R \setminus \{0\}$ ⟹ a.e. 故 $f \in \IL$, $\int_L f = 4$.</p>
+        <p><strong>(ii) $f^2 \notin \IL$</strong>:</p>
+        <p>反证: 假设 $f^2 \in \IL$ 有砖块 $(\phi_k)$, $\sum\int|\phi_k| < \infty$. 取自然 dyadic 切 $\phi_k := \mathbf{1}_{I_k \cup -I_k} / |x|$. 每块 (用 $\int dx/x$):
+        $$\int |\phi_k| = 2\int_{2^{-k}}^{2^{-(k-1)}}\frac{dx}{x} = 2(\ln 2^{-(k-1)} - \ln 2^{-k}) = 2\ln 2 \quad (\text{常数!}).$$
+        故 $\sum_k \int|\phi_k| = \sum_k 2\ln 2 = +\infty$. 这一<em>自然</em>分解失败.</p>
+        <p>但更一般地: <em>任何</em>砖块分解 $(\phi_k)$ 都得满足 $\sum \int|\phi_k| < \infty$. 用 Tonelli 风格估计: $\int|f^2| = \int_{-1}^1 dx/|x| = 2\int_0^1 dx/x = +\infty$ (improper Riemann 发散到 log). 任何砖块分解 $\sum\int|\phi_k| \ge \int|\sum \phi_k| = \int |f^2| = \infty$ — 矛盾. (严格: 用 Beppo-Levi 与单调收敛 lemma; 课内可直接说"任何分解的总 $L^1$ 范数 $\ge \int|f^2|$".) 故 $f^2 \notin \IL$. ✓</p>
+        <p><strong>失败根源</strong>: $1/\sqrt{|x|}$ 的奇点强度 $\alpha = 1/2 < 1$ 可积; $1/|x|$ 的 $\alpha = 1$ 临界, 不可积. 两个 $\alpha = 1/2$ 因子相乘叠加成 $\alpha = 1$ — 跨过了可积边界.</p>
+      </div>
+
+      <p><strong>常见变体</strong>:</p>
+      <ul>
+        <li><strong>设计 own 反例</strong>: 取 $\alpha \in (1/2, 1)$, 让 $f = 1/|x|^\alpha \in \IL$ 但 $f^{1/(\alpha)} = 1/|x|^{?}$... 实际只要 $f, g \in \IL$ 且 $fg$ 奇点跨边界即可. 课程标准是 $1/\sqrt{|x|}$.</li>
+        <li><strong>Bounded $\IR$ 因子拯救</strong>: $f \cdot g$ 当 $g \in \IR$ 有界 (Thm C.5(2)). 例: $\mathbf{1}_{[-1,1]}/\sqrt{|x|} \cdot \cos(\pi x) \in \IL$ (尽管 $1/\sqrt{|x|}$ 无界, $\cos$ 有界把它 reduce 回 $\IL$).</li>
+      </ul>
+
+      <!-- §4 -->
+      <h2 id="pitfalls">§4 常考陷阱清单</h2>
+
+      <p>每条点击跳到详细 cluster / example / detailed pitfall.</p>
+
+      <ul>
+        <li><a href="#pitfall-C-1"><strong>P-C.1</strong></a>: $f, g \in \IL$ <em>不蕴含</em> $fg \in \IL$. ($1/\sqrt{|x|}$ 反例, Example C.5/C.6.)</li>
+        <li><a href="#pitfall-C-2"><strong>P-C.2</strong></a>: DCT for Riemann 要求 $f \in \IR$ <em>upfront</em>. 不能用它推 $f \in \IR$.</li>
+        <li><a href="#pitfall-C-3"><strong>P-C.3</strong></a>: 绝对求和条件是 $\sum_k \int|f_k| < \infty$ (积分内含绝对值), 不是 $\sum_k|\int f_k| < \infty$.</li>
+        <li><a href="#pitfall-C-4"><strong>P-C.4</strong></a>: "Lebesgue 准则" (Topic 06, Riemann 可积判据) ≠ "Lebesgue 积分" (本页). 同名不同义.</li>
+        <li><a href="#pitfall-C-5"><strong>P-C.5</strong></a>: Uniform 与 pointwise 量词次序差一档 — 不能互换.</li>
+        <li><a href="#cluster-counterexample"><strong>P-C.6</strong></a>: 忘记 Thm C.1 的公共有界支集 (H1). 仅 uniform 不够 (反例 $(1/k)\mathbf{1}_{[0,k]}$, $\int = 1$ ∀$k$, $\lim \int \ne \int \lim$).</li>
+        <li><a href="#pitfall-C-7"><strong>P-C.7</strong></a>: 截断 $\trunc{H_l}$ 是<em>两步</em>操作 — 空间局部化 (球外置零) <em>加</em> 值 cap ($[-R, R]$). 不是单纯 cap.</li>
+        <li><a href="#pitfall-C-8"><strong>P-C.8</strong></a>: Beppo-Levi (Thm C.3) 给的是 <em>a.e.</em> 收敛, <strong>不</strong>是处处收敛. (Dirichlet 的 cumulative 分解在 $\Q$ 上发散.)</li>
+        <li><a href="#pitfall-C-9"><strong>P-C.9</strong></a>: $\IL$ 反例 mass-loss 不能被任何积分理论"救活" — 即使 Lebesgue DCT 也找不到 dominator (mass 真丢失).</li>
+        <li><a href="#pitfall-C-10"><strong>P-C.10</strong></a>: 误用 Lec 3.3 oscillation 论证: 它依赖<em>两个</em>因子都有界, 不能平移到 $\IL$ (允许无界).</li>
+        <li><a href="#pitfall-C-11"><strong>P-C.11</strong></a>: 砖块 $f_k$ 一般是 signed 函数; 即便 $f \ge 0$ a.e., 不能假设 $f_k \ge 0$ (单调性证明需非负砖块构造).</li>
+        <li><a href="#pitfall-C-12"><strong>P-C.12</strong></a>: 误以为 "$|f| \in \IL$ ⟹ $f \in \IL$" 自动 — 在本课定义下 ($\IL$ 由砖块定义) 这<em>不</em>是 trivial.</li>
+      </ul>
+
+      <div class="box pitfall" id="pitfall-C-1">
+        <span class="box-title">Pitfall C.1 — $\IL$ 对乘积<em>不</em>封闭</span>
+        <p>Riemann 类 $\IR$ 对乘积封闭 (Lec 3.3 / Topic 03), 自然让人误推 $\IL$ 也如此. <em>错</em>. 经典反例: $f = \mathbf{1}_{[-1,1]}/\sqrt{|x|} \in \IL$, $\int_L f = 4$. 但 $f^2 = \mathbf{1}_{[-1,1]}/|x| \notin \IL$ (奇点强度跨过可积边界).</p>
+        <p><strong>正确版</strong>: $\IL$ 对乘积闭只在附加条件下: (a) 其中一个 $\in \IR$ 有界 (Thm C.5(2)); (b) Hölder/Cauchy-Schwarz ($L^p \times L^q$, $1/p + 1/q = 1$) — 课外.</p>
+        <p><strong>记忆法</strong>: 关键差在<em>无界性</em>. $\IL$ 容纳无界函数, 乘积可能把可积奇点叠加为不可积. $1/\sqrt{|x|} \cdot 1/\sqrt{|x|} = 1/|x|$ 是"奇点跨界"的明证.</p>
+      </div>
+
+      <div class="box pitfall" id="pitfall-C-2">
+        <span class="box-title">Pitfall C.2 — DCT for Riemann 不送 $f \in \IR$</span>
+        <p>Thm C.2 (DCT for Riemann) 要求 $f \in \IR$ 作为<strong>hypothesis</strong>, <em>不</em>是 conclusion. 与 Thm C.1 (uniform conv) 形成鲜明对照 — 后者免费送 $f \in \IR$.</p>
+        <p>原因: a.e. 收敛 + uniform 点态界<em>不足以</em>免费推 $f \in \IR$. Cumulative Dirichlet 反例: $f_k = \mathbf{1}_{\{a_1, \ldots, a_k\}} \to \mathbf{1}_{\Q \cap [0,1]} = $ Dirichlet $\notin \IR$. DCT for Riemann 在此<em>不适用</em> — 因为 hypothesis $f \in \IR$ 不成立.</p>
+        <p><strong>记忆</strong>: Thm C.1 (uniform) 把 $f \in \IR$ "白送"; Thm C.2 (DCT) "付费". hypothesis 弱 ⟹ conclusion 必须自带条件.</p>
+      </div>
+
+      <div class="box pitfall" id="pitfall-C-3">
+        <span class="box-title">Pitfall C.3 — 绝对求和条件的正确写法</span>
+        <p>砖块分解的绝对求和条件是
+        $$\sum_{k=1}^\infty \int_{\R^n} |f_k|\,dV < \infty \quad (\text{绝对值在积分内!})$$
+        <strong>不</strong>是 $\sum_k |\int f_k| < \infty$ (绝对值在积分外).</p>
+        <p>两者强弱: $|\int f_k| \le \int|f_k|$ (Riemann 三角), 故第一个条件<em>蕴含</em>第二个. 第一个是真正的"绝对收敛", 第二个仅是部分和绝对收敛. 砖块分解需要前者 (强).</p>
+        <p>反例区分二者: $f_k$ 选择让 $\int f_k = (-1)^k/k$ (条件收敛 to $-\ln 2$), 但 $\int|f_k| = 1/k$ 且 $\sum 1/k = \infty$. 这种 $(f_k)$ 不是<em>合法</em>砖块分解 — 即使 $\sum_k \int f_k$ 收敛, 但 $\sum_k|f_k|$ 不绝对收敛, 不在 Topic 12 Def 12.3 的范畴.</p>
+      </div>
+
+      <div class="box pitfall" id="pitfall-C-4">
+        <span class="box-title">Pitfall C.4 — 同名词混淆: Lebesgue 准则 ≠ Lebesgue 积分</span>
+        <p>两个"Lebesgue"名字相同, 意思完全不同:</p>
+        <ul>
+          <li><a href="../topics/06-lebesgue-criterion.html">Topic 06</a> "Lebesgue <em>准则</em>" (criterion): <strong>Riemann 可积</strong>的判据 — $f \in \IR$ iff $f$ 有界且 $\Disc(f)$ 测度零 (+ 有界支集). 输出: $f$ 是否 $\in \IR$.</li>
+          <li>本页 "Lebesgue <em>积分</em>" (integral): 一个<strong>新积分</strong>, 由 Daniell-Stone 砖块定义. 类 $\IL \supsetneq \IR$. 不要求 $\Disc(f)$ 测度零 — Dirichlet $\Disc = [0,1]$ 非测度零, 但 $\in \IL$.</li>
+        </ul>
+        <p>Dirichlet 把混淆推到极致: "不满足 Lebesgue 准则" (故 $\notin \IR$) 但 "是 Lebesgue 可积" (故 $\in \IL$).</p>
+      </div>
+
+      <div class="box pitfall" id="pitfall-C-5">
+        <span class="box-title">Pitfall C.5 — Uniform vs pointwise 量词次序</span>
+        <p>定义并排:</p>
+        <ul>
+          <li><em>Uniform</em>: $\forall \eps,\ \exists N,\ \forall x,\ \forall k > N:\ |f_k(x) - f(x)| < \eps$. $N$ 与 $x$ 无关.</li>
+          <li><em>Pointwise</em>: $\forall x,\ \forall \eps,\ \exists N_x,\ \forall k > N_x:\ |f_k(x) - f(x)| < \eps$. $N_x$ 依赖 $x$.</li>
+        </ul>
+        <p>差别仅在 "$\exists N$" 与 "$\forall x$" 的次序. 一致是 one $N$ for all $x$; 逐点是 an $N$ per $x$. 量词次序对换 ⟹ 强度差一档. (与 31BH 连续 vs 一致连续完全同构.)</p>
+        <p>一致 ⟹ 逐点, 反之 (一般) 不成立. 反例: tall thin spike (Example C.5 类), $x^k$ on $[0, 1)$ (pointwise → 0 但 $\sup = $ 1 at $x \to 1$).</p>
+        <p><strong>记忆</strong>: 一致是"全局 $\eps$ 管道", 逐点是"每条垂直线最终进入 $\eps$ 邻域". Thm C.1 用一致 (全局管道) 是关键 — 让 $\sup, \inf$ 跨 cube 操作合法.</p>
+      </div>
+
+      <div class="box pitfall" id="pitfall-C-7">
+        <span class="box-title">Pitfall C.7 — 截断 $\trunc{H_l}$ 是<em>双重</em>操作</span>
+        <p>Lec 7.2 定义的截断 $\trunc{g}$ 同时做两件事:</p>
+        <ol>
+          <li><strong>空间局部化</strong>: $|x| > R$ 区域<em>整体置零</em> (变成 0, 不是 $g$).</li>
+          <li><strong>值 cap</strong>: $|x| \le R$ 区域内, 如果 $|g(x)| > R$, 把它夹到 $\pm R$ (上 cap $+R$, 下 cap $-R$).</li>
+        </ol>
+        <p>初学者常误以为是<em>纯</em>值 cap (像 $[-R, R]$ truncation 在 $\R^n$ 整体), 漏掉空间局部化. 漏掉就让 DCT 假设 (i) 公共支集 $B_R$ 失效.</p>
+        <p><strong>用同一个 $R$</strong> 既作支集半径又作值上限是为了 bookkeeping 简化 (Lemma 13.2). 课本中通用可以分两个常数, 但本课同步.</p>
+      </div>
+
+      <div class="box pitfall" id="pitfall-C-8">
+        <span class="box-title">Pitfall C.8 — Beppo-Levi 给 a.e., 不是处处</span>
+        <p>Thm C.3 仅保证 $\sum_k f_k(x)$ <strong>a.e.</strong> 收敛, <em>不</em>保证处处. 测度零集上 $\sum_k f_k$ 可发散到 $\pm \infty$.</p>
+        <p>例: Dirichlet 的 cumulative 分解 $\tilde f_k = \mathbf{1}_{\{a_1, \ldots, a_k\}}$. 在每个有理 $a_j$ 处, $\sum_k \tilde f_k(a_j) = +\infty$ — 发散! 但 $\Q$ 测度零, 所以 a.e. 收敛仍成立.</p>
+        <p>这就是 Def 12.3 用 "$=_L$" (a.e. 等于) 而非 "$=$" (处处等于) 的根本原因 — 任由级数在测度零集上爱怎么发散就怎么发散.</p>
+      </div>
+
+      <div class="box pitfall" id="pitfall-C-9">
+        <span class="box-title">Pitfall C.9 — mass-loss 反例不能被 Lebesgue 救</span>
+        <p>初学者常以为 "Lebesgue DCT 比 Riemann 强, 应该可以救 traveling box / tall spike / cumulative Dirichlet". <em>不行</em>. 这些反例的 $\lim \int = 1, \int \lim = 0$ 即使在 Lebesgue 框架下也<em>分别成立且不相等</em>.</p>
+        <p>原因: Lebesgue DCT 要求<strong>可积 dominator</strong> $g \ge |f_k|$ ∀$k$ with $g \in \IL$. 但:</p>
+        <ul>
+          <li>Traveling box $\mathbf{1}_{[k, k+1]}$: 任何 $g \ge 1$ on $[1, \infty)$, $\int g = \infty$. 不可积.</li>
+          <li>Tall spike $k\mathbf{1}_{(0, 1/k]}$: 任何 $g \ge k$ on $(0, 1/k]$ ∀$k$ ⟹ $g(x) \ge 1/x$ near $0$, 而 $\int_0^1 dx/x = \infty$.</li>
+        </ul>
+        <p>这些 mass 真丢失了 — 任何积分理论都无能为力. <em>Lebesgue 的功劳是在 mass 没有丢失时, 精确交换 $\lim, \int$; 它不治愈所有不交换</em>.</p>
+      </div>
+
+      <div class="box pitfall" id="pitfall-C-10">
+        <span class="box-title">Pitfall C.10 — 误移植 Lec 3.3 oscillation 论证</span>
+        <p>Lec 3.3 (Topic 03) 的 $\IR \times \IR \to \IR$ 证明依赖
+        $$\osc(f_1 f_2) \le |f_1|\osc(f_2) + |f_2|\osc(f_1),$$
+        其中 $|f_1|, |f_2|$ 必须<strong>有界</strong> (否则右边无意义). 这是 $\IR$ 函数自动有界给出的便利.</p>
+        <p>$\IL$ 允许无界函数 (如 $1/\sqrt{|x|}$), oscillation argument 直接报废 — 所以 Lebesgue 类乘积结论<em>不能</em>从 Riemann 时代论证简单平移. 这是 Pitfall C.1 反例的根源.</p>
+      </div>
+
+      <div class="box pitfall" id="pitfall-C-11">
+        <span class="box-title">Pitfall C.11 — 砖块一般 signed, 即便 $f \ge 0$</span>
+        <p>砖块 $f_k$ 一般是 signed $\IR$ 函数; 即便 $f \ge 0$ a.e. (例如 $f = $ Dirichlet $\ge 0$), 没有先验理由让 $f_k \ge 0$. Riemann 求和可以 negative-then-positive 互相抵消, 最终极限 $\sum_k \int f_k$ 的正负不由 individual $\int f_k$ 决定.</p>
+        <p>这是 Prop 14.3 (单调性) 证明的<em>真正难点</em>: 即便 $h \ge 0$ a.e., 直接由砖块给出 $\int h \ge 0$ 不显然. 需要技术引理 — "每个 $h \ge 0$ a.e. 有非负砖块分解 $\tilde h_k \ge 0$" (用 $f^+ - f^-$ 分解 + Beppo-Levi 重排).</p>
+        <p><strong>实战</strong>: 写自己的砖块分解时, 验证 $\sum f_k = f$ a.e. 即可, 不必每个 $f_k$ 同号.</p>
+      </div>
+
+      <div class="box pitfall" id="pitfall-C-12">
+        <span class="box-title">Pitfall C.12 — "$|f| \in \IL \Rightarrow f \in \IL$" 不是 trivially 自动</span>
+        <p>反方向 "$f \in \IL \Rightarrow |f| \in \IL$" trivially 成立: 用 $(|f_k|)$ 作 $|f|$ 的砖块分解 ($|f_k| \in \IR$, $\sum\int||f_k|| = \sum\int|f_k| < \infty$, $\sum|f_k| =_L |f|$... wait 实际后一步要用反向三角微妙).</p>
+        <p>正方向 "$|f| \in \IL \Rightarrow f \in \IL$" 在我们的定义下需要从 $|f|$ 的砖块构造 $f$ 的砖块, 涉及符号信息 — 用 $f = f^+ - f^-$ 分解, 验证 $f^+, f^-$ 各自 $\in \IL$ (本身需要技术).</p>
+        <p>实操建议: 当问 "$f \in \IL$?" 时直接给 $f$ (不是 $|f|$) 造砖块分解.</p>
+      </div>
+
+      <!-- §5 -->
+      <h2 id="textbook-index">§5 课本例题速查</h2>
+
+      <table class="textbook-index">
+        <thead><tr><th>H&amp;H 编号</th><th>主题</th><th>Takeaway</th></tr></thead>
+        <tbody>
+          <tr><td>§4.11 开篇</td><td>Lebesgue 框架动机</td><td>Riemann 极限交换的失败 — Dirichlet 与 mass-loss 反例.</td></tr>
+          <tr><td>Thm 4.11.1</td><td>Uniform conv → 极限交换</td><td>本页 Thm C.1. 一致 + 公共支集 ⟹ $f \in \IR$ 白送, $\lim\int = \int\lim$.</td></tr>
+          <tr><td>Def 4.11 (砖块)</td><td>$\IL$ 通过 Daniell 构造</td><td>$f \in \IL$ iff $\exists (f_k) \subset \IR$, $\sum\int|f_k| < \infty$, $\sum f_k =_L f$.</td></tr>
+          <tr><td>Thm 4.11.5</td><td>良定性</td><td>本页 Thm C.4. 不同砖块分解给同一积分. 证用 truncation.</td></tr>
+          <tr><td>Thm 4.11.6</td><td>DCT for Riemann</td><td>本页 Thm C.2. 弱化 uniform → a.e., 付费 $f \in \IR$.</td></tr>
+          <tr><td>Thm 4.11.8</td><td>$\IR \subset \IL$ + 积分一致</td><td>平凡砖块 $f_1 := f, f_k := 0$ for $k \ge 2$. 良定性直接推出.</td></tr>
+          <tr><td>Example 4.11.1</td><td>Dirichlet $\in \IL$</td><td>$\mathbf{1}_{\Q \cap [0,1]}$ via 单点砖块, $\int_L = 0$. 治"太不连续".</td></tr>
+          <tr><td>Example 4.11.2</td><td>无界对数 $\in \IL$</td><td>$-\ln x \cdot \mathbf{1}_{(0,1]}$ via dyadic 砖块, $\int_L = 1$. 治"太无界".</td></tr>
+          <tr><td>Example 4.11.3</td><td>$1/\sqrt{|x|} \in \IL$</td><td>$\mathbf{1}_{[-1,1]}/\sqrt{|x|}$ via dyadic, $\int_L = 4$. 与 improper Riemann 一致.</td></tr>
+          <tr><td>Example 4.11.4</td><td>$\IL$ 不闭乘积</td><td>$f \in \IL$ 但 $f^2 = 1/|x| \notin \IL$. 奇点跨可积边界 ($\alpha = 1$ 临界).</td></tr>
+          <tr><td>Prop 4.11.9</td><td>$\IL$ 线性</td><td>本页 Thm C.5(1). 砖块组合 $h_k := af_k + bg_k$.</td></tr>
+          <tr><td>Prop 4.11.10</td><td>$\IL \times \IR$bounded 乘积</td><td>本页 Thm C.5(2). 砖块 $f_k g$, 用 $|f_k g| \le M|f_k|$ 控制.</td></tr>
+          <tr><td>Prop 4.11.11</td><td>$\IL$ 单调</td><td>本页 Thm C.5(3). $\le_L$ 给 $\int$ 单调. 证靠非负砖块构造.</td></tr>
+          <tr><td>Exercise 4.11.1-3</td><td>Lebesgue 入门题</td><td>构造砖块, 验证可积, 算 $\int_L$. (本页 §6 Exercises 1-3 改编.)</td></tr>
+        </tbody>
+      </table>
+
+      <!-- §6 -->
+      <h2 id="exercises">§6 模拟练习</h2>
+      <p>展开 <code>&lt;details&gt;</code> 查看答案. 难度递增: 3 routine → 3 mid → 2 stretch. 本页<strong>无 HW 来源</strong>, 题目自构, 答案已与 Topics 11-14 交叉验证.</p>
+
+      <div class="exercise">
+        <p><span class="ex-num">1.</span> <em>(Routine)</em> 用砖块分解证明 Dirichlet $f = \mathbf{1}_{\Q \cap [0, 1]} \in \IL(\R)$, 并算 $\int_\R f\,dV_L$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>枚举 $\Q \cap [0, 1] = \{a_1, a_2, a_3, \ldots\}$. 取 $f_k := \mathbf{1}_{\{a_k\}}$.</p>
+            <ul>
+              <li><strong>$f_k \in \IR$</strong>: $|f_k| \le 1$ 有界, $\supp f_k = \{a_k\}$ 单点 (测度零), $\Disc(f_k) = \{a_k\}$ 测度零. 由 Lebesgue 准则 $f_k \in \IR$. $\int_\R f_k\,dV = 0$ (单点积分).</li>
+              <li><strong>$\sum_k \int|f_k| = 0 < \infty$</strong>: 每项 $0$, 总和 $0$. ✓</li>
+              <li><strong>$\sum_k f_k = f$ 处处</strong>: 若 $x = a_j$ 是某有理点, 则 $f_k(x) = 1$ iff $k = j$, 故 $\sum_k f_k(x) = 1 = f(x)$. 若 $x \notin \Q \cap [0,1]$, 则 $f_k(x) = 0$ 对所有 $k$, 故 $\sum_k f_k(x) = 0 = f(x)$.</li>
+            </ul>
+            <p>故 $(f_k)$ 是合法砖块分解, $f \in \IL$, $\int_\R f\,dV_L = \sum_k \int f_k\,dV = 0$.</p>
+            <p><strong>对比 Riemann</strong>: $f \notin \IR$ 因为 $\Disc(f) = [0, 1]$ 不是测度零. Riemann 上和恒为 $1$ (每 cube 含有理点), 下和恒为 $0$, $U \ne L$. Lebesgue 看见了"有理点稀薄"这一点 Riemann 看不见的事实.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">2.</span> <em>(Routine)</em> 用 dyadic 砖块分解证明 $f(x) := -\ln|x| \cdot \mathbf{1}_{[-1, 1] \setminus \{0\}}(x) \in \IL(\R)$, 算 $\int_\R f\,dV_L$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>由对称性 $f(-x) = f(x)$, 用双侧 dyadic 切. 取 $I_k := (2^{-k}, 2^{-(k-1)}]$ ($k \ge 1$), 令
+            $$f_k(x) := -\ln|x| \cdot \mathbf{1}_{I_k \cup (-I_k)}(x).$$</p>
+            <p><strong>$f_k \in \IR$</strong>: 在 $I_k$ 上 $|x| \ge 2^{-k}$, $-\ln|x| \in [(k-1)\ln 2, k\ln 2]$ 有界. $f_k$ 在两段上连续, $\Disc \subset \{\pm 2^{-k}, \pm 2^{-(k-1)}\}$ 测度零. ✓</p>
+            <p><strong>$\sum f_k = f$ 处处</strong>: $x = 0$: $f_k(0) = 0 = f(0)$. $0 < |x| \le 1$: $x \in $ 恰一个 $\pm I_k$, $f_k(x) = -\ln|x| = f(x)$. $|x| > 1$: 全 $0$. ✓</p>
+            <p><strong>$\int|f_k|$</strong>: $f_k \ge 0$ on $I_k \cup -I_k$, 由 Topic 12 Ex 12.3 的单边计算
+            $$\int_{I_k} (-\ln x)\,dx = \left(\frac{1}{2^{k-1}} - \frac{1}{2^k}\right) + \ln 2 \cdot \left(\frac{k-1}{2^{k-1}} - \frac{k}{2^k}\right),$$
+            双侧 $\int|f_k| = 2 \cdot$ 单边. 求和 (两 telescoping):
+            $$\sum_k \int|f_k| = 2 \cdot (1 + 0) = 2 < \infty. \quad \checkmark$$</p>
+            <p>故 $f \in \IL$, $\int_\R f\,dV_L = 2 \int_0^1 (-\ln x)\,dx = 2 \cdot 1 = 2$.</p>
+            <p><strong>Improper Riemann 验证</strong>: $2 \int_0^1 (-\ln x)\,dx = 2[x(1 - \ln x)]_0^1 = 2 \cdot 1 = 2$. ✓</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">3.</span> <em>(Routine)</em> 设 $f_k(x) := \frac{\sin(kx)}{k} \cdot \mathbf{1}_{[0, \pi]}(x)$. 验证 DCT for Riemann (Thm C.2) 假设并算 $\lim_k \int_0^\pi f_k\,dx$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>验证 Thm C.2 假设:</p>
+            <ul>
+              <li><strong>(i) 公共有界支集</strong>: $\supp f_k \subseteq [0, \pi]$ ⊂ $B_4(0)$ ✓ (取 $R = 4$).</li>
+              <li><strong>(ii) Uniform 点态界</strong>: $|f_k(x)| = |\sin(kx)|/k \le 1/k \le 1$ ✓ (取 $M = 1$).</li>
+              <li><strong>(iv) $f_k \to 0$ pointwise (a fortiori a.e.)</strong>: $|f_k(x)| \le 1/k \to 0$ 对所有 $x$. 极限 $f \equiv 0$.</li>
+              <li><strong>(iii) $f \in \IR$</strong>: $f = 0 \in \IR$ trivially. ✓</li>
+            </ul>
+            <p>所有假设 ✓. 由 Thm C.2:
+            $$\lim_k \int_0^\pi f_k\,dx = \int_0^\pi 0\,dx = 0.$$</p>
+            <p><strong>直接验证</strong>: $\int_0^\pi \frac{\sin(kx)}{k}\,dx = \frac{1}{k} \cdot \left[-\frac{\cos(kx)}{k}\right]_0^\pi = \frac{1 - \cos(k\pi)}{k^2} \le 2/k^2 \to 0$. ✓</p>
+            <p><strong>Remark</strong>: 这道题<em>也</em>可以走 Thm C.1 (uniform conv), 因为 $\sup_x|f_k| = 1/k \to 0$. 实际上 uniform → 0, 所以两个定理都适用.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">4.</span> <em>(Mid)</em> 设 $f, g \in \IL(\R^n)$. 直接从砖块分解定义 (Topic 12 Def 12.3) 证明 $3f - 2g \in \IL(\R^n)$, 且 $\int (3f - 2g)\,dV_L = 3\int f\,dV_L - 2\int g\,dV_L$. (即: 不引用 Thm C.5(1), 从头证.)</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>设 $(f_k), (g_k) \subset \IR$ 分别是 $f, g$ 的合法砖块分解. 令 $h_k := 3f_k - 2g_k$. 验证 $(h_k)$ 是 $3f - 2g$ 的合法砖块分解.</p>
+            <p><strong>(i) $h_k \in \IR$</strong>: $\IR$ 对线性组合封闭 (Topic 03 / Lec 1.3 / 2.1). $f_k, g_k \in \IR \Rightarrow 3f_k - 2g_k \in \IR$. ✓</p>
+            <p><strong>(ii) 绝对求和</strong>: 用 $|h_k| \le 3|f_k| + 2|g_k|$ (三角不等式) 与 Riemann 积分单调 / 线性:
+            $$\sum_k \int|h_k|\,dV \le 3\sum_k \int|f_k|\,dV + 2\sum_k \int|g_k|\,dV < \infty.$$
+            (两个原级数收敛, 线性组合也收敛.) ✓</p>
+            <p><strong>(iii) $\sum_k h_k = 3f - 2g$ a.e.</strong>: 在 $\sum_k f_k$ 和 $\sum_k g_k$ 同时绝对收敛的点 (a.e., 因为两个测度零集的并仍测度零, Topic 05),
+            $$\sum_k h_k(x) = 3\sum_k f_k(x) - 2\sum_k g_k(x) = 3f(x) - 2g(x). \quad \checkmark$$</p>
+            <p>故 $(h_k)$ 合法砖块分解, $3f - 2g \in \IL$. 由 Topic 13 良定性 (Thm C.4 / 13.1):
+            $$\int(3f - 2g)\,dV_L = \sum_k \int h_k\,dV = 3\sum_k \int f_k\,dV - 2\sum_k \int g_k\,dV = 3\int f\,dV_L - 2\int g\,dV_L.$$
+            (用了 Riemann 积分自身线性 + 级数线性.) $\square$</p>
+            <p><strong>Takeaway</strong>: Thm C.5(1) (线性) 的证明本质就是这道题的一般化 $(3, -2) \to (a, b)$. "砖块加砖块" 是 $\IL$ 性质证明的<em>标准 idiom</em>.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">5.</span> <em>(Mid)</em> 构造一个 unbounded 函数 $f \in \IL(\R) \setminus \IR(\R)$, 其奇点不在 $0$. 给出显式砖块分解并计算 $\int_\R f\,dV_L$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>构造</strong>: 取 $f(x) := -\ln(x - 2) \cdot \mathbf{1}_{(2, 3]}(x)$. (将 Topic 12 Ex 12.3 的奇点从 0 平移到 2.) 在 $x \to 2^+$ 时 $f \to +\infty$, 故 $f$ 无界, $f \notin \IR$. 显然 $\supp f \subset [2, 3]$.</p>
+            <p><strong>砖块</strong>: 令 $J_k := (2 + 2^{-k}, 2 + 2^{-(k-1)}]$ for $k \ge 1$. 显然 $\bigsqcup_k J_k = (2, 3]$ disjoint. 取
+            $$f_k(x) := -\ln(x - 2) \cdot \mathbf{1}_{J_k}(x).$$</p>
+            <p><strong>$f_k \in \IR$</strong>: 在 $J_k$ 上 $x - 2 \in (2^{-k}, 2^{-(k-1)}]$, $-\ln(x-2) \in [(k-1)\ln 2, k\ln 2]$ 有界. $f_k$ 在 $J_k$ 内连续, 外部 $0$, $\Disc \subset \{2 + 2^{-k}, 2 + 2^{-(k-1)}\}$ 测度零. ✓</p>
+            <p><strong>$\sum f_k = f$ 处处</strong>: 同 Topic 12 Ex 12.3 的论证 (disjoint union).</p>
+            <p><strong>计算 $\int f_k$</strong>: 平移 $u = x - 2$, $du = dx$:
+            $$\int f_k\,dV = \int_{2^{-k}}^{2^{-(k-1)}} (-\ln u)\,du = \left(\frac{1}{2^{k-1}} - \frac{1}{2^k}\right) + \ln 2 \cdot \left(\frac{k-1}{2^{k-1}} - \frac{k}{2^k}\right).$$
+            (与 Topic 12 Ex 12.3 同公式.)</p>
+            <p><strong>$\sum_k \int|f_k| = 1$</strong>: 同 Topic 12 (两 telescoping 给 $1 + 0$). ✓</p>
+            <p>故 $f \in \IL$, $\int_\R f\,dV_L = 1$. (平移积分不变, 与 Topic 12 一致.)</p>
+            <p><strong>Takeaway</strong>: "奇点平移"靠 substitution $u = x - 2$ 把构造 reduce 到模板情形. 同样适用于双奇点 $f = -\ln|x-a|\cdot\mathbf{1}_{[a-1, a+1]\setminus\{a\}}$ — 双侧 dyadic, $\int_L = 2$.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">6.</span> <em>(Mid)</em> 设 $f(x) := \mathbf{1}_{[-1, 1]}/\sqrt{|x|} \in \IL(\R)$ (由 Example C.6 已知 $\int_L f = 4$), $g(x) := x \cdot \mathbf{1}_{[-1, 1]}(x)$. (a) 证 $g \in \IR$ 有界. (b) 用 Thm C.5(2) 推 $fg \in \IL$. (c) 显式给出 $fg$ 的砖块分解并算 $\int_L (fg)$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>(a)</strong> $g$ 在 $[-1, 1]$ 上线性连续, 有界支集, $|g(x)| \le 1$ on $\R$. $\Disc(g) \subset \{-1, 1\}$ 测度零. 由 Lebesgue 准则 $g \in \IR$. 取 $M = 1$. ✓</p>
+            <p><strong>(b)</strong> $f \in \IL$, $g \in \IR$ 有界. 由 Thm C.5(2): $fg \in \IL$. ✓</p>
+            <p><strong>(c)</strong> 取 $f$ 的砖块 $(f_k)$ from Example C.6: $f_k = \mathbf{1}_{I_k \cup -I_k}/\sqrt{|x|}$ with $I_k = (2^{-k}, 2^{-(k-1)}]$. 则 $f_k g \in \IR$ (两 $\IR$ 有界因子乘积). 计算: 在 $I_k$ 上 $f_k(x) g(x) = x/\sqrt{x} = \sqrt{x}$; 在 $-I_k$ 上 $f_k(x) g(x) = x/\sqrt{-x} = -\sqrt{-x}$. 关键: 这是<strong>奇函数</strong> (在 $\R$ 上, $f(x)g(x) = x/\sqrt{|x|}$ 奇).</p>
+            <p>$\int (fg)_k\,dV = \int_{I_k} \sqrt{x}\,dx + \int_{-I_k} (-\sqrt{-x})\,dx = \int_{I_k}\sqrt{x}\,dx - \int_{I_k}\sqrt{x}\,dx = 0$ (双侧对消, 奇函数对称积分 = 0).</p>
+            <p>故 $\sum_k \int (fg)_k = 0$. 验证 $\sum_k|fg_k| \le \sum_k|f_k|\cdot 1 = 4 < \infty$ ✓ (即 $(f_k g)$ 是合法砖块). 故
+            $$\int_\R (fg)\,dV_L = 0.$$</p>
+            <p><strong>对比 improper Riemann</strong>: $\int_{-1}^1 x/\sqrt{|x|}\,dx = \int_{-1}^0 (-(-x)^{1/2})\,dx + \int_0^1 x^{1/2}\,dx = -2/3 + 2/3 = 0$ ✓ (奇函数).</p>
+            <p><strong>Takeaway</strong>: Thm C.5(2) 不仅保证 $fg \in \IL$, 还给出"$fg$ 的砖块就是 $(f_k g)$"这一<em>显式</em>构造法.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">7.</span> <em>(Stretch)</em> Outline 良定性定理 (Thm C.4) 通过 truncation argument 的证明, 列出 5 个 key steps, 每个 step 指明使用了哪个 hypothesis 或 lemma.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>Setup</strong>: 由两个砖块 $(f_k), (g_k)$ 与 $\sum f_k = \sum g_k$ a.e. 反推齐次形式 $(h_k = f_k - g_k$, $\sum \int|h_k| < \infty$, $\sum h_k = 0$ a.e.$)$, 要证 $\lim_l \int H_l = 0$ 其中 $H_l = \sum_{k=1}^l h_k$.</p>
+            <p><strong>Step 1 (Cauchy-tail, 用 Lemma 13.3)</strong>: 取 $M$ 使 $\sum_{k>M}\int|h_k| < \eps$. 推出
+            $$\int|H_l - H_M| < \eps \quad \forall l > M, \qquad (\star)$$
+            using triangle inequality on partial sums. <em>使用</em>: 绝对求和 hypothesis $\sum\int|h_k| < \infty$.</p>
+            <p><strong>Step 2 (选 $R$, 截断)</strong>: $H_M$ 有限和有界 $|H_M| \le K$ + bounded support $\supp H_M \subset B_{R_1}(0)$. 取 $R = \max(R_1, 2K + 1)$. 定义截断 $\trunc{H_l}$ (Def 13.1): 球 $B_R(0)$ 外置零 + 值 cap 到 $[-R, R]$. <em>使用</em>: 截断定义 Def 13.1 + Lemma 13.2 (truncation 性质).</p>
+            <p><strong>Step 3 (DCT for Riemann)</strong>: $\trunc{H_l} \in \IR$ (Lem 13.2(v)), $\supp \subset \overline{B_R(0)}$ common (Lem 13.2(ii)), $|\trunc{H_l}| \le R$ uniform (Lem 13.2(i)). 又 $\trunc{H_l} \to 0$ a.e. (球外恒 0; 球内 $H_l \to 0$ a.e. 蕴含 $|H_l| \le R$ eventually 蕴含 $\trunc{H_l} = H_l \to 0$). 应用 Thm C.2 (DCT for Riemann), 极限 $f = 0 \in \IR$:
+            $$\int \trunc{H_l}\,dV \to 0.$$
+            <em>使用</em>: Thm C.2 (DCT for Riemann) + $\sum h_k = 0$ a.e. hypothesis (给 $\trunc{H_l} \to 0$).</p>
+            <p><strong>Step 4 (Dyadic A/B 分裂 + Markov, 核心)</strong>: 选 $N$ 使 $U_N(|H_l - H_M|) < \eps$ on $B_R(0)$. 分 $\mathcal{D}_N(B_R(0)) = \mathcal{A} \sqcup \mathcal{B}$ 按 $M_C(|H_l - H_M|) > R/2$ 或 $\le R/2$.
+            <ul>
+              <li><em>Markov</em>: $(R/2)\vol_n(\mathcal{A}) \le U_N < \eps$ ⟹ $\vol_n(\mathcal{A}) < 2\eps/R$.</li>
+              <li><em>$\mathcal{B}$ 上</em>: $|H_l| \le |H_M| + R/2 \le R/2 + R/2 = R$, 截断不可见 (Lem 13.2(iv)), $\int_\mathcal{B}|\trunc{H_l} - H_M| = \int_\mathcal{B}|H_l - H_M| < \eps$ by $(\star)$.</li>
+              <li><em>$\mathcal{A}$ 上</em>: 粗略 $|\trunc{H_l} - H_M| \le R + R/2 = 3R/2$, 乘 $\vol(\mathcal{A})$ 给 $\le 3\eps$.</li>
+            </ul>
+            合计 $\int|\trunc{H_l} - H_M| < 4\eps$. <em>使用</em>: Riemann 上和定义 + Markov style + $(\star)$ from Step 1 + truncation property Lem 13.2(iv).</p>
+            <p><strong>Step 5 (三角拼装)</strong>:
+            $$\int |H_l - \trunc{H_l}| \le \int|H_l - H_M| + \int|\trunc{H_l} - H_M| < \eps + 4\eps = 5\eps$$
+            合 (3) 的 $|\int\trunc{H_l}| < \eps$:
+            $$|\int H_l| \le |\int\trunc{H_l}| + |\int(H_l - \trunc{H_l})| < \eps + 5\eps = 6\eps.$$
+            $\eps$ 任意 ⟹ $\int H_l \to 0$ ⟹ $\sum_k \int h_k = 0$ ⟹ $\sum \int f_k = \sum \int g_k$. ✓</p>
+            <p><strong>ε 预算总账</strong>: $1$ (DCT, Step 3) + $1$ ($\star$ pivot, Step 5) + $1$ ($\mathcal{B}$, Step 4) + $3$ ($\mathcal{A}$, Step 4) = $6\eps$.</p>
+            <p>详证: <a href="../topics/13-well-definedness.html">Topic 13 §5 Example 13.1</a>; Lec 7.2 + 7.3.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">8.</span> <em>(Stretch / 证明或反例)</em> "若 $f \in \IL(\R)$, 则 $f^2 \in \IL(\R)$."</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>假</strong>. 反例 (Example C.6 / Topic 14 Ex 14.2): $f(x) := \mathbf{1}_{[-1, 1]}(x)/\sqrt{|x|}$. 我们证明 $f \in \IL$ 但 $f^2 \notin \IL$.</p>
+            <p><strong>$f \in \IL$, $\int_L f = 4$</strong>:</p>
+            <p>用双侧 dyadic 切, $I_k = (2^{-k}, 2^{-(k-1)}]$, $f_k = \mathbf{1}_{I_k \cup -I_k}/\sqrt{|x|}$.</p>
+            <ul>
+              <li>$f_k \in \IR$: 在 $I_k$ 上 $|f_k| \le 2^{k/2}$ 有界, 连续, $\Disc$ 测度零. ✓</li>
+              <li>$\sum f_k = f$ 处处 (in $\R\setminus\{0\}$, 即 a.e.).</li>
+              <li>$\int|f_k| = 2\int_{2^{-k}}^{2^{-(k-1)}} dx/\sqrt{x} = 4(2^{-(k-1)/2} - 2^{-k/2}) = 4 \cdot 2^{-k/2}(\sqrt 2 - 1)$. 求和:
+              $$\sum_k \int|f_k| = 4(\sqrt 2 - 1)\cdot\frac{2^{-1/2}}{1 - 2^{-1/2}} = 4(\sqrt 2 - 1)\cdot\frac{1}{\sqrt 2 - 1} = 4 < \infty. \quad \checkmark$$</li>
+            </ul>
+            <p>故 $f \in \IL$, $\int_L f = 4$.</p>
+            <p><strong>$f^2 \notin \IL$</strong>:</p>
+            <p>$f^2(x) = \mathbf{1}_{[-1, 1]}(x)/|x|$. 反证假设 $f^2 \in \IL$. 取自然 dyadic 砖块 $\phi_k := \mathbf{1}_{I_k \cup -I_k}/|x|$. 计算:
+            $$\int|\phi_k| = 2\int_{2^{-k}}^{2^{-(k-1)}}\frac{dx}{x} = 2[\ln x]_{2^{-k}}^{2^{-(k-1)}} = 2(\ln 2^{-(k-1)} - \ln 2^{-k}) = 2\ln 2 \quad (\text{常数!}).$$
+            故这一自然分解 $\sum_k\int|\phi_k| = +\infty$, 不是合法砖块.</p>
+            <p>更一般: <em>任何</em>砖块分解 $(\psi_k)$ 都须 $\sum\int|\psi_k| < \infty$. 但 $\int_\R f^2(x)\,dx = \int_{-1}^1 dx/|x| = 2\int_0^1 dx/x = +\infty$ (improper Riemann 发散).</p>
+            <p>用 "$\int|\sum\psi_k| \le \sum\int|\psi_k|$" 与 Beppo-Levi 风格论证: 若 $\sum\int|\psi_k| < \infty$, 则 $\sum\psi_k$ a.e. 收敛且 $\int|\sum\psi_k| \le \sum\int|\psi_k| < \infty$. 但 $\sum\psi_k = f^2$ a.e. ⟹ $\int|f^2| < \infty$, 与 $\int|f^2| = \infty$ 矛盾. 故 $f^2 \notin \IL$.</p>
+            <p><strong>失败根源</strong>: $1/\sqrt{|x|}$ 的奇点强度 $\alpha = 1/2$ 可积 ($\int dx/x^{1/2}$ 在 $0$ 附近收敛); $1/|x|$ 的 $\alpha = 1$ 临界, 不可积 ($\int dx/x$ 发散到 log). 两个 $\alpha = 1/2$ 相乘叠加为 $\alpha = 1$, 跨过可积边界.</p>
+            <p><strong>Takeaway</strong>: $\IL$ 不对乘积封闭, 即使 $f = g$. 反例 $1/\sqrt{|x|}$ 是 textbook witness. Riemann 自动有界把这种叠加排除掉; Lebesgue 允许无界, 代价是丧失乘积闭性. $\square$</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- §7 -->
+      <h2 id="crossref">§7 与 Topics 的 Cross-Reference</h2>
+      <ul>
+        <li><a href="../topics/11-limits-riemann.html"><strong>Topic 11: Riemann 框架下的极限与积分</strong></a> — Thm C.1 (uniform conv) 的完整 5-step 证明; traveling box + tall thin spike 反例的详细分析; uniform vs pointwise 量词次序的彻底辨析.</li>
+        <li><a href="../topics/12-lebesgue-construction.html"><strong>Topic 12: Lebesgue 积分的构造</strong></a> — 砖块分解定义; Beppo-Levi (Thm C.3) 详证 (Chebyshev cutoff); $\IR \subset \IL$ via 平凡砖块; Dirichlet 与 $-\ln x$ 两个治愈例子的完整推导.</li>
+        <li><a href="../topics/13-well-definedness.html"><strong>Topic 13: 良定性证明</strong></a> — Thm C.4 (truncation argument) 的完整 5-step 证明; 截断算子 Lemma 13.2 的所有性质; dyadic A/B 分裂的几何直觉 + Markov-style 估计.</li>
+        <li><a href="../topics/14-lebesgue-properties.html"><strong>Topic 14: Lebesgue 积分的初等性质</strong></a> — Thm C.5 的每一部分详证; $1/\sqrt{|x|}$ 反例的完整 dyadic 计算; Riemann vs Lebesgue 代数性质对比表; "$|f| \in \IL$ 与 $f \in \IL$" 的微妙关系.</li>
+        <li><a href="MT2-B_nonlinear_cov.html"><strong>MT2-B (上一页)</strong></a> — 非线性 CoV 与 design patterns. Linear/Nonlinear CoV 都在 Riemann 框架内, MT2-C 这里换到 Lebesgue 框架, 是 Chapter 4 的最后一站.</li>
+        <li><strong>Typed lecture notes</strong>:
+          <ul>
+            <li><code>../../Notes/Typed/6.2_notes/6.2_notes.pdf</code> — Lec 6.2, uniform conv theorem (Thm C.1) 完整 5-step 证明, traveling box/tall spike 反例.</li>
+            <li><code>../../Notes/Typed/7.1_notes/7.1_notes.pdf</code> — Lec 7.1, Daniell-Stone 构造, Beppo-Levi (Thm C.3), 砖块定义, Dirichlet 与 $-\ln x$ 例子.</li>
+            <li><code>../../Notes/Typed/7.2_notes/7.2_notes.pdf</code> — Lec 7.2, 良定性证明的 setup (Step 1-4 of Thm C.4).</li>
+            <li><code>../../Notes/Typed/7.3_notes/7.3_notes.pdf</code> — Lec 7.3, 良定性证明的 finale (Step 5) + 初等性质 (Thm C.5) + 1/√|x| 反例.</li>
+          </ul>
+        </li>
+        <li><a href="../topics/06-lebesgue-criterion.html"><strong>Topic 06: Lebesgue 准则</strong></a> — 注意! 这是 Riemann 可积的判据 (Topic 06), 与本页"Lebesgue 积分"是<em>不同</em>概念 (Pitfall C.4). 但本页判断"$f_k \in \IR$"时反复引用它.</li>
+        <li><strong>H&amp;H 教材</strong>: §4.11 (Lebesgue Integral). Thm 4.11.1 = Thm C.1; Thm 4.11.5 = Thm C.4 (良定性); Thm 4.11.6 = Thm C.2 (DCT for Riemann); Prop 4.11.9-11 = Thm C.5. <strong>Thm 4.11.18 = MCT for Lebesgue</strong> + <strong>Thm 4.11.19 = DCT for Lebesgue</strong> 见 §1 末尾的 🆕 box. H&amp;H 称之为 "Daniell construction" (与 measure-theoretic Carathéodory 路径对照).</li>
+        <li><strong>🆕 Practice MT2</strong>: <code>../../HW/Response/PracticeMT2_response.pdf</code> — 9 题中 6 道直接落在本页 (MT2-C):
+          <ul>
+            <li><strong>Problem 1</strong> — Fatou's lemma (MCT 推论). 关键论证: $g_k := \inf_{j\ge k} f_j$ 单调增, 套 MCT.</li>
+            <li><strong>Problem 2</strong> — 一致 a.e. limit 版 Fatou ($f \le \liminf \int f_k$). 直接套 Problem 1.</li>
+            <li><strong>Problem 3</strong> — 减少版 MCT: $f_k \downarrow f$ + $\int f < \infty$ ⟹ $\int f_k \to \int f$. 转向: $h_k := f_1 - f_k$ 单调增, 套 MCT.</li>
+            <li><strong>Problem 4</strong> — H&amp;H Ex 4.11.8 (4 parts): $F(x) = \int_0^x f$ 连续 (DCT); 分部积分 (Fubini on 三角形); $F \in \IL$ ⟹ $F \to 0$ at $\pm\infty$ (反证); 全空间分部积分.</li>
+            <li><strong>Problem 8</strong> — Generalized DCT (变 dominator). Fatou-on-both-sides 论证.</li>
+            <li><strong>Problem 9</strong> — Scheffé (a.e. + $L^1$-norm 守恒 ⟺ $L^1$ 收敛). 关键: $h_k = |f_k-f|-|f_k|+|f| \ge 0$, $\le 2|f|$, 套 DCT.</li>
+          </ul>
+        </li>
+        <li><strong>同主题外读 (后续课程参考)</strong>:
+          <ul>
+            <li>Folland, <em>Real Analysis</em>, Ch 2 — measure-theoretic 路径 (与 Daniell-Stone 不同), 但最终 $\IL$ 一致.</li>
+            <li>Royden &amp; Fitzpatrick, <em>Real Analysis</em>, Ch 4 — Lebesgue 测度优先, 然后定义积分.</li>
+            <li>Lebesgue DCT / MCT — Lebesgue 框架的极限交换大杀器, 在本课范围外, 但 Thm C.2 (DCT for Riemann) 是它的"前奏". 反例 (mass-loss) 即使 Lebesgue DCT 也救不了.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <hr style="margin: 60px 0 20px; border: 0; border-top: 1px solid #d8d3c4;">
+      <p style="font-size: 13px; color: #888; text-align: center;">MATH 31CH 复习指南 · MT2-C · H&amp;H §4.11</p>
+
+    </main>
+  </div>
+
+</body>
+</html>

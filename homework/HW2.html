@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HW2 详解 — measure zero + 可积性 + Fubini 10 题 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\diam': '\\operatorname{diam}',
+        '\\sgn': '\\operatorname{sgn}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="HW1.html">HW1</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="HW3.html">HW3</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#sec1">§1 总览</a></li>
+        <li><a href="#sec2">§2 Problem 1 (measure zero + undef vol)</a></li>
+        <li><a href="#sec3">§3 Problem 2 (连续 ⟹ 可积)</a></li>
+        <li><a href="#sec4">§4 Problems 3 + 4 (countable, Thomae)</a></li>
+        <li><a href="#sec5">§5 Problem 4.3.4 (cube vs simplex)</a></li>
+        <li><a href="#sec6">§6 Problem 4.4.2 (measure 0 via balls)</a></li>
+        <li><a href="#sec7">§7 Problem 4.4.7 (digits 1-6)</a></li>
+        <li><a href="#sec8">§8 Problem 4.5.8 (cylinder slice)</a></li>
+        <li><a href="#sec9">§9 Problem 4.5.11 (sin x/x swap)</a></li>
+        <li><a href="#sec10">§10 Problem 4.5.15 (paraboloids)</a></li>
+        <li><a href="#sec11">§11 方法论速查</a></li>
+        <li><a href="#sec12">§12 进一步阅读</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>HW2 详解 — measure zero + 可积性 + Fubini (10 题)</h1>
+      <p class="subtitle">本周 HW 的 HTML 讲解 · 10 道题覆盖 §4.1-§4.5 三大主题 · 原 pset 截止 2026-04-26 (Sun) · 与 LaTeX 解答 <code>../../HW/Response/HW2_response.pdf</code> 互补 · 策略段默认展开, 证明段折叠在 <code>&lt;details&gt;</code> 中</p>
+
+      <h2 id="sec1">§1 总览</h2>
+
+      <p>本次 HW (2026 SP 第 2 周) 是<strong>整学期最 fundamental 的概念扩张</strong>: 10 道题分散在三个主题里, 各自填充 §4.1-§4.5 (从 Riemann 积分基础 → 测度零理论 → Fubini 应用) 的关键缺口. 不同于 HW1 (集中在 §4.1) 与 HW4 (集中在 §4.11), HW2 是<em>跨节</em>的——它要求你<em>同时</em>掌握三个工具集.</p>
+
+      <h3>三大主题</h3>
+      <ol>
+        <li><strong>主题 I — Measure-zero 探索 (5 题)</strong>: P1, P3, P4, P 4.4.2, P 4.4.7. 这是 §3-§4.4 的核心. 把 measure-zero 概念从"<em>定义+反例</em>" 推到 "<em>等价描述</em>" (cubes vs balls) 与 "<em>大量构造性例子</em>" (Cantor-like 数字集). 反复用 $\eps/2^j$-trick 与密度论证.</li>
+        <li><strong>主题 II — Riemann 可积性 (2 题)</strong>: P2 (continuous + bounded support ⟹ integrable, <em>用 upper-lower sum</em>), P4 (Thomae 函数: 可积 but discontinuous on 反常集). 第二题的 punchline 是把主题 I 的 measure-zero 工具<em>直接喂给</em> Lebesgue 准则.</li>
+        <li><strong>主题 III — Fubini 与对称几何 (4 题)</strong>: P 4.3.4 (a)(b) (cube 上对称函数 = $n!$ × simplex 上, 推到 product function 公式), P 4.5.8 (cylinder slice 体积), P 4.5.11 (swap-order trick on $\sin x/x$), P 4.5.15 (paraboloids 间体积). 全部用 Fubini 把 $n$-维问题降到 1-D, 配合<em>几何对称性</em>简化.</li>
+      </ol>
+
+      <p>三大主题不孤立 — P4 (Thomae) 把主题 I 的 P3 (countable ⟹ measure zero) 作为 lemma 喂入主题 II 的 Lebesgue 准则; P 4.3.4(a) 的证明用到主题 I 的 "lower-dim subspace 测度零" 引理. 主题 III 的 4 题之间也有重复 (Fubini + 几何对称) — 但<em>没有</em>像 HW4 那种"一个 truncation 模板用 6 遍"的单一 master template, 所以本页不设 §1.5.</p>
+
+      <h3>题型分布表</h3>
+
+      <table class="textbook-index">
+        <thead>
+          <tr><th>题号</th><th>核心技术</th><th>主题</th><th>关键观察</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>P1</td><td>反例 + Cauchy 准则失败</td><td>I</td><td>$\Q \cap [0,1]$: $U_N - L_N \ge 1$, 故 vol 未定义</td></tr>
+          <tr><td>P2</td><td>uniform continuity + diameter 估计</td><td>II</td><td>$\osc_C(f) \le \eps$ 或 $f \equiv 0$ on $C$ — case-by-case 处理</td></tr>
+          <tr><td>P3</td><td>$\eps/2^j$-trick</td><td>I</td><td>每个点 $x^{(j)}$ 用体积 $\eps/2^{j+1}$ 的开 cube</td></tr>
+          <tr><td>P4</td><td>Thomae 函数 + P3 + Lebesgue 准则</td><td>I+II</td><td>$\Disc f = \Q \cap [-1,1]$ countable ⟹ measure 0 ⟹ $f \in \IR$</td></tr>
+          <tr><td>4.3.4(a)</td><td>排列群分解 + measure-zero 对角集</td><td>III</td><td>$Q = \bigsqcup_\sigma P_\sigma \cup B$, $B = $ 超平面 union, vol 0</td></tr>
+          <tr><td>4.3.4(b)</td><td>(a) 应用于 product function</td><td>III</td><td>$F(x) = \prod_i f(x_i)$ 自动 symmetric (commutativity)</td></tr>
+          <tr><td>4.4.2</td><td>几何 lemma + 双向 cover 转换</td><td>I</td><td>$C(a, s) \subset B(a, s\sqrt n/2)$, $B(a, r) \subset C(a, 2r)$</td></tr>
+          <tr><td>4.4.7</td><td>Cantor-like prefix 枚举</td><td>I</td><td>覆盖率 $(6/10)^m = (3/5)^m \to 0$</td></tr>
+          <tr><td>4.5.8</td><td>Fubini + 三角代换</td><td>III</td><td>$\vol_3 = 2\pi/3 + \sqrt 3$ (cylinder 段)</td></tr>
+          <tr><td>4.5.11</td><td>★ swap-order trick</td><td>III</td><td>原顺序无 elementary antideriv; 互换后立得 = 2</td></tr>
+          <tr><td>4.5.15</td><td>Fubini + Wallis 积分</td><td>III</td><td>两 paraboloid 间体积 = $25\pi$; 投影 = disk 半径 $\sqrt 5$</td></tr>
+        </tbody>
+      </table>
+
+      <h3>通用工具栏</h3>
+
+      <div class="box prereq">
+        <span class="box-title">📦 本次 HW 反复用的工具 (不再每题重列)</span>
+        <ul>
+          <li><strong>Measure zero 定义 (Lec 3.1)</strong>: $X \subseteq \R^n$ measure zero ⟺ $\forall \eps,\,\exists$ countable cover by open cubes $\{B_i\}$, $\sum \vol(B_i) &lt; \eps$. 用于<em>所有</em> measure-zero 题.</li>
+          <li><strong>★ $\eps/2^j$-trick</strong>: 对 countable family $\{S_j\}$, 给每个 $S_j$ 分配 $\eps/2^{j+1}$ 的体积预算. 求和 $\sum \eps/2^{j+1} = \eps/2 &lt; \eps$. 用于 P3, P1, P4 (间接).</li>
+          <li><strong>Cauchy 准则</strong>: $f$ bounded with bounded support 可积 ⟺ $\forall \eps,\,\exists N,\,U_N(f) - L_N(f) &lt; \eps$. 用于 P1 (vol-undef ⟸ $U_N - L_N \not\to 0$) 与 P2 (主证明).</li>
+          <li><strong>Lebesgue 准则 (Thm 4.1.13)</strong>: $f$ bounded with bounded support 可积 ⟺ $\Disc(f)$ has measure zero. 用于 P4 (Thomae 可积).</li>
+          <li><strong>Uniform continuity on compact set (Heine-Cantor)</strong>: $f$ continuous on compact $K \subset \R^n$ ⟹ uniformly continuous. 用于 P2.</li>
+          <li><strong>Dyadic diameter 估计</strong>: $\diam(C_{\mathbf k, N}) = \sqrt n / 2^N$. 用于 P2 (匹配 uniform continuity 的 $\delta$).</li>
+          <li><strong>Fubini (Thm 4.5.1)</strong>: integrable $f$ on $\R^{n+m}$ ⟹ iterated integral存在并等于 multiple integral. 用于 P 4.3.4(b), 4.5.8, 4.5.11, 4.5.15.</li>
+          <li><strong>Lower-dim subspace measure zero (Prop 3.2.2)</strong>: $k$-维子空间 of $\R^n$ ($k &lt; n$) has measure 0. 用于 P 4.3.4(a) (对角集 $B = \bigcup_{i &lt; j}\{x_i = x_j\}$).</li>
+        </ul>
+      </div>
+
+      <h2 id="sec2">§2 Problem 1 — $\Q \cap [0,1]$: measure zero + undefined volume</h2>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 1</span>
+        <p>找一个 measure zero 的 $\R^n$ 子集 $X$, 它有<em>undefined</em> volume. 证明 $X$ 既 measure zero 又 undefined volume.</p>
+      </div>
+
+      <h4>策略</h4>
+
+      <p>这是 §3 (measure-zero vs vol-zero) 的<strong>标志性反例</strong>问题. 直觉 + 设计:</p>
+      <ol>
+        <li><strong>需要的几何性质</strong>: $X$ 既要 measure 0 (i.e. 能被任意小的<em>countable</em> cube cover 覆盖) 又要 vol undefined (i.e. $\mathbf 1_X$ <em>不可积</em>).</li>
+        <li><strong>"countable" 是 measure-0 的工具, "dense" 是 vol-undef 的工具</strong>: 一个 countable 集合自然 measure 0 (P3 的结论, 用 $\eps/2^j$-trick); 一个 dense 集合让 $\mathbf 1_X$ 的 $U_N - L_N \not\to 0$ (类比 HW1 P1a 的 Dirichlet 反例).</li>
+        <li>所以需要 <strong>countable</strong> AND <strong>dense in 某区间</strong> 的集合. 最自然的候选: <strong>$\Q \cap [0, 1]$</strong>.</li>
+      </ol>
+
+      <p>这是 measure-0 与 vol-undef 的 "<em>regulation example</em>" — 同时具备两个 ostensibly 相反的属性. 它出现的根本原因是: <em>countable</em> (measure-0 的 ε/2^j 工具适用) 与 <em>dense</em> (Riemann sum 视角看不出 X 与 complement 的区别) 在 $\Q \cap [0,1]$ 上<em>共存</em> — 是 $\Q$ 在 $\R$ 中的代数-拓扑 双重身份.</p>
+
+      <details>
+        <summary><strong>展开严格证明 (双向: measure 0 + vol undefined)</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">证明</span>
+
+            <p>取 $X := \Q \cap [0, 1] \subset \R$ (一般 $\R^n$ 情形可取 $X \times \{0\}^{n-1}$ 或 $\Q^n \cap [0,1]^n$).</p>
+
+            <p><strong>(1) $X$ measure zero</strong>: $X$ countable (subset of countable $\Q$). 枚举 $X = \{q_1, q_2, q_3, \ldots\}$. 对 $\eps &gt; 0$, 取开 cube
+            $$B_j := (q_j - \eps/2^{j+2},\;\; q_j + \eps/2^{j+2}), \qquad \vol_1(B_j) = \eps/2^{j+1}.$$
+            $X \subseteq \bigcup_j B_j$ (每个 $q_j \in B_j$), 总体积
+            $$\sum_j \vol_1(B_j) = \sum_j \eps/2^{j+1} = \eps/2 &lt; \eps.$$
+            By Def 3.1.1, $X$ has measure zero. $\checkmark$</p>
+
+            <p><strong>(2) $X$ has undefined volume</strong>: 等价于 $\mathbf 1_X \notin \IR$. 用 Cauchy 准则: 显示 $U_N(\mathbf 1_X) - L_N(\mathbf 1_X) \ge 1$ for all $N$.</p>
+
+            <p>固定 $N$, 考虑 dyadic paving $\mathcal D_N(\R)$. 令 $\mathcal C_N := \{C \in \mathcal D_N : C \cap [0, 1] \ne \emptyset\}$.</p>
+
+            <p>对每个 $C \in \mathcal C_N$ (dyadic 区间 of length $1/2^N$, 与 $[0,1]$ 相交): $C \cap [0, 1]$ nonempty + nondegenerate, 由 $\Q$ 稠密 ⟹ 含 rational ⟹ $\sup_C \mathbf 1_X = 1$. 对 $C \notin \mathcal C_N$ (即 $C$ 与 $[0,1]$ 不相交), $\mathbf 1_X \equiv 0$ on $C$, 故 $\sup_C \mathbf 1_X = 0$.</p>
+
+            <p>$$U_N(\mathbf 1_X) = \sum_{C \in \mathcal C_N}\vol_1(C) \ge 1$$
+            (cubes in $\mathcal C_N$ 覆盖 $[0, 1]$, 总长 $\ge 1$).</p>
+
+            <p>对每个 $C \in \mathcal D_N$ (任意 dyadic 区间, positive length): 由 $\R \setminus \Q$ 稠密 ⟹ $C$ 含 irrational ⟹ $\inf_C \mathbf 1_X = 0$.
+            $$L_N(\mathbf 1_X) = 0.$$
+            </p>
+
+            <p>故对<em>所有</em> $N$, $U_N(\mathbf 1_X) - L_N(\mathbf 1_X) \ge 1$, 违反 Cauchy 准则. $\mathbf 1_X \notin \IR$, $\vol_1(X)$ undefined. $\blacksquare$</p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — measure zero 与 vol zero 的"双向 gap"</span>
+        <p><strong>两个方向都失败</strong>: P1 给出"measure 0 但 vol 未定义"的例子. 反方向呢? "vol 0 但<em>不</em> measure 0"? 不可能: 若 $\vol(X) = 0$, 则 $\mathbf 1_X \in \IR$, 进一步 (由 HW1 P4a Prop 4.1.23) "$X$ 能被有限 dyadic cube 覆盖, 总体积任意小". 有限 cover trivial 也是 countable cover, 故 measure 0. 故 <em>vol 0 ⟹ measure 0</em> always.</p>
+        <p><strong>蕴含关系</strong>: vol 0 ⊊ measure 0 ⊊ {bounded sets}. P1 的 $\Q \cap [0, 1]$ 落在 "measure 0 \ vol 0" 的 strict gap 里. 这个 gap 是 Lebesgue 积分发明的<em>历史动机</em> — 它把 $\Q \cap [0,1]$ "<em>合并</em>" 到可积函数定义里 (Lebesgue 积分下 $\int \mathbf 1_{\Q \cap [0,1]} dV_L = 0$). 见 <a href="../topics/12-lebesgue-construction.html">Topic 12</a>.</p>
+        <p><strong>$U_N - L_N \ge 1$ 是<em>极限</em>失败的 sharp 量化</strong>: 不是"$U_N - L_N$ 慢慢趋 0"或"趋某 small 正数", 而是<em>下界恒 $\ge 1$</em>. 这反映 $\mathbf 1_X$ 在<em>每个</em> dyadic level 都是 wildly oscillating, 加 partition 没用 — 与连续函数 (uniform continuity 让 oscillation $\to 0$) 形成最尖锐对比.</p>
+      </div>
+
+      <h2 id="sec3">§3 Problem 2 — 连续 + bounded support ⟹ 可积 (用 upper-lower sum)</h2>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 2</span>
+        <p>$f \colon \R^n \to \R$ bounded continuous with bounded support. 证明 $f$ 可积, <em>用 upper-lower sum</em>.</p>
+      </div>
+
+      <h4>策略</h4>
+
+      <p>这个 statement 本身可由 <strong>Lebesgue 准则</strong>立即推出 ($\Disc f = \emptyset$ measure zero) — 这是 HW1 P1b 走的路. 但本题<em>规定</em>不用 Lebesgue 准则, 要 "<em>用 upper-lower sum</em>" 直接证明. 这是为了<em>训练你 raw 操作 dyadic paving</em> 的能力, 不依赖高阶定理.</p>
+
+      <p>关键挑战: $f$ 的 support 是<em>bounded</em>, 但<em>不一定</em>是 dyadic cube — 它可能是 ball 或 irregular 集. 我们怎么把 "$f$ 在 $\supp(f)$ 上 uniform continuous" 翻译成 "$U_N(f) - L_N(f)$ 小"?</p>
+
+      <p><strong>核心 trick (case-by-case)</strong>: 对每个 dyadic cube $C \in \mathcal D_N$:</p>
+      <ul>
+        <li><strong>(a) $C \subseteq K$</strong> (包含 supp 的 fattened compact box): 用 uniform continuity ⟹ $\osc_C(f) \le \eps$.</li>
+        <li><strong>(b) $C \not\subseteq K$</strong>: $C$ 触出 $K$ 外, 结合 small diameter + $K$ 是 $\supp(f)$ 的 fattening ⟹ <em>整个</em> $C$ 落在 $\supp(f)$ 外, $f \equiv 0$ on $C$, $\osc_C(f) = 0$.</li>
+      </ul>
+
+      <p>取 $K = [-R-1, R+1]^n$ (其中 $R$ 是 $\supp(f) \subseteq [-R, R]^n$). 取 $N$ 使 $\diam(C_{\mathbf k, N}) = \sqrt n/2^N &lt; \min(\delta, 1)$ (其中 $\delta$ 来自 uniform continuity). "$&lt; \delta$" 处理 case (a) 的 oscillation; "$&lt; 1$" 处理 case (b) 的 "$C$ 整个在 $K$ 外". 两个条件叠加, $U_N(f) - L_N(f) \le \eps \cdot (2R+2)^n$.</p>
+
+      <details>
+        <summary><strong>展开严格证明 (Heine-Cantor + dyadic + case-by-case)</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">证明</span>
+
+            <p><strong>Setup</strong>: $\supp(f) \subseteq [-R, R]^n$ for some $R &gt; 0$. 设 $K := [-R-1, R+1]^n$ (compact). $f$ continuous on $K$ ⟹ uniformly continuous on $K$ (Heine-Cantor).</p>
+
+            <p>对 $\eps &gt; 0$, $\exists \delta &gt; 0$ 使
+            $$x, y \in K,\;\norm{x - y} &lt; \delta \;\Longrightarrow\; \abs{f(x) - f(y)} &lt; \eps. \qquad (\star)$$
+            取 $N$ 满足 $\diam(C_{\mathbf k, N}) = \sqrt n / 2^N &lt; \min(\delta, 1)$.</p>
+
+            <p><strong>Claim</strong>: 对每个 $C \in \mathcal D_N$, 恰好一个 case 成立:
+            <ol type="a">
+              <li>$C \subseteq K$ ⟹ $\osc_C(f) \le \eps$.</li>
+              <li>$C \not\subseteq K$ ⟹ $f \equiv 0$ on $C$, 故 $\osc_C(f) = 0$.</li>
+            </ol>
+            </p>
+
+            <p><strong>证 (a)</strong>: $C \subseteq K$ ⟹ 任意 $x, y \in C$ 满足 $x, y \in K$ 且 $\norm{x - y} \le \diam C &lt; \delta$. By $(\star)$, $\abs{f(x) - f(y)} &lt; \eps$. Sup over $x, y \in C$: $\osc_C(f) \le \eps$. $\checkmark$</p>
+
+            <p><strong>证 (b)</strong>: $C \not\subseteq K$ ⟹ $\exists y \in C \setminus K$, i.e., 某 coord $\abs{y_i} &gt; R + 1$. 设 $y_i &gt; R + 1$. 对任意 $z \in C$, $\abs{z_i - y_i} \le \diam C &lt; 1$, 故 $z_i &gt; y_i - 1 &gt; R$, 即 $z \notin [-R, R]^n \supseteq \supp(f)$. 故 $f(z) = 0$. $z \in C$ 任意, $f \equiv 0$ on $C$. $\checkmark$</p>
+
+            <p><strong>组合</strong>: $C \subseteq K$ 的 cubes 总体积 $\le \vol(K) = (2R + 2)^n$. 故
+            $$U_N(f) - L_N(f) = \sum_{C \in \mathcal D_N}\osc_C(f)\cdot\vol(C) = \sum_{C \subseteq K}\osc_C(f)\cdot\vol(C) + \underbrace{\sum_{C \not\subseteq K}\osc_C(f)\cdot\vol(C)}_{= 0}$$
+            $$\le \eps \cdot \sum_{C \subseteq K}\vol(C) \le \eps \cdot (2R + 2)^n.$$
+            对任意 $\eps' &gt; 0$, 取 $\eps = \eps'/(2R+2)^n$ ⟹ $U_N(f) - L_N(f) &lt; \eps'$. By Cauchy 准则, $f \in \IR$. $\blacksquare$</p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — "$&lt; \delta$" + "$&lt; 1$" 两个条件的<em>独立</em>角色</span>
+        <p>diameter 选择 $\sqrt n/2^N &lt; \min(\delta, 1)$ 是<strong>同时</strong>满足两个条件的要求:</p>
+        <ul>
+          <li><strong>$&lt; \delta$</strong>: 用于 case (a). uniform continuity 的 $\delta$ 让 $\osc_C(f) \le \eps$ 在 $C \subseteq K$ 时成立.</li>
+          <li><strong>$&lt; 1$</strong>: 用于 case (b). $K = [-R-1, R+1]^n$ 比 $\supp(f) \subseteq [-R, R]^n$ "胖" $1$ 个单位; cube diameter $&lt; 1$ 让 $C \not\subseteq K$ 时 $C$ 整体落在 $\supp f$ 外.</li>
+        </ul>
+        <p>如果只用 $&lt; \delta$ 而不要求 $&lt; 1$, case (b) 可能 contain $C$ 一部分 in $\supp f$ 一部分外, $f$ 在 $C$ 上 oscillation 不一定 0 也不一定 $\le \eps$ — 失控. 故 $1$ 这个数字不是"魔法常数", 而是<em>$K$ 与 $\supp f$ 之间的</em> 安全 margin.</p>
+        <p><strong>对比 Lebesgue 准则 short-cut</strong>: 用 Lebesgue 准则只要"$\Disc f = \emptyset$ measure 0", 一句话 done. 但 Lebesgue 准则本身的证明 (Lec 3.2) 需要类似 P2 的技术 + 测度零的 cover 论证. 所以 "<em>用 upper-lower sum 直接</em>" 实际是<em>不调用 Lebesgue 准则的 self-contained</em> 证明, 更"<em>raw</em>" 但同样严格. 这也是为什么 P2 在 HW2 里出现 — 它训练 mid-level 技术不依赖 high-level 定理.</p>
+      </div>
+
+      <h2 id="sec4">§4 Problems 3 + 4 — countable ⟹ measure zero, + Thomae's function</h2>
+
+      <p>P3 与 P4 联合起来形成一个 <strong>conceptual unit</strong>: P3 证明 "<em>countable ⟹ measure 0</em>" (用 $\eps/2^j$-trick); P4 把这个结果作为 lemma <em>立即</em>用在 Thomae's function 上 ("$\Disc(\text{Thomae}) = \Q \cap [-1, 1]$ countable ⟹ measure 0 ⟹ Thomae 可积"). 一起讲使 P4 的 punchline 凸显.</p>
+
+      <h3 id="sec4a">P3 — Countable subset of $\R^n$ has measure zero</h3>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 3</span>
+        <p>证明任意 countable subset of $\R^n$ has measure zero.</p>
+      </div>
+
+      <h4>策略 + 证明</h4>
+
+      <p>核心是 <strong>$\eps/2^j$-trick</strong>: 对 countable family $\{x^{(j)}\}_{j=1}^\infty$, 给每个 $x^{(j)}$ 配一个<em>体积</em> $\eps/2^{j+1}$ 的 cube. 求和: $\sum_j \eps/2^{j+1} = \eps/2 &lt; \eps$. 这一招在 §3-§4 反复出现 (countable union of measure-zero sets, P1, P4 等), 是 measure 理论的<em>瑞士军刀</em>.</p>
+
+      <details>
+        <summary><strong>展开证明</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">证明</span>
+            <p>$S \subseteq \R^n$ countable, 枚举 $S = \{x^{(1)}, x^{(2)}, \ldots\}$ (有限或可数). 对 $\eps &gt; 0$, 设 $s_j := (\eps/2^{j+1})^{1/n}$, 取以 $x^{(j)}$ 为中心、边长 $s_j$ 的开 cube
+            $$B_j := \prod_{i=1}^n (x^{(j)}_i - s_j/2,\;\; x^{(j)}_i + s_j/2), \qquad \vol_n(B_j) = s_j^n = \eps/2^{j+1}.$$
+            $\{B_j\}$ countable cover of $S$ (每个 $x^{(j)} \in B_j$), 总体积
+            $$\sum_j \vol_n(B_j) = \sum_j \eps/2^{j+1} = \eps/2 &lt; \eps.$$
+            By Def 3.1.1, $S$ has measure zero. $\blacksquare$</p>
+          </div>
+        </div>
+      </details>
+
+      <p><strong>立得推论</strong>: $\Q^n \subseteq \R^n$ has measure zero (因为 $\Q^n$ countable). 也包含 algebraic numbers, finite 集, sequence 极限的有限集合等.</p>
+
+      <h3 id="sec4b">P4 — Thomae's function: integrable, discontinuous on undefined-vol set</h3>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 4</span>
+        <p>找 integrable $f \colon \R \to \R$ which is discontinuous on a set of <em>undefined</em> volume.</p>
+      </div>
+
+      <h4>策略</h4>
+
+      <p>我们需要的特征: (1) $f \in \IR$, (2) $\Disc f$ has undefined volume (即 $\mathbf 1_{\Disc f} \notin \IR$). 由 (1) Lebesgue 准则 ⟹ $\Disc f$ measure 0; 由 (2) 又 $\Disc f$ 不能太规则 (否则 $\mathbf 1_{\Disc f}$ 会可积). <em>所以 $\Disc f$ 必须是 measure 0 但 vol-undef 的集合</em> — 由 P1, 这就是 $\Q \cap [-1, 1]$ 类型的集合.</p>
+
+      <p>但<em>有这种 $\Disc$ 的 integrable 函数</em>不容易构造. 一般思路: 不能用 $\mathbf 1_{\Q \cap [-1, 1]}$ 因为这个 indicator 本身<em>不可积</em>. 需要找一个 "$\Disc = \Q \cap [-1, 1]$ 但 $f$ <em>是</em>可积的" 函数. 这就是经典的 <strong>Thomae's function (popcorn function, ruler function)</strong>:
+      $$f(x) = \begin{cases} 1/q & x = p/q \in \Q \cap [-1, 1] \text{ in lowest terms} \\ 0 & \text{otherwise}\end{cases}$$
+      </p>
+
+      <p>关键性质 (Lec 3.2 Example 3.2.1 完整证):</p>
+      <ul>
+        <li><strong>$f$ continuous at every irrational</strong> (and outside $[-1, 1]$): 由<em>有限性</em>论证 — $\{q : 1/q \ge \eps\}$ 是 finite set, 故 $\{p/q \in [-1, 1] : 1/q \ge \eps\}$ 也 finite, irrational point 与这个 finite set 的距离 $\ge \delta &gt; 0$.</li>
+          <li><strong>$f$ discontinuous at every rational</strong>: $f(p/q) = 1/q &gt; 0$, but irrationals dense ⟹ exists irrational sequence $\xi_k \to p/q$ with $f(\xi_k) = 0$. 故 $\Disc f = \Q \cap [-1, 1]$.</li>
+        <li><strong>$\Disc f$ measure zero</strong> (by P3, countable ⟹ measure 0) ⟹ $f$ integrable (Lebesgue 准则).</li>
+        <li><strong>$\vol(\Disc f) = \vol(\Q \cap [-1, 1])$ undefined</strong> (by P1, same density argument).</li>
+      </ul>
+
+      <p>这就完美命中题目要求.</p>
+
+      <details>
+        <summary><strong>展开严格证明 (Thomae continuity analysis + P3 + P1 调用)</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">证明</span>
+
+            <p><strong>定义</strong>: $f \colon \R \to \R$:
+            $$f(x) := \begin{cases}1/q & x \in \Q \cap [-1, 1],\;x = p/q \text{ in lowest terms},\;q \ge 1, \\ 0 & \text{otherwise}.\end{cases}$$
+            (约定 $0 = 0/1$, 故 $f(0) = 1$. $\supp(f) \subseteq [-1, 1]$, $0 \le f \le 1$ — bounded with bounded support.)</p>
+
+            <p><strong>Claim 1: $\Disc f = \Q \cap [-1, 1]$.</strong></p>
+
+            <p><em>(Discontinuity at rationals)</em>: $x_0 = p_0/q_0 \in \Q \cap [-1, 1]$, $f(x_0) = 1/q_0 &gt; 0$. Irrationals dense ⟹ $\exists \xi_k \to x_0$, $\xi_k \in [-1, 1] \setminus \Q$, $f(\xi_k) = 0$. Hence $\lim f(\xi_k) = 0 \ne 1/q_0 = f(x_0)$. Discontinuous.</p>
+
+            <p><em>(Continuity at irrationals + outside $[-1, 1]$)</em>: 设 $x_0 \in [-1, 1] \setminus \Q$ (irrational case; outside $[-1, 1]$ trivially 由 local zero). $f(x_0) = 0$. 对 $\eps &gt; 0$:</p>
+            <ul>
+              <li><em>有限性 trick</em>: $Q_\eps := \{q \in \N : 1/q \ge \eps\} = \{1, 2, \ldots, \lfloor 1/\eps \rfloor\}$ 是<strong>finite</strong>.</li>
+              <li>$S_\eps := \{p/q \in [-1, 1] : q \in Q_\eps,\;\gcd(p, q) = 1\}$ 也 finite (每个 $q \in Q_\eps$ 给 $\le 2q + 1$ 个 valid $p$).</li>
+              <li>$x_0$ irrational ⟹ $x_0 \notin S_\eps$, 故 $\delta := \min_{s \in S_\eps}\abs{x_0 - s} &gt; 0$.</li>
+            </ul>
+            <p>对 $x \in (x_0 - \delta, x_0 + \delta)$:
+            <ul>
+              <li>$x$ irrational 或 $\abs x &gt; 1$: $f(x) = 0$, $\abs{f(x) - f(x_0)} = 0 &lt; \eps$.</li>
+              <li>$x = p/q \in \Q \cap [-1, 1]$ in lowest terms: $x \notin S_\eps$ (by $\delta$ choice) ⟹ $q \notin Q_\eps$ ⟹ $1/q &lt; \eps$. 故 $f(x) = 1/q &lt; \eps$.</li>
+            </ul>
+            两种情况都 $\abs{f(x) - f(x_0)} &lt; \eps$. Continuity at $x_0$. $\checkmark$</p>
+
+            <p><strong>Claim 2: $f$ integrable</strong>. 由 Claim 1, $\Disc f = \Q \cap [-1, 1]$ countable. <em>由 P3</em>, countable ⟹ measure 0. By Lebesgue 准则 (Thm 4.1.13), $f \in \IR(\R)$. $\checkmark$</p>
+
+            <p><strong>Claim 3: $\Disc f = \Q \cap [-1, 1]$ has undefined volume</strong>. <em>由 P1 同款证</em>: 每个 dyadic interval intersecting $[-1, 1]$ 含 rational ⟹ $M_C(\mathbf 1_{\Disc f}) = 1$, 求和 $\ge 2$; 每个 dyadic interval 含 irrational ⟹ $m_C(\mathbf 1_{\Disc f}) = 0$. $U_N - L_N \ge 2$ for all $N$ ⟹ $\mathbf 1_{\Disc f} \notin \IR$ ⟹ vol undefined. $\checkmark$</p>
+
+            <p>Combine: $f$ integrable, $\Disc f$ undefined vol. $\blacksquare$</p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — Thomae 的几何 + P3+P4 联手反映 Lebesgue 准则的"<em>本质</em>"</span>
+        <p><strong>Thomae 的几何形象</strong>: $f$ 在每个 rational $p/q$ 上有一个 spike of height $1/q$. 小 denominator (e.g. $1/2, 1/3, 2/3$) 给大 spike; 大 denominator (e.g. $123/456$) 给 tiny spike. 图象长得像 "<em>popcorn</em>" (爆米花) — 离散的 spike 越靠近 $0$ 越密集 (rationals are dense), 但<em>大</em> spike (即大 $1/q$) 稀疏 (它们对应 simple fraction). 这就是为什么 $f$ 在 irrationals 处连续: 任意小邻域里, 大 spike 只有<em>有限多</em>, 故 $\delta$ 取得 small enough 就避开了它们.</p>
+
+        <p><strong>P3 + P4 联手反映 Lebesgue 准则的核心</strong>: Lebesgue 准则告诉我们 "<em>discontinuity 集合<em>measure</em> 0 就够 (不需要 vol 0 或 closed 等更强属性)</em>". P3 + P4 联合给出一个 dramatic 验证 —</p>
+        <ul>
+          <li>P3: 任何 countable 集 measure 0.</li>
+          <li>P4: $\Disc(\text{Thomae}) = \Q \cap [-1, 1]$ countable, 故 measure 0, 故 Thomae integrable. <em>尽管 $\Disc f$ 是 dense + undefined volume</em> (P1 的属性).</li>
+        </ul>
+        <p>"<em>Discontinuity 集合即使 dense, 即使 vol-undefined, 只要 countable 仍 measure 0, 仍允许函数可积</em>" — 这是 §4.1 整章的<em>顶点</em>论述. 把 Riemann 可积性从"<em>$\Disc$ 必须是稀薄几何对象</em>"放宽到"<em>$\Disc$ 必须 measure 0 (拓扑可以任意复杂)</em>". 见 <a href="../topics/06-lebesgue-criterion.html">Topic 06</a>.</p>
+
+        <p><strong>对应 §4.11 (Lebesgue 积分)</strong>: 在 Lebesgue 积分框架下, Dirichlet $\mathbf 1_{\Q \cap [0, 1]}$ <em>也</em>可积 (积分 = 0). Riemann 积分对 Dirichlet 失败的原因不是 measure-theoretic 而是 "<em>Riemann 定义只能 sum-then-limit, 无法 a.e. 等价 functions</em>". §4.11 通过砖块分解扩张 $\IR \subsetneq \IL$, "<em>修复</em>" Dirichlet 问题. P4 (Thomae) 是 §4.1 框架下 closest you can get to "Dirichlet" 但<em>仍可积</em>的函数.</p>
+      </div>
+
+      <h2 id="sec5">§5 Problem 4.3.4 — Cube 上对称函数 vs Simplex 上 (a + b)</h2>
+
+      <h3>串联</h3>
+
+      <p>这道题分两 part: (a) 是<em>结构定理</em> "<em>cube 上对称函数 = $n!$ × ascending simplex 上</em>", (b) 是 (a) 应用于 <em>product function</em> $F(x) = \prod_i f(x_i)$ 得 $\int_P F = \tfrac{1}{n!}(\int_a^b f)^n$ 闭式公式. (a) 是 main work, (b) 是 elegant corollary.</p>
+
+      <h3 id="sec5a">Part (a) — 排列群分解 $\int_Q f = n! \int_P f$</h3>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 4.3.4(a)</span>
+        <p>$Q := \{x \in \R^n : a \le x_i \le b \forall i\}$ (cube); $P := \{x \in Q : a \le x_1 \le \cdots \le x_n \le b\}$ (ascending simplex). 若 $f$ integrable + symmetric (即 $f(x_1, \ldots, x_n) = f(x_{\sigma(1)}, \ldots, x_{\sigma(n)})$ 对所有 $\sigma \in S_n$), 证
+        $$\int_Q f = n! \int_P f.$$
+        </p>
+      </div>
+
+      <h4>策略</h4>
+
+      <p>从<em>几何分解</em>出发: 把 cube $Q$ 用<em>每种排序</em>切分:
+      $$Q = \bigcup_{\sigma \in S_n} P_\sigma, \qquad P_\sigma := \{x \in Q : x_{\sigma(1)} \le \cdots \le x_{\sigma(n)}\}.$$
+      每个 $P_\sigma$ 是一个"<em>permuted simplex</em>", 共 $n!$ 个. 它们 <strong>almost-disjoint</strong>: $P_\sigma \cap P_\tau$ ($\sigma \ne \tau$) 落在<em>对角集</em> $B := \bigcup_{i &lt; j}\{x_i = x_j\}$ 里 — 这是 finite union of $(n-1)$-dim hyperplanes, <strong>measure zero</strong> (Prop 3.2.2).</p>
+
+      <p>关键 lemma — <strong>coordinate-permutation invariance of integral</strong>: 对 $\sigma \in S_n$ 的"坐标置换" 线性映射 $T_\sigma \colon \R^n \to \R^n$ ($(T_\sigma x)_{\sigma(i)} = x_i$), $\int g \circ T_\sigma = \int g$ 对任意 integrable $g$. 直观: $T_\sigma$ permutes dyadic cubes, 保 vol, 故 $U_N(g \circ T_\sigma) = U_N(g)$ via reindexing.</p>
+
+      <p>组合: $f$ symmetric ⟹ $f \circ T_\sigma = f$ pointwise ⟹ $\int_{P_\sigma} f = \int_{T_\sigma^{-1}(P_\sigma)} f \circ T_\sigma = \int_P f$ (因 $T_\sigma^{-1}(P_\sigma) = P$, 即 ascending simplex). 求和 over $\sigma \in S_n$:
+      $$\int_Q f = \sum_\sigma \int_{P_\sigma} f = \sum_\sigma \int_P f = n! \int_P f.$$
+      </p>
+
+      <details>
+        <summary><strong>展开严格证明 (Step 1-6 + coordinate-perm lemma)</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">Lemma (coordinate-permutation invariance)</span>
+            <p>对任意 $g \in \IR(\R^n)$ 与 $\sigma \in S_n$: $\int_{\R^n} g \circ T_\sigma = \int_{\R^n} g$.</p>
+            <p><em>证</em>: $T_\sigma$ 是 linear 等距 (置换坐标), $\abs{\det T_\sigma} = 1$. 它把 dyadic cube $C_{\mathbf k, N}$ bijectively 映到另一 dyadic cube $C_{\mathbf k', N}$ (其中 $k'_j = k_{\sigma^{-1}(j)}$), 保 level + 保 vol. 故
+            $$U_N(g \circ T_\sigma) = \sum_C M_C(g \circ T_\sigma)\vol(C) = \sum_C M_{T_\sigma(C)}(g)\vol(C) \overset{C' = T_\sigma(C)}{=} \sum_{C'}M_{C'}(g)\vol(C') = U_N(g).$$
+            Similarly $L_N(g \circ T_\sigma) = L_N(g)$. $N \to \infty$ gives the integral equality. $\square$</p>
+          </div>
+
+          <div class="box thm">
+            <span class="box-title">证明 (a) 主体</span>
+
+            <p><strong>Step 1 (几何)</strong>: $Q = \bigcup_\sigma P_\sigma$ (每个 $x \in Q$ 至少存在排序 $\sigma$ 使 $x_{\sigma(1)} \le \cdots \le x_{\sigma(n)}$). 对 $\sigma \ne \tau$, $P_\sigma \cap P_\tau \subseteq B := \bigcup_{i &lt; j}\{x_i = x_j\}$ (若 $x \in P_\sigma \cap P_\tau$ has all distinct coords, $\sigma$ 与 $\tau$ both = unique sort permutation, 矛盾).</p>
+
+            <p><strong>Step 2 ($B$ has volume zero)</strong>: 每个超平面 $H_{ij} = \{x_i = x_j\}$ 是 $(n-1)$-dim linear subspace, has measure zero (Prop 3.2.2). $B \cap Q$ 是 finite union of bounded portions ⟹ vol 0 (by finite additivity of vol on pavable measure-0 sets).</p>
+
+            <p><strong>Step 3 (each $P_\sigma$ pavable)</strong>: $\partial P_\sigma$ contained in finite union of $(n-1)$-dim polyhedral pieces ⟹ measure 0 ⟹ $\mathbf 1_{P_\sigma}$ continuous a.e. ⟹ pavable. 故 $\int_{P_\sigma} f := \int f \cdot \mathbf 1_{P_\sigma}$ well-defined.</p>
+
+            <p><strong>Step 4 (almost-disjoint additivity)</strong>: 设 $H := \sum_\sigma \mathbf 1_{P_\sigma} - \mathbf 1_Q$. 对 $x \notin Q$: $H(x) = 0$. 对 $x \in Q \setminus B$ (distinct coords): exactly one $\sigma$ orders, $\sum = 1 = \mathbf 1_Q$. 对 $x \in B \cap Q$: $0 \le H(x) \le n! - 1$. 综合 $0 \le H \le n! \cdot \mathbf 1_B$. 由 vol $B = 0$: $\int f \cdot H = 0$, 故
+            $$\int_Q f = \sum_\sigma \int_{P_\sigma} f.$$
+            </p>
+
+            <p><strong>Step 5 (对称性, 应用 Lemma)</strong>: $f$ symmetric ⟹ $f \circ T_\sigma = f$ pointwise. 也 $\mathbf 1_{P_\sigma}(T_\sigma x) = \mathbf 1_P(x)$ (verify: $T_\sigma x \in P_\sigma \iff x_1 \le x_2 \le \cdots \le x_n \iff x \in P$). 故 $(f \cdot \mathbf 1_{P_\sigma}) \circ T_\sigma = f \cdot \mathbf 1_P$. By Lemma:
+            $$\int_{P_\sigma} f = \int f \cdot \mathbf 1_{P_\sigma} = \int (f \cdot \mathbf 1_{P_\sigma}) \circ T_\sigma = \int f \cdot \mathbf 1_P = \int_P f.$$
+            </p>
+
+            <p><strong>Step 6 (合并)</strong>:
+            $$\int_Q f = \sum_\sigma \int_{P_\sigma} f = \sum_\sigma \int_P f = n! \int_P f. \qquad \blacksquare$$
+            </p>
+          </div>
+        </div>
+      </details>
+
+      <h3 id="sec5b">Part (b) — $\int_P f(x_1)\cdots f(x_n) = \tfrac{1}{n!}(\int_a^b f)^n$</h3>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 4.3.4(b)</span>
+        <p>$f \colon [a, b] \to \R$ integrable. 证
+        $$\int_P f(x_1) f(x_2) \cdots f(x_n)\,\abs{d^n x} = \frac{1}{n!}\left(\int_a^b f\right)^n.$$
+        </p>
+      </div>
+
+      <h4>策略</h4>
+
+      <p>设 $F(x) := \widetilde f(x_1) \widetilde f(x_2) \cdots \widetilde f(x_n)$ 其中 $\widetilde f$ 是 $f$ 的 zero-extended 版本. 三步:</p>
+      <ol>
+        <li><strong>$F$ integrable + $\int_{\R^n} F = (\int_a^b f)^n$</strong>: 由 "baby Fubini" (Lec 2.2): product of integrable functions 在 $\R^k \times \R^m$ 上 integrable + 积分 = 积分 product.</li>
+        <li><strong>$F$ symmetric</strong>: 由乘法 commutativity, $\prod_i \widetilde f(x_{\sigma(i)}) = \prod_j \widetilde f(x_j)$.</li>
+        <li><strong>$F$ supported in $Q_{a, b}^n$</strong>: 若 $x_i \notin [a, b]$ 某 $i$, $\widetilde f(x_i) = 0$ ⟹ $F = 0$.</li>
+      </ol>
+
+      <p>把 (a) 应用到 $F$: $\int_Q F = n! \int_P F$. LHS = $\int_{\R^n} F = (\int_a^b f)^n$, RHS = $n! \int_P F$. 整理得
+      $$\int_P F = \tfrac{1}{n!}(\int_a^b f)^n.$$
+      </p>
+
+      <details>
+        <summary><strong>展开证明 (b)</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">证明</span>
+
+            <p>设 $\widetilde f(t) := f(t)$ for $t \in [a, b]$, $= 0$ otherwise. $\widetilde f$ bounded with bounded support $[a, b]$; $\Disc(\widetilde f) \subseteq \{a, b\} \cup \Disc(f)$ measure 0 ⟹ $\widetilde f \in \IR(\R)$. 设
+            $$F(x_1, \ldots, x_n) := \widetilde f(x_1) \widetilde f(x_2) \cdots \widetilde f(x_n).$$
+            </p>
+
+            <p><strong>(i) $F$ integrable on $\R^n$ + product formula</strong>: 由 baby Fubini (Lec 2.2): if $g_1 \in \IR(\R^k)$, $g_2 \in \IR(\R^m)$, then $g_1(x)g_2(y) \in \IR(\R^{k+m})$ with $\int g_1 g_2 = (\int g_1)(\int g_2)$. 归纳 $n - 1$ 次:
+            $$\int_{\R^n} F = \prod_i \int_\R \widetilde f = \left(\int_a^b f\right)^n.$$
+            </p>
+
+            <p><strong>(ii) $F$ symmetric</strong>: $F(x_{\sigma(1)}, \ldots) = \prod_i \widetilde f(x_{\sigma(i)}) = \prod_j \widetilde f(x_j) = F(x)$ (real mul commutative).</p>
+
+            <p><strong>(iii) $\supp F \subseteq Q^n_{a, b}$</strong>: 若 $x_i \notin [a, b]$ 某 $i$, $\widetilde f(x_i) = 0$ ⟹ $F(x) = 0$. 故 $\int_{\R^n} F = \int_{Q^n_{a, b}} F$.</p>
+
+            <p><strong>应用 (a) 到 $F$</strong>: $F$ symmetric + integrable + supp $\subseteq Q$ ⟹
+            $$\left(\int_a^b f\right)^n = \int_{\R^n} F = \int_Q F = n! \int_P F = n! \int_P f(x_1)\cdots f(x_n)\,\abs{d^n x}.$$
+            除以 $n!$:
+            $$\int_P f(x_1) f(x_2) \cdots f(x_n)\,\abs{d^n x} = \frac{1}{n!}\left(\int_a^b f\right)^n. \qquad \blacksquare$$
+            </p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — 排列群对称性: 几何 + 测度 + integral 三层</span>
+        <p>P 4.3.4 是 "<em>对称性导致积分等式</em>" 的典范, 三层结构相互锁定:</p>
+        <ol>
+          <li><strong>几何对称</strong>: $Q = \bigcup_\sigma P_\sigma$ + 对角集 $B$. 这是 cube 的 "<em>symmetric group action 自由 (mod $B$)</em>" 几何分解.</li>
+          <li><strong>测度对称</strong>: $B$ measure 0, 故所有 $P_\sigma$ 在<em>测度</em>意义下 disjoint. 这让"$\int_Q = \sum_\sigma \int_{P_\sigma}$" 严格成立.</li>
+          <li><strong>积分对称</strong>: coordinate-permutation invariance lemma + $f$ symmetric ⟹ $\int_{P_\sigma} f = \int_P f$ for all $\sigma$. 求和 ⟹ $n!$ factor.</li>
+        </ol>
+        <p>三层缺一不可: 没几何分解, 求和无意义; 没测度对称, 求和有 overlap; 没积分对称, 每个 $\int_{P_\sigma}$ 不相等.</p>
+
+        <p><strong>(b) 的 elegance</strong>: 把"对称性"<em>免费</em>得到 (real number multiplication commutative), 然后<em>免费</em>调用 (a). 这就让一个 $n$-维积分 — 看似复杂 — 简化为 1-D integral 的<em>$n$ 次方 / $n!$</em>. 公式形式直接对应 <em>multinomial / Bose statistics</em>: $\frac{1}{n!}$ 是"<em>indistinguishable particles 修正因子</em>"的初次出现.</p>
+
+        <p><strong>与 Topic 03 (积分代数性质) 的关联</strong>: 那里讲 linearity / monotonicity / abs value 等基本性质, P 4.3.4 是<em>对称性</em>这一<em>另一类</em> integral 性质 — 来自 group action 而非 algebra. 见 <a href="../topics/03-algebra-properties.html">Topic 03</a>.</p>
+      </div>
+
+      <h2 id="sec6">§6 Problem 4.4.2 — Measure zero via balls (vs cubes)</h2>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 4.4.2</span>
+        <p>证: $X \subseteq \R^n$ has measure 0 ⟺ for any $\eps &gt; 0$, exists infinite sequence of balls $B_i = \{x : \abs{x - a_i} &lt; r_i\}$ with $\sum_i r_i^n &lt; \eps$ and $X \subseteq \bigcup_i B_i$.</p>
+      </div>
+
+      <h4>策略</h4>
+
+      <p>题目要证 measure-zero 的<em>两种定义</em>等价: 原定义 (Def 3.1.1) 用 <em>cubes</em>; 这道题给的<em>ball</em>版本是 Hubbard 教材里用的 alternative. 两个定义形式不同但 morally 等价 — relating 它们需要一个<strong>几何 lemma</strong>:</p>
+
+      <div class="box thm">
+        <span class="box-title">🔧 Geometric Lemma (cube ↔ ball nesting)</span>
+        <ul>
+          <li><strong>(1)</strong> 开 cube $C(a, s)$ 边长 $s$ ⟹ $C(a, s) \subseteq B(a, s\sqrt n / 2)$.</li>
+          <li><strong>(2)</strong> 开 ball $B(a, r)$ ⟹ $B(a, r) \subseteq C(a, 2r)$.</li>
+        </ul>
+        <p><em>证 (1)</em>: $x \in C(a, s)$ ⟹ $\abs{x_i - a_i} &lt; s/2$ each $i$ ⟹ $\abs{x - a}^2 = \sum (x_i - a_i)^2 &lt; n (s/2)^2$ ⟹ $\abs{x - a} &lt; s\sqrt n/2$.</p>
+        <p><em>证 (2)</em>: $x \in B(a, r)$ ⟹ $\abs{x_i - a_i} \le \abs{x - a} &lt; r$ each $i$ ⟹ $x \in C(a, 2r)$.</p>
+      </div>
+
+      <p>有了 lemma, 双向都<em>立即</em>: cube cover with vol $&lt; \eps_0$ 通过 lemma (1) 变 ball cover with $\sum r^n &lt; (\sqrt n/2)^n \eps_0$ — 选 $\eps_0 = \eps / (\sqrt n/2)^n$ 让最终 $\sum r^n &lt; \eps$. 反向: ball cover with $\sum r^n &lt; \eps$ 通过 lemma (2) 变 cube cover with vol $&lt; 2^n \eps$ — 选 $\eps = \eps' / 2^n$.</p>
+
+      <p>两个定义只差<em>dimensional constants</em> $2^n$ 与 $(\sqrt n/2)^n$, 这些常数被 $\eps$-budget吸收, 不影响"measure 0"的判定.</p>
+
+      <details>
+        <summary><strong>展开严格证明 (两 direction + lemma)</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">($\Rightarrow$) cube cover ⟹ ball cover</span>
+            <p>$X$ measure zero. 设 $\eps &gt; 0$, $\eps_0 := \eps / (\sqrt n / 2)^n$. By Def 3.1.1, $\exists$ countable cube cover $\{C(a_i, s_i)\}$ of $X$ with $\sum s_i^n &lt; \eps_0$. By Lemma (1), $C(a_i, s_i) \subseteq B(a_i, s_i \sqrt n / 2)$. 设 $r_i := s_i \sqrt n / 2$. $\{B(a_i, r_i)\}$ countable ball cover of $X$ with
+            $$\sum_i r_i^n = (\sqrt n/2)^n \sum_i s_i^n &lt; (\sqrt n/2)^n \eps_0 = \eps. \qquad \checkmark$$
+            </p>
+          </div>
+          <div class="box thm">
+            <span class="box-title">($\Leftarrow$) ball cover ⟹ cube cover</span>
+            <p>设 $\eps' &gt; 0$, $\eps := \eps' / 2^n$. By hypothesis, $\exists$ countable ball cover $\{B(a_i, r_i)\}$ of $X$ with $\sum r_i^n &lt; \eps$. By Lemma (2), $B(a_i, r_i) \subseteq C(a_i, 2r_i)$ (cube of side $2r_i$). $\{C(a_i, 2r_i)\}$ countable cube cover with
+            $$\sum_i \vol_n(C(a_i, 2r_i)) = \sum_i (2r_i)^n = 2^n \sum_i r_i^n &lt; 2^n \eps = \eps'.$$
+            By Def 3.1.1, $X$ measure zero. $\checkmark$ $\blacksquare$</p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — 多种"测度零"定义的<em>等价</em>性</span>
+        <p>除了 cube + ball, 还可用 closed cubes / arbitrary boxes / $n$-dim 球 / ellipsoid 等定义 measure zero, 都等价. 一般原则: <em>任何 "<em>shape</em>" 满足 "<em>volume $\asymp$ (linear size)$^n$</em>" 的几何 family 都能 define measure zero</em>, 因为可以通过<em>$\asymp$ 常数</em>互相 cover.</p>
+        <p>这与"<em>measure 0 是一个 affine-invariant 概念</em>" 一致 — 任何 invertible 线性变换 (= cube/ball 互相 morph) 都保 measure zero.</p>
+        <p><strong>$r_i^n$ vs $c_n r_i^n$</strong> (其中 $c_n = \pi^{n/2}/\Gamma(n/2 + 1)$ 是 $n$-球体积常数): 题目给的 $\sum r_i^n &lt; \eps$ <em>没有</em> $c_n$ — 形式上"<em>错</em>" (因为 ball 体积应是 $c_n r^n$). 但实际是 conventionally 把 $c_n$ 吸收进 $\eps$ — 反正"<em>$\sum c_n r_i^n &lt; c_n \eps$</em>" 等价于"<em>$\sum r_i^n &lt; \eps$</em>" (任意 $\eps$). 这种"<em>吸收 dimensional constant</em>" 是 measure 理论的常用 maneuver. 见 <a href="../topics/05-measure-zero-basics.html">Topic 05</a>.</p>
+      </div>
+
+      <h2 id="sec7">§7 Problem 4.4.7 — Set of numbers using digits 1-6 (in base 10) has measure 0</h2>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 4.4.7</span>
+        <p>证: $S := \{x \in \R : x$ has base-$10$ expansion using only digits in $\{1, 2, 3, 4, 5, 6\}\}$ has measure 0.</p>
+      </div>
+
+      <h4>策略</h4>
+
+      <p>这是<strong>Cantor-like</strong>构造的标准 measure-0 检查: 把 $S$ 按数字 prefix 长度 $m$ <em>枚举</em>, 用越来越 fine 的 cover 让总长趋 0.</p>
+
+      <p><strong>Step 1 (reduce 到 bounded slabs)</strong>: $S = \bigcup_{k \in \Z}(S \cap [k, k+1])$ countable union. 由 Thm 3.1.1, 每个 $S_k = S \cap [k, k+1]$ measure 0 ⟹ $S$ measure 0.</p>
+
+      <p><strong>Step 2 (每个 $S_k$ measure 0 via prefix enumeration)</strong>: $x \in S_k \cap (k, k+1)$ has expansion $x = k.d_1 d_2 \cdots$ with $d_i \in \{1, \ldots, 6\}$. 对固定 prefix length $m$, 共 $6^m$ possible prefixes; 每个 prefix 对应一个长 $10^{-m}$ 的 closed 区间 $I_{\mathbf d}$. $S_k$ 覆盖于 $6^m$ 个这样的区间 (加 endpoints $\{k, k+1\}$ measure 0).</p>
+
+      <p><strong>关键的 rate</strong>:
+      $$L_m := 6^m \cdot 10^{-m} = (3/5)^m \;\xrightarrow{m \to \infty}\; 0.$$
+      因 $6 &lt; 10$, ratio $6/10 = 3/5 &lt; 1$, 几何序列趋 0. 对任意 $\eps$, 选 $m$ 足够大让 $L_m &lt; \eps/2$, 再 fatten 每个 $I_{\mathbf d}$ 一点点变开 cover, 总和 $&lt; \eps$.</p>
+
+      <details>
+        <summary><strong>展开严格证明</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">证明</span>
+
+            <p><strong>Step 1 (reduction)</strong>: $S = \bigcup_{k \in \Z}S_k$ where $S_k := S \cap [k, k+1]$. By Thm 3.1.1, suffices to show each $S_k$ measure 0.</p>
+
+            <p><strong>Step 2 (prefix covers)</strong>: $x \in S_k \cap (k, k+1)$: $x = k.d_1 d_2 \cdots$, $d_i \in \{1, \ldots, 6\}$. 对 $m \in \N$, 给固定 prefix $\mathbf d = (d_1, \ldots, d_m) \in \{1, \ldots, 6\}^m$, $x$ with prefix $\mathbf d$ lies in
+            $$I_{\mathbf d} := \left[k + \sum_{j=1}^m d_j / 10^j,\;\; k + \sum_{j=1}^m d_j / 10^j + 1/10^m\right] \text{ (length } 10^{-m}\text{)}.$$
+            故 $S_k \subseteq \{k, k+1\} \cup \bigcup_{\mathbf d} I_{\mathbf d}$ (有限 union of $6^m$ 闭区间).</p>
+
+            <p>Total length $L_m = 6^m \cdot 10^{-m} = (3/5)^m \to 0$.</p>
+
+            <p><strong>Step 3 (开 cover)</strong>: 对 $\eps &gt; 0$, 选 $m$ 使 $L_m &lt; \eps/2$. 把每 $I_{\mathbf d}$ fatten 到开区间 $J_{\mathbf d}$ of length $10^{-m} + 2\eta$ where $\eta := \eps/(8 \cdot 6^m)$. Endpoints $k, k+1$ 各覆盖 open 区间 of length $\eta$. 总长:
+            $$6^m \cdot (10^{-m} + 2\eta) + 2\eta = L_m + 2\eta(6^m + 1) &lt; \eps/2 + 2 \cdot \frac{\eps}{8 \cdot 6^m} \cdot (6^m + 1) &lt; \eps/2 + \eps/2 = \eps.$$
+            </p>
+
+            <p>开 cover 是 finite, 但 Def 3.1.1 要 countable cover — pad with empty 开区间 (or shrinking 开区间) 让 cover countable, 总长仍 $&lt; \eps$. 故 $S_k$ measure 0. $\blacksquare$</p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — Cantor-like 构造的 generic 模板</span>
+        <p>更一般: 对任意<em>真</em>子集 $D \subsetneq \{0, 1, \ldots, 9\}$, set of numbers using only digits in $D$ has measure 0, 由覆盖率 $(\abs D / 10)^m \to 0$. 这给出 <em>大量</em> 测度零集 — 与最经典的 <strong>Cantor 三分集</strong>同型 (那里 $D = \{0, 2\}$ in base 3, ratio $(2/3)^m \to 0$).</p>
+
+        <p><strong>Cantor-like measure-0 集的<em>uncountable</em>性</strong>: 这些集合<em>大</em> (与 $D^\N$ 一一对应, uncountable, in fact cardinality $\mathfrak c = $ continuum) 但 measure 0. 这是与 P3 (countable ⟹ measure 0) 形成<em>巨大对比</em>: <em>measure 0 不蕴含 countable</em>. 一个集合可以"<em>uncountably large but volumetrically negligible</em>".</p>
+
+        <p>这种<em>strange</em>集合是<em>Lebesgue 理论 mass-energy gap</em> 的反例库: 例如 Cantor 集 measure 0 yet uncountable + perfect (closed + 无 isolated points) + 与 $[0, 1]$ 等势. 是 measure 理论<em>主要</em> motivation. 见 Royden Ch 2.</p>
+      </div>
+
+      <h2 id="sec8">§8 Problem 4.5.8 — Cylinder slice 体积 via Fubini</h2>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 4.5.8</span>
+        <p>计算 cylinder slice 体积 of $W = \{(x, y, z) : x^2 + y^2 \le 1,\;-1/2 \le y \le 1/2,\;0 \le z \le 2\}$ via iterated integral.</p>
+      </div>
+
+      <h4>策略</h4>
+
+      <p>$W$ 是 unit cylinder (axis = $z$-axis) 被 $y = \pm 1/2$ 切的 slab, 再 truncated 到 $z \in [0, 2]$. 直接 Fubini 即可: 投影到 $y$-axis $\to y \in [-1/2, 1/2]$, fixed $y$ 的 cross-section is rectangle in $(x, z)$ plane with $x \in [-\sqrt{1 - y^2}, \sqrt{1 - y^2}]$ + $z \in [0, 2]$. 故
+      $$\vol_3(W) = \int_{-1/2}^{1/2}\int_{-\sqrt{1-y^2}}^{\sqrt{1-y^2}}\int_0^2 1\,dz\,dx\,dy.$$
+      内积分 trivial: $\int_0^2 dz = 2$, $\int_{-\sqrt{1-y^2}}^{\sqrt{1-y^2}} 2 dx = 4\sqrt{1 - y^2}$. 外 1-D: $\int_{-1/2}^{1/2} 4\sqrt{1 - y^2} dy$ — 用 $y = \sin\theta$, $\theta \in [-\pi/6, \pi/6]$.</p>
+
+      <details>
+        <summary><strong>展开计算</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">计算</span>
+
+            <p>$W$ pavable: $\partial W \subseteq$ finite union of smooth surfaces (cylinder, planes) — measure 0. By Fubini:
+            $$\vol_3(W) = \int_{-1/2}^{1/2}\int_{-\sqrt{1-y^2}}^{\sqrt{1-y^2}}\int_0^2 1\,dz\,dx\,dy = \int_{-1/2}^{1/2} 4\sqrt{1 - y^2}\,dy.$$
+            </p>
+            <p>代换 $y = \sin\theta$, $dy = \cos\theta d\theta$, $\theta \in [-\pi/6, \pi/6]$ (因 $\sin(\pm \pi/6) = \pm 1/2$). $\sqrt{1 - y^2} = \cos\theta$:
+            $$\vol_3(W) = 4 \int_{-\pi/6}^{\pi/6}\cos^2\theta\,d\theta = 4 \int_{-\pi/6}^{\pi/6}\frac{1 + \cos 2\theta}{2}\,d\theta = 2\left[\theta + \tfrac{1}{2}\sin 2\theta\right]_{-\pi/6}^{\pi/6}.$$
+            </p>
+            <p>$\theta = \pi/6$: $\pi/6 + \sin(\pi/3)/2 = \pi/6 + \sqrt 3/4$. 由 odd, $\theta = -\pi/6$ 给负值. 差 $= 2(\pi/6 + \sqrt 3/4) = \pi/3 + \sqrt 3/2$. 故
+            $$\boxed{\;\vol_3(W) = 2(\pi/3 + \sqrt 3/2) = 2\pi/3 + \sqrt 3 \approx 3.826.\;} \qquad \blacksquare$$
+            </p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — 几何 vs 代数 vs 答案 一致性</span>
+        <p>$W$ 是 unit cylinder ($\vol = \pi \cdot 1^2 \cdot 2 = 2\pi$, 大约 6.28) 被 $\abs y \le 1/2$ 切下的中央 slab. 这个 slab 占 cylinder 的<em>多大比例</em>?</p>
+        <p>cylinder 横截面 (disk of radius 1) 被 $\abs y \le 1/2$ 切下的中央带 (rectangle 加两个 circular caps). 这个带的面积 = disk area $\pi$ - 两个 "<em>side caps</em>" 面积. 每个 cap = $\int_{1/2}^1 2\sqrt{1 - y^2} dy$. 算: $y = \sin\theta$, $\int_{\pi/6}^{\pi/2} 2\cos^2\theta d\theta = [\theta + \sin 2\theta / 2]_{\pi/6}^{\pi/2} = (\pi/2 + 0) - (\pi/6 + \sqrt 3 /4) = \pi/3 - \sqrt 3/4$. 两 caps 总 = $2\pi/3 - \sqrt 3/2$.</p>
+        <p>带面积 = $\pi - (2\pi/3 - \sqrt 3/2) = \pi/3 + \sqrt 3/2$. 乘 cylinder 高 $z \in [0, 2]$ length 2: 体积 = $2 \pi/3 + \sqrt 3 \approx 3.826$. $\checkmark$ — 与上面 Fubini 答案一致.</p>
+        <p>验证比例: $(2\pi/3 + \sqrt 3) / (2\pi) \approx 3.826 / 6.28 \approx 60.9\%$ — 大约 60% 的 cylinder 在 $\abs y \le 1/2$ slab 里, 合理 (因为 $y = \pm 1/2$ 切掉 disk 上下 $\sim 18\%$ each).</p>
+      </div>
+
+      <h2 id="sec9">§9 Problem 4.5.11 — ★ Swap-order trick on $\int_0^\pi \int_y^\pi \sin x/x\,dx\,dy$</h2>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 4.5.11</span>
+        <p>(a) 把 $\int_0^\pi(\int_y^\pi \sin x / x\,dx)\,dy$ 表达为 $\R^2$ 上某区域的积分.<br>
+        (b) 用 other order of iteration.<br>
+        (c) Compute.</p>
+      </div>
+
+      <h4>策略 — ★ 经典 swap-order trick</h4>
+
+      <p>这是 Fubini 最经典的<strong>非平凡应用</strong>: $\int \sin x / x\,dx$ <em>没有</em> elementary antiderivative (sine integral $\mathrm{Si}(x)$ 是 special function), 所以<em>原顺序</em> 内积分 $\int_y^\pi \sin x / x dx$ 不能 closed-form 求出. 但 <em>互换顺序</em> 后, 内积分变成 $\int_0^x \sin x / x dy = \sin x / x \cdot x = \sin x$ — 完全 elementary!</p>
+
+      <p><strong>Step 1 (区域)</strong>: 原 iterated 区域 $R = \{(x, y) : 0 \le y \le \pi,\;y \le x \le \pi\} = \{0 \le y \le x \le \pi\}$. 这是<em>三角形</em> with vertices $(0, 0), (\pi, 0), (\pi, \pi)$.</p>
+
+      <p><strong>Step 2 (other order)</strong>: 投影到 $x$-axis: $x \in [0, \pi]$, fixed $x$: $y \in [0, x]$. 故
+      $$\int_R g = \int_0^\pi \int_0^x \frac{\sin x}{x} dy\,dx.$$
+      </p>
+
+      <p><strong>Step 3 (compute)</strong>: 内: $\int_0^x \sin x / x dy = \sin x$ (因 $\sin x / x$ 与 $y$ 无关). 外: $\int_0^\pi \sin x dx = [-\cos x]_0^\pi = 1 - (-1) = 2$. 答案 = 2.</p>
+
+      <details>
+        <summary><strong>展开严格证明 (含 integrability check + extend)</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">证明</span>
+
+            <p><strong>(a) 区域 + integrability</strong>: $R = \{0 \le y \le x \le \pi\}$ — 三角形 with vertices $(0, 0), (\pi, 0), (\pi, \pi)$. 整数函数 $\sin x / x$ 在 $x = 0$ undefined, but extends continuously by $\lim_{x \to 0}\sin x / x = 1$ (Taylor 展开). 设
+            $$g(x, y) := \begin{cases}\sin x / x & x \ne 0 \\ 1 & x = 0\end{cases}$$
+            on $R$. $g$ continuous on compact $R$, 故 $g \in \IR$ (by P2 / Lebesgue 准则), 且
+            $$\int_0^\pi \int_y^\pi \frac{\sin x}{x}\,dx\,dy = \int_R g\,\abs{d^2 z}.$$
+            </p>
+
+            <p><strong>(b) other order</strong>: 投影 $R$ 到 $x$-axis: $x \in [0, \pi]$, slice $\{y : 0 \le y \le x\}$. By Fubini:
+            $$\int_R g\,\abs{d^2 z} = \int_0^\pi \int_0^x \frac{\sin x}{x}\,dy\,dx.$$
+            </p>
+
+            <p><strong>(c) compute</strong>: 内 ($\sin x / x$ const in $y$): $\int_0^x \sin x / x\,dy = (\sin x / x) \cdot x = \sin x$ (for $x &gt; 0$; $x = 0$ degenerate slice 贡献 0). 外:
+            $$\int_R g\,\abs{d^2 z} = \int_0^\pi \sin x\,dx = [-\cos x]_0^\pi = -(-1) - (-1) = 2.$$
+            $$\boxed{\;\int_0^\pi\int_y^\pi \frac{\sin x}{x}\,dx\,dy = 2.\;} \qquad \blacksquare$$
+            </p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — Fubini 的"<em>顺序 != 都好做</em>"</span>
+        <p>Fubini 不仅 swap 顺序使两 iterated integrals 都给同一答案, 还<em>选最方便的</em>计算路径. 这道题的 punchline: <em>原顺序</em> $\int_y^\pi \sin x / x dx$ 是 "<em>$\mathrm{Si}(\pi) - \mathrm{Si}(y)$</em>" — special function, 不能 elementary; 但 swap 后内积分立刻成 trivial. 这就是 "<em>Fubini 救场</em>" 模板.</p>
+
+        <p><strong>更深的事实</strong>: 原积分实际是 $\int_0^\pi \mathrm{Si}(\pi) - \mathrm{Si}(y) dy = \pi \mathrm{Si}(\pi) - \int_0^\pi \mathrm{Si}(y) dy$. $\mathrm{Si}(\pi) \approx 1.85$. 直接算这两项加起来要复杂 IBP. 但 swap 顺序后立得 2 (与 $\pi\mathrm{Si}(\pi) - \int \mathrm{Si}$ 数值吻合).</p>
+
+        <p><strong>实战教训</strong>: 看到 "<em>iterated integral with non-elementary integrand</em>" 第一反应 — try swapping order. 80% 的情况下 swap 后有简化, 因为 "<em>$f$ 与 inner variable 无关</em>" 模式 (这里 $\sin x / x$ inner $dy$ 时常数) 是最常见.</p>
+
+        <p><strong>对比 Topic 07 (Fubini)</strong>: Topic 07 给出 Fubini 主定理 + 主要应用 (Steinmetz, ball volume, etc.) — P 4.5.11 是 swap-order trick 的标志性 worked example. 互相补全. 见 <a href="../topics/07-fubini.html">Topic 07</a>.</p>
+      </div>
+
+      <h2 id="sec10">§10 Problem 4.5.15 — Paraboloids 间体积</h2>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 4.5.15</span>
+        <p>找 region $W = \{(x, y, z) : z \ge x^2 + y^2,\; z \le 10 - x^2 - y^2\}$ 的体积.</p>
+      </div>
+
+      <h4>策略</h4>
+
+      <p>$W$ 是两个 paraboloid 之间的 region: 底是 $z = x^2 + y^2$ (开口向上), 顶是 $z = 10 - x^2 - y^2$ (开口向下). 投影到 $xy$-plane: $(x, y)$ 必满足 $x^2 + y^2 \le 10 - x^2 - y^2 \iff x^2 + y^2 \le 5$ — 半径 $\sqrt 5$ 圆盘 $D$.</p>
+
+      <p>By Fubini, 先积 $z$:
+      $$\vol_3(W) = \int_D (10 - 2(x^2 + y^2))\,dV_2.$$
+      然后用 Cartesian $y$-slicing + Wallis 积分 (因课程暂不允许 polar) 算外积分.</p>
+
+      <p>关键步骤: 内积分 ($y$ over $[-\sqrt{5 - x^2}, \sqrt{5 - x^2}]$) 给 $\tfrac{8}{3}(5 - x^2)^{3/2}$ (经 algebraic 化简). 外 $x$-积分用 $x = \sqrt 5 \sin\theta$ 代换变成 $25 \int_0^{\pi/2} \cos^4\theta d\theta$ — 经典 Wallis 积分 $= 3\pi/16$. 最终 $\vol_3 = 25\pi$.</p>
+
+      <details>
+        <summary><strong>展开计算</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">计算</span>
+
+            <p><strong>投影确定</strong>: $W$ nonempty 处, $x^2 + y^2 \le z \le 10 - x^2 - y^2$ ⟹ $2(x^2 + y^2) \le 10 \iff x^2 + y^2 \le 5$. 故 $W$ 投影到 $xy$-plane 是 $D = \{(x, y) : x^2 + y^2 \le 5\}$.</p>
+
+            <p><strong>Fubini</strong>: 边界 finite union of smooth surfaces ⟹ pavable. 先积 $z$:
+            $$\vol_3(W) = \int_D\int_{x^2+y^2}^{10-x^2-y^2} 1\,dz\,dV_2 = \int_D(10 - 2(x^2 + y^2))\,dV_2.$$
+            </p>
+
+            <p><strong>$y$-slicing</strong>: 投影 $D$ to $x$-axis: $x \in [-\sqrt 5, \sqrt 5]$; fixed $x$: $y \in [-\sqrt{5 - x^2}, \sqrt{5 - x^2}]$. 设 $A := 10 - 2x^2$, $u := \sqrt{5 - x^2}$, $A = 2u^2$:
+            $$\int_{-u}^u (A - 2y^2)\,dy = 2Au - 2 \cdot \frac{2}{3}u^3 = 4u^3 - \frac{4}{3}u^3 = \frac{8}{3}u^3 = \frac{8}{3}(5 - x^2)^{3/2}.$$
+            </p>
+
+            <p>故
+            $$\vol_3(W) = \int_{-\sqrt 5}^{\sqrt 5}\frac{8}{3}(5 - x^2)^{3/2}\,dx = \frac{16}{3}\int_0^{\sqrt 5}(5 - x^2)^{3/2}\,dx \quad\text{(by evenness)}.$$
+            </p>
+
+            <p><strong>三角代换 $x = \sqrt 5 \sin\theta$</strong>: $dx = \sqrt 5 \cos\theta d\theta$, $\theta \in [0, \pi/2]$, $(5 - x^2)^{3/2} = 5^{3/2}\cos^3\theta$:
+            $$\int_0^{\sqrt 5}(5 - x^2)^{3/2}\,dx = \int_0^{\pi/2} 5^{3/2}\cos^3\theta \cdot \sqrt 5\cos\theta\,d\theta = 25 \int_0^{\pi/2}\cos^4\theta\,d\theta.$$
+            </p>
+
+            <p><strong>Wallis 积分</strong>: $\int_0^{\pi/2}\cos^4\theta d\theta = 3\pi/16$ (用 $\cos^4 = \tfrac{3}{8} + \tfrac{1}{2}\cos 2\theta + \tfrac{1}{8}\cos 4\theta$, 后两项 $\int_0^{\pi/2} = 0$). 故
+            $$\int_0^{\sqrt 5}(5-x^2)^{3/2}\,dx = 25 \cdot \frac{3\pi}{16} = \frac{75\pi}{16}.$$
+            </p>
+
+            <p><strong>合并</strong>:
+            $$\vol_3(W) = \frac{16}{3} \cdot \frac{75\pi}{16} = \frac{75\pi}{3} = 25\pi. \qquad \boxed{\;\vol_3(W) = 25\pi \approx 78.54.\;}\qquad \blacksquare$$
+            </p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — Cartesian vs Polar (Lec 6.1 预告)</span>
+        <p>用<em>polar coordinates</em> (尚未学到, deferred 到 Lec 5.3+) 这道题<strong>一行</strong>就完: $D$ 是 disk radius $\sqrt 5$, 用 $r \in [0, \sqrt 5]$, $\theta \in [0, 2\pi]$, Jacobian $r$:
+        $$\vol_3 = \int_0^{2\pi}\int_0^{\sqrt 5}(10 - 2r^2)\,r\,dr\,d\theta = 2\pi\int_0^{\sqrt 5}(10r - 2r^3)\,dr = 2\pi[5r^2 - r^4/2]_0^{\sqrt 5} = 2\pi(25 - 25/2) = 2\pi \cdot 25/2 = 25\pi.$$
+        极坐标<em>自然</em>匹配 axial symmetry (paraboloid 都 radial), 把"非平凡"$3D$ 积分变 trivial $1D$.</p>
+
+        <p><strong>但本周不允许 polar</strong>: HW2 在 Lec 4.1-4.2 阶段, polar coord (Lec 5.3 主题, Topic 09 nonlinear CoV) 尚未引入. 故必须用 Cartesian + Wallis 积分 — 等价但 algebra 长.</p>
+
+        <p><strong>三阶段计算 difficulty 对比</strong>:</p>
+        <ul>
+          <li><strong>Cartesian + Fubini + Wallis</strong> (本题): ~10 行 algebra, 4 步代换, 用 special integral.</li>
+          <li><strong>Cylindrical coords</strong> (Lec 5.3, Topic 09): ~2 行, $r dr$ Jacobian.</li>
+          <li><strong>Spherical coords</strong>: 不 natural for paraboloid (没 spherical symmetry); 反而麻烦.</li>
+        </ul>
+        <p>这道题预告了"<em>选对坐标系能化解 90% 的复杂度</em>" — 整 Ch 5-6 的核心 mantra. 见 <a href="../topics/10-cov-patterns.html">Topic 10 (CoV 三大设计模式)</a> 把 "<em>对称性驱动</em>" 列为第一模式 — paraboloid 的 axial symmetry 正符合.</p>
+      </div>
+
+      <h2 id="sec11">§11 方法论速查</h2>
+
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def"><strong>Measure zero (Def 3.1.1)</strong>: countable cube cover with total vol $&lt; \eps$ for all $\eps &gt; 0$. <em>P1, P3, P4 全, P 4.4.2/7 全</em>.</li>
+          <li class="cs-def"><strong>Volume zero</strong>: $\mathbf 1_X$ integrable with $\int \mathbf 1_X = 0$. 严格强于 measure zero (但相反不成立).</li>
+          <li class="cs-def"><strong>Undefined volume</strong>: $\mathbf 1_X$ <em>not</em> integrable. $\Q \cap [0, 1]$ 标志例.</li>
+          <li class="cs-def"><strong>$U_N(\mathbf 1_X) = \sum_{C \cap X \ne \emptyset}\vol_n(C)$</strong>: indicator 的 upper sum = "touches $X$" 的 cube 总体积. P1 reverse direction 工具.</li>
+          <li class="cs-def"><strong>Thomae's function</strong>: $f(p/q) = 1/q$ (lowest terms), $f(\text{irrational}) = 0$. $\Disc f = \Q$. <em>P4</em>.</li>
+          <li class="cs-def"><strong>Symmetric integrable function</strong>: $f(x_{\sigma(1)}, \ldots) = f(x_1, \ldots)$ for all $\sigma \in S_n$. <em>P 4.3.4</em>.</li>
+          <li class="cs-def"><strong>Ascending simplex $P^n_{a, b}$</strong>: $\{a \le x_1 \le \cdots \le x_n \le b\} \subset Q^n_{a, b}$. $\vol(P) = (b-a)^n / n!$, 恰为 cube 的 $1/n!$.</li>
+
+          <li class="cs-thm"><strong>★ $\eps/2^j$-trick (P3)</strong>: 对 countable family 用 $\eps/2^{j+1}$ 体积预算, 总和 $\le \eps/2$. countable measure-zero 的基本技术.</li>
+          <li class="cs-thm"><strong>Countable ⟹ measure 0 (P3)</strong>: 任意可数集 $S \subseteq \R^n$ has measure 0.</li>
+          <li class="cs-thm"><strong>Lebesgue 准则 (Thm 4.1.13)</strong>: $f$ 可积 ⟺ $\Disc f$ measure 0. <em>P4</em> Thomae 直接调用.</li>
+          <li class="cs-thm"><strong>★ $f$ continuous + bounded support ⟹ integrable (P2)</strong>: 用 uniform continuity + dyadic diameter $&lt; \min(\delta, 1)$, case-by-case $C \subseteq K$ vs $C \not\subseteq K$.</li>
+          <li class="cs-thm"><strong>★ Coordinate-permutation invariance (P 4.3.4)</strong>: $\int g \circ T_\sigma = \int g$ for $\sigma \in S_n$. 由 $T_\sigma$ permutes dyadic cubes + 保 vol.</li>
+          <li class="cs-thm"><strong>Symmetric integral on cube vs simplex (P 4.3.4a)</strong>: $\int_Q f = n! \int_P f$ for symmetric integrable $f$.</li>
+          <li class="cs-thm"><strong>Product integral on simplex (P 4.3.4b)</strong>: $\int_P f(x_1)\cdots f(x_n)\,\abs{d^n x} = \tfrac{1}{n!}(\int_a^b f)^n$.</li>
+          <li class="cs-thm"><strong>Measure zero via balls (P 4.4.2)</strong>: equivalent to cube definition; 几何 lemma $C(a, s) \subset B(a, s\sqrt n/2)$ + $B(a, r) \subset C(a, 2r)$.</li>
+          <li class="cs-thm"><strong>Fubini (Thm 4.5.1)</strong>: $f$ integrable on $\R^{n+m}$ ⟹ iterated integral存在并等于 multiple integral. <em>P 4.5.8, 4.5.11, 4.5.15 全</em>.</li>
+
+          <li class="cs-tech"><strong>★ Density + Cauchy 准则反向 (P1, P4)</strong>: $X$ dense + complement dense in $I$ ⟹ $U_N(\mathbf 1_X) \ge \vol(I)$, $L_N = 0$ ⟹ $\mathbf 1_X \notin \IR$.</li>
+          <li class="cs-tech"><strong>Dyadic diameter 估计</strong>: $\diam(C_{\mathbf k, N}) = \sqrt n / 2^N \to 0$. P2 直接用.</li>
+          <li class="cs-tech"><strong>Fattening $\supp$: $K = [-R-1, R+1]^n$</strong>: 给 $\supp \subseteq [-R, R]^n$ 留 "$1$ 单位 safety margin", 让 $C \not\subseteq K$ ⟹ $f \equiv 0$ on $C$. P2 设计要点.</li>
+          <li class="cs-tech"><strong>★ Swap-order trick (P 4.5.11)</strong>: 看到 non-elementary inner integral, swap iteration order, 经常 inner 变 trivial. $\sin x / x$ 是标志例.</li>
+          <li class="cs-tech"><strong>三角代换 $y = a\sin\theta$ for $\sqrt{a^2 - y^2}$</strong>: 把 $\sqrt{a^2 - y^2}$ 变 $a\cos\theta$, 让积分 elementary. P 4.5.8, P 4.5.15 同款.</li>
+          <li class="cs-tech"><strong>Wallis 积分</strong>: $\int_0^{\pi/2}\cos^k\theta d\theta$ 公式 (k=2: π/4, k=4: 3π/16, k=6: 5π/32). P 4.5.15 用 $k = 4$.</li>
+          <li class="cs-tech"><strong>Cantor-like construction (P 4.4.7)</strong>: 数字 prefix 枚举 + 覆盖率 $(\abs D / \text{base})^m \to 0$. 给出大量 uncountable measure-0 集.</li>
+
+          <li class="cs-pitfall"><strong>★ measure 0 vs vol 0 vs undefined vol</strong>: vol 0 ⟹ measure 0 (永远), but reverse 不成立 ($\Q \cap [0, 1]$ 反例); undefined vol ⟹ <em>not</em> measure 0? <em>错</em>! $\Q \cap [0, 1]$ measure 0 yet undefined vol — 三者是 distinct concepts.</li>
+          <li class="cs-pitfall"><strong>Pitfall — countable ⟹ measure 0 但<em>反向</em>不成立</strong>: Cantor-like 集合 (P 4.4.7) measure 0 yet <em>uncountable</em>. "测度小"与"基数小"不同概念.</li>
+          <li class="cs-pitfall"><strong>Pitfall — Fubini hypothesis 要 $f \in \IR(\R^{n+m})$</strong>: $f$ integrable on full space, not just sliced. 若仅 iterated integral exist 不蕴含 multiple integral exist (HW4 P 4.11.8 反例: $x^2 - y^2 / (x^2 + y^2)^2$).</li>
+          <li class="cs-pitfall"><strong>Pitfall — Polar 在 HW2 不可用</strong>: P 4.5.15 看起来"应该" polar, 但 nonlinear CoV (Lec 5.3, Topic 09) 还没学. 必须用 Cartesian + Wallis. 不要"<em>预判用 polar</em>" 失分.</li>
+        </ul>
+      </div>
+
+      <h2 id="sec12">§12 进一步阅读</h2>
+
+      <ul>
+        <li><strong>原题与提交解答</strong>: 题目 <code>../../HW/Pset/HW2.pdf</code>; LaTeX 完整证明 <code>../../HW/Response/HW2_response.pdf</code> (本页数学内容的 single source of truth).</li>
+        <li><strong>H&amp;H 教材章节</strong>:
+          <ul>
+            <li><strong>§4.1</strong>: Riemann 积分基础 (P1, P3, P4 background). Thm 4.1.13 = Lebesgue 准则.</li>
+            <li><strong>§4.3</strong>: Multiple integrals + Fubini (Ex 4.3.4 from here).</li>
+            <li><strong>§4.4</strong>: Measure zero theory (Ex 4.4.2, 4.4.7).</li>
+            <li><strong>§4.5</strong>: Fubini's theorem with worked examples (Ex 4.5.8, 4.5.11, 4.5.15).</li>
+          </ul>
+        </li>
+        <li><strong>对应 typed notes</strong>:
+          <ul>
+            <li><code>Notes/Typed/2.1_notes/</code>, <code>2.2_notes/</code> — Riemann 可积性 + 不可积反例 + 体积 via 指示函数 + pavable 集.</li>
+            <li><code>Notes/Typed/3.1_notes/</code>, <code>3.2_notes/</code>, <code>3.3_notes/</code> — Measure zero 完整理论 + Lebesgue 准则 + a.e. 推论 + Thomae 函数 example. <strong>本周 HW 内容的 home notes</strong>.</li>
+            <li><code>Notes/Typed/4.1_notes/</code>, <code>4.2_notes/</code> — Fubini 主定理 + 应用 (ball volume, Steinmetz, etc.).</li>
+          </ul>
+        </li>
+        <li><strong>相关 topic 页 (概念教学层)</strong>:
+          <ul>
+            <li><a href="../topics/04-volume-pavable.html">Topic 04 — 体积与 pavable 集</a>: P1 (vol-undefined) 的概念框架.</li>
+            <li><a href="../topics/05-measure-zero-basics.html">Topic 05 — measure 0 基础</a>: P1, P3, P 4.4.2/7 的 home topic. $\eps/2^j$-trick + countable union 的标准证明.</li>
+            <li><a href="../topics/06-lebesgue-criterion.html">Topic 06 — Lebesgue 准则</a>: P2, P4 的 home topic. Thomae 完整 worked example.</li>
+            <li><a href="../topics/07-fubini.html">Topic 07 — Fubini 定理与应用</a>: P 4.5.8/11/15 的 home topic. Steinmetz, ball volume, swap-order 等 worked examples.</li>
+            <li><a href="../topics/03-algebra-properties.html">Topic 03 — 积分代数性质</a>: P 4.3.4 的 background (linearity, monotonicity etc.).</li>
+          </ul>
+        </li>
+        <li><strong>HW 链关联</strong>:
+          <ul>
+            <li><a href="HW1.html">HW1</a> ← 前一份 HW: Riemann 基础 (Lebesgue 准则 P1, BV theory P2, Riemann sums squeeze P3). 与本周 HW2 相互补.</li>
+            <li>HW3 (cov, 未实现): 用 Lec 5.3 的非线性 CoV 算大型积分 — 与本 HW 的 Fubini 互补.</li>
+            <li><a href="HW4.html">HW4</a> (跳过 HW3): Lebesgue 积分 + MCT/DCT (Lec 7.1+); 远超本 HW 的 §4.1 框架.</li>
+          </ul>
+        </li>
+        <li><strong>HW2 在整学期中的位置</strong>: 这是<strong>测度零理论第一次集中训练</strong>. 后续 §4.6-§4.11 (Riemann sums refinement, change of variable, Lebesgue 积分) 全部 build on "measure zero 是<em>正常</em>属性, 不是 pathology"这个 mindset. P3 (countable ⟹ measure 0) + P4 (Thomae 可积) 在 MT1 + Final 高概率以变体形式 reappear. P 4.5.11 (swap-order) 是 Fubini 的 archetypal trick, 在 §4.11 (HW4) 与 §5.3 (CoV) 持续出现.</li>
+      </ul>
+
+    </main>
+  </div>
+
+</body>
+</html>

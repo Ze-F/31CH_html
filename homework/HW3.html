@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HW3 详解 — §4.9-§4.10 线性 + 非线性 CoV 9 题 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\diam': '\\operatorname{diam}',
+        '\\sgn': '\\operatorname{sgn}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|',
+        '\\dV': '\\,|d^n x|'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="HW2.html">HW2</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="HW4.html">HW4</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#sec1">§1 总览</a></li>
+        <li><a href="#sec2">§2 P 4.9.1 (DSV)</a></li>
+        <li><a href="#sec3">§3 P 4.9.3 (simplex)</a></li>
+        <li><a href="#sec4">§4 P 4.9.5 (Wronskian)</a></li>
+        <li><a href="#sec5">§5 P 4.10.4 (twisted ellipsoid)</a></li>
+        <li><a href="#sec6">§6 P 4.10.9 (ellipsoid octant ∫xyz)</a></li>
+        <li><a href="#sec7">§7 P 4.10.12 (quarter ball ∫r³)</a></li>
+        <li><a href="#sec8">§8 P 4.10.17 (exp map)</a></li>
+        <li><a href="#sec9">§9 P 4.10.18 (ice cream cone)</a></li>
+        <li><a href="#sec10">§10 P 4.10.19 (parabolic image)</a></li>
+        <li><a href="#sec11">§11 方法论速查</a></li>
+        <li><a href="#sec12">§12 进一步阅读</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>HW3 详解 — §4.9 线性 CoV + §4.10 非线性 CoV (9 题)</h1>
+      <p class="subtitle">本周 HW 的 HTML 讲解 · 9 道<em>纯 textbook 习题</em>分配在 H&amp;H §4.9 (3 题) 与 §4.10 (6 题) · 原 pset 截止 2026-05-12 (Sun) · 与 LaTeX 解答 <code>../../HW/Response/HW3_response.pdf</code> 互补 · <strong>本页重 cross-ref</strong> 概念页 <a href="../topics/08-linear-cov.html">Topic 08</a> / <a href="../topics/09-nonlinear-cov.html">09</a> / <a href="../topics/10-cov-patterns.html">10</a> 与 MT2 备考页 <a href="../midterm2/MT2-A_linear_cov.html">MT2-A</a> / <a href="../midterm2/MT2-B_nonlinear_cov.html">B</a> / <a href="../midterm2/MT2-D_drill.html">D</a>, 不重述基础理论, 聚焦 "<em>each problem 是哪个 recipe 的实战</em>".</p>
+
+      <h2 id="sec1">§1 总览</h2>
+
+      <p>本次 HW (2026 SP 第 5 周) 是<strong>纯 textbook 习题</strong>: 9 题全部来自 H&amp;H §4.9 (Determinant Scales Volume + linear CoV) 与 §4.10 (nonlinear CoV / Jacobian). 没有 author-written 题, 也没有 prove/disprove — <em>全是计算</em>. 这反映课程进入 "<em>积分实战</em>" 阶段: 工具都建好了 (Topic 04-09), 现在要在<em>具体几何对象</em>上把它们跑通.</p>
+
+      <p>本次 HW 与 <strong>MT2 备考体系</strong>大量重叠 — MT2-A (Linear CoV), MT2-B (Nonlinear CoV), MT2-D drill 都覆盖<em>同一套工具</em>. 因此本页采取 "<em>少重述基础, 多调用 recipe</em>" 的策略: 每题指出它实例化哪个 design pattern (Topic 10 三大模式) 或 template (MT2-D T.1-T.3), 然后直接做计算. 想刷理论, 跳 Topic 08-10 + MT2-A/B/D; 想刷应用, 看这里.</p>
+
+      <h3>题型分布表 — 按 §4.9 / §4.10 + design pattern 双向分类</h3>
+
+      <table class="textbook-index">
+        <thead>
+          <tr><th>题号</th><th>所属节</th><th>Recipe / Pattern</th><th>核心技术</th><th>答案</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>4.9.1</td><td>§4.9</td><td>DSV 一次套用 (MT2-D T.3)</td><td>$|\det T| = n!$ (lower-triangular 对角积)</td><td>$\vol T(A)/\vol A = n!$</td></tr>
+          <tr><td>4.9.3a</td><td>§4.9</td><td>直接 Fubini (基准)</td><td>standard 3-simplex, $\int(1-x-y)dy\,dx$</td><td>$1/6$</td></tr>
+          <tr><td>4.9.3b</td><td>§4.9</td><td>DSV + 线性 image (MT2-D T.2)</td><td>$T_2 = S(T_1)$, $\det S = 33$, $|\det|/6$</td><td>$11/2$</td></tr>
+          <tr><td>4.9.5</td><td>§4.9</td><td>★ DSV in 2x2 ODE: <em>Wronskian conservation</em></td><td>$W' = fg'' - gf'' = q(fg - gf) = 0$</td><td>$A(x) \equiv A(0)$</td></tr>
+          <tr><td>4.10.4</td><td>§4.10</td><td>★ Slice-driven (Topic 10 模式 3)</td><td>$z$-切片 ellipse 系列, $\Phi = (r(1-z^3)\cos, r(1+z^3)\sin, z)$, $\det = r(1-z^6)$</td><td>$12\pi/7$</td></tr>
+          <tr><td>4.10.9</td><td>§4.10</td><td>Symmetry-driven (stretched spherical)</td><td>$\Phi = (a\rho\cos\varphi\cos\theta, b\rho\cos\varphi\sin\theta, c\rho\sin\varphi)$, $\det = abc\rho^2\cos\varphi$</td><td>$a^2b^2c^2/48$</td></tr>
+          <tr><td>4.10.12</td><td>§4.10</td><td>Symmetry-driven (球坐标 + 选 $\varphi/\theta$ 范围)</td><td>quarter ball ($y \ge 0, z \ge 0$): $\varphi \in [0, \pi/2], \theta \in [0, \pi]$</td><td>$32\pi/3$</td></tr>
+          <tr><td>4.10.17</td><td>§4.10</td><td>★ Boundary-driven (Topic 10 模式 2)</td><td>$\Phi = (u-v, e^u+e^v)$, 4 边映 4 exp 曲线, $\det = e^u+e^v$</td><td>$a(e^{2a}-1) + 2(e^a-1)^2$</td></tr>
+          <tr><td>4.10.18</td><td>§4.10</td><td>Symmetry-driven (球坐标 + 锥面 $\varphi = \pi/4$)</td><td>ice cream cone: ball $\cap$ "$\varphi \le \pi/4$" (但题目说 $z^2 \ge x^2+y^2$ 即 $\varphi \ge \pi/4$ in H&H lat 约定)</td><td>$8\pi(2-\sqrt 2)/3$</td></tr>
+          <tr><td>4.10.19</td><td>§4.10</td><td>★ Boundary-driven (Topic 10 模式 2)</td><td>$\Phi = (u-v^2, u^2+v)$, 4 边映 4 抛物弧, $\det = 1+4uv$</td><td>$1/3$</td></tr>
+        </tbody>
+      </table>
+
+      <h3>通用工具栏</h3>
+
+      <div class="box prereq">
+        <span class="box-title">📦 本次 HW 反复用的工具 (详见 Topic 08-10 + MT2-D)</span>
+        <ul>
+          <li><strong>★ DSV (Topic 08, MT2-A, Thm 4.9.1)</strong>: $T \colon \R^n \to \R^n$ linear, $A$ pavable ⟹ $\vol_n T(A) = \abs{\det T}\,\vol_n A$. <em>用于 P 4.9.1, 4.9.3b, 4.9.5</em> (Wronskian 是 2x2 DSV).</li>
+          <li><strong>n-Parallelepiped 体积 (MT2-D T.1, Prop 4.9.5)</strong>: vectors $v_1, \ldots, v_n \in \R^n$ ⟹ $\vol_n(P(v_1, \ldots, v_n)) = \abs{\det[v_1 | \cdots | v_n]}$. <em>P 4.9.3b 间接调用</em>.</li>
+          <li><strong>★ Nonlinear CoV (Topic 09, MT2-B, Thm 4.10.12)</strong>: $\Phi \colon U \to V$ $C^1$ injective with $\det[D\Phi] \ne 0$ ⟹ $\int_V f\,dV_Y = \int_U f(\Phi)\,\abs{\det[D\Phi]}\,dV_X$. <em>用于 P 4.10.* 全部</em>.</li>
+          <li><strong>三大 design patterns (Topic 10)</strong>:
+            <ul>
+              <li><em>Symmetry-driven</em>: $\Phi$ = polar/cylindrical/spherical/stretched-spherical. 用于 P 4.10.9, 4.10.12, 4.10.18.</li>
+              <li><em>Boundary-driven</em>: $\Phi$把 image 区域的<em>不平凡边界</em>变成 axis-aligned. 用于 P 4.10.17, 4.10.19.</li>
+              <li><em>Slice-driven</em>: $\Phi$ 在某个变量 ($z$) 上是 identity, 其他变量按该 $z$ 缩放. 用于 P 4.10.4.</li>
+            </ul>
+          </li>
+          <li><strong>三大经典 Jacobians (MT2-D D.4-D.6)</strong>:
+            <ul>
+              <li>Polar: $\det = r$.</li>
+              <li>Cylindrical: $\det = r$.</li>
+              <li>Spherical (H&amp;H 纬度约定 $z = r\sin\varphi$): $\det = r^2\cos\varphi$. <em>P 4.10.9, 4.10.12, 4.10.18 全部用此约定</em>.</li>
+            </ul>
+          </li>
+          <li><strong>Injectivity 检验</strong>: 对 nonlinear $\Phi$, "<em>$\Phi(u_1) = \Phi(u_2) \implies u_1 = u_2$</em>" 一般用 algebraic manipulation (P 4.10.17, 4.10.19) 或 explicit inverse (P 4.10.4). 这是 nonlinear CoV hypothesis 必检.</li>
+        </ul>
+      </div>
+
+      <h2 id="sec2">§2 Problem 4.9.1 — Lower-triangular matrix, $\vol(T(A))/\vol(A) = n!$</h2>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 4.9.1</span>
+        <p>设 $T \colon \R^n \to \R^n$ 由 lower-triangular matrix 给出, $[T]_{ij} = i$ if $j \le i$, $0$ if $j &gt; i$:
+        $$[T] = \begin{pmatrix} 1 & 0 & 0 & \cdots & 0 \\ 2 & 2 & 0 & \cdots & 0 \\ 3 & 3 & 3 & \cdots & 0 \\ \vdots & \vdots & \vdots & \ddots & \vdots \\ n & n & n & \cdots & n \end{pmatrix}.$$
+        设 $A := \{x \in \R^n : \abs{x_1} + \abs{x_2}^2 + \abs{x_3}^3 + \cdots + \abs{x_n}^n \le 1\}$. 求 $\vol_n T(A) / \vol_n A$.</p>
+      </div>
+
+      <h4>策略</h4>
+
+      <p>这是 <strong>DSV 一字面板套</strong>: $\vol_n T(A) / \vol_n A = \abs{\det T}$, 与 $A$ 的<em>具体形状</em>完全无关 (只要 $A$ pavable). 设计 trick: 题目给一个奇形怪状的 $A$ (generalized $p$-ball with mixed exponents), 想让你忘了"<em>DSV 不在乎 $A$ 形状</em>"这条最 basic 的事实, 跳进去算 $\vol_n A$ — <strong>陷阱</strong>! 答案只需算 $\det T$ — 而 lower-triangular 的 $\det$ = 对角积 $= 1 \cdot 2 \cdot 3 \cdots n = n!$.</p>
+
+      <p>实际算 $\vol_n A$ 是<em>不可能</em>的 closed form (mixed-exponent $p$-balls 没有 elementary formula)! 但题目要的是 <em>ratio</em>, $\vol_n A$ <em>cancels</em>. 这是 "<em>DSV 的优雅 application</em>" 的典范.</p>
+
+      <details>
+        <summary><strong>展开计算</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">计算</span>
+            <p>$A$ pavable: closed bounded with $\partial A = \{...\,=\,1\}$ 是 $C^\infty$ hypersurface, measure 0. By DSV (Thm 4.9.1):
+            $$\vol_n T(A) = \abs{\det T} \cdot \vol_n A.$$
+            $[T]$ lower-triangular, $\det T = \prod_i [T]_{ii} = 1 \cdot 2 \cdot 3 \cdots n = n!$ (all positive).
+            $$\boxed{\;\frac{\vol_n T(A)}{\vol_n A} = n!\;}\qquad \blacksquare$$
+            </p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — DSV 的"<em>ratio invariance</em>"</span>
+        <p>DSV 的 power 体现在 "<em>$T$ 的体积放缩因子只依赖 $T$, 不依赖 $A$</em>". 这是 ratio 形式 $\vol(T(A))/\vol(A) = \abs{\det T}$ 的精髓 — 它给了一个 universal scalar invariant, 与 $A$ 无关.</p>
+        <p>所以遇到 "<em>给一个 weird $A$ 和 linear $T$, 求 $\vol(T(A))/\vol(A)$</em>" 类问题, 第一反应永远是 <strong>算 $\det T$ 就完了</strong>. 不要被 $A$ 形状误导. 见 <a href="../topics/08-linear-cov.html">Topic 08</a>.</p>
+        <p><strong>Lower-triangular $\det$ shortcut</strong>: $[T]_{ij} = 0$ for $j &gt; i$ ⟹ $\det T = \prod_i [T]_{ii}$ — 对角积. 这是 LU 分解的 trivial 情形, 也是 Laplace 展开沿第一行/第一列后递归得到. 节省了行/列操作的 $\binom{n}{2}$ 步.</p>
+      </div>
+
+      <h2 id="sec3">§3 Problem 4.9.3 — 四面体 (tetrahedron) 体积</h2>
+
+      <p><strong>串联</strong>: P 4.9.3 分两 part: (a) 算标准 simplex $T_1$ 体积 = $1/6$ (直接 Fubini), (b) 用 (a) + DSV 算<em>一般</em> tetrahedron $T_2$ 的体积 (找线性 image $T_2 = S(T_1)$, 答案 = $\abs{\det S}/6$). 这是 MT2-D 中 <strong>Template T.2 (Simplex 体积 via 线性 image)</strong> 的标志性 application.</p>
+
+      <h3 id="sec3a">(a) $T_1$ = standard 3-simplex 体积</h3>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 4.9.3(a)</span>
+        <p>$T_1$ tetrahedron with vertices $\mathbf 0, \mathbf e_1, \mathbf e_2, \mathbf e_3$. 求 $\vol_3(T_1)$.</p>
+      </div>
+
+      <details>
+        <summary><strong>展开 (直接 Fubini)</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">计算</span>
+            <p>$T_1 = \{(x, y, z) \ge \mathbf 0 : x + y + z \le 1\}$ (standard 3-simplex).
+            $$\vol_3(T_1) = \int_0^1 \int_0^{1-x}\int_0^{1-x-y} dz\,dy\,dx = \int_0^1\int_0^{1-x}(1-x-y)\,dy\,dx$$
+            $$= \int_0^1 \frac{(1-x)^2}{2}\,dx = \frac{1}{6}.\qquad \boxed{\vol_3(T_1) = 1/6}$$
+            </p>
+          </div>
+        </div>
+      </details>
+
+      <p><strong>一般化</strong>: $n$-维 standard simplex $\{\mathbf x \ge \mathbf 0 : \sum x_i \le 1\}$ 体积 = $1/n!$. 这是 Multinomial / Volume of standard simplex 的<em>经典 result</em>, P 4.9.3a 是 $n = 3$ 的实例.</p>
+
+      <h3 id="sec3b">(b) $T_2$ — 一般 tetrahedron, 用 (a) + DSV</h3>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 4.9.3(b)</span>
+        <p>$T_2$ tetrahedron with vertices $\mathbf 0, (2, 1, 1), (-1, 3, 1), (-2, -5, 2)$. 求 $\vol_3(T_2)$.</p>
+      </div>
+
+      <h4>策略 — MT2-D Template T.2 一字面板套</h4>
+
+      <p>核心观察: $T_2$ <em>每个</em>非零 vertex 是 $\R^3$ 中具体向量 (call them $v_1, v_2, v_3$). 取线性 map $S$ with $S(\mathbf e_i) = v_i$ — 即 $S = [v_1 | v_2 | v_3]$ as columns. 由线性 + $S(\mathbf 0) = \mathbf 0$: $S(T_1) = T_2$ bijectively.</p>
+
+      <p>By DSV: $\vol_3(T_2) = \vol_3(S(T_1)) = \abs{\det S} \cdot \vol_3(T_1) = \abs{\det S} / 6$. 算 $\det S$ 即可.</p>
+
+      <details>
+        <summary><strong>展开计算 ($\det S$ via cofactor)</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">计算</span>
+            <p>$S$ columns = 三个 nonzero vertex:
+            $$[S] = \begin{pmatrix} 2 & -1 & -2 \\ 1 & 3 & -5 \\ 1 & 1 & 2 \end{pmatrix}.$$
+            $\det S$ via cofactor 沿 row 1:
+            $$\det S = 2 \cdot \det\begin{pmatrix}3 & -5 \\ 1 & 2\end{pmatrix} - (-1) \cdot \det\begin{pmatrix}1 & -5 \\ 1 & 2\end{pmatrix} + (-2) \cdot \det\begin{pmatrix}1 & 3 \\ 1 & 1\end{pmatrix}$$
+            $$= 2(6 + 5) + 1(2 + 5) - 2(1 - 3) = 22 + 7 + 4 = 33.$$
+            By DSV: $\vol_3(T_2) = \abs{\det S} \cdot \vol_3(T_1) = 33 \cdot 1/6 = 11/2.$
+            $$\boxed{\vol_3(T_2) = 11/2.}\qquad \blacksquare$$
+            </p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — Simplex/Parallelepiped 体积的统一公式</span>
+        <p>P 4.9.3 是 MT2-D <strong>Template T.2</strong> 的最直接应用. 把它 generalize:</p>
+        <p>设 $T$ = simplex with vertices $\mathbf 0, v_1, \ldots, v_n \in \R^n$ (即 $\{t_1 v_1 + \cdots + t_n v_n : t_i \ge 0, \sum t_i \le 1\}$). 则
+        $$\vol_n(T) = \frac{\abs{\det[v_1 | \cdots | v_n]}}{n!}.$$
+        相对地, parallelepiped $P(v_1, \ldots, v_n) = \{t_1 v_1 + \cdots + t_n v_n : 0 \le t_i \le 1\}$ 体积 = $\abs{\det[v_1 | \cdots | v_n]}$ (Prop 4.9.5, MT2-D T.1). 二者差 factor of $n!$ — 与 P 4.3.4 (HW2 §5) 中 "$\int_Q f = n! \int_P f$" symmetric 是同一个 $n!$, 来自 cube 与 simplex 的几何关系.</p>
+        <p>把 $\mathbf 0$ 换成 任意 base point $v_0$: simplex $\{v_0, v_1, \ldots, v_n\}$ 体积 = $\abs{\det[v_1 - v_0 | \cdots | v_n - v_0]} / n!$ (translation 不改变 volume; 把 $v_0$ 平移到 $\mathbf 0$).</p>
+      </div>
+
+      <h2 id="sec4">§4 Problem 4.9.5 — Wronskian (DSV 在 2x2 ODE setting)</h2>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 4.9.5</span>
+        <p>$q$ continuous on $\R$, $f, g$ 满足 ODE $f''(x) = q(x) f(x)$, $g''(x) = q(x) g(x)$. 设 $A(x)$ = 平行四边形 spanned by $\begin{pmatrix}f(x)\\f'(x)\end{pmatrix}$ 与 $\begin{pmatrix}g(x)\\g'(x)\end{pmatrix}$ 的面积. 用 $A(0)$ 表 $A(x)$. <em>Hint</em>: 考虑 differentiate $A(x)$.</p>
+      </div>
+
+      <h4>策略</h4>
+
+      <p>关键认识: 平行四边形面积 $A(x) = \abs{W(x)}$ 其中 $W(x)$ 是 <strong>Wronskian determinant</strong>
+      $$W(x) := \det\begin{pmatrix}f(x) & g(x) \\ f'(x) & g'(x)\end{pmatrix} = f(x) g'(x) - g(x) f'(x).$$
+      (这是 Prop 4.9.5 / Topic 08 的 2x2 case: 两 column vectors 张成平行四边形, 面积 = $\abs{\det}$.)</p>
+
+      <p>Hint 提议 differentiate $A$, 但实际上更干净的是 differentiate $W$. 由 ODE $f'' = qf, g'' = qg$:
+      $$W'(x) = (f g')' - (g f')' = f' g' + f g'' - g' f' - g f'' = f \cdot qg - g \cdot qf = 0.$$
+      所有 $f'g', g'f'$ 项 cancel; $fg''$ 与 $gf''$ 都化为 $q \cdot fg$, 互相 cancel. 故 $W \equiv W(0)$ const, $A(x) = \abs{W(x)} = \abs{W(0)} = A(0)$.</p>
+
+      <details>
+        <summary><strong>展开严格证明</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">证明</span>
+            <p>由 Prop 4.9.5 ($n = 2$ case), 平行四边形 spanned by columns of $\begin{pmatrix}f & g\\ f' & g'\end{pmatrix}$ has area
+            $$A(x) = \abs{W(x)}, \qquad W(x) = fg' - gf'.$$
+            Differentiate $W$:
+            $$W'(x) = f'g' + fg'' - g'f' - gf'' = fg'' - gf''.$$
+            用 ODE $f'' = qf, g'' = qg$:
+            $$W'(x) = f \cdot qg - g \cdot qf = q(x) \cdot (fg - gf) = 0.$$
+            故 $W$ const, $\abs W$ const, $A(x) = A(0)$ for all $x \in \R$. $\blacksquare$</p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — Wronskian conservation = Abel's identity 特例</span>
+        <p>更一般地, 对线性 2nd-order ODE $y'' + p(x) y' + q(x) y = 0$, Wronskian 满足 <strong>Abel's identity</strong>
+        $$W'(x) = -p(x) W(x), \qquad W(x) = W(x_0) \exp\left(-\int_{x_0}^x p(t)\,dt\right).$$
+        本题 $p \equiv 0$ ⟹ $W$ 是<em>守恒量</em>. 这就是为什么 $A(x) \equiv A(0)$.</p>
+        <p><strong>几何解释</strong>: 在 phase plane $(y, y')$ 中, $(f, f')(x)$ 与 $(g, g')(x)$ 是两条 trajectories. 平行四边形面积守恒 ⟺ <em>面积 element 在 $(y, y')$ phase flow 下守恒</em>. 这是<em>Liouville's theorem</em> 在 1-D 情形的体现 — Hamiltonian flow 守 phase volume. 课程后期 (Topic 11+ / advanced classical mechanics) 会展开.</p>
+        <p><strong>DSV 隐藏 here</strong>: P 4.9.5 表面看是 ODE 题, 实际是 "<em>线性变换 $(y, y') \mapsto (\text{another solution})$ has $\det = $ const</em>". 这就是 DSV 在<em>solution space</em> 上的应用 — flow map 是 area-preserving. 见 <a href="../topics/08-linear-cov.html">Topic 08</a> 的 generalization remarks.</p>
+      </div>
+
+      <h2 id="sec5">§5 Problem 4.10.4 — ★ Slice-driven CoV: twisted ellipsoid</h2>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 4.10.4</span>
+        <p>用 CoV 算
+        $$\Omega = \left\{(x, y, z) : \frac{x^2}{(z^3 - 1)^2} + \frac{y^2}{(z^3 + 1)^2} \le 1,\;\; -1 \le z \le 1\right\}$$
+        的体积.</p>
+      </div>
+
+      <h4>策略 — Topic 10 Slice-driven pattern</h4>
+
+      <p>$\Omega$ 在每个固定 $z \in [-1, 1]$ 的<em>切片</em>是 $xy$-plane 上的椭圆 with semi-axes $1 - z^3$ 与 $1 + z^3$ (两者都 $\ge 0$, 因 $z^3 \in [-1, 1]$). 不同 $z$ 处椭圆<em>形状不同</em> — 这是 "<em>z-切片是变形 ellipse 系列</em>" 的非平凡几何.</p>
+
+      <p>这是 <strong>Topic 10 第三种设计模式 — Slice-driven</strong> 的标志性 application. 配 $\Phi(r, \theta, z) = (r(1 - z^3)\cos\theta, r(1 + z^3)\sin\theta, z)$:</p>
+      <ul>
+        <li>$z$ 不变 — direct passthrough.</li>
+        <li>对每个固定 $z$, $(r, \theta) \mapsto (r(1 - z^3)\cos\theta, r(1 + z^3)\sin\theta)$ 是<em>变形 polar</em>: 把单位 disk $\{r \le 1\}$ 拉伸成<em>该 $z$ 处的</em> ellipse.</li>
+        <li>$\Phi$ sweeps $\Omega$ once when $(r, \theta, z) \in [0, 1] \times [0, 2\pi) \times [-1, 1]$.</li>
+      </ul>
+
+      <p>关键<strong>Jacobian 计算</strong>: $\Phi$ 的 $3 \times 3$ Jacobian matrix 最后一行是 $(0, 0, 1)$ (因 $z$-coord 不变), 故 cofactor 沿 bottom row collapse 到<em>upper-left $2 \times 2$</em>:
+      $$\det\begin{pmatrix}(1-z^3)\cos\theta & -r(1-z^3)\sin\theta \\ (1+z^3)\sin\theta & r(1+z^3)\cos\theta\end{pmatrix} = r(1 - z^3)(1 + z^3) = r(1 - z^6).$$
+      </p>
+
+      <p><strong>美妙之处</strong>: $r$ 与 $\theta, z$ <em>分离</em> — Jacobian = $r \times (1 - z^6)$. 这让积分 trivially separable.</p>
+
+      <details>
+        <summary><strong>展开严格证明 (含 Jacobian 完整计算 + injectivity)</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">计算</span>
+
+            <p><strong>定义 $\Phi$</strong>: $(r, \theta, z) \in [0, 1] \times [0, 2\pi) \times [-1, 1] \mapsto (r(1-z^3)\cos\theta, r(1+z^3)\sin\theta, z)$.</p>
+
+            <p><strong>Injectivity</strong>: off axis $r = 0$ (measure 0). 在 $r &gt; 0$ + $1 - z^3 &gt; 0$ + $1 + z^3 &gt; 0$ (即 $z \in (-1, 1)$) 上, $(r\cos\theta, r\sin\theta) = (x/(1-z^3), y/(1+z^3))$, standard polar injectivity 给 $(r, \theta)$ unique mod $2\pi$. $z$ 由 third coord 直接读出.</p>
+
+            <p><strong>Jacobian</strong>:
+            $$[D\Phi] = \begin{pmatrix} (1-z^3)\cos\theta & -r(1-z^3)\sin\theta & -3z^2 r\cos\theta \\ (1+z^3)\sin\theta & r(1+z^3)\cos\theta & 3z^2 r\sin\theta \\ 0 & 0 & 1 \end{pmatrix}.$$
+            Cofactor 沿 row 3 (只一项非零, $a_{33} = 1$):
+            $$\det[D\Phi] = 1 \cdot \det\begin{pmatrix}(1-z^3)\cos\theta & -r(1-z^3)\sin\theta \\ (1+z^3)\sin\theta & r(1+z^3)\cos\theta\end{pmatrix}$$
+            $$= (1-z^3)(1+z^3) \cdot r(\cos^2\theta + \sin^2\theta) = r(1 - z^6) \ge 0.$$
+            </p>
+
+            <p><strong>积分</strong>: By nonlinear CoV,
+            $$\vol_3(\Omega) = \int_{-1}^1\int_0^{2\pi}\int_0^1 r(1 - z^6)\,dr\,d\theta\,dz = \pi \int_{-1}^1 (1 - z^6)\,dz.$$
+            $$= \pi \left[z - \frac{z^7}{7}\right]_{-1}^1 = \pi \cdot 2(1 - 1/7) = \frac{12\pi}{7}.\qquad \boxed{\vol_3(\Omega) = 12\pi/7.}\qquad \blacksquare$$
+            </p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — 与 Lec 6.1 例 3 的<em>同型</em>性</span>
+        <p>P 4.10.4 与 <a href="../topics/10-cov-patterns.html">Topic 10</a> 的 <em>第三种模式</em> 例 (Lec 6.1 例 3 "twisted ellipsoid") 是<em>同型</em>: 那里 $\Omega = \{(x/(1-z))^2 + (y/(1+z))^2 \le 1, \abs z &lt; 1\}$, semi-axes $1 - z$ 与 $1 + z$, $\Phi = (r(1-z)\cos\theta, r(1+z)\sin\theta, z)$, $\det = r(1 - z^2)$, 体积 $4\pi/3$ (与 unit ball 一样, by Cavalieri).</p>
+        <p>本题 semi-axes 用 $z^3$ 而非 $z$, 但 structure identical. <strong>Compare 答案</strong>:</p>
+        <ul>
+          <li>Lec 6.1: semi-axes $1 \pm z$, $\det = r(1 - z^2)$, $\vol = 4\pi/3$.</li>
+          <li>本题: semi-axes $1 \pm z^3$, $\det = r(1 - z^6)$, $\vol = 12\pi/7$.</li>
+        </ul>
+        <p>体积差异: $4\pi/3 \approx 4.19$ vs $12\pi/7 \approx 5.39$. 本题区域<em>更大</em>因为 $1 - z^6$ 在 $z \in (-1, 1)$ 内远<em>大</em>于 $1 - z^2$ (两 endpoints 都给 0, 中间更<em>满</em>). 几何上: $z^3$ 增长比 $z$ "<em>慢</em>" near $z = 0$ (因 $z^3 \ll z$ for small $z$), 让中部 ellipse 更接近 unit disk, 体积更大.</p>
+
+        <p><strong>Slice-driven 通用模板</strong>: $\Omega = \{(x, y, z) : (x, y) \in E(z),\; z \in I\}$ where $E(z)$ 是 $z$-依赖的 region in $\R^2$. 若 $E(z) = T_z(E_0)$ for some 线性 $T_z$ depending on $z$, 体积 = $\int_I \abs{\det T_z} \vol_2(E_0)\,dz$. 本题 + Lec 6.1 都是 $E_0 = $ unit disk, $T_z = $ ellipse stretching with $z$-dependent semi-axes.</p>
+      </div>
+
+      <h2 id="sec6">§6 Problem 4.10.9 — $\int xyz$ over ellipsoid octant (stretched spherical)</h2>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 4.10.9</span>
+        <p>$V = \{x &gt; 0, y &gt; 0, z &gt; 0,\;x^2/a^2 + y^2/b^2 + z^2/c^2 \le 1\}$ (ellipsoid 第一卦象). 算
+        $$\int_V xyz\,\abs{dx\,dy\,dz}.$$
+        </p>
+      </div>
+
+      <h4>策略 — Symmetry-driven (Topic 10 模式 1)</h4>
+
+      <p><strong>Pattern recognition</strong>: 区域是椭球的第一卦象, 被积函数 $xyz$ 对每个 axis 都<em>奇次</em>. 自然选 <strong>stretched spherical coords</strong>:
+      $$\Phi(\rho, \varphi, \theta) = (a\rho\cos\varphi\cos\theta,\; b\rho\cos\varphi\sin\theta,\; c\rho\sin\varphi).$$
+      (H&amp;H 纬度约定 $z = r\sin\varphi$, 与 MT2-D Def D.6 一致.)</p>
+
+      <p>这是 $D \circ \Psi$ 复合, $D = \mathrm{diag}(a, b, c)$ 线性 + $\Psi$ standard spherical. 由 chain rule + DSV:
+      $$\det[D\Phi] = \det D \cdot \det[D\Psi] = abc \cdot \rho^2 \cos\varphi.$$
+      </p>
+
+      <p><strong>参数范围 for 第一卦象</strong>: $x, y, z &gt; 0$ ⟹ $\cos\varphi, \sin\varphi, \cos\theta, \sin\theta &gt; 0$ ⟹ $\varphi \in (0, \pi/2)$, $\theta \in (0, \pi/2)$. $\rho \in (0, 1)$.</p>
+
+      <p><strong>积分 separable</strong>:
+      $$\int_V xyz\,dV = \int\int\int (a\rho\cos\varphi\cos\theta)(b\rho\cos\varphi\sin\theta)(c\rho\sin\varphi) \cdot abc\rho^2\cos\varphi\,d\rho\,d\varphi\,d\theta$$
+      $$= (abc)^2 \int_0^1 \rho^5\,d\rho \cdot \int_0^{\pi/2}\cos^3\varphi\sin\varphi\,d\varphi \cdot \int_0^{\pi/2}\sin\theta\cos\theta\,d\theta.$$
+      三 separable 积分各自 elementary.</p>
+
+      <details>
+        <summary><strong>展开计算</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">计算</span>
+            <p>$$\int_0^1 \rho^5\,d\rho = \frac{1}{6}.$$
+            $$\int_0^{\pi/2}\cos^3\varphi\sin\varphi\,d\varphi = \left[-\frac{\cos^4\varphi}{4}\right]_0^{\pi/2} = \frac{1}{4}.$$
+            $$\int_0^{\pi/2}\sin\theta\cos\theta\,d\theta = \left[\frac{\sin^2\theta}{2}\right]_0^{\pi/2} = \frac{1}{2}.$$
+            合并:
+            $$\int_V xyz\,dV = (abc)^2 \cdot \frac{1}{6} \cdot \frac{1}{4} \cdot \frac{1}{2} = \frac{a^2b^2c^2}{48}.$$
+            $$\boxed{\int_V xyz\,\abs{dx\,dy\,dz} = \frac{a^2 b^2 c^2}{48}.}\qquad \blacksquare$$
+            </p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — Stretched spherical 是 "<em>$D \circ \Psi$</em>" 复合</span>
+        <p>Stretched spherical = $D \circ \Psi$ 其中 $D = \mathrm{diag}(a, b, c)$ 是<em>线性</em> $\R^3 \to \R^3$ 映射 (拉伸三个轴), $\Psi$ 是 standard spherical. <strong>Jacobian factor</strong>:
+        $$\abs{\det[D\Phi]} = \abs{\det D} \cdot \abs{\det[D\Psi]} = abc \cdot r^2\cos\varphi.$$
+        $abc$ 是<em>volume-stretching factor</em> from unit ball 到 ellipsoid; $r^2\cos\varphi$ 是 spherical Jacobian. 二者相乘是<em>composite</em> chain rule.</p>
+        <p>这个 trick (<em>"stretched" version of standard CoV</em>) 在 Lec 6.1 例 1 (ellipse 面积 = $\pi ab$ via $T = \mathrm{diag}(a, b)$) 已经见过. 本题是 3D 版.</p>
+
+        <p><strong>对称性 dividends</strong>: 被积函数 $xyz$ 在 $(\rho, \varphi, \theta)$ 坐标下是<em>三 separable 因子的乘积</em>. 这是因为 ellipsoid 的"<em>natural coordinates</em>" 就是 stretched spherical, 把对称 align. 见 <a href="../topics/10-cov-patterns.html">Topic 10</a> 第一种模式.</p>
+
+        <p><strong>检验 $a = b = c = 1$ (unit ball octant)</strong>: $\int_V xyz = 1/48$. 由对称 $\int_{\text{full ball}} \abs{xyz} = 8 \cdot 1/48 = 1/6$. 这与 直接 spherical 算 unit ball 上 $\int \abs{xyz}$ 一致.</p>
+      </div>
+
+      <h2 id="sec7">§7 Problem 4.10.12 — Quarter ball $\int (x^2+y^2+z^2)^{3/2}$</h2>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 4.10.12</span>
+        <p>算 iterated 积分
+        $$\int_{-2}^2 \int_0^{\sqrt{4 - x^2}} \int_0^{\sqrt{4 - x^2 - y^2}}(x^2 + y^2 + z^2)^{3/2}\,dz\,dy\,dx.$$
+        </p>
+      </div>
+
+      <h4>策略</h4>
+
+      <p><strong>识别区域</strong>: 内 $z$-bound $0 \le z \le \sqrt{4 - x^2 - y^2}$ ⟹ $z \ge 0$ + $x^2 + y^2 + z^2 \le 4$. 中 $y$-bound $0 \le y \le \sqrt{4 - x^2}$ ⟹ $y \ge 0$ + (与 $z$ bound 兼容). 外 $x \in [-2, 2]$. 整体区域:
+      $$R = \{x^2 + y^2 + z^2 \le 4,\;y \ge 0,\;z \ge 0\}$$
+      = ball radius 2 的<strong>1/4</strong> (cut by $y \ge 0$ AND $z \ge 0$ 两个半空间).</p>
+
+      <p><strong>被积函数</strong>: $(x^2 + y^2 + z^2)^{3/2} = r^3$ (in spherical). 这是<em>radial</em> 函数 — spherical coords 立即把它变 trivial.</p>
+
+      <p><strong>Spherical 参数范围</strong> (H&amp;H 纬度约定 $z = r\sin\varphi$):
+      <ul>
+        <li>$z \ge 0$ ⟺ $\sin\varphi \ge 0$ ⟺ $\varphi \in [0, \pi/2]$ (upper hemisphere, 北半球).</li>
+        <li>$y \ge 0$: $y = r\cos\varphi\sin\theta \ge 0$. Since $\cos\varphi \ge 0$ on $[0, \pi/2]$, 等价 $\sin\theta \ge 0$ ⟺ $\theta \in [0, \pi]$ (front half).</li>
+        <li>$r \in [0, 2]$.</li>
+      </ul>
+      </p>
+
+      <details>
+        <summary><strong>展开计算</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">计算</span>
+            <p>球坐标 $\Phi$, $\det = r^2\cos\varphi$. 被积 $r^3$. 由 CoV + Fubini:
+            $$\int_R r^3\,dV = \int_0^\pi \int_0^{\pi/2}\int_0^2 r^3 \cdot r^2 \cos\varphi\,dr\,d\varphi\,d\theta$$
+            $$= \int_0^\pi d\theta \cdot \int_0^{\pi/2}\cos\varphi\,d\varphi \cdot \int_0^2 r^5\,dr = \pi \cdot [\sin\varphi]_0^{\pi/2} \cdot \frac{r^6}{6}\bigg|_0^2$$
+            $$= \pi \cdot 1 \cdot \frac{64}{6} = \frac{32\pi}{3}. \qquad \boxed{\frac{32\pi}{3}.}\qquad \blacksquare$$
+            </p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — "<em>识别区域 + 识别被积函数</em>" 双重 spherical 信号</span>
+        <p>本题 spherical coords 是<em>明显</em>选择, 因为<strong>两个</strong>线索都指向它:</p>
+        <ol>
+          <li><strong>被积函数</strong> $(x^2+y^2+z^2)^{3/2} = r^3$ — radial. 见 radial 就上 spherical.</li>
+          <li><strong>区域</strong> = ball 的 部分 — radial bound $r \le 2$, 加 $y \ge 0$ + $z \ge 0$ 切出 1/4 球. 角度范围 $\theta \in [0, \pi]$, $\varphi \in [0, \pi/2]$.</li>
+        </ol>
+        <p>对比: 如果被积函数是<em>非</em> radial (e.g. $xyz$ as in P 4.10.9), 即使区域是 ball, spherical 仍然 work 但需要把 $xyz$ 表达成 $r, \varphi, \theta$ — 多一步. 如果<em>仅</em>被积函数 radial 但区域不是 ball-like, spherical 反而可能<em>不</em>简化.</p>
+
+        <p><strong>因子 $1/4$ check</strong>: ball radius 2 的<em>full</em> 积分 $\int_{\text{ball}}r^3 dV = \int_0^{2\pi}\int_{-\pi/2}^{\pi/2}\int_0^2 r^5 \cos\varphi\,dr\,d\varphi\,d\theta = 2\pi \cdot 2 \cdot 64/6 = 256\pi/3$. 我们的<em>quarter</em> ($y \ge 0$ + $z \ge 0$): $256\pi/3 \cdot 1/4 = 64\pi/3$? <em>不</em>对, 应该是 $32\pi/3$. 让我再 check:</p>
+        <p>full ball: $\theta \in [0, 2\pi]$, $\varphi \in [-\pi/2, \pi/2]$. quarter ball ($y \ge 0, z \ge 0$): $\theta \in [0, \pi]$ (因 $y \ge 0$), $\varphi \in [0, \pi/2]$ (因 $z \ge 0$). 但 full ball 是<em>整 sphere</em>, 应该乘 $4$ 才回到 full: $\theta$ from $\pi$ to $2\pi$ (factor 2) + $\varphi$ from $-\pi/2$ to $\pi/2$ vs $0$ to $\pi/2$ (factor 2). 所以 quarter / full $= 1/4$, 即 quarter $= 256\pi/3 \cdot 1/4 = 64\pi/3$. 但我们算的是 $32\pi/3$ — 矛盾!</p>
+        <p>let me recompute full ball: $\int_{\text{ball}} r^3 dV$. By spherical: $\int_0^{2\pi}\int_{-\pi/2}^{\pi/2}\int_0^2 r^3 \cdot r^2 \cos\varphi\,dr\,d\varphi\,d\theta = 2\pi \cdot [\sin\varphi]_{-\pi/2}^{\pi/2} \cdot [r^6/6]_0^2 = 2\pi \cdot 2 \cdot 64/6 = 256\pi/6 = 128\pi/3$. Quarter $= 128\pi/3 \cdot 1/4 = 32\pi/3$. $\checkmark$ 与我们 direct 算的 $32\pi/3$ 一致. (我前面算错了 full ball 的常数. OK 一致了.)</p>
+      </div>
+
+      <h2 id="sec8">§8 Problem 4.10.17 — ★ Boundary-driven: $\Phi(u, v) = (u-v, e^u + e^v)$</h2>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 4.10.17</span>
+        <p>$Q_a = [0, a] \times [0, a] \subset \R^2$, $\Phi(u, v) = (u - v, e^u + e^v)$. $A = \Phi(Q_a)$.</p>
+        <p><strong>(a)</strong> Sketch $A$, by computing image of each side of $Q_a$.<br>
+        <strong>(b)</strong> Show $\Phi$ is one-to-one.<br>
+        <strong>(c)</strong> Compute $\int_A y\,\abs{dx\,dy}$.</p>
+      </div>
+
+      <h4>策略 — Topic 10 模式 2 (Boundary-driven)</h4>
+
+      <p>这是<strong>boundary-driven CoV</strong> 的经典模板. 题目给一个 explicit nonlinear $\Phi$, 要你:</p>
+      <ol>
+        <li>(a) 算每条 $\partial Q_a$ 边的 image — 4 条 exponential 曲线 (typical for $\Phi$ involving $e^u, e^v$).</li>
+        <li>(b) 验证 $\Phi$ 1-1 — 通常 algebraic manipulation.</li>
+        <li>(c) 计算 $\int_A f \abs{dx\,dy}$ — 由 CoV 化为 $\int_{Q_a} f(\Phi) \abs{\det[D\Phi]}\,du\,dv$, $\det[D\Phi] = e^u + e^v$.</li>
+      </ol>
+
+      <p>关键: $A$ 是"<em>曲边四边形</em>" in $\R^2$, 但通过 $\Phi^{-1}$ pull back 到 $Q_a$ 后变成 axis-aligned square — <em>这就是 boundary-driven 的魅力</em>. 直接在 $Q_a$ 上算积分 elementary.</p>
+
+      <h4>(a) 4 边的 image</h4>
+
+      <table class="textbook-index">
+        <thead>
+          <tr><th>$\partial Q_a$ 边</th><th>$(u, v)$ 参数</th><th>$(x, y) = \Phi(u, v)$</th><th>image 方程</th><th>$x$ 范围</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>$u = 0$</td><td>$v \in [0, a]$</td><td>$(-v, 1 + e^v)$</td><td>$y = 1 + e^{-x}$</td><td>$[-a, 0]$</td></tr>
+          <tr><td>$u = a$</td><td>$v \in [0, a]$</td><td>$(a-v, e^a + e^v)$</td><td>$y = e^a + e^{a-x}$</td><td>$[0, a]$</td></tr>
+          <tr><td>$v = 0$</td><td>$u \in [0, a]$</td><td>$(u, e^u + 1)$</td><td>$y = e^x + 1$</td><td>$[0, a]$</td></tr>
+          <tr><td>$v = a$</td><td>$u \in [0, a]$</td><td>$(u-a, e^u + e^a)$</td><td>$y = e^a + e^{x+a}$</td><td>$[-a, 0]$</td></tr>
+        </tbody>
+      </table>
+
+      <p>$A$ 的形状: "<em>曲边四边形</em>" with 4 exp 曲线 sides. 下边由 $y = e^x + 1$ ($x \in [0, a]$, 由 $v = 0$) 与 $y = 1 + e^{-x}$ ($x \in [-a, 0]$, 由 $u = 0$) 拼成, 它们在 $(0, 2)$ 处接续. 上边由 $y = e^a + e^{a-x}$ ($x \in [0, a]$, 由 $u = a$) 与 $y = e^a + e^{x+a}$ ($x \in [-a, 0]$, 由 $v = a$) 对称地拼成, 在 $(0, 2e^a)$ 处接续.</p>
+
+      <h4>(b) Injectivity 证明</h4>
+
+      <p>假设 $\Phi(u_1, v_1) = \Phi(u_2, v_2)$. 第一 coord: $u_1 - v_1 = u_2 - v_2$, set $d := u_1 - v_1 = u_2 - v_2$. 则 $u_i = v_i + d$. 第二 coord: $e^{v_1 + d} + e^{v_1} = e^{v_2 + d} + e^{v_2}$, factor:
+      $$e^{v_1}(e^d + 1) = e^{v_2}(e^d + 1).$$
+      $e^d + 1 &gt; 0$ ⟹ $e^{v_1} = e^{v_2}$ ⟹ $v_1 = v_2$ ⟹ $u_1 = u_2$. $\checkmark$ injective.</p>
+
+      <h4>(c) $\int_A y\,dx\,dy$ via CoV</h4>
+
+      <p>$$[D\Phi] = \begin{pmatrix}1 & -1\\ e^u & e^v\end{pmatrix}, \qquad \det[D\Phi] = e^u + e^v &gt; 0.$$
+      $y \circ \Phi = e^u + e^v$ (the second coord). 故
+      $$\int_A y\,\abs{dx\,dy} = \int_0^a\int_0^a (e^u + e^v) \cdot (e^u + e^v)\,du\,dv = \int_0^a\int_0^a (e^u + e^v)^2\,du\,dv.$$
+      展开 $(e^u + e^v)^2 = e^{2u} + 2e^{u+v} + e^{2v}$:</p>
+
+      <details>
+        <summary><strong>展开三 piece 计算</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">计算</span>
+            <p>$$\int_0^a \int_0^a e^{2u}\,du\,dv = a \cdot \frac{e^{2a} - 1}{2}.$$
+            $$\int_0^a \int_0^a 2 e^{u + v}\,du\,dv = 2(e^a - 1)^2.$$
+            $$\int_0^a \int_0^a e^{2v}\,du\,dv = a \cdot \frac{e^{2a} - 1}{2}.$$
+            合并:
+            $$\int_A y\,dx\,dy = 2 \cdot a(e^{2a} - 1)/2 + 2(e^a - 1)^2 = a(e^{2a} - 1) + 2(e^a - 1)^2.$$
+            $$\boxed{\int_A y\,\abs{dx\,dy} = a(e^{2a} - 1) + 2(e^a - 1)^2.}\qquad \blacksquare$$
+            </p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — Boundary-driven CoV 的<em>3-step template</em></span>
+        <p>P 4.10.17 与下面的 P 4.10.19 都是<em>同一个 template</em>:</p>
+        <ol>
+          <li><strong>Step 1 — 4 边 image</strong>: 算每条 $\partial Q$ 边的 image curve. 通常都是 (a) elementary 曲线 (exp, polynomial, ...) (b) 互相连续 (corner 处 image 重合).</li>
+          <li><strong>Step 2 — Injectivity</strong>: algebraic manipulation. 在两题里都用 "<em>从 $\Phi(u_1) = \Phi(u_2)$ 导出 $u_1 = u_2$ 的代数 chain</em>".</li>
+          <li><strong>Step 3 — CoV 积分</strong>: 算 $\det[D\Phi]$, 把 $\int_A f$ 化为 $\int_Q f(\Phi) \abs{\det}$, 在 $Q$ 上 elementary 积.</li>
+        </ol>
+
+        <p><strong>为什么 boundary-driven 称<em>boundary</em>-driven?</strong> 因 design 思路是: "<em>我有一个 $A$ 的<em>边界</em>(曲边四边形) 难以描述, 我找 $\Phi$ 让 $\Phi^{-1}(A)$ 的边界变 axis-aligned (square / rectangle)</em>". $\Phi^{-1}$ 把<em>boundary</em>变 simple ⟹ 整个 $A$ 的积分变 axis-aligned.</p>
+        <p>对比 symmetry-driven: 那个是<em>$A$ 的几何对称</em> drive $\Phi$ 选择 (polar/spherical). Boundary-driven 是<em>$A$ 的不规则形状</em> drive $\Phi$ 选择 (custom map).</p>
+        <p>实战 tip: 看到 problem 给 "<em>explicit $\Phi$ + 求 $\int_{\Phi(Q)} f$</em>", 80% 是 boundary-driven. 看到 problem 给 "<em>$\int_V f$ over 球/椭球/锥</em>", 80% 是 symmetry-driven. 见 <a href="../topics/10-cov-patterns.html">Topic 10</a>.</p>
+      </div>
+
+      <h2 id="sec9">§9 Problem 4.10.18 — Ice cream cone (球坐标 + 锥面 $\varphi = \pi/4$)</h2>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 4.10.18</span>
+        <p>体积 of $\{x^2 + y^2 + z^2 \le 4,\;z^2 \ge x^2 + y^2,\;z &gt; 0\}$ — 即半径 2 球的 "<em>上锥</em>" 部分.</p>
+      </div>
+
+      <h4>策略</h4>
+
+      <p>区域 = ball of radius 2 ∩ "<em>$z^2 \ge x^2 + y^2$ 的上半 cone</em>" ∩ $z &gt; 0$. 几何上是 "<em>ice cream cone</em>" 形状 — ball 的<em>cap</em> + cone 围合.</p>
+
+      <p>立刻上 spherical coords (H&amp;H 纬度约定 $z = r\sin\varphi$, $\varphi \in [-\pi/2, \pi/2]$):</p>
+      <ul>
+        <li>$z &gt; 0$ ⟺ $\sin\varphi &gt; 0$ ⟺ $\varphi \in (0, \pi/2]$.</li>
+        <li>$z^2 \ge x^2 + y^2$ ⟺ $r^2\sin^2\varphi \ge r^2\cos^2\varphi$ ⟺ $\sin^2\varphi \ge \cos^2\varphi$ ⟺ $\tan^2\varphi \ge 1$ ⟺ $\abs{\tan\varphi} \ge 1$. 配合 $\varphi \in (0, \pi/2]$: $\varphi \in [\pi/4, \pi/2]$.</li>
+        <li>$x^2 + y^2 + z^2 \le 4$ ⟺ $r \in [0, 2]$.</li>
+        <li>$\theta \in [0, 2\pi]$ (axial symmetry).</li>
+      </ul>
+
+      <details>
+        <summary><strong>展开计算</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">计算</span>
+            <p>Jacobian $r^2\cos\varphi$.
+            $$\vol = \int_0^{2\pi}\int_{\pi/4}^{\pi/2}\int_0^2 r^2\cos\varphi\,dr\,d\varphi\,d\theta = 2\pi \cdot [\sin\varphi]_{\pi/4}^{\pi/2} \cdot \frac{r^3}{3}\bigg|_0^2$$
+            $$= 2\pi \cdot (1 - \frac{\sqrt 2}{2}) \cdot \frac{8}{3} = \frac{16\pi}{3}(1 - \frac{\sqrt 2}{2}) = \frac{16\pi - 8\pi\sqrt 2}{3} = \frac{8\pi(2 - \sqrt 2)}{3}.$$
+            $$\boxed{\vol = \frac{8\pi(2 - \sqrt 2)}{3} \approx 4.91.}\qquad \blacksquare$$
+            </p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — Cone boundary $\varphi = \pi/4$ in spherical</span>
+        <p>本题的<em>signature</em>是 "<em>cone $z^2 = x^2 + y^2$ 在 spherical 下变 $\varphi = \pi/4$</em>" — 一条 latitude line. 这就是 spherical coords 的 power: 把<em>非</em> axis-aligned 边界 (cone 是 conic surface, Cartesian 下复杂) 变成 axis-aligned (constant $\varphi$).</p>
+
+        <p>类似地, 其他 cone (half-angle $\alpha$ from $z$-axis): $z = r\sin\varphi$, $\sqrt{x^2+y^2} = r\cos\varphi$. cone $\sqrt{x^2+y^2}/z = \tan\alpha$ ⟹ $\cos\varphi/\sin\varphi = \tan\alpha$ ⟹ $\cot\varphi = \tan\alpha$ ⟹ $\varphi = \pi/2 - \alpha$ (使用 H&amp;H 纬度约定; standard physics 约定 $\theta$ = colatitude 则 $\theta = \alpha$).</p>
+
+        <p><strong>Check 比例</strong>: ice cream cone 体积 $\approx 4.91$ vs full upper hemisphere ($r \le 2, z \ge 0$) 体积 $= 2\pi \cdot 1 \cdot 8/3 = 16\pi/3 \approx 16.76$. Ratio $\approx 4.91/16.76 \approx 29.3\%$ — ice cream cone 占上半球的 29.3%. 几何上合理: $\varphi \in [\pi/4, \pi/2]$ "<em>北顶 cap</em>" 占 $\varphi$ range $\pi/4$ out of $\pi/2$, 但 $\sin\varphi$ weight 让北顶比例更高 (cap 集中在 $\sin\varphi$ 大处).</p>
+      </div>
+
+      <h2 id="sec10">§10 Problem 4.10.19 — ★ Boundary-driven: $\Phi(u, v) = (u - v^2, u^2 + v)$</h2>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 4.10.19</span>
+        <p>$Q = [0, 1] \times [0, 1]$, $\Phi(u, v) = (u - v^2, u^2 + v)$, $A = \Phi(Q)$.</p>
+        <p><strong>(a)</strong> Sketch $A$, by computing image of each side of $Q$ (all arcs of parabolas).<br>
+        <strong>(b)</strong> Show $\Phi$ is 1-1.<br>
+        <strong>(c)</strong> Compute $\int_A x\,\abs{dx\,dy}$.</p>
+      </div>
+
+      <h4>策略 — 同 §8, boundary-driven 模板</h4>
+
+      <p>与 P 4.10.17 同 template (boundary-driven), 但 $\Phi$ 是<em>polynomial</em> (vs exponential), 所以 4 条 image 都是<em>parabolic arcs</em> (vs exp 曲线). 同样的 3-step (image / injectivity / CoV).</p>
+
+      <h4>(a) 4 边 image</h4>
+
+      <table class="textbook-index">
+        <thead>
+          <tr><th>$\partial Q$ 边</th><th>$(u, v)$ 参数</th><th>$(x, y) = \Phi(u, v)$</th><th>image 方程</th><th>$x$ 范围</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>$u = 0$</td><td>$v \in [0, 1]$</td><td>$(-v^2, v)$</td><td>$x = -y^2$, $y \in [0, 1]$</td><td>$[-1, 0]$</td></tr>
+          <tr><td>$u = 1$</td><td>$v \in [0, 1]$</td><td>$(1 - v^2, 1 + v)$</td><td>$x = 1 - (y - 1)^2$, $y \in [1, 2]$</td><td>$[0, 1]$</td></tr>
+          <tr><td>$v = 0$</td><td>$u \in [0, 1]$</td><td>$(u, u^2)$</td><td>$y = x^2$, $x \in [0, 1]$</td><td>$[0, 1]$</td></tr>
+          <tr><td>$v = 1$</td><td>$u \in [0, 1]$</td><td>$(u - 1, u^2 + 1)$</td><td>$y = (x + 1)^2 + 1$, $x \in [-1, 0]$</td><td>$[-1, 0]$</td></tr>
+        </tbody>
+      </table>
+
+      <p>4 条 parabolic arcs 在四角接续: $(0, 0)$ [$u = v = 0$], $(1, 1)$ [$u = 1, v = 0$], $(0, 2)$ [$u = v = 1$], $(-1, 1)$ [$u = 0, v = 1$]. 顺序: $(0, 0) \to (1, 1) \to (0, 2) \to (-1, 1) \to (0, 0)$ — CCW, 与 $Q$ 边界 CCW 顺序一致 (因 $\det[D\Phi] = 1 + 4uv &gt; 0$, orientation preserving).</p>
+
+      <h4>(b) Injectivity</h4>
+
+      <p>设 $\Phi(u_1, v_1) = \Phi(u_2, v_2)$. $\alpha := u_1 - u_2$, $\beta := v_1 - v_2$. 由两 coord:
+      $$u_1 - v_1^2 = u_2 - v_2^2 \implies \alpha = v_1^2 - v_2^2 = \beta(v_1 + v_2). \quad (\star)$$
+      $$u_1^2 + v_1 = u_2^2 + v_2 \implies \beta = -(u_1^2 - u_2^2) = -\alpha(u_1 + u_2). \quad (\star\star)$$
+      代 ($\star\star$) 入 ($\star$):
+      $$\alpha = -\alpha(u_1 + u_2)(v_1 + v_2) \implies \alpha[1 + (u_1 + u_2)(v_1 + v_2)] = 0.$$
+      $u_i, v_i \in [0, 1]$ ⟹ $(u_1 + u_2)(v_1 + v_2) \ge 0$ ⟹ bracket $\ge 1 &gt; 0$. 故 $\alpha = 0$, $u_1 = u_2$. 由 ($\star\star$) $\beta = 0$, $v_1 = v_2$. $\checkmark$</p>
+
+      <h4>(c) $\int_A x\,dx\,dy$ via CoV</h4>
+
+      <p>$[D\Phi] = \begin{pmatrix}1 & -2v\\ 2u & 1\end{pmatrix}$, $\det = 1 + 4uv &gt; 0$ on $Q$. $x \circ \Phi = u - v^2$. 故
+      $$\int_A x\,dx\,dy = \int_0^1\int_0^1 (u - v^2)(1 + 4uv)\,du\,dv.$$
+      展开 $(u - v^2)(1 + 4uv) = u + 4u^2 v - v^2 - 4uv^3$.</p>
+
+      <details>
+        <summary><strong>展开计算</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">计算</span>
+            <p>对 $u$ 积分:
+            $$\int_0^1(u + 4u^2 v - v^2 - 4uv^3)\,du = \frac{1}{2} + \frac{4v}{3} - v^2 - 2v^3.$$
+            对 $v$ 积分:
+            $$\int_0^1\left(\frac{1}{2} + \frac{4v}{3} - v^2 - 2v^3\right)dv = \frac{1}{2} + \frac{2}{3} - \frac{1}{3} - \frac{1}{2} = \frac{1}{3}.$$
+            $$\boxed{\int_A x\,\abs{dx\,dy} = \frac{1}{3}.}\qquad \blacksquare$$
+            </p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — P 4.10.17 vs P 4.10.19 的对比</span>
+        <p>两题<em>同 template</em>, 但 $\Phi$ 不同选: P 4.10.17 用 exponential ($\det = e^u + e^v$), P 4.10.19 用 polynomial ($\det = 1 + 4uv$). 这让计算细节有趣地<em>不同</em>:</p>
+        <ul>
+          <li><strong>P 4.10.17 (exp)</strong>: $\det$ 与 $y$ coord 是同一表达 $e^u + e^v$. $\int_A y$ 化为 $\int_Q (e^u + e^v)^2\,du\,dv$ — 平方展开.</li>
+          <li><strong>P 4.10.19 (polynomial)</strong>: $\det = 1 + 4uv$ separate from $x$ coord $u - v^2$. $\int_A x$ 化为 $\int_Q (u - v^2)(1 + 4uv)\,du\,dv$ — multinomial 展开.</li>
+        </ul>
+        <p>共同特征: <em>$\det[D\Phi]$ 是 $\Phi$ 各分量 的 partial 的 explicit 表达</em>. 实战上算 $\det$ 通常是$2 \times 2$ matrix easy, 反而是<em>injectivity</em>验证最难 — 两题都需要 algebraic trick.</p>
+
+        <p><strong>P 4.10.19 的 injectivity 巧妙</strong>: $\alpha[1 + (u_1 + u_2)(v_1 + v_2)] = 0$ — 关键在于 bracket $\ge 1 &gt; 0$ <em>by $u_i, v_i \in [0, 1]$</em>. 如果允许 $u, v$ 负, $(u_1 + u_2)(v_1 + v_2)$ 可能 $= -1$, 让 bracket = 0, injectivity 失败. 所以 <em>region $Q$ 的限制是 injectivity 的 essential 条件</em>.</p>
+
+        <p><strong>预告</strong>: H&amp;H §4.10 后续题 (e.g. 4.10.21+) 涉及更复杂的 $\Phi$ — 但同 template. MT2-B / MT2-D 也有类似 worked examples.</p>
+      </div>
+
+      <h2 id="sec11">§11 方法论速查</h2>
+
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def"><strong>★ DSV (Thm 4.9.1)</strong>: $T$ linear, $A$ pavable ⟹ $\vol_n T(A) = \abs{\det T} \cdot \vol_n A$. <em>用于 P 4.9.1, 4.9.3b, 4.9.5</em>.</li>
+          <li class="cs-def"><strong>n-Parallelepiped 体积 (Prop 4.9.5)</strong>: $v_1, \ldots, v_n \in \R^n$ ⟹ $\vol(P) = \abs{\det[v_1 | \cdots | v_n]}$. <em>MT2-D T.1</em>.</li>
+          <li class="cs-def"><strong>Standard $n$-simplex 体积</strong>: $\{x \ge 0 : \sum x_i \le 1\}$ has vol $= 1/n!$. <em>P 4.9.3a (n=3)</em>.</li>
+          <li class="cs-def"><strong>★ Wronskian</strong>: $W = fg' - gf'$. 对 $f, g$ 满足 $y'' + py' + qy = 0$, $W' = -pW$ (Abel). 本题 $p = 0$ ⟹ $W$ 守恒.</li>
+          <li class="cs-def"><strong>★ Nonlinear CoV (Thm 4.10.12)</strong>: $\Phi$ $C^1$ injective with $\det[D\Phi] \ne 0$ ⟹ $\int_V f\,dV_Y = \int_U f(\Phi) \abs{\det[D\Phi]}\,dV_X$.</li>
+          <li class="cs-def"><strong>Spherical Jacobian (H&amp;H 约定 $z = r\sin\varphi$)</strong>: $\det = r^2\cos\varphi$. $\varphi \in [-\pi/2, \pi/2]$, $\theta \in [0, 2\pi]$.</li>
+          <li class="cs-def"><strong>Stretched spherical</strong>: $\Phi = D \circ \Psi$ where $D = \mathrm{diag}(a, b, c)$. $\det = abc \cdot r^2 \cos\varphi$.</li>
+
+          <li class="cs-thm"><strong>★ Topic 10 三大 CoV 设计模式</strong>:
+            <ul>
+              <li>Symmetry-driven (P 4.10.9, 4.10.12, 4.10.18): polar/spherical, matches geometric symmetry.</li>
+              <li>Boundary-driven (P 4.10.17, 4.10.19): custom $\Phi$ makes $A$'s boundary axis-aligned.</li>
+              <li>Slice-driven (P 4.10.4): $\Phi$ identity in one variable, others scaled by it.</li>
+            </ul>
+          </li>
+          <li class="cs-thm"><strong>MT2-D Templates</strong>:
+            <ul>
+              <li>T.1 Direct parallelepiped (Prop 4.9.5).</li>
+              <li>T.2 Simplex via linear image (P 4.9.3b).</li>
+              <li>T.3 Ellipsoid / linear-image volume (P 4.9.1).</li>
+            </ul>
+          </li>
+          <li class="cs-thm"><strong>Lower-triangular $\det$</strong>: $\det = \prod_i [T]_{ii}$ — 对角积. <em>P 4.9.1 shortcut</em>.</li>
+          <li class="cs-thm"><strong>$\Phi$ injectivity 验证</strong>: algebraic manipulation from $\Phi(u_1) = \Phi(u_2)$ to $u_1 = u_2$. 通常 region 限制 ($u_i \in [0, 1]$) 是 essential.</li>
+
+          <li class="cs-tech"><strong>★ Pattern recognition 检查表</strong>: 看到 problem, 问:
+            <ol>
+              <li>区域 / 被积函数有 axial symmetry? → polar/cylindrical/spherical (symmetry-driven).</li>
+              <li>区域是 weird shape with explicit boundary 方程, 或题目直接给 $\Phi$? → boundary-driven.</li>
+              <li>区域是 stacked slices (e.g. $z$ varying)? → slice-driven.</li>
+              <li>区域是 simplex / parallelepiped / linear image of standard region? → DSV / linear CoV.</li>
+            </ol>
+          </li>
+          <li class="cs-tech"><strong>Cofactor 沿 bottom row $(0, \ldots, 0, 1)$ shortcut</strong>: 当 $\Phi$ 在某变量 (e.g. $z$) 上是 identity, 该行只一项, $\det[D\Phi]$ collapse 到 upper-left submatrix det. <em>P 4.10.4 用此</em>.</li>
+          <li class="cs-tech"><strong>Symmetric $\int_A xyz$ over octant of ellipsoid</strong>: stretched spherical ⟹ separable 三因子积, $abc \cdot abc \cdot \frac{1}{6} \cdot \frac{1}{4} \cdot \frac{1}{2}$.</li>
+          <li class="cs-tech"><strong>Spherical $\varphi$ range from condition</strong>: $z \ge 0$ ⟺ $\varphi \in [0, \pi/2]$; $z^2 \ge x^2+y^2$ ⟺ $\varphi \ge \pi/4$; etc. 把 Cartesian 条件翻成 spherical condition.</li>
+
+          <li class="cs-pitfall"><strong>★ Pitfall — 忘了 DSV ratio invariance</strong>: P 4.9.1 给奇形 $A$, 想跳进去算 $\vol A$ — <em>错</em>! Ratio = $\abs{\det T}$ alone.</li>
+          <li class="cs-pitfall"><strong>Pitfall — Spherical 约定混乱</strong>: H&amp;H 用 latitude $\varphi \in [-\pi/2, \pi/2]$ + $z = r\sin\varphi$; physics 教材常用 colatitude $\theta \in [0, \pi]$ + $z = r\cos\theta$. 两个约定 Jacobian 不同 ($r^2\cos\varphi$ vs $r^2\sin\theta$).</li>
+          <li class="cs-pitfall"><strong>Pitfall — Injectivity 忘检</strong>: nonlinear CoV hypothesis 要求 $\Phi$ injective on (interior of) $U$. P 4.10.17, 4.10.19 都需要显式 algebraic 验证.</li>
+          <li class="cs-pitfall"><strong>Pitfall — $\det[D\Phi]$ 取绝对值</strong>: CoV 公式是 $\abs{\det[D\Phi]}$. 即使 $\det &gt; 0$ on $Q$, 习惯写绝对值. (本 HW 几乎都 $\det &gt; 0$, 但 negative 情形也有 e.g. orientation reversal.)</li>
+        </ul>
+      </div>
+
+      <h2 id="sec12">§12 进一步阅读</h2>
+
+      <ul>
+        <li><strong>原题与提交解答</strong>: 题目 <code>../../HW/Pset/HW3.pdf</code>; LaTeX 完整证明 <code>../../HW/Response/HW3_response.pdf</code> (本页数学内容的 single source of truth).</li>
+        <li><strong>H&amp;H 教材章节</strong>:
+          <ul>
+            <li><strong>§4.9</strong>: Determinant Scales Volume (Thm 4.9.1), $n$-parallelepiped 体积 (Prop 4.9.5).</li>
+            <li><strong>§4.10</strong>: Nonlinear change of variables (Thm 4.10.12), 含 polar/spherical examples.</li>
+          </ul>
+        </li>
+        <li><strong>对应 typed notes</strong>:
+          <ul>
+            <li><code>Notes/Typed/5.1_notes/</code>, <code>5.2_notes/</code> — DSV 完整 5-step 证明.</li>
+            <li><code>Notes/Typed/5.3_notes/</code> — Nonlinear CoV 主定理 + polar/cylindrical/spherical Jacobians 推导.</li>
+            <li><code>Notes/Typed/6.1_notes/</code> — CoV 三大 design patterns 完整 walkthrough (与 Topic 10 同源). <strong>本周 HW 的<em>实战核心</em>笔记</strong>.</li>
+          </ul>
+        </li>
+        <li><strong>相关 topic 页 (概念教学层)</strong>:
+          <ul>
+            <li><a href="../topics/08-linear-cov.html">Topic 08 — DSV / 线性 CoV</a>: P 4.9.1, 4.9.3b, 4.9.5 的 home topic. DSV 5-step 证明 + parallelepiped 公式.</li>
+            <li><a href="../topics/09-nonlinear-cov.html">Topic 09 — 非线性 CoV 定理</a>: P 4.10.* 全部的 home topic. 主定理 (Thm 4.10.12) + Lipschitz + injectivity hypothesis 全解释 + polar/spherical/cylindrical 三 classical Jacobians.</li>
+            <li><a href="../topics/10-cov-patterns.html">Topic 10 — CoV 三大设计模式</a>: 本页所有 §4.10 题的 design template. <em>对应每题 strategy 的 "pattern" 标签</em>.</li>
+          </ul>
+        </li>
+        <li><strong>MT2 备考关联 (考前主题整理层)</strong>:
+          <ul>
+            <li><a href="../midterm2/MT2-A_linear_cov.html">MT2-A — Linear CoV / DSV</a>: 与本页 §2-§4 (§4.9 三题) 同主题.</li>
+            <li><a href="../midterm2/MT2-B_nonlinear_cov.html">MT2-B — Nonlinear CoV</a>: 与本页 §5-§10 (§4.10 六题) 同主题.</li>
+            <li><a href="../midterm2/MT2-D_drill.html">MT2-D — CoV 实战 drill</a>: 与本页<em>最 closely 重叠</em>. 含 Templates T.1-T.3 (Parallelepiped / Simplex / Ellipsoid) + 三大 Jacobians (Polar/Cylindrical/Spherical) 完整推导 + 8 道 medium-difficulty 练习. 本页 §4.9 三题与 MT2-D Templates 一一对应; §4.10 题与 MT2-D 后半 Jacobian application 同源.</li>
+          </ul>
+        </li>
+        <li><strong>HW 链关联</strong>:
+          <ul>
+            <li><a href="HW1.html">HW1</a>: Riemann 积分基础 (§4.1).</li>
+            <li><a href="HW2.html">HW2</a>: measure 0 + Fubini (§4.1-§4.5).</li>
+            <li>HW3 (本页): linear + nonlinear CoV (§4.9-§4.10).</li>
+            <li><a href="HW4.html">HW4</a>: MCT/DCT + Lebesgue 积分 (§4.11).</li>
+          </ul>
+        </li>
+        <li><strong>HW3 在整学期中的位置</strong>: 本 HW 是 "<em>积分实战</em>" 的<em>顶点</em> — Lec 5-6 学完后, 所有线性/非线性 CoV 工具都齐备, 这周专门把它们跑在 textbook 题上. 与 MT2 (Lec 7.0 考试) 几乎<em>同期</em>, HW3 题型 = MT2 第 1-2 题. 期末"<em>20 points of computation</em>" (Lec 8.2) 来自 §4.9-§4.11, 本周 HW 是必拿分.</li>
+      </ul>
+
+    </main>
+  </div>
+
+</body>
+</html>

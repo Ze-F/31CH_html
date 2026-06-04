@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Topic 02: n-维 Riemann 积分 — dyadic paving 与可积性 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="01-1d-riemann.html">Topic 01</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="03-algebra-properties.html">Topic 03</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#motivation">§1 动机</a></li>
+        <li><a href="#prereq">§2 前置知识</a></li>
+        <li><a href="#definitions">§3 核心定义</a></li>
+        <li><a href="#theorems">§4 主要定理</a></li>
+        <li><a href="#examples">§5 Worked Examples</a></li>
+        <li><a href="#pitfalls">§6 常见陷阱</a></li>
+        <li><a href="#exercises">§7 练习</a></li>
+        <li><a href="#cheat">§8 速查表</a></li>
+        <li><a href="#further">§9 进一步阅读</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>Topic 02: n-维 Riemann 积分 — dyadic paving 与可积性</h1>
+      <p class="subtitle">Source: Lec 1.2, 1.3, 2.1 · H&amp;H §4.1 · 14 topics 中第 2 个</p>
+
+      <!-- §1 动机 -->
+      <h2 id="motivation">§1 动机</h2>
+      <p>在 <a href="01-1d-riemann.html">Topic 01</a> 中我们已经在最熟悉的 1D 设置下建立了 Riemann 可积性的概念框架: <strong>partition</strong> 把 $[a,b]$ 切成小段, 每段上算 sup/inf, 加权求和得到上和 $U(P,f)$ 和下和 $L(P,f)$, 然后用 Cauchy 准则 ($U - L < \eps$) 判定可积. 这个故事在 1D 里很自然, 但当我们想在 $\R^n$ 上积分时, 第一个问题是: <em>"partition" 在高维该怎么定义?</em></p>
+
+      <p>朴素的想法是"用任意 box 来分割定义域", 但这会带来一系列烦人的技术问题 — 不同 partition 之间没有自然的"细分"关系, 证明上下和的单调性需要复杂的 common refinement 论证. <strong>Hubbard &amp; Hubbard 选了一条更干净的路: dyadic cubes (二进 cube)</strong>. 这是一族特定的、几何上对齐的"标准 cube", 边长全为 $1/2^N$, 顶点全在 $\Z^n/2^N$ 上; 它们天然形成一个嵌套的 hierarchy — 任何 $D_{N+1}$ 都是 $D_N$ 的 refinement, 每个 $C_{k,N}$ 恰好分裂为 $2^n$ 个子 cube. 用这个固定的 paving 序列代替"所有 partition", 可积性的定义就变成了一个干净的 <em>序列极限</em>: $\lim U_N$ 和 $\lim L_N$ 是否相等.</p>
+
+      <p>本页的任务: 把 Topic 01 的 1D 故事完整地推广到 $\R^n$. 我们会引入 characteristic function (用来"限制 $f$ 到某区域"), 定义 dyadic cubes 和 dyadic paving $\mathcal{D}_N$, 给出 $U_N(f), L_N(f)$ 的定义并证明它们的 <strong>单调性</strong> (refinement 让 $U_N$ 减、$L_N$ 增 — 这是 dyadic 框架最关键的代数性质), 给出 diameter estimate (cube 变小: $\diam \le \sqrt{n}/2^N$), 并以完整证明 <strong>Cauchy 准则</strong>作为本 topic 的核心定理 — 它把 Riemann 可积性翻译成一条<em>单一不等式</em>: $\exists N$ 使 $U_N - L_N < \eps$. 后续 topic (积分性质、测度零、Lebesgue 准则) 都建立在这块基础上.</p>
+
+      <!-- §2 前置知识 -->
+      <h2 id="prereq">§2 前置知识</h2>
+      <div class="box prereq">
+        <span class="box-title">在阅读本页前，你应该已经掌握:</span>
+        <ul>
+          <li><a href="01-1d-riemann.html">Topic 01</a>: 1D Riemann 积分 — partition $P$, 上和/下和 $U(P,f), L(P,f)$, Cauchy 准则 ($\exists P,\ U(P,f) - L(P,f) < \eps$)</li>
+          <li><strong>$\R^n$ 拓扑基础</strong> (31BH): 开球 $B_r(x) = \{y : |y - x| < r\}$, 有界集, 闭集. 欧几里得范数 $\|x\| = \sqrt{x_1^2 + \cdots + x_n^2}$</li>
+          <li><strong>Sup/inf 与完备性</strong>: 实数的 Least Upper Bound 公理; 单调有界序列收敛 (MCT)</li>
+          <li><strong>Sup/inf 的单调性</strong>: $A \subseteq B \Rightarrow \sup A \le \sup B,\ \inf A \ge \inf B$ — 本 topic 里反复用到</li>
+        </ul>
+      </div>
+
+      <!-- §3 核心定义 -->
+      <h2 id="definitions">§3 核心定义</h2>
+      <p>本 topic 的定义按"先工具, 再几何, 再代数, 再目标"的顺序展开: characteristic function 让我们能在 $\R^n$ 上谈"限制到区域 $A$ 上的 $f$"; dyadic cubes 是几何工具; $M_{k,N}, m_{k,N}, U_N, L_N$ 是代数对象; 最后的可积性定义把所有东西聚拢. 后续 topic 会一直用这套语言.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 2.1 (Characteristic function 与 bounded support)</span>
+        <p>设 $A \subseteq \R^n$ 非空. <strong>characteristic function (示性函数)</strong> $\mathbf{1}_A \colon \R^n \to \{0,1\}$ 定义为
+        $$\mathbf{1}_A(x) = \begin{cases} 1, & x \in A, \\ 0, & x \notin A. \end{cases}$$
+        </p>
+        <p>函数 $f \colon \R^n \to \R$ 的 <strong>support (支撑集)</strong> 是 $\supp f := \{x : f(x) \ne 0\}$. 若存在某个有界集 $U \subset \R^n$ 使 $f \equiv 0$ on $\R^n \setminus U$, 则称 $f$ <strong>有界支集 (bounded support)</strong>. 等价地, $\exists M > 0$ 使 $f \equiv 0$ 在 $B_M(0)$ 之外.</p>
+      </div>
+
+      <p><strong>直觉</strong>: characteristic function 让"在 $A$ 上积分"等同于"在 $\R^n$ 上积 $f \cdot \mathbf{1}_A$", 即 $\int_A f \, dV = \int_{\R^n} f \mathbf{1}_A \, dV$. 这把 "积分区域" 从公式里隐藏到被积函数里, 后续所有定义都只需要 $\int_{\R^n}$ — 这是 Hubbard 高维 Riemann 积分的关键 simplification. <strong>有界支集</strong>则是技术 hypothesis: 它保证后面 $U_N(f), L_N(f)$ 里有效项<em>有限</em>多, 否则会变成无限求和需要单独处理.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 2.2 (Sup, inf, oscillation 记号)</span>
+        <p>设 $f \colon \R^n \to \R$ 有界, $A \subseteq \R^n$ 非空. 记
+        $$M_A(f) := \sup_{x \in A} f(x), \qquad m_A(f) := \inf_{x \in A} f(x),$$
+        $$\osc_A(f) := M_A(f) - m_A(f).$$
+        </p>
+        <p><strong>oscillation (振荡)</strong> $\osc_A(f) \ge 0$ 测量 $f$ 在 $A$ 上的"摆幅". $\osc_A(f) = 0$ 当且仅当 $f$ 在 $A$ 上为常数.</p>
+      </div>
+
+      <p>本 topic 后面所有 cube-by-cube 的论证都围绕 $M_A, m_A, \osc_A$ 展开. <strong>oscillation 是 Riemann 理论里的中心概念</strong>: 可积性的本质就是"总 oscillation 加权 by volume 可以做到任意小"; 这个观察会在 Topic 06 (Lebesgue 准则) 里被推到极致.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 2.3 (Dyadic cube, H&amp;H Def. 4.1.5)</span>
+        <p>对 $\mathbf{k} = (k_1, \ldots, k_n) \in \Z^n$ 和 $N \in \N \cup \{0\}$, <strong>二进 cube (dyadic cube)</strong> $C_{\mathbf{k}, N} \subseteq \R^n$ 定义为
+        $$C_{\mathbf{k}, N} = \prod_{i=1}^{n} \left[\frac{k_i}{2^N},\, \frac{k_i + 1}{2^N}\right).$$
+        每个 dyadic cube 是 half-open box (左闭右开), 边长 $1/2^N$, $n$ 维体积 $\vol_n(C_{\mathbf{k}, N}) = 1/2^{nN}$.</p>
+      </div>
+
+      <p>"半开半闭"约定是关键: 它让同一个 level $N$ 上的所有 dyadic cube <em>两两严格 disjoint</em>, 并且 $\R^n$ 中每一点 <em>恰好</em>属于一个 cube. 这避免了在 cube 边界上的歧义性 (1D 类比: $[a,b)$ 而非 $[a,b]$).</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 2.4 (Dyadic paving, H&amp;H Def. 4.1.7)</span>
+        <p>对 $N \in \N \cup \{0\}$, 第 $N$ 级 <strong>dyadic paving</strong> 是
+        $$\mathcal{D}_N(\R^n) := \{C_{\mathbf{k}, N} : \mathbf{k} \in \Z^n\}.$$
+        它是 $\R^n$ 的 partition: $\bigsqcup_{\mathbf{k}} C_{\mathbf{k}, N} = \R^n$, 且 cube 两两 disjoint.</p>
+      </div>
+
+      <p><strong>嵌套结构 (refinement)</strong>: 当 $N$ 增加, $\mathcal{D}_N$ 变细 — 每个 $C_{\mathbf{k}, N}$ 恰好是 $2^n$ 个 $C_{\mathbf{k}', N+1}$ 的不交并. 这种 nested refinement 是 dyadic 框架相对于"任意 partition"的核心技术优势, 后面 $U_N$ 单调性证明会用到.</p>
+
+      <p><em>例</em>: $n = 2$, $\mathbf{k} = (9, 6)$, $N = 4$, 则 $C_{(9,6),4} = [9/16, 10/16) \times [6/16, 7/16)$, 一个边长 $1/16$ 的小方块.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 2.5 (Upper/lower sums $U_N(f), L_N(f)$, H&amp;H Def. 4.1.8)</span>
+        <p>设 $f \colon \R^n \to \R$ 有界且有界支集. 对每个 $C_{\mathbf{k}, N} \in \mathcal{D}_N$, 记
+        $$M_{\mathbf{k}, N} := \sup_{C_{\mathbf{k}, N}} f, \qquad m_{\mathbf{k}, N} := \inf_{C_{\mathbf{k}, N}} f.$$
+        第 $N$ 级 <strong>上和 (upper sum)</strong> 和 <strong>下和 (lower sum)</strong> 是
+        $$U_N(f) := \sum_{\mathbf{k} \in \Z^n} M_{\mathbf{k}, N} \cdot \vol_n(C_{\mathbf{k}, N}) = \frac{1}{2^{nN}} \sum_{\mathbf{k} \in \Z^n} M_{\mathbf{k}, N},$$
+        $$L_N(f) := \sum_{\mathbf{k} \in \Z^n} m_{\mathbf{k}, N} \cdot \vol_n(C_{\mathbf{k}, N}) = \frac{1}{2^{nN}} \sum_{\mathbf{k} \in \Z^n} m_{\mathbf{k}, N}.$$
+        </p>
+      </div>
+
+      <p>"求和"虽然写在所有 $\mathbf{k} \in \Z^n$ 上, 但只有 <em>有限多</em>项非零: 因为 $f$ 有界支集, 落在 $\supp f$ 之外的 cube 上 $M_{\mathbf{k}, N} = m_{\mathbf{k}, N} = 0$. 几何直觉: $U_N(f)$ 是 $f$ 的图像"用阶梯函数从上方覆盖"的总体积 — $L_N(f)$ 则从下方填. 显然 $L_N(f) \le U_N(f)$ 对每个 $N$ 成立.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 2.6 (上/下积分与 Riemann 可积性)</span>
+        <p>定义 <strong>上积分</strong>与<strong>下积分</strong>为
+        $$\overline{\int} f := \lim_{N \to \infty} U_N(f), \qquad \underline{\int} f := \lim_{N \to \infty} L_N(f).$$
+        这两个极限都<em>存在</em> (Thm 2.1 单调性 + MCT). 我们总有 $\underline{\int} f \le \overline{\int} f$.</p>
+        <p>有界、有界支集的函数 $f \colon \R^n \to \R$ 称为 <strong>Riemann 可积 (Riemann integrable)</strong>, 若 $\overline{\int} f = \underline{\int} f$. 此时公共值即为
+        $$\int_{\R^n} f \, dV := \overline{\int} f = \underline{\int} f.$$
+        记 $\IR(\R^n)$ 为所有 Riemann 可积函数构成的集合.</p>
+      </div>
+
+      <p>这个定义和 1D 的 $\inf_{\mathcal{P}} U(\mathcal{P}, f) = \sup_{\mathcal{P}} L(\mathcal{P}, f)$ (<a href="01-1d-riemann.html">Topic 01</a> Def 1.5) 是平行的, 但形式上更简洁: 我们沿固定序列 $\mathcal{D}_0, \mathcal{D}_1, \ldots$ 取极限, 而不是在所有 partition 上取 inf/sup. <strong>二者其实严格等价</strong> — 即 $\lim_N U_N(f) = \inf_{\mathcal{P}} U(\mathcal{P}, f)$ 与对偶版 — Prop 2.4 给出严格证明. 这个 nontrivial 桥梁让 Topic 01 的 Cauchy 准则与本 topic 的 Cauchy 准则成为同一条结果的两种表述.</p>
+
+      <!-- §4 主要定理 -->
+      <h2 id="theorems">§4 主要定理</h2>
+
+      <p>本 topic 有三个主要结果, 它们组成一条逻辑链: <strong>(Thm 2.1)</strong> 单调性让 $U_N, L_N$ 的极限存在; <strong>(Thm 2.2)</strong> diameter estimate 让 dyadic cube 真的变成"任意小"; <strong>(Thm 2.3, 核心)</strong> Cauchy 准则把可积性翻译成一条单一不等式. 三个定理逐步指向同一个目标: 在 $\R^n$ 上建立一个 operational 的可积性判据.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 2.1 ($U_N$ 单调减, $L_N$ 单调增)</span>
+        <p>对任意 $N, K \in \N$,
+        $$U_N(f) \ge U_{N+K}(f), \qquad L_N(f) \le L_{N+K}(f).$$
+        即 $\{U_N(f)\}$ 单调减, $\{L_N(f)\}$ 单调增. 结合 $L_N(f) \le U_N(f)$ 与 $f$ 有界, 两个序列都有界, 故 $\overline{\int} f$ 和 $\underline{\int} f$ 存在 (MCT).</p>
+      </div>
+
+      <p><strong>Proof sketch.</strong> 关键是 dyadic refinement: 每个 $C_{\mathbf{k}, N}$ 在 level $N + K$ 上分解为 $2^{nK}$ 个 $C_{\mathbf{k}', N+K}$ 的不交并. 由 sup 的单调性 (子集 sup 不超过大集 sup), $M_{\mathbf{k}', N+K} \le M_{\mathbf{k}, N}$ 对每个 $\mathbf{k}' \in I_{\mathbf{k}}$. 加权求和:</p>
+
+      <p>$\sum_{\mathbf{k}' \in I_{\mathbf{k}}} M_{\mathbf{k}', N+K} \cdot \vol_n(C_{\mathbf{k}', N+K}) \le M_{\mathbf{k}, N} \cdot \sum_{\mathbf{k}' \in I_{\mathbf{k}}} \vol_n(C_{\mathbf{k}', N+K}) = M_{\mathbf{k}, N} \cdot \vol_n(C_{\mathbf{k}, N})$.</p>
+
+      <p>再对所有 $\mathbf{k}$ 求和, 得 $U_{N+K}(f) \le U_N(f)$. $L_N$ 的不等式是对偶的 (用 inf 的反向单调性: 子集 inf $\ge$ 大集 inf).</p>
+
+      <p>这个定理是 dyadic 框架相对于"任意 partition"框架的根本优势: 我们<em>不需要</em>引入 common refinement 来证单调性, 而是直接利用 $\mathcal{D}_N$ 本身的嵌套结构. 实际上, $\{U_N\}$ 已经在向 $\inf_{\mathcal{P}} U(\mathcal{P}, f)$ 收敛, $\{L_N\}$ 已经在向 $\sup_{\mathcal{P}} L(\mathcal{P}, f)$ 收敛 — Prop 2.4 给出这个等价性的严格证明.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 2.2 (Diameter estimate)</span>
+        <p>对任意 $x, y \in C_{\mathbf{k}, N}$,
+        $$\|x - y\| < \frac{\sqrt{n}}{2^N}.$$
+        特别地, $\operatorname{diam}(C_{\mathbf{k}, N}) \le \sqrt{n}/2^N \to 0$ 当 $N \to \infty$.</p>
+      </div>
+
+      <p><strong>Proof sketch.</strong> 由 $x, y \in C_{\mathbf{k}, N} = \prod [k_i/2^N, (k_i+1)/2^N)$, 每个坐标 $|x_i - y_i| < 1/2^N$, 故 $\|x - y\| = \sqrt{\sum_i (x_i - y_i)^2} < \sqrt{n \cdot (1/2^N)^2} = \sqrt{n}/2^N$.</p>
+
+      <p>这个估计看似只是几何常识, 但它是连接"可积性"与"连续性"的桥梁: 当 $f$ 在 $\supp f$ 上 uniformly continuous, 对 $\eps > 0$ 存在 $\delta > 0$ 使 $\|x - y\| < \delta \Rightarrow |f(x) - f(y)| < \eps$. 取 $N$ 让 $\sqrt{n}/2^N < \delta$, 则每个 dyadic cube 上 $\osc < \eps$, 故 $U_N - L_N < \eps \cdot \vol(\supp f)$. 这就证明了连续 + 有界支集 $\Rightarrow$ Riemann 可积 — 后续 topic 里反复使用的标准套路.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 2.3 (Cauchy 准则, H&amp;H Thm 4.3.1) — 本 topic 核心</span>
+        <p>设 $f \colon \R^n \to \R$ 有界且有界支集. 则
+        $$f \in \IR(\R^n) \quad \Longleftrightarrow \quad \forall \eps > 0,\ \exists N \in \N \text{ 使 } U_N(f) - L_N(f) < \eps.$$
+        </p>
+      </div>
+
+      <p><strong>Proof sketch.</strong> 两个方向都依赖 Thm 2.1 (单调性).</p>
+
+      <p>"$\Rightarrow$": $f$ 可积 $\Rightarrow$ $U(f) = L(f)$ $\Rightarrow$ $U_N - L_N \to U(f) - L(f) = 0$. 由数列极限定义, $\forall \eps > 0$ 最终 $U_N - L_N < \eps$.</p>
+
+      <p>"$\Leftarrow$": 由 Thm 2.1, $\{U_N - L_N\}$ 是单调减的非负序列 (decreasing 减 increasing 还是 decreasing). 由 hypothesis, $\exists N_0$ 使 $U_{N_0} - L_{N_0} < \eps$, 单调性蕴含对所有 $N \ge N_0$ 仍 $< \eps$. 故 $\lim (U_N - L_N) = 0$, 即 $U(f) = L(f)$.</p>
+
+      <details>
+        <summary>展开完整证明 (技术细节)</summary>
+        <div class="details-body">
+          <p><strong>"$\Rightarrow$" 方向</strong>: 设 $f$ 可积, 即 $\overline{\int} f = \underline{\int} f$, 记此公共值为 $I$. 由 Def 2.6, $U_N \to I$ 且 $L_N \to I$ ($N \to \infty$). 由数列极限的代数 (差的极限 = 极限的差):
+          $$\lim_{N \to \infty} (U_N - L_N) = I - I = 0.$$
+          因 $U_N \ge L_N$ 对所有 $N$ 成立, 序列 $\{U_N - L_N\}$ 非负. 由极限定义, 对任意 $\eps > 0$, 存在 $N_0$ 使 $\forall N \ge N_0$, $|U_N - L_N - 0| < \eps$, 即 $U_N - L_N < \eps$. 特别地, 取 $N = N_0$ 即得所求.</p>
+
+          <p><strong>"$\Leftarrow$" 方向</strong>: 设对每个 $\eps > 0$, 存在 $N \in \N$ 使 $U_N(f) - L_N(f) < \eps$. 要证 $f$ 可积, 即 $U(f) = L(f)$.</p>
+
+          <p><em>关键观察 (decreasing of $U_N - L_N$)</em>: 由 Thm 2.1, $\{U_N\}$ 单调减, $\{L_N\}$ 单调增. 设 $a_N := U_N$, $b_N := L_N$. 则 $-b_N$ 单调减 (因 $b_N$ 单调增). 故 $a_N + (-b_N) = U_N - L_N$ 是两个 decreasing 序列的和, 仍 decreasing.</p>
+
+          <p>(注: "两个 decreasing 序列的和 decreasing" 是因为 $(a_N - b_N) - (a_{N+1} - b_{N+1}) = (a_N - a_{N+1}) + (b_{N+1} - b_N) \ge 0 + 0 = 0$.)</p>
+
+          <p><em>主要论证</em>: 固定 $\eps > 0$. 由 hypothesis, $\exists N_0$ 使 $U_{N_0} - L_{N_0} < \eps$. 由 decreasing 性, 对所有 $n \ge N_0$:
+          $$0 \le U_n(f) - L_n(f) \le U_{N_0}(f) - L_{N_0}(f) < \eps.$$
+          (左不等式来自 $U_n \ge L_n$.) 由 $\eps$ 任意, $\lim_{n \to \infty} (U_n - L_n) = 0$, 即 $U(f) - L(f) = 0$, 故 $U(f) = L(f)$, $f$ 可积. $\quad \blacksquare$</p>
+
+          <p><strong>评注</strong>: $\Leftarrow$ 方向<em>关键依赖单调性</em>. 没有 Thm 2.1, 单独知道某个 $N$ 让 gap 小并不能保证后续 $N$ 仍小 — gap 可能在 $N_0$ 处偶然变小再变大. 单调性确保 "一旦小, 永远小". 这是 dyadic paving 设计的精妙之处.</p>
+
+          <p>等价 Hubbard 形式 (oscillation 版本): 由 $U_N - L_N = \sum_{\mathbf{k}} (M_{\mathbf{k}, N} - m_{\mathbf{k}, N}) \vol_n(C_{\mathbf{k}, N}) = \sum_{\mathbf{k}} \osc_{C_{\mathbf{k}, N}}(f) \cdot \vol_n(C_{\mathbf{k}, N})$, Cauchy 准则也可写成
+          $$f \in \IR \iff \forall \eps > 0,\ \exists N\ \text{使}\ \sum_{\mathbf{k}} \osc_{C_{\mathbf{k}, N}}(f) \cdot \vol_n(C_{\mathbf{k}, N}) < \eps.$$
+          这是 H&amp;H Thm 4.3.1 的原文形式. 它把"可积性"翻译成"总加权振荡可任意小", 是 Topic 06 (Lebesgue 准则) 的起点.</p>
+        </div>
+      </details>
+
+      <p>Cauchy 准则是本 topic 的<strong>核心 takeaway</strong>: 它把抽象的 $U(f) = L(f)$ 翻译成一条 operational 不等式, 让我们能通过<em>构造一个具体的 $N$</em> 来证明可积性 (或通过<em>展示一个永远不能 $< \eps$ 的 lower bound</em> 来证明不可积性). Topic 03 的 algebra 性质 (linearity, $|f|$ 可积, monotonicity), Topic 06 的 Lebesgue 准则证明都是 Cauchy 准则的应用.</p>
+
+      <div class="box thm">
+        <span class="box-title">Proposition 2.4 (Dyadic 框架 ≡ 经典 Darboux 定义, bridge to <a href="01-1d-riemann.html">Topic 01</a>)</span>
+        <p>设 $f \colon \R \to \R$ 有界且有界支集. 设 $\Pi$ 是 (覆盖 $\supp f$ 的某个有界区间的) 所有 finite partition (Topic 01 Def 1.1) 构成的集合. 则
+        $$\lim_{N \to \infty} U_N(f) = \inf_{\mathcal{P} \in \Pi} U(\mathcal{P}, f), \qquad \lim_{N \to \infty} L_N(f) = \sup_{\mathcal{P} \in \Pi} L(\mathcal{P}, f).$$
+        即 <strong>Def 2.6 的 dyadic 上/下积分 $\equiv$ <a href="01-1d-riemann.html">Topic 01</a> Def 1.5 的经典 Darboux 上/下积分</strong>; "Riemann 可积"在两套定义下完全一致, 积分值也相同. ($\R^n$ 推广平行: 把 $\Pi$ 换成"由几乎不相交 closed box 组成的 finite partition"集合.)</p>
+      </div>
+
+      <p><strong>Proof sketch</strong> (只证 $U$ 一侧; $L$ 对偶论证).</p>
+
+      <p><strong>($\ge$ 方向, trivial)</strong>: 每个 $\mathcal{D}_N$ (限制到含 $\supp f$ 的有界区间) 本身是 $\Pi$ 中的一个 finite partition. 故
+      $$\inf_{\mathcal{P} \in \Pi} U(\mathcal{P}, f) \;\le\; U(\mathcal{D}_N, f) \;=\; U_N(f) \qquad \forall N,$$
+      取 $N \to \infty$ 得 $\inf \le \lim_N U_N$.</p>
+
+      <p><strong>($\le$ 方向, 关键)</strong>: 固定 $\mathcal{P} \in \Pi$, 分点 $a_0 < a_1 < \cdots < a_{k+1}$, 子区间 $I_j = [a_j, a_{j+1}]$, $M_j := \sup_{I_j} f$. 在 level $N$ 把 dyadic cube 分两类:</p>
+      <ul>
+        <li><em>内部 cube</em>: 完全落在某个 $I_j$ 内 $\Rightarrow$ $\sup f \le M_j$ (sup 单调性).</li>
+        <li><em>跨界 cube</em>: 含某个 $a_j$, 至多 $k$ 个 (每个分点至多一个 dyadic cube 含它), 每个长度 $1/2^N$.</li>
+      </ul>
+      <p>故
+      $$U_N(f) \;\le\; \underbrace{\sum_j M_j \, |I_j|}_{=\, U(\mathcal{P}, f)} \;+\; \underbrace{k \cdot \|f\|_\infty \cdot \frac{2}{2^N}}_{\to\, 0 \text{ as } N \to \infty}.$$
+      ("系数 2" 是因为跨界 cube 偏差最坏情形是 $\sup f$ 与 $\inf f$ 两端都被 $\|f\|_\infty$ 控制.) 取 $N \to \infty$ (由 Thm 2.1, $\lim U_N$ 存在): $\lim_N U_N(f) \le U(\mathcal{P}, f)$. 再对 $\mathcal{P} \in \Pi$ 取 inf: $\lim_N U_N(f) \le \inf_{\mathcal{P}} U(\mathcal{P}, f)$. 结合两个方向得等式. $\quad \square$</p>
+
+      <details>
+        <summary>展开 — 直觉评注 + $\R^n$ 推广</summary>
+        <div class="details-body">
+          <p><strong>关键几何观察</strong>: 等价性的根源是"任意 finite partition 都能被足够细的 dyadic paving 近似覆盖". 内部 cube 是 partition 子区间的"良好填充"; 跨界 cube 是边界处的 $O(1/2^N)$ "误差". 误差总贡献 $\to 0$ 后, dyadic 极限就被任意 partition 的上和"夹住". 这件事的好玩之处: dyadic cube 并不 refine $\mathcal{P}$ (除非 $\mathcal{P}$ 的分点恰好都是二进有理数), 但在 fine resolution 下 "几乎" refine.</p>
+          <p><strong>$\R^n$ 推广</strong>: 把 1D 的"finite partition of 有界区间"换成"几乎不相交 closed-box partition of 有界 box". 跨界 cube 变为"横跨某个 $(n-1)$-维 face"的 cube. 一个 partition 由 $k$ 个 face 构成, 每个 face 上 level-$N$ 跨界 cube 共 $O(2^{(n-1)N})$ 个, 每个体积 $1/2^{nN}$, 故跨界总体积 $O(k / 2^N) \to 0$. $\sup f$ 在跨界 cube 上的贡献被 $O(k \cdot \|f\|_\infty / 2^N) \to 0$ 控制. 论证模板完全平行.</p>
+          <p><strong>为什么这个等价容易被忽略</strong>: H&amp;H 课本和讲义全程只用 dyadic 框架, 几乎不出现"经典 inf over all partitions"的表述. 但 Topic 01 (1D 复习) 出现了 Darboux 版本, 所以两套语言并存. 真正做证明时, 偶尔需要用一个<em>非</em>-dyadic partition (例如把 1D 区间 $[a, c) \cup [c, b]$ 自然分两段, 而 $c$ 通常不是二进有理点) — Prop 2.4 保证这种 ad-hoc partition 的上下和与 dyadic 极限是同一个 inf/sup, 不会偷偷改变积分值.</p>
+          <p><strong>对 Cauchy 准则的影响</strong>: Thm 2.3 (本 topic 的 Cauchy 准则, "$\exists N, U_N - L_N < \eps$") 与 Topic 01 Thm 1.1 (经典 Cauchy 准则, "$\exists \mathcal{P}, U(\mathcal{P}, f) - L(\mathcal{P}, f) < \eps$") 通过 Prop 2.4 互相蕴含. 两个准则各有便利: dyadic 版本支持 $N$ 单调性 (Thm 2.1), 一旦 gap 小就永远小; 经典版本支持任意 partition 构造, 在需要"精确放置分点"时更顺手 (例如 Topic 01 Exercise 4 把 spike 隔离的论证).</p>
+        </div>
+      </details>
+
+      <p><strong>意义</strong>: Prop 2.4 是 <a href="01-1d-riemann.html">Topic 01</a> 与 Topic 02 之间的<em>形式化桥梁</em>. 一开始很容易 take for granted "两套定义都叫 Riemann 积分肯定是一回事", 但严格来讲它依赖 "fine dyadic 几乎覆盖任意 partition" 这条看似平凡却关键的几何观察. 实践中我们大多数时候用 dyadic 框架 (更简洁), 但需要诉诸经典 sup/inf-over-partitions 性质时, Prop 2.4 让这种切换合法.</p>
+
+      <!-- §5 Worked Examples -->
+      <h2 id="examples">§5 Worked Examples</h2>
+
+      <div class="box example">
+        <span class="box-title">Example 2.1 (单位方块的 dyadic paving 与简单可积函数)</span>
+        <p>设 $f = \mathbf{1}_{[0,1]^2}$ (单位正方形的 characteristic function) on $\R^2$. 我们直接算 $U_N(f), L_N(f)$ 验证 $f \in \IR$.</p>
+        <p>$\supp f = [0,1]^2$, 在 level $N$ 上, 落在 $[0,1)^2$ <em>内部</em>的 dyadic cube $C_{\mathbf{k}, N}$ 共 $2^{2N}$ 个 (即 $(k_1, k_2) \in \{0, 1, \ldots, 2^N - 1\}^2$), 每个体积 $1/2^{2N}$. 这些 cube 上 $f \equiv 1$, 故 $M_{\mathbf{k}, N} = m_{\mathbf{k}, N} = 1$, 贡献 $1 \cdot 2^{2N} \cdot (1/2^{2N}) = 1$.</p>
+        <p>但还有 cube <em>跨越 $[0,1]^2$ 边界</em>: 这些 cube 既含 $f = 1$ 的点也含 $f = 0$ 的点, 故 $M_{\mathbf{k}, N} = 1, m_{\mathbf{k}, N} = 0$. 这些"边界 cube"在每条边上各 $2^N + 1$ 个 (顶点处重复算一次), 总数 $O(2^N)$ 个, 贡献到 $U_N - L_N$ 的总体积 $\le 4 \cdot (2^N + 1)/2^{2N} = O(1/2^N) \to 0$.</p>
+        <p>所以 $U_N - L_N \to 0$, $f \in \IR$ 且 $\int f \, dV = 1$.</p>
+        <p><strong>Takeaway</strong>: characteristic function 的可积性归结到"边界 cube 总体积趋于零", 这预示了 Topic 04 (pavable 集) 的核心思想 — $A$ pavable $\iff \mathbf{1}_A$ 可积 $\iff$ $\partial A$ 体积零.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 2.2 (Dirichlet 1D 反例 — Cauchy 准则的失败)</span>
+        <p>定义 $f \colon \R \to \R$:
+        $$f(x) = \begin{cases} 1, & x \in [-1, 1] \setminus \Q, \\ 0, & \text{otherwise}. \end{cases}$$</p>
+        <p>$f$ 有界 ($0 \le f \le 1$), 有界支集 ($\supp f \subseteq [-1, 1]$). 我们用 Cauchy 准则证明 $f \notin \IR$.</p>
+        <p>关键: $\Q$ 和 $\R \setminus \Q$ 都 dense in $\R$. 每个 dyadic cube $C_{k, N} = [k/2^N, (k+1)/2^N) \subseteq [-1, 1]$ 都同时含有理点 (此处 $f = 0$) 和无理点 (此处 $f = 1$, 因为 cube 在 $[-1, 1]$ 内), 故 $M_{k, N} = 1, m_{k, N} = 0, \osc = 1$.</p>
+        <p>$[-1, 1]$ 中 dyadic cube 总长度 $= 2$ (即覆盖 $[-1, 1)$ 的 $2 \cdot 2^N$ 个 cube), 故
+        $$U_N(f) - L_N(f) = \sum_{C_{k, N} \subseteq [-1, 1]} 1 \cdot \frac{1}{2^N} = 2 \cdot 2^N \cdot \frac{1}{2^N} = 2$$
+        对所有 $N$ 成立. (边界 cube $[1, 1 + 1/2^N)$ 等的贡献为 $0$, 因为那里 $f \equiv 0$.)</p>
+        <p>所以 $U_N - L_N = 2 \not\to 0$, Cauchy 准则失败, $f \notin \IR$. 实际上 $U(f) = 2, L(f) = 0$.</p>
+        <p><strong>本质</strong>: $f$ 在<em>每个</em>非空开集上振荡都是 $1$ (max 可能值), 无论 paving 多细都无法减小 $\osc$. 这种"在所有尺度上都坏"的函数是 Riemann 框架的硬伤; Topic 06 的 Lebesgue 准则将精确刻画"什么程度的不连续是不可救药的". (后来在 Topic 12, Lebesgue 积分能救活这种函数 — 因为 $\Q \cap [-1, 1]$ 测度零.)</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 2.3 (高维 Dirichlet 类反例)</span>
+        <p>定义 $f \colon \R^n \to \R$:
+        $$f(x_1, \ldots, x_n) = \begin{cases} 1, & x \in [0,1]^n \text{ 且每个 } x_i \notin \Q, \\ 0, & \text{otherwise}. \end{cases}$$</p>
+        <p>同样地, 在 level $N$ 上, $[0,1]^n$ 被分成 $2^{nN}$ 个 dyadic cube. 每个 cube 都含 $\Q^n$ 点 (即至少一个坐标有理 $\Rightarrow$ $f = 0$) 和 "全无理"点 ($f = 1$), 因为有理数在每个坐标上 dense. 故 $\osc_{C_{\mathbf{k}, N}}(f) = 1$ 对每个 cube 成立, 故
+        $$U_N(f) - L_N(f) = \frac{1}{2^{nN}} \cdot 1 \cdot 2^{nN} = 1$$
+        对所有 $N$. Cauchy 准则失败, $f \notin \IR$.</p>
+        <p><strong>评注</strong>: 注意"全无理"集合在 $[0,1]^n$ 里实际上是"绝大多数"点 (在 Lebesgue 测度下满测度), 但被密集的"至少一个有理"集合搅扰. 高维并没有让 Dirichlet 病变好 — Riemann 在所有维度上都对 dense 不连续束手无策.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 2.4 ($\mathbf{1}_{[a,b]}$ 在 $\R$ 上的细致计算)</span>
+        <p>计算 $\int_{\R} \mathbf{1}_{[0, 1/3]} \, dV$, 即 $f = \mathbf{1}_{[0, 1/3]}$ 在 $\R$ 上的 Riemann 积分.</p>
+        <p>$\supp f = [0, 1/3]$. 给定 level $N$, dyadic cube $[k/2^N, (k+1)/2^N)$ 与 $[0, 1/3]$ 的关系有三类:</p>
+        <ul>
+          <li><em>完全在 $[0, 1/3]$ 内</em>: $f \equiv 1$, 贡献 $M = m = 1$.</li>
+          <li><em>完全在 $[0, 1/3]$ 外</em>: $f \equiv 0$, $M = m = 0$, 贡献 0.</li>
+          <li><em>跨越 $1/3$</em>: 含 $f = 1$ 与 $f = 0$ 两种点, $M = 1, m = 0$. 这种 cube 最多一个 (即包含 $1/3$ 的那一个).</li>
+        </ul>
+        <p>因 $1/3$ 不是二进有理数 ($1/3 = 0.0101\ldots_2$ 周期), 在任何 level $N$ 上 $1/3 \in C_{k_N, N}$ 严格内部, 跨越 cube 恰好一个, 体积 $1/2^N$. 设有 $a_N$ 个 cube 完全在 $[0, 1/3]$ 内, 则它们总体积 $a_N/2^N \in [1/3 - 1/2^N, 1/3]$ (差跨越 cube 那块). 故
+        $$L_N(f) = a_N / 2^N, \qquad U_N(f) = (a_N + 1) / 2^N,$$
+        $$U_N - L_N = 1/2^N \to 0.$$
+        Cauchy 准则成立, $f \in \IR$, $\int f \, dV = 1/3$.</p>
+        <p>这个例子的意义: 即便 $1/3$ 不"对齐" dyadic 网格, 仍然能 Riemann 可积 — 因为 boundary 单点贡献为 $O(1/2^N)$. 该现象更普遍: 任何 $[a, b]$ 上 $\mathbf{1}_{[a,b]}$ 都可积 (Topic 04 中正式证明), $\int = b - a$.</p>
+      </div>
+
+      <!-- §6 常见陷阱 -->
+      <h2 id="pitfalls">§6 常见陷阱</h2>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 2.1 — 忘掉 "$f$ 有界 + 有界支集" 这两个 hypothesis</span>
+        <p>$U_N(f), L_N(f)$ 的定义本身依赖<strong>两个</strong>有界条件: $f$ 在 $\R^n$ 上有界 (否则 $M_{\mathbf{k}, N} = +\infty$ 可能出现), 和 $\supp f$ 有界 (否则求和无限多项可能不收敛). 缺一不可.</p>
+        <p>反例: $f(x) = 1/x$ on $(0, 1]$, 延拓 $f(0) = 0$ 以及 $f \equiv 0$ on $\R \setminus [0, 1]$. 有界支集 $\subseteq [0, 1]$, 但 $f$ <em>不</em>有界 (在 $0$ 附近爆掉). $M_{0, N} = \sup_{[0, 1/2^N)} 1/x = +\infty$, 故 $U_N(f) = +\infty$. Cauchy 准则的"小 gap"根本无法谈起. </p>
+        <p>处理这类无界函数需要 <strong>improper Riemann 积分</strong>或 <strong>Lebesgue 积分</strong> (Topic 12). 本 topic 范围内 strictly Riemann 处理不了它.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 2.2 — 把 "$\exists N,\ U_N - L_N < \eps$" 误解为 "$\forall N$ 充分大"</span>
+        <p>Cauchy 准则的 $\Leftarrow$ 方向只需要 <em>存在</em>一个 $N$ 让 $U_N - L_N < \eps$. 但这<em>看似</em>不够强 — 它没说 $N + 1, N + 2, \ldots$ 上仍小. 关键正是 Thm 2.1 (单调性) 的作用: 一旦 $U_{N_0} - L_{N_0} < \eps$, 之后所有更细的 paving 上 gap <em>自动</em>小于等于这个值.</p>
+        <p>所以单调性不是"锦上添花"而是 Cauchy 准则成立的<em>必要技术支撑</em>. 这也是为什么 dyadic paving 比"任意 partition"更优雅: refinement 是 built-in 的, 不需要额外去构造 common refinement.</p>
+        <p>如果换一族不嵌套的 partition (比如随机选 box 切割), 上述自动单调性会失效, Cauchy 准则的证明会显著复杂.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 2.3 — 误以为"全 dense 不连续"必然不可积</span>
+        <p>Dirichlet 函数 (Example 2.2-2.3) 给出印象: "处处稠密的不连续点 $\Rightarrow$ 不可积". 但这是 <em>错的</em>! 反例: Thomae 函数 (Topic 06 Example 6.2) 在 $\Q$ 上不连续 (dense), 但 $\Q$ 是 <em>可数</em>, 测度零 — Thomae 仍 Riemann 可积.</p>
+        <p>真正的判据是 <strong>不连续点集的测度</strong>, 不是它的拓扑稠密性. Dirichlet 不可积是因为<em>每个</em> dyadic cube 都有 $\osc = 1$, 来源于"有理与无理都 dense"两个 dense 集合的对抗; Thomae 没这问题 — 在大多数无理点附近 $f$ 接近 $0$, $\osc$ 自动小. 完整故事见 Topic 06 (Lebesgue 准则).</p>
+      </div>
+
+      <!-- §7 练习 -->
+      <h2 id="exercises">§7 练习</h2>
+      <p>展开 <code>&lt;details&gt;</code> 查看答案 (建议先自己想 10-15 分钟再看).</p>
+
+      <div class="exercise">
+        <p><span class="ex-num">1.</span> 设 $f \colon \R \to \R$ 为
+        $$f(x) = \begin{cases} c, & x \in [a, b], \\ 0, & \text{otherwise}, \end{cases}$$
+        其中 $a < b$ 且 $c \in \R$ 是常数. 用 Cauchy 准则证明 $f \in \IR(\R)$ 并计算 $\int f \, dV$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>WLOG $c > 0$ ($c = 0$ 平凡; $c < 0$ 类似). 在 level $N$, 三类 cube:</p>
+            <ul>
+              <li>完全在 $[a, b]$ 内: $M = m = c$, $\osc = 0$.</li>
+              <li>完全在 $[a, b]$ 外: $M = m = 0$, $\osc = 0$.</li>
+              <li>跨越 $a$ 或 $b$: $M = c, m = 0$, $\osc = c$. 这种 cube 最多 $2$ 个 (含 $a$ 和含 $b$ 各一).</li>
+            </ul>
+            <p>故 $U_N - L_N \le 2 c / 2^N \to 0$. 由 Cauchy 准则 $f \in \IR$.</p>
+            <p>积分值: $L_N(f) = c \cdot (\text{完全包含的 cube 数}) / 2^N$. 完全包含的 cube 数 $a_N$ 满足 $a_N / 2^N \in [b - a - 2/2^N, b - a]$. 故 $L_N \to c (b - a)$, 即 $\int f \, dV = c(b - a)$.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">2.</span> (单调性的直接推论) 设 $f \le g$ 处处, 且 $f, g \in \IR(\R^n)$. 证 $\overline{\int} f \le \overline{\int} g$ 与 $\underline{\int} f \le \underline{\int} g$ (从而 $\int f \le \int g$).</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>对每个 dyadic cube $C_{\mathbf{k}, N}$, $f \le g$ 处处蕴含 $M_{\mathbf{k}, N}(f) = \sup_{C_{\mathbf{k}, N}} f \le \sup_{C_{\mathbf{k}, N}} g = M_{\mathbf{k}, N}(g)$ (sup 单调性: 对 $x$ 取 sup, 不等式保持). 同理 $m_{\mathbf{k}, N}(f) \le m_{\mathbf{k}, N}(g)$.</p>
+            <p>加权求和: $U_N(f) \le U_N(g), L_N(f) \le L_N(g)$ 对每个 $N$ 成立. 取 $N \to \infty$, 不等式在极限保持: $\overline{\int} f \le \overline{\int} g, \underline{\int} f \le \underline{\int} g$.</p>
+            <p>由 $f, g$ 可积, $\overline{\int} f = \underline{\int} f = \int f$, 同 $g$. 故 $\int f \le \int g$. 此即 Topic 03 中 monotonicity 性质的核心步骤.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">3.</span> 证明对 dyadic refinement, 每个 $C_{\mathbf{k}, N}$ 恰好<em>等于</em> $2^n$ 个 $C_{\mathbf{k}', N+1}$ 的不交并. 写出 $\mathbf{k}'$ 与 $\mathbf{k}$ 的具体关系.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>$C_{\mathbf{k}, N} = \prod_i [k_i / 2^N, (k_i + 1)/2^N)$. 把每个区间 $[k_i / 2^N, (k_i + 1)/2^N)$ 拆成两段 $[2 k_i / 2^{N+1}, (2 k_i + 1)/2^{N+1}) \cup [(2 k_i + 1)/2^{N+1}, (2 k_i + 2)/2^{N+1})$ (因 $k_i / 2^N = 2 k_i / 2^{N+1}$ 等). 故每个坐标位拆为 $2$ 段, $n$ 个坐标位组合得 $2^n$ 个子 cube.</p>
+            <p>具体: 设 $\mathbf{k}' = 2 \mathbf{k} + \boldsymbol{\delta}$ 其中 $\boldsymbol{\delta} \in \{0, 1\}^n$. 则
+            $$C_{\mathbf{k}, N} = \bigsqcup_{\boldsymbol{\delta} \in \{0,1\}^n} C_{2\mathbf{k} + \boldsymbol{\delta},\ N+1}.$$</p>
+            <p>这是 dyadic 嵌套的代数核心. 注意这<em>正是</em> Thm 2.1 证明里求和论证的基础.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">4.</span> (Cauchy 准则不等号的紧度) 是否一定存在 $N$ 让 $U_N - L_N = 0$? 给出反例或证明.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>反例</strong>. 取 $f = \mathbf{1}_{[0, 1/3]}$ on $\R$ (Example 2.4). 已证 $f \in \IR$, $\int f = 1/3$. 但 $U_N - L_N = 1/2^N > 0$ 对每个 $N$ 成立 — 因为跨越 $1/3$ 的 cube 总存在 (二进无 $1/3$ 的 finite 表示), 在其上 $\osc = 1$, 体积 $1/2^N$.</p>
+            <p>所以 Cauchy 准则是 $U_N - L_N$ <strong>任意小</strong>, 不是 $= 0$. 这跟"有界 + 不连续点测度零 $\Rightarrow$ 可积"是一致的 — 边界点等少量 oscillation 不阻碍可积性, 只要总加权贡献趋零.</p>
+            <p>事实上, 对任何 $f$ 不<em>处处</em>恒为分段常数 (i.e. $f$ 在某个 dyadic cube 内非常数), $U_N - L_N > 0$ 对所有 $N$ 成立. 但只要它趋零就行.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">5.</span> 设 $f \colon \R \to \R$ 连续, 有界支集. 证明 $f \in \IR(\R)$. (用 Cauchy 准则 + Thm 2.2 的 diameter estimate.)</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>$\supp f \subseteq [-M, M]$ 紧致. 由连续 $\Rightarrow$ uniformly continuous on $[-M-1, M+1]$ (Heine-Cantor): 给 $\eps > 0$, $\exists \delta > 0$ 使 $|x - y| < \delta \Rightarrow |f(x) - f(y)| < \eps$.</p>
+            <p>取 $N$ 让 $\sqrt{1}/2^N = 1/2^N < \delta$. 由 Thm 2.2, 对每个 cube $C_{k, N}$ 内任两点 $x, y$ 有 $|x - y| < 1/2^N < \delta$, 故 $|f(x) - f(y)| < \eps$, 即 $\osc_{C_{k, N}}(f) \le \eps$.</p>
+            <p>$\supp f$ 被有限多个 cube 覆盖 (因 bounded support; 具体 $\le 2 M \cdot 2^N + O(1)$ 个 cube), 故
+            $$U_N - L_N = \sum_{\mathbf{k}} \osc \cdot 1/2^N \le \eps \cdot (2M + 1).$$
+            (其它 cube 上 $f \equiv 0$, 贡献 $0$.)</p>
+            <p>由 $\eps$ 任意, Cauchy 准则成立 ($\eps$ 替换为 $\eps/(2M+1)$). $f \in \IR$.</p>
+            <p>$n$ 维推广只需把 $1/2^N$ 换成 $\sqrt{n}/2^N$, 论证不变. 这是<strong>"连续 + 有界支集 $\Rightarrow$ Riemann 可积"</strong>的标准证法.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">6.</span> ("证明或反例") 若 $f$ 可积, $g$ 不可积, 那么 $f + g$ 一定不可积吗?</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>真</strong>, $f + g$ 不可积. 反证: 若 $f + g$ 可积, 由 Topic 03 linearity, $g = (f + g) - f$ 也可积 (差仍可积), 矛盾.</p>
+            <p>(技术上 linearity 还未在本 topic 完整证明, 但已知 $U_N(\alpha f) = \alpha U_N(f)$ for $\alpha = -1$ 时是 $-L_N(f)$, 故 $-f$ 也可积. 而后 $-f + (f + g) = g$ 可积矛盾.)</p>
+            <p>注意逆向不成立: $f$ 与 $g$ 都<em>不</em>可积, 但 $f + g$ 可能可积 — 取 $f = \mathbf{1}_{\Q}, g = -\mathbf{1}_{\Q}$ on $[0, 1]$ (前者不可积, 后者 = $-f$ 也不可积), 但 $f + g = 0$ 处处, 可积. 反例展示了不可积函数构成的集合不是一个良好的线性空间.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">7.</span> 设 $f \colon \R^n \to \R$ 有界支集. 证明若存在某序列 $(N_j)$ 使 $U_{N_j}(f) - L_{N_j}(f) \to 0$, 则 $f$ 可积.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>给 $\eps > 0$. 由 hypothesis, $\exists N_j$ 使 $U_{N_j} - L_{N_j} < \eps$. 这就直接满足 Cauchy 准则 ($\Leftarrow$) 的 hypothesis: <em>存在</em>一个 $N$ (即 $N = N_j$) 让 gap 小于 $\eps$.</p>
+            <p>由 Cauchy 准则 ($\Leftarrow$), $f$ 可积.</p>
+            <p><strong>评注</strong>: 这道题强调 Cauchy 准则的 $\Leftarrow$ 方向只需要<em>子列</em>满足条件. 单调性 (Thm 2.1) 保证子列 $\to 0$ 蕴含整列 $\to 0$ (decreasing 非负序列, 子列趋零 $\Rightarrow$ 整列趋零). 这是单调性的另一个用处.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">8.</span> 对 dyadic cube $C_{\mathbf{k}, N} \subseteq \R^n$, 证明 $\diam(C_{\mathbf{k}, N}) = \sqrt{n}/2^N$ (Thm 2.2 中 $\le$ 实际是 $=$, 由 $\sup$ 而非取得).</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>由 Thm 2.2, $\|x - y\| < \sqrt{n}/2^N$ 对 cube 内任意两点严格成立 (注意 cube 是 half-open). 故 $\diam(C_{\mathbf{k}, N}) := \sup_{x, y \in C} \|x - y\| \le \sqrt{n}/2^N$.</p>
+            <p>反向证 $\ge$: 构造序列让 $\|x_j - y_j\| \to \sqrt{n}/2^N$. 取 $x = (k_1/2^N, \ldots, k_n/2^N)$ 是 cube 的"左下角" — 它<em>在</em> cube 内 (左闭). 取 $y_j = ((k_1 + 1)/2^N - 1/j, \ldots, (k_n + 1)/2^N - 1/j)$ for large $j$ — 它在 cube 内 (各坐标 $< (k_i + 1)/2^N$).</p>
+            <p>$\|x - y_j\| = \sqrt{\sum_i ((1/2^N) - 1/j)^2} = \sqrt{n} \cdot ((1/2^N) - 1/j) \to \sqrt{n}/2^N$ as $j \to \infty$. 故 $\diam \ge \sqrt{n}/2^N$.</p>
+            <p>结合得 $\diam(C_{\mathbf{k}, N}) = \sqrt{n}/2^N$ 精确, sup 但不取到. 注意如果 cube 是闭的 ($[k/2^N, (k+1)/2^N]$), 则 sup 可取到, $\diam = \sqrt{n}/2^N$ 也成立 — 半开半闭的区别在 sup 是否取到, 不影响 $\diam$ 的值.</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- §8 速查表 -->
+      <h2 id="cheat">§8 速查表</h2>
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def">🟦 <strong>Characteristic function</strong>: $\mathbf{1}_A(x) = 1$ if $x \in A$, 否则 $0$. 把"在 $A$ 上积分"统一为 $\int_{\R^n} f \mathbf{1}_A \, dV$.</li>
+          <li class="cs-def">🟦 <strong>Bounded support</strong>: $\exists M$ 使 $f \equiv 0$ on $\R^n \setminus B_M(0)$. 与 $f$ 有界一起是定义 Riemann 积分的两个必要 hypothesis.</li>
+          <li class="cs-def">🟦 <strong>Oscillation</strong>: $\osc_A(f) := M_A(f) - m_A(f) = \sup_A f - \inf_A f \ge 0$.</li>
+          <li class="cs-def">🟦 <strong>Dyadic cube</strong> $C_{\mathbf{k}, N} = \prod_i [k_i/2^N, (k_i+1)/2^N)$, 边长 $1/2^N$, $\vol = 1/2^{nN}$. 半开半闭让 cube 严格 disjoint.</li>
+          <li class="cs-def">🟦 <strong>Dyadic paving</strong> $\mathcal{D}_N = \{C_{\mathbf{k}, N} : \mathbf{k} \in \Z^n\}$ partition $\R^n$. $\mathcal{D}_{N+1}$ 细分 $\mathcal{D}_N$: 每 cube $\to 2^n$ 个子 cube.</li>
+          <li class="cs-thm">🟨 <strong>Upper/lower sum</strong>: $U_N(f) = \frac{1}{2^{nN}} \sum_{\mathbf{k}} M_{\mathbf{k}, N}$, $L_N(f) = \frac{1}{2^{nN}} \sum_{\mathbf{k}} m_{\mathbf{k}, N}$. 求和只有有限多非零项 (因 bounded support).</li>
+          <li class="cs-thm">🟨 <strong>单调性 (Thm 2.1)</strong>: $U_N$ 单调减, $L_N$ 单调增. MCT $\Rightarrow$ $\overline{\int} f, \underline{\int} f$ 存在.</li>
+          <li class="cs-thm">🟨 <strong>Diameter estimate (Thm 2.2)</strong>: $\diam(C_{\mathbf{k}, N}) = \sqrt{n}/2^N \to 0$ as $N \to \infty$.</li>
+          <li class="cs-thm">🟨 <strong>Cauchy 准则 (Thm 2.3) — 核心</strong>: $f \in \IR(\R^n)$ $\Longleftrightarrow$ $\forall \eps > 0, \exists N, U_N(f) - L_N(f) < \eps$. 等价 (oscillation form): $\sum \osc \cdot \vol < \eps$.</li>
+          <li class="cs-thm">🟨 <strong>Dyadic ≡ 经典 Darboux (Prop 2.4)</strong>: $\lim_N U_N(f) = \inf_{\mathcal{P}} U(\mathcal{P}, f)$ 与 $\lim_N L_N(f) = \sup_{\mathcal{P}} L(\mathcal{P}, f)$ — Topic 01 与 Topic 02 的两套上下积分定义严格等价. 证明关键: 跨界 cube 总长 $\le k/2^N \to 0$.</li>
+          <li class="cs-tech">🟢 <strong>判可积流程</strong>: (1) 检查 $f$ 有界 + 有界支集; (2) 用 Cauchy 准则 — 构造 $N$ 让 gap $< \eps$, 或证明每个 $N$ 上 gap $\ge$ 某常数.</li>
+          <li class="cs-tech">🟢 <strong>连续 + 紧致支集 $\Rightarrow$ 可积</strong> (Exercise 5 标准 pattern): 用 uniform continuity + Thm 2.2 控制 cube 内 $\osc$.</li>
+          <li class="cs-pitfall">🟥 <strong>陷阱</strong>: Cauchy 准则需要"$\exists N$" 但单调性 (Thm 2.1) 让它自动等价于"任意大 $N$ 上 gap 仍小". 没有单调性 ($\Leftarrow$) 方向不成立.</li>
+          <li class="cs-pitfall">🟥 <strong>陷阱</strong>: 处处稠密的不连续点 $\ne$ 不可积. Dirichlet 反例的本质是 "$\osc = 1$ 在<em>每个</em> cube 上" (max 振荡), 不是"不连续 dense" 单独.</li>
+        </ul>
+      </div>
+
+      <!-- §9 进一步阅读 -->
+      <h2 id="further">§9 进一步阅读</h2>
+      <ul>
+        <li><strong>H&amp;H 教材</strong>: §4.1 (paving, dyadic cube, upper/lower sums) 与 §4.3 (Thm 4.3.1, Cauchy 准则的 oscillation form). Def 4.1.5 (dyadic cube), Def 4.1.7 (paving), Def 4.1.8 (upper/lower sums) 在 H&amp;H 里是标准引用.</li>
+        <li><strong>Typed lecture notes</strong>:
+          <ul>
+            <li><code>../../Notes/Typed/1.2_notes/1.2_notes.pdf</code> — characteristic function, support, dyadic cube/paving, $U_N/L_N$ 的引入</li>
+            <li><code>../../Notes/Typed/1.3_notes/1.3_notes.pdf</code> — 单调性证明 (Thm 2.1), diameter estimate (Thm 2.2), Cauchy 准则 statement, additivity 证明草稿</li>
+            <li><code>../../Notes/Typed/2.1_notes/2.1_notes.pdf</code> — Cauchy 准则完整证明 (Thm 2.3) + Dirichlet 反例</li>
+          </ul>
+        </li>
+        <li><strong>关联 review topics</strong>:
+          <ul>
+            <li><a href="01-1d-riemann.html">Topic 01</a>: 1D 前身 — 用任意 partition 而非 dyadic, 概念结构平行. Prop 2.4 严格证明两套定义等价</li>
+            <li><a href="03-algebra-properties.html">Topic 03</a>: 积分的代数性质 — linearity, monotonicity, $|f|$ 可积, $f^+/f^-$, product 性质. 都基于本 topic 的 Cauchy 准则 + oscillation 论证</li>
+            <li><a href="04-volume-pavable.html">Topic 04</a>: 体积与 pavable 集 — 把 $\mathbf{1}_A$ 的可积性翻译成 "$A$ 有体积"</li>
+            <li><a href="05-measure-zero-basics.html">Topic 05</a>, <a href="06-lebesgue-criterion.html">Topic 06</a>: 测度零与 Lebesgue 准则 — 把 Cauchy 准则的"$\osc$ 加权可任意小"翻译成"$f$ a.e. 连续"</li>
+            <li><a href="07-fubini.html">Topic 07</a>: Fubini 定理 — 用本 topic 的可积性框架, 让 iterated integral = multiple integral</li>
+          </ul>
+        </li>
+        <li><strong>同主题外读</strong>: Rudin, <em>Principles of Mathematical Analysis</em>, Ch 6 (1D Riemann-Stieltjes) 与 Ch 10 (多变量积分) — 用任意 partition 而非 dyadic, 对比技术处理.</li>
+      </ul>
+
+      <hr style="margin: 60px 0 20px; border: 0; border-top: 1px solid #d8d3c4;">
+      <p style="font-size: 13px; color: #888; text-align: center;">MATH 31CH 复习指南 · Topic 02 · Part I — Riemann 积分基础</p>
+
+    </main>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Topic 18: Laplace transform 入门 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\C': '\\mathbb{C}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|',
+        '\\FT': '\\widehat{#1}',
+        '\\LT': '\\mathscr{L}'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="17-fourier-pde.html">Topic 17</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="19-curves-frenet.html">Topic 19</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#motivation">§1 动机</a></li>
+        <li><a href="#prereq">§2 前置知识</a></li>
+        <li><a href="#definitions">§3 核心定义</a></li>
+        <li><a href="#theorems">§4 主要定理</a></li>
+        <li><a href="#examples">§5 Worked Examples</a></li>
+        <li><a href="#pitfalls">§6 常见陷阱</a></li>
+        <li><a href="#exercises">§7 练习</a></li>
+        <li><a href="#cheat">§8 速查表</a></li>
+        <li><a href="#further">§9 进一步阅读</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>Topic 18: Laplace transform 入门</h1>
+      <p class="subtitle">Source: Lec 10.1 §6-7 · 应用篇第 4 页 (最后一页)</p>
+
+      <!-- §1 动机 -->
+      <h2 id="motivation">§1 动机</h2>
+      <p><strong>Laplace transform 是 Fourier transform 在 $[0, \infty)$ 上的"因果"亲戚</strong> (causal cousin)。它把一个定义在 $[0, \infty)$ 上的函数 $f$ 映成另一个函数 $\LT{f}$ 通过</p>
+      $$ \LT{f}(s) \;=\; \int_0^\infty f(x)\,e^{-sx}\,dx. $$
+      <p>表面上与 FT 只差两点: (i) 积分域是 $[0, \infty)$ 而非整个 $\R$; (ii) kernel 是<em>实指数衰减</em> $e^{-sx}$ 而非<em>复振荡</em> $e^{\pm 2\pi i \zeta x}$。这两点小差异带来三个实质性的优势:</p>
+
+      <ol>
+        <li><strong>更大的函数类</strong>. FT 要求 $f \in \IL(\R)$ (二端衰减), 而 $e^{-sx}$ 的实衰减让 Laplace 把"指数增长"的函数也容纳进来。比如 $f(x) = e^{ax}$ ($a &gt; 0$) 不是 $\IL(\R)$, FT 不存在; 但 $\LT{f}(s) = 1/(s - a)$ 对 $s &gt; a$ 完全合法。</li>
+        <li><strong>天然适合 initial value problem</strong>. 物理与工程问题常常以"$t = 0$ 是起点"的形式出现 (e.g.\ 给一个 RLC 电路在 $t = 0$ 通电, 解 $V(t)$ for $t \ge 0$)。FT 没有"起点"的概念, 而 Laplace 的积分下限 $0$ 自然把 initial value 编码进去 — Derivative 规则中 $\LT[f'](s) = s\LT[f](s) - f(0)$ 的最后一项就是 initial 值的"frequency 同步".</li>
+        <li><strong>ODEs → algebraic equations</strong>. 这是 Laplace 最常用的角色。常系数线性 ODE 在 Laplace 之后变成 $s$ 的多项式 algebraic equation, 易解 → inverse Laplace 反算 (查表或 contour integration)。这是 30 年前每个工程师都熟练的 toolkit, 今天 Mathematica/SymPy 自动化, 但理解原理仍然重要.</li>
+      </ol>
+
+      <p>本课程对 Laplace 的覆盖非常"<em>computational</em>": 我们 hold-back 它在概率论 (随机过程的 moment generating function) 与 control theory (传递函数) 中的深层意义, 只 demand 你会计算几类标准 transform 与会用<strong>derivative rule</strong> 解 ODE。最后一节给出 ODE 的 worked example 让 picture 完整.</p>
+
+      <p>(老师指出这部分内容<em>必考</em>: 期末会有"compute the Laplace/Fourier transform of [specific function]"类型的题, 但<em>不</em>会要求 set up + solve PDE 那种 hard problem.)</p>
+
+      <!-- §2 前置知识 -->
+      <h2 id="prereq">§2 前置知识</h2>
+      <div class="box prereq">
+        <span class="box-title">在阅读本页前，你应该已经掌握:</span>
+        <ul>
+          <li><a href="16-fourier-transform.html">Topic 16</a>: Fourier transform — 概念上对照. 本页几乎所有结构 (定义形式、derivative rule、convolution) 都与 FT 平行.</li>
+          <li><a href="07-fubini.html">Topic 07</a>: Fubini — 多维 Laplace transform 用 Fubini 分解.</li>
+          <li>Gamma 函数 / monomial 积分: $\int_0^\infty x^m e^{-\lambda x}\,dx = m!/\lambda^{m+1}$ for $m \in \N$, $\lambda &gt; 0$. 这是 Example 18.2 的工具.</li>
+          <li>常系数线性 ODE 的基本知识: $y'' + by' + cy = 0$ 的 characteristic equation 求根方法.</li>
+        </ul>
+      </div>
+
+      <!-- §3 核心定义 -->
+      <h2 id="definitions">§3 核心定义</h2>
+
+      <div class="box def">
+        <span class="box-title">Definition 18.1 (Laplace transform — 1D)</span>
+        <p>设 $f \colon [0, \infty) \to \R$ 是 piecewise continuous, 且存在 $M, a$ 使 $|f(x)| \le M e^{ax}$ for all $x \ge 0$ (即 $f$ <em>at most exponential growth</em>). 对 $s &gt; a$, 定义 $f$ 的 <strong>Laplace transform</strong>:
+        $$ \LT{f}(s) \;:=\; \int_0^\infty f(x)\,e^{-sx}\,dx. $$
+        集合 $\{s &gt; a : \LT{f}(s) \text{ 收敛}\}$ 称 <strong>region of convergence (收敛域)</strong>; 通常是一个右半轴 $(a_0, \infty)$ for some $a_0 \in \R \cup \{-\infty\}$.</p>
+      </div>
+
+      <p><strong>直觉</strong>: $e^{-sx}$ 是"指数衰减权重", $s$ 越大权重越倾斜向 $x$ 小的位置。$\LT{f}(s)$ 是"以指数权重看 $f$" 的积分。函数类: $f$ 可以是<em>指数级增长</em>的 — 这是与 FT 最显著的不同 (FT 要 $\IL$). 但参数 $s$ 必须够大 ($s &gt; a$) 让 $e^{-sx}$ 战胜 $f$ 的增长.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 18.2 (Laplace transform — $n$ 维, $[0, \infty)^n$ 上)</span>
+        <p>对 $f \colon [0, \infty)^n \to \R$ 与 $s = (s_1, \ldots, s_n) \in (0, \infty)^n$:
+        $$ \LT{f}(s) \;:=\; \int_{[0, \infty)^n} f(x)\,e^{-s \cdot x}\,dx, \qquad s \cdot x = s_1 x_1 + \cdots + s_n x_n. $$
+        与一维一致, $s_j$ 需要够大让积分收敛.</p>
+      </div>
+
+      <p><strong>注意</strong>: 与 FT 一样, 当 $f$ 在 $[0, \infty)^n$ 上可分离 — 即 $f(x_1, \ldots, x_n) = f_1(x_1)\cdots f_n(x_n)$ — 由 Fubini, $\LT{f}(s) = \prod_{j=1}^n \LT{f_j}(s_j)$. 这是 Example 18.3 与 18.4 的算法 backbone.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 18.3 (Inverse Laplace transform — Mellin contour, 不详)</span>
+        <p>给 $F(s)$, 形式上存在 $f$ 使 $\LT{f} = F$, 反过来 $f$ 由 <strong>Mellin-Bromwich contour integral</strong> 给出:
+        $$ f(x) \;=\; \frac{1}{2\pi i}\int_{c - i\infty}^{c + i\infty} F(s)\,e^{sx}\,ds, $$
+        其中 $c$ 大于 $F$ 的所有奇点的实部 (放在 region of convergence 内). 这是<em>复 contour integration</em>, 我们<strong>不在本课程中计算</strong>。实战通常通过<strong>查表</strong> + 用<strong>线性 + shift + scale</strong> 性质 reverse-engineer.</p>
+      </div>
+
+      <p>例: 给 $F(s) = 1/(s + 2)$, 我们认得 $\LT[e^{-2x}](s) = 1/(s + 2)$ (后面 Example 18.2 $m=0$, $a=2$ case), 故 $f(x) = e^{-2x}$. 这就是"查表反算"。</p>
+
+      <!-- §4 主要定理 -->
+      <h2 id="theorems">§4 主要定理</h2>
+
+      <p>Laplace transform 满足一系列与 FT 平行的 algebraic 性质。最关键的是 derivative rule — 它把 ODE 变成 algebraic equation。</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 18.1 (Laplace 基础性质: 线性 + 平移 + 缩放)</span>
+        <p>对 $f, g$ 适当满足 hypothesis, $a, b, c \in \R$:
+        <ol>
+          <li><strong>线性</strong>: $\LT[af + bg](s) = a\LT{f}(s) + b\LT{g}(s)$.</li>
+          <li><strong>Frequency shift / 调制</strong>: $\LT[e^{ax}f(x)](s) = \LT{f}(s - a)$. (即在 $x$ 中乘 $e^{ax}$, 在 $s$ 中右移 $a$.)</li>
+          <li><strong>时间缩放</strong>: 对 $c &gt; 0$, $\LT[f(cx)](s) = \dfrac{1}{c}\LT{f}(s/c)$.</li>
+          <li><strong>时间平移 (Heaviside step shift)</strong>: 对 $c &gt; 0$, $\LT[f(x - c)\mathbf{1}_{x \ge c}](s) = e^{-cs}\LT{f}(s)$.</li>
+        </ol>
+        </p>
+      </div>
+
+      <p>这些都是 elementary 的代入 + 改变积分变量。Pattern: <em>$x$ 与 $s$ 的"对偶角色"</em> — $x$-shift 对应 $s$-乘以 $e^{-cs}$, $x$-modulation 对应 $s$-shift, 等等. 与 FT 的对应性质完全一致 (只是 kernel $e^{-sx}$ vs $e^{2\pi i \zeta x}$).</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 18.2 ★ (Derivative rule — Laplace 把 ODE 化为代数方程的核心)</span>
+        <p>设 $f \in C^1([0, \infty))$ 满足适当 growth condition. 则
+        $$ \LT[f'](s) \;=\; s\LT{f}(s) - f(0). $$
+        对高阶: 若 $f \in C^k$,
+        $$ \LT[f^{(k)}](s) \;=\; s^k \LT{f}(s) - s^{k-1}f(0) - s^{k-2}f'(0) - \cdots - f^{(k-1)}(0). $$
+        </p>
+      </div>
+
+      <p><strong>Proof.</strong> 分部积分:
+      $$ \LT[f'](s) \;=\; \int_0^\infty f'(x)\,e^{-sx}\,dx \;=\; [f(x)e^{-sx}]_0^\infty + s\int_0^\infty f(x)\,e^{-sx}\,dx. $$
+      边界项: $f(x)e^{-sx} \to 0$ as $x \to \infty$ (因 $e^{-sx}$ 战胜 $f$ 的增长, 对 $s$ 在 ROC 内), $= f(0)\cdot 1 = f(0)$ at $x = 0$. 所以 $[\cdots]_0^\infty = -f(0)$. 故 $\LT[f'](s) = s\LT{f}(s) - f(0)$. 高阶版本由归纳. $\square$</p>
+
+      <p><strong>关键对比 FT 中的对应公式</strong>: $\widehat{f'}(\zeta) = -2\pi i \zeta \FT{f}(\zeta)$, 没有边界项 (FT 积分在 $\R$ 上, 两端都 vanish). Laplace 多出 $f(0)$ 是因 $x = 0$ 是积分下限, "起点"自然进入公式 — 这就是 Laplace 比 FT 更适合 initial value problem 的根本原因.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 18.3 (Convolution theorem for Laplace)</span>
+        <p>定义 $[0, \infty)$ 上的 <strong>causal convolution</strong>:
+        $$ (f * g)(x) \;:=\; \int_0^x f(x - y)\,g(y)\,dy, \qquad x \ge 0. $$
+        (注意上限是 $x$ 而非 $\infty$ — 因 $f, g$ on $[0, \infty)$ 在 $[0, x]$ 外不出现.) 则
+        $$ \LT[f * g](s) \;=\; \LT{f}(s)\cdot \LT{g}(s). $$
+        </p>
+      </div>
+
+      <p><strong>口号</strong>: convolution in $x$ → multiplication in $s$. 与 FT convolution theorem 同形.</p>
+
+      <!-- §5 Worked Examples -->
+      <h2 id="examples">§5 Worked Examples</h2>
+
+      <p>下面五个 example 覆盖了课程对 Laplace 的全部 menu。Example 18.1 与 18.2 是"必背 entry"(像 FT 中的 indicator 与 Gaussian), Example 18.3 与 18.4 是 Fubini 的多维推广, Example 18.5 展示 ODE 应用全流程.</p>
+
+      <div class="box example">
+        <span class="box-title">Example 18.1 (Indicator of $[0, A]$)</span>
+        <p><strong>问题</strong>: $f(x) = \mathbf{1}_{[0, A]}(x)$ on $[0, \infty)$.</p>
+        $$ \LT{f}(s) \;=\; \int_0^A e^{-sx}\,dx \;=\; \left[\frac{-e^{-sx}}{s}\right]_0^A \;=\; \frac{1 - e^{-sA}}{s}. $$
+        <p>$$ \boxed{\LT[\mathbf{1}_{[0, A]}](s) \;=\; \dfrac{1 - e^{-sA}}{s}.} $$</p>
+        <p><strong>注</strong>: 这是"step function with two thresholds"的 Laplace transform, 是工程信号 (脉冲) 的基础。$A \to \infty$ 极限: $\LT[\mathbf{1}_{[0, \infty)}](s) = 1/s$, 即 unit step function 的 Laplace 是 $1/s$.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 18.2 ★ (Monomial × exponential $x^m e^{-ax}$ — 必背)</span>
+        <p><strong>问题</strong>: $f(x) = x^m e^{-ax}$ on $[0, \infty)$, $m \in \N$, $a \in \R$.</p>
+        $$ \LT{f}(s) \;=\; \int_0^\infty x^m e^{-ax} e^{-sx}\,dx \;=\; \int_0^\infty x^m e^{-(a+s)x}\,dx. $$
+        <p>用<strong>Gamma 积分</strong>: $\int_0^\infty x^m e^{-\lambda x}\,dx = \dfrac{m!}{\lambda^{m+1}}$ for $\lambda &gt; 0$. 这里 $\lambda = a + s$:</p>
+        $$ \boxed{\LT[x^m e^{-ax}](s) \;=\; \frac{m!}{(s + a)^{m+1}}, \qquad s &gt; -a.} $$
+        <p><strong>特殊情况</strong>:</p>
+        <ul>
+          <li>$m = 0$: $\LT[e^{-ax}](s) = \dfrac{1}{s + a}$. (设 $a &gt; 0$ 让 $s &gt; 0$ 即可.)</li>
+          <li>$m = 0$, $a = 0$: $\LT[1](s) = 1/s$ (匹配 Example 18.1 $A \to \infty$).</li>
+          <li>$a = 0$: $\LT[x^m](s) = m!/s^{m+1}$. ($m = 1$: $\LT[x](s) = 1/s^2$. $m = 2$: $\LT[x^2](s) = 2/s^3$.)</li>
+        </ul>
+        <p>这个公式 + 线性 + shift property (Thm 18.1) 已经能 cover Laplace 表中的大半条目. 比如 $\LT[\cos(bx)](s)$ 可以用 $\cos(bx) = (e^{ibx} + e^{-ibx})/2$ + Example 18.2 推: $\LT[\cos(bx)](s) = \dfrac{1}{2}\left[\dfrac{1}{s - ib} + \dfrac{1}{s + ib}\right] = \dfrac{s}{s^2 + b^2}$.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 18.3 (2D rectangle indicator)</span>
+        <p><strong>问题</strong>: $f(x, y) = \mathbf{1}_{[0, A] \times [0, B]}(x, y)$ on $[0, \infty)^2$.</p>
+        <p>可分离 → Fubini:
+        $$ \LT{f}(s, t) \;=\; \left(\int_0^A e^{-sx}\,dx\right)\!\!\left(\int_0^B e^{-ty}\,dy\right) \;=\; \frac{1 - e^{-sA}}{s}\cdot \frac{1 - e^{-tB}}{t}. $$
+        每个因子直接来自 Example 18.1.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 18.4 (2D monomial × exp: $f(x, y) = x^m y^n e^{-ax} e^{-by}$)</span>
+        <p><strong>问题</strong>: $f \colon [0, \infty)^2 \to \R$, $f(x, y) = x^m y^n e^{-ax} e^{-by}$, $m, n \in \N$, $a, b &gt; 0$.</p>
+        <p>可分离 → Fubini + Example 18.2 各因子:
+        $$ \LT{f}(s, t) \;=\; \int_0^\infty x^m e^{-(a+s)x}\,dx \cdot \int_0^\infty y^n e^{-(b+t)y}\,dy. $$
+        $$ \boxed{\LT[x^m y^n e^{-ax - by}](s, t) \;=\; \frac{m!}{(s + a)^{m+1}}\cdot \frac{n!}{(t + b)^{n+1}}.} $$
+        <p>这是 $\R^2$ 上"Laplace 表"的代表条目, 直接拼装 1D 结果.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 18.5 ★ (用 Laplace 解 ODE — 标志性应用)</span>
+        <p><strong>问题</strong>: 解 $y''(t) + 3y'(t) + 2y(t) = 0$, $t \ge 0$, 初值 $y(0) = 1$, $y'(0) = 0$.</p>
+        <p><strong>步骤 1: 对方程两边取 Laplace</strong>. 用 Thm 18.2 (derivative rule):</p>
+        <ul>
+          <li>$\LT[y](s) = Y(s)$ (定义).</li>
+          <li>$\LT[y'](s) = sY(s) - y(0) = sY(s) - 1$.</li>
+          <li>$\LT[y''](s) = s^2 Y(s) - s\,y(0) - y'(0) = s^2 Y(s) - s$.</li>
+        </ul>
+        <p>方程变成
+        $$[s^2 Y(s) - s] + 3[sY(s) - 1] + 2Y(s) = 0.$$
+        即
+        $$ (s^2 + 3s + 2)Y(s) = s + 3. $$</p>
+
+        <p><strong>步骤 2: 解 algebraic equation</strong>. 分解 $s^2 + 3s + 2 = (s + 1)(s + 2)$:
+        $$ Y(s) \;=\; \frac{s + 3}{(s + 1)(s + 2)}. $$
+        <strong>Partial fractions</strong>: $\dfrac{s + 3}{(s+1)(s+2)} = \dfrac{A}{s + 1} + \dfrac{B}{s + 2}$. 凑系数: $s + 3 = A(s + 2) + B(s + 1)$. 代 $s = -1$ 给 $2 = A$; 代 $s = -2$ 给 $1 = -B$, 即 $B = -1$. 故
+        $$ Y(s) \;=\; \frac{2}{s + 1} - \frac{1}{s + 2}. $$</p>
+
+        <p><strong>步骤 3: Inverse Laplace (查表)</strong>. 由 Example 18.2 ($m = 0$, $a = 1$ vs $a = 2$):
+        $$ \LT^{-1}\left[\frac{1}{s + 1}\right] = e^{-t}, \qquad \LT^{-1}\left[\frac{1}{s + 2}\right] = e^{-2t}. $$
+        线性给
+        $$ \boxed{y(t) \;=\; 2e^{-t} - e^{-2t}.} $$</p>
+
+        <p><strong>验证</strong>: $y(0) = 2 - 1 = 1$ $\checkmark$. $y'(t) = -2e^{-t} + 2e^{-2t}$, $y'(0) = -2 + 2 = 0$ $\checkmark$. $y'' = 2e^{-t} - 4e^{-2t}$, $y'' + 3y' + 2y = (2 - 6 + 4)e^{-t} + (-4 + 6 - 2)e^{-2t} = 0$ $\checkmark$.</p>
+
+        <p><strong>核心 takeaway</strong>: <em>整个 ODE 解的过程是纯 algebra</em> — 用 derivative rule 把微分变成 $s$ 的多项式 + 用 partial fractions 解 + 用 Example 18.2 查表 inverse. 没有"猜形式 + 待定系数 + 解 characteristic equation"的 ODE 求解经典套路, 只是 algebraic manipulation. 这是 Laplace 的 marketing pitch.</p>
+      </div>
+
+      <!-- §6 常见陷阱 -->
+      <h2 id="pitfalls">§6 常见陷阱</h2>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 18.1 (忘记 derivative rule 中的 initial value 项)</span>
+        <p>$\LT[f'](s) = s\LT{f}(s) \;\textbf{- f(0)}$ — 末尾的 $-f(0)$ 是 Laplace 与 Fourier 最关键的<em>区别</em>之一, 也是 Laplace 能直接编码 initial condition 的原因。学生最常犯的错: 写 $\LT[f'] = s\LT{f}$ (脱漏 $-f(0)$), 接下来 ODE 解中 initial condition 神秘失踪.</p>
+        <p>类似 $\LT[f''](s) = s^2 \LT{f}(s) - sf(0) - f'(0)$ — 高阶有<em>多个</em> initial value 项, 顺序 $-sf(0) - f'(0)$ 不能颠倒 (按 Taylor 系数排列, 高阶导对应小 $s$ 幂).</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 18.2 (region of convergence 与 inverse Laplace)</span>
+        <p>$\LT{f}(s)$ 通常只在<em>右半轴</em> $s &gt; s_0$ 上收敛 (取决于 $f$ 的 growth rate). 例: $f(x) = e^{2x}$ 的 Laplace 是 $1/(s - 2)$, 仅对 $s &gt; 2$ 定义。这意味着<em>同一 algebraic 公式 $1/(s - 2)$</em> 在不同 region 来源不同的 $f$ — Inverse Laplace 需要指定 region 来唯一确定 $f$. 本课程不深入, 但记住"Laplace ↔ $f$" 的对应不是简单 bijection.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 18.3 (Laplace 不像 Fourier 那样有 unitary $L^2$ 理论)</span>
+        <p>FT 有著名的 Plancherel: $\norm{f}_{L^2} = \norm{\FT{f}}_{L^2}$, isometry 性质让它在 quantum mechanics、harmonic analysis 中无可替代。Laplace <em>没有</em>类似的 unitary 结构 (kernel $e^{-sx}$ 不是 unitary). 它的强项是 ODE/PDE 解析处理 + control theory + 概率, 而不是"测量函数大小"。这是为什么 abstract analysis 教科书 (Folland, Stein) 大讲 Fourier 而很少讲 Laplace.</p>
+      </div>
+
+      <!-- §7 练习 -->
+      <h2 id="exercises">§7 练习</h2>
+
+      <div class="exercise">
+        <span class="ex-num">练习 18.1.</span> 计算 $\LT[\sin(bx)](s)$ 与 $\LT[\cos(bx)](s)$ for $b \in \R$.
+        <details><summary>答案</summary><div class="details-body">
+        $\sin(bx) = (e^{ibx} - e^{-ibx})/(2i)$. 用 Example 18.2 $m=0$, $a = -ib$ 与 $a = ib$:
+        $$\LT[\sin(bx)](s) = \frac{1}{2i}\left[\frac{1}{s - ib} - \frac{1}{s + ib}\right] = \frac{1}{2i}\cdot\frac{2ib}{s^2 + b^2} = \frac{b}{s^2 + b^2}.$$
+        类似 $\LT[\cos(bx)](s) = \dfrac{s}{s^2 + b^2}$. (两个最常用的"三角 Laplace transform" — 必背.)
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 18.2.</span> 计算 $\LT[xe^{-3x}\sin(2x)](s)$. 提示: 综合用 Example 18.2 与 Thm 18.1 (2) (modulation).
+        <details><summary>答案</summary><div class="details-body">
+        Step 1: 用调制把 $e^{-3x}$ 反映到 $s$: $\LT[e^{-3x}f(x)](s) = \LT{f}(s + 3)$ (Thm 18.1 (2) with $a = -3$).
+        Step 2: 用 $\sin$ Laplace + $x$-multiplication. $\LT[x\sin(2x)]$ 可以用 derivative w.r.t. $s$ 求: $\LT[x g(x)](s) = -\dfrac{d}{ds}\LT{g}(s)$. 取 $g(x) = \sin(2x)$, $\LT[g] = 2/(s^2 + 4)$. 故
+        $$\LT[x\sin(2x)](s) = -\frac{d}{ds}\frac{2}{s^2 + 4} = \frac{4s}{(s^2 + 4)^2}.$$
+        Step 3: 调制: 把 $s$ 换成 $s + 3$:
+        $$\LT[xe^{-3x}\sin(2x)](s) = \frac{4(s+3)}{((s+3)^2 + 4)^2}.$$
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 18.3.</span> 用 Laplace 解 $y'' - y = e^t$, $y(0) = 0$, $y'(0) = 1$.
+        <details><summary>答案</summary><div class="details-body">
+        $\LT[y''] = s^2 Y - s\cdot 0 - 1 = s^2 Y - 1$. $\LT[e^t] = 1/(s - 1)$. 方程: $(s^2 - 1)Y - 1 = 1/(s-1)$, 即 $Y = \dfrac{1/(s-1) + 1}{s^2 - 1} = \dfrac{1/(s - 1) + 1}{(s-1)(s+1)} = \dfrac{1}{(s-1)^2(s+1)} + \dfrac{1}{(s-1)(s+1)}$.
+        Partial fractions: $\dfrac{1}{(s-1)^2(s+1)} = \dfrac{A}{s-1} + \dfrac{B}{(s-1)^2} + \dfrac{C}{s+1}$, 解 $A = -1/4$, $B = 1/2$, $C = 1/4$.
+        $\dfrac{1}{(s-1)(s+1)} = \dfrac{1}{2}[\dfrac{1}{s-1} - \dfrac{1}{s+1}]$, 即 $D/(s-1) + E/(s+1)$ with $D = 1/2$, $E = -1/2$.
+        合并: $Y(s) = \dfrac{-1/4 + 1/2}{s - 1} + \dfrac{1/2}{(s-1)^2} + \dfrac{1/4 - 1/2}{s + 1} = \dfrac{1/4}{s-1} + \dfrac{1/2}{(s-1)^2} - \dfrac{1/4}{s + 1}$.
+        Inverse (Example 18.2): $\LT^{-1}[1/(s - 1)] = e^t$, $\LT^{-1}[1/(s-1)^2] = te^t$ ($m = 1$, $a = -1$), $\LT^{-1}[1/(s+1)] = e^{-t}$.
+        所以 $y(t) = \dfrac{1}{4}e^t + \dfrac{1}{2}t e^t - \dfrac{1}{4}e^{-t}$.
+        验证: $y(0) = 1/4 + 0 - 1/4 = 0$ $\checkmark$. $y'(t) = \dfrac{1}{4}e^t + \dfrac{1}{2}e^t + \dfrac{1}{2}te^t + \dfrac{1}{4}e^{-t} = \dfrac{3}{4}e^t + \dfrac{1}{2}te^t + \dfrac{1}{4}e^{-t}$. $y'(0) = 3/4 + 0 + 1/4 = 1$ $\checkmark$.
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 18.4.</span> 计算 $\LT[xe^{-x^2}](s)$. 提示: 这<em>不</em>能直接用 Example 18.2 ($e^{-x^2}$ 不是 $e^{-ax}$ 形式). 试用 derivative w.r.t. parameter.
+        <details><summary>答案</summary><div class="details-body">
+        注意 $-2x e^{-x^2} = \dfrac{d}{dx}e^{-x^2}$. 故 $xe^{-x^2} = -\dfrac{1}{2}\dfrac{d}{dx}e^{-x^2}$. 用 derivative rule (Thm 18.2): $\LT[\dfrac{d}{dx}e^{-x^2}](s) = s\LT[e^{-x^2}](s) - e^0 = s\LT[e^{-x^2}](s) - 1$. 故
+        $$\LT[xe^{-x^2}](s) = -\frac{1}{2}\left(s\LT[e^{-x^2}](s) - 1\right) = \frac{1}{2} - \frac{s}{2}\LT[e^{-x^2}](s).$$
+        而 $\LT[e^{-x^2}](s) = \int_0^\infty e^{-x^2 - sx}\,dx$. 完成平方 $-x^2 - sx = -(x + s/2)^2 + s^2/4$:
+        $$\LT[e^{-x^2}](s) = e^{s^2/4}\int_0^\infty e^{-(x + s/2)^2}\,dx = e^{s^2/4}\cdot\int_{s/2}^\infty e^{-u^2}\,du = e^{s^2/4}\cdot\frac{\sqrt{\pi}}{2}\,\mathrm{erfc}(s/2).$$
+        其中 $\mathrm{erfc}(z) = \frac{2}{\sqrt{\pi}}\int_z^\infty e^{-t^2}\,dt$ 是 complementary error function. 代回得
+        $$\LT[xe^{-x^2}](s) = \frac{1}{2} - \frac{s}{2}\cdot \frac{\sqrt{\pi}}{2}e^{s^2/4}\mathrm{erfc}(s/2) = \frac{1}{2} - \frac{s\sqrt{\pi}}{4}e^{s^2/4}\mathrm{erfc}(s/2).$$
+        (没有 elementary 形式 — 涉及 erfc. 这个例子展示 Laplace 不总给 elementary 答案: 当 $f$ 的衰减比 exponential 快时 inverse 不再 polynomial in $s$.)
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 18.5.</span> 用 Example 18.3 + 18.4 计算 $\LT[(x + y)\mathbf{1}_{[0, 1]^2}](s, t)$. (Hint: 用线性把 $x + y$ 拆开, 然后乘 indicator factors.)
+        <details><summary>答案</summary><div class="details-body">
+        $(x + y)\mathbf{1}_{[0,1]^2}(x, y) = x\mathbf{1}_{[0,1]}(x)\cdot \mathbf{1}_{[0,1]}(y) + \mathbf{1}_{[0,1]}(x)\cdot y\mathbf{1}_{[0,1]}(y)$. 由 Laplace 线性 + 可分离:
+        $$\LT[\cdot](s, t) = \LT[x\mathbf{1}_{[0,1]}](s)\LT[\mathbf{1}_{[0,1]}](t) + \LT[\mathbf{1}_{[0,1]}](s)\LT[y\mathbf{1}_{[0,1]}](t).$$
+        计算 $\LT[x\mathbf{1}_{[0,1]}](s) = \int_0^1 x e^{-sx}\,dx$. 分部 $u = x$, $dv = e^{-sx}\,dx$: $= [-xe^{-sx}/s]_0^1 + \int_0^1 e^{-sx}/s\,dx = -e^{-s}/s + (1 - e^{-s})/s^2$. $\LT[\mathbf{1}_{[0,1]}](s) = (1 - e^{-s})/s$. 故
+        $$\LT[(x + y)\mathbf{1}_{[0,1]^2}](s, t) = \left(\frac{1 - e^{-s}}{s^2} - \frac{e^{-s}}{s}\right)\frac{1 - e^{-t}}{t} + \frac{1 - e^{-s}}{s}\left(\frac{1 - e^{-t}}{t^2} - \frac{e^{-t}}{t}\right).$$
+        </div></details>
+      </div>
+
+      <!-- §8 速查表 -->
+      <h2 id="cheat">§8 速查表</h2>
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def"><strong>Laplace 定义 (Def 18.1)</strong>: $\LT{f}(s) = \int_0^\infty f(x)\,e^{-sx}\,dx$. $f$ 在 $[0, \infty)$ 上, $|f(x)| \le Me^{ax}$ 让 $s &gt; a$ 时收敛.</li>
+          <li class="cs-def"><strong>$n$ 维 Laplace (Def 18.2)</strong>: $\LT{f}(s) = \int_{[0,\infty)^n} f(x)\,e^{-s\cdot x}\,dx$. 可分离 $f$ → product of 1D Laplaces (Fubini).</li>
+          <li class="cs-thm"><strong>★ Derivative rule (Thm 18.2)</strong>: $\LT[f'](s) = s\LT{f}(s) - f(0)$. 高阶: $\LT[f^{(k)}] = s^k\LT{f} - s^{k-1}f(0) - \cdots - f^{(k-1)}(0)$. <em>ODE → algebra 的核心</em>.</li>
+          <li class="cs-thm"><strong>线性 + 调制 + 平移 (Thm 18.1)</strong>: 与 FT 一致 (kernel 不同, sign/factor 不同).</li>
+          <li class="cs-thm"><strong>Convolution (Thm 18.3)</strong>: $(f * g)(x) = \int_0^x f(x-y)g(y)\,dy$, $\LT[f*g] = \LT{f}\cdot\LT{g}$.</li>
+          <li class="cs-tech"><strong>★ Indicator (Example 18.1)</strong>: $\LT[\mathbf{1}_{[0, A]}](s) = (1 - e^{-sA})/s$. 极限 $A \to \infty$: $\LT[1](s) = 1/s$.</li>
+          <li class="cs-tech"><strong>★ Monomial × exp (Example 18.2)</strong>: $\LT[x^m e^{-ax}](s) = \dfrac{m!}{(s + a)^{m+1}}$. 推论: $\LT[x^m](s) = m!/s^{m+1}$, $\LT[e^{-ax}](s) = 1/(s + a)$.</li>
+          <li class="cs-tech"><strong>Trig Laplace (Exercise 18.1)</strong>: $\LT[\sin bx] = b/(s^2 + b^2)$, $\LT[\cos bx] = s/(s^2 + b^2)$. 用 Example 18.2 $a = \pm ib$ 拼.</li>
+          <li class="cs-tech"><strong>ODE 流程 (Example 18.5)</strong>: (i) 对 ODE 取 $\LT$ 把 derivative 化成 $s$ 多项式 + initial values; (ii) 解 algebraic for $\LT{y}(s)$; (iii) Partial fractions; (iv) Inverse 查表 (Example 18.2 + sin/cos).</li>
+          <li class="cs-pitfall"><strong>Initial value 项不能漏 (Pitfall 18.1)</strong>: $\LT[f'] = s\LT{f} - f(0)$, 不是 $s\LT{f}$.</li>
+          <li class="cs-pitfall"><strong>Region of convergence (Pitfall 18.2)</strong>: Laplace 在 $s &gt; s_0$ 上才收敛, $s_0$ 取决于 $f$ 的 growth rate. Inverse Laplace 需配 ROC.</li>
+        </ul>
+      </div>
+
+      <!-- §9 进一步阅读 -->
+      <h2 id="further">§9 进一步阅读</h2>
+      <ul>
+        <li><strong>Typed notes</strong>: <code>Notes/Typed/10.1_notes/10.1_notes.tex</code> §6-7 (Laplace 定义 + Example 18.1, 18.4 对应内容).</li>
+        <li><strong>Cross-references</strong>:
+          <ul>
+            <li>Fourier 类比 (concepts + properties 平行): <a href="16-fourier-transform.html">Topic 16</a>.</li>
+            <li>Fubini (多维 Laplace 的可分离性基础): <a href="07-fubini.html">Topic 07</a>.</li>
+          </ul>
+        </li>
+        <li><strong>下一站</strong>: <a href="19-curves-frenet.html">Topic 19 (Curves & Frenet frame)</a> — 课程末段从 Fourier/Laplace 转入 differential geometry (Klingenberg). 与本页无内容依赖.</li>
+        <li><strong>课程外延伸</strong>:
+          <ul>
+            <li>Schiff <em>The Laplace Transform: Theory and Applications</em>: 标准 introductory 教材, 含 control theory 与 PDE 应用.</li>
+            <li>Doetsch <em>Introduction to the Theory and Application of the Laplace Transformation</em>: 经典德式严格处理.</li>
+            <li>Folland <em>Real Analysis</em> §8.7: Laplace 的 measure-theoretic version (Laplace-Stieltjes transform).</li>
+            <li><strong>概率方向</strong>: Laplace transform 在概率论中叫 <em>moment generating function</em>; 在 random walk / queueing theory 中是核心工具.</li>
+          </ul>
+        </li>
+      </ul>
+
+    </main>
+  </div>
+
+</body>
+</html>

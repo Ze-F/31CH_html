@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Topic 04: 体积与 pavable 集 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="03-algebra-properties.html">Topic 03</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="05-measure-zero-basics.html">Topic 05</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#motivation">§1 动机</a></li>
+        <li><a href="#prereq">§2 前置知识</a></li>
+        <li><a href="#definitions">§3 核心定义</a></li>
+        <li><a href="#theorems">§4 主要定理</a></li>
+        <li><a href="#examples">§5 Worked Examples</a></li>
+        <li><a href="#pitfalls">§6 常见陷阱</a></li>
+        <li><a href="#exercises">§7 练习</a></li>
+        <li><a href="#cheat">§8 速查表</a></li>
+        <li><a href="#further">§9 进一步阅读</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>Topic 04: 体积与 pavable 集</h1>
+      <p class="subtitle">Source: Lec 2.2 (后半), 3.1 (前半) · H&amp;H §4.1 · 14 topics 中第 4 个</p>
+
+      <!-- §1 动机 -->
+      <h2 id="motivation">§1 动机</h2>
+      <p>到目前为止 (Topic 01–03), 我们把 Riemann 积分作为一个"对函数 $f$ 求和"的过程建立起来 — 上下和、Cauchy 准则、线性、单调、绝对值. 但<strong>积分本身</strong>更深层的几何意义是: 它给出了 $\R^n$ 中某些子集的<em>体积 (volume)</em>. 一段区间的长度、一块二维区域的面积、一个三维立体的体积, 在我们已经搭好的积分框架里其实是<em>同一个东西的 1, 2, 3 维分身</em>: $\vol_n(A) = \int_{\R^n} \mathbf{1}_A \, dV$.</p>
+
+      <p>这个观点是 H&amp;H §4.1 末尾的一个关键转折. 它把"集合大小"这种最直观、最几何的问题, 转化为"示性函数 $\mathbf{1}_A$ 是否 Riemann 可积"的<em>分析</em>问题. 一些集合的示性函数可积 — 我们称它们为 <strong>pavable (可铺集)</strong> — 它们有 well-defined 的体积; 另一些 (比如 Dirichlet 型的 $\Q \cap [0,1]$) 的示性函数不可积, 在 Riemann 框架里就<em>没有体积</em>. 后者也是日后 Lebesgue 积分要修复的痛点 (Topic 12).</p>
+
+      <p>本页的目标: 把"用积分定义体积"这一条主线讲清楚, 然后把体积的<strong>三条基本性质</strong> — 盒子的乘积公式、平移不变性、缩放定律 — 全部从 Topic 02–03 已建立的积分性质<em>免费推出</em>. 这一连串推论显示出本课程的一个核心美学: <em>定义清楚一次, 性质几乎自动</em>. 此外, 我们会埋下一条 forward look: pavability 实际上由 $\partial A$ 的测度零性控制 (这要等 Topic 05–06), 而缩放定律 $\vol_n(tA) = \abs{t}^n \vol_n(A)$ 是日后"行列式 scales 体积"定理 (Topic 08) 的 1-维子情形.</p>
+
+      <!-- §2 前置知识 -->
+      <h2 id="prereq">§2 前置知识</h2>
+      <div class="box prereq">
+        <span class="box-title">在阅读本页前，你应该已经掌握:</span>
+        <ul>
+          <li><a href="02-nd-riemann.html">Topic 02</a>: dyadic paving $\mathcal{D}_N(\R^n)$、上下和 $U_N(f), L_N(f)$、Riemann 可积性 ($f \in \IR(\R^n)$) 与 Cauchy 准则</li>
+          <li><a href="03-algebra-properties.html">Topic 03</a>: 积分的<strong>线性</strong>、单调性、<strong>product 性质</strong> ("baby Fubini": $\int_{\R^{n+m}} f_1(x)f_2(y)\,dV = (\int f_1)(\int f_2)$)</li>
+          <li>示性函数 $\mathbf{1}_A(x) = 1$ 当 $x \in A$, $= 0$ 否则; 有界支集 (bounded support) 的概念</li>
+          <li>$\R^n$ 中的开/闭集合、边界 $\partial A$、闭包 — Hubbard 1.5 的基本拓扑 (会在 §3 末稍带提到)</li>
+        </ul>
+      </div>
+
+      <!-- §3 核心定义 -->
+      <h2 id="definitions">§3 核心定义</h2>
+      <p>本节的两个定义是整个 topic 的核心: <strong>体积 (volume)</strong> 和 <strong>pavable set (可铺集)</strong>. 它们互为表里 — 一个是"<em>什么</em>是体积", 另一个是"<em>哪些</em>集合配有体积". 在此之上, 我们补充<em>有界支集</em>和<em>方块 (box)</em> 这两个辅助记号, 它们会在 §4 的定理 statement 中反复出现.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 4.1 (示性函数, characteristic function)</span>
+        <p>对 $A \subseteq \R^n$, 它的 <strong>示性函数 (characteristic / indicator function)</strong> $\mathbf{1}_A \colon \R^n \to \R$ 定义为
+        $$\mathbf{1}_A(x) = \begin{cases} 1, &amp; x \in A, \\ 0, &amp; x \notin A. \end{cases}$$
+        </p>
+        <p>$\mathbf{1}_A$ 是恒 $0$/恒 $1$ 的两段函数; 它把"$x$ 属于 $A$ 吗"这个 yes/no 问题翻译成 $\R$-取值的函数. 它的支集 $\supp(\mathbf{1}_A) = \overline{A}$ (闭包).</p>
+      </div>
+
+      <p><strong>直觉</strong>: 当 $A$ 有界时, $\mathbf{1}_A$ 有<em>有界支集</em>且有界 (其值仅 $0$ 或 $1$). 这正是 Riemann 积分定义所要求的两个 hypothesis. 因此对有界集合 $A$, "$\mathbf{1}_A \in \IR(\R^n)$" 这个问题是 well-posed 的 — 答案要么是 yes (即 $A$ pavable), 要么是 no (例如 $A = \Q^n \cap [0,1]^n$).</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 4.2 (体积, volume)</span>
+        <p>设 $A \subseteq \R^n$. 若 $\mathbf{1}_A \in \IR(\R^n)$, 则定义 $A$ 的 <strong>$n$-维体积 ($n$-dimensional volume)</strong> 为
+        $$\vol_n(A) := \int_{\R^n} \mathbf{1}_A \, dV.$$
+        </p>
+        <p>当上式右边不存在 (即 $\mathbf{1}_A \notin \IR$) 时, $\vol_n(A)$ <em>未定义</em> — 在 Riemann 框架下, "$A$ 的体积是多少"这个问题<strong>无意义</strong>.</p>
+      </div>
+
+      <p>注意 $n = 1$ 时 $\vol_1$ 就是"长度", $n = 2$ 时是"面积", $n = 3$ 时是"立体体积". 几何的三个不同概念在此被统一为<em>一个</em>分析对象. 不过我们已经习惯讲 "volume of $A$" 来涵盖所有维度.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 4.3 (可铺集, pavable set)</span>
+        <p>$A \subseteq \R^n$ 称为 <strong>可铺 (pavable)</strong>, 若 $\mathbf{1}_A \in \IR(\R^n)$ — 即 $A$ 有 well-defined 体积.</p>
+      </div>
+
+      <p>"Pavable" 这个名字的来源是<em>"用 dyadic 砖头铺这个集合, 铺得既不太多也不太少"</em>: 用 $\mathbf{1}_A$ 的上下和 $U_N, L_N$ 分别对应"过分覆盖 $A$ 的总体积" 和 "保守覆盖在 $A$ 内部的总体积", 可积性 ($U_N \to L_N$) 等价于"这两种铺法在精细化时趋于一致". H&amp;H 的术语 "pavable" 强调几何视角.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 4.4 (方块, box)</span>
+        <p>$P \subset \R^n$ 称为<strong>方块 (box / rectangle)</strong>, 若
+        $$P = [a_1, b_1] \times [a_2, b_2] \times \cdots \times [a_n, b_n], \qquad a_i \le b_i \in \R.$$
+        当 $n = 1$ 时 $P$ 是闭区间; 当 $n = 2$ 时是闭矩形; $n = 3$ 时是闭长方体. 边长分别为 $b_i - a_i$.</p>
+      </div>
+
+      <p>方块是<em>已知</em>有体积、且体积是"我们直观期望那个值"的 baseline class. §4 中的 <strong>Prop 4.1</strong> 把这个直观期望写成严格定理, 是后续构建一切体积论证的<em>地基</em>.</p>
+
+      <div class="box remark">
+        <span class="box-title">Forward look: pavability $\Leftrightarrow$ $\partial A$ 测度零</span>
+        <p>事实上 $A$ pavable 当且仅当 $\Disc(\mathbf{1}_A)$ 测度零 (Lebesgue 准则, Topic 06). 但 $\Disc(\mathbf{1}_A) = \partial A$ 精确等于 $A$ 的边界 (内部点 $\mathbf{1}_A$ 取常值 $1$, 外部点取常值 $0$, 两者邻域上 oscillation 为 $0$; 唯有边界点的任何邻域同时含 $A$ 内外两类点, 振荡为 $1$). 因此<em>有界 $A$ pavable $\Longleftrightarrow$ $\partial A$ 测度零</em>. 这条等价是判定 pavability 的最常用工具, 但本页只 record statement, 完整证明留到 Topic 05/06. </p>
+      </div>
+
+      <!-- §4 主要定理 -->
+      <h2 id="theorems">§4 主要定理</h2>
+
+      <p>本节的所有结果可以这样组织: 先用 Topic 03 的 product 性质把"方块的体积 = 边长之积" (Prop 4.1) 证出来; 再用线性 (Topic 03) 把"两个 pavable 集的不交并仍 pavable" (Thm 4.1) 证出来; 最后两条几何性质 — 平移不变 (Prop 4.2) 与缩放 (Thm 4.2) — 把"体积与刚体变换/位似的关系"写清楚, 为日后线性 CoV (Topic 08) 做好铺垫.</p>
+
+      <div class="box thm">
+        <span class="box-title">Lemma 4.1 (区间体积, vol of an interval)</span>
+        <p>对 $I = [a, b] \subset \R$ ($a \le b$), $I$ pavable 且 $\vol_1(I) = b - a$.</p>
+      </div>
+
+      <p><strong>Proof sketch.</strong> 用 dyadic paving $\mathcal{D}_N$ 的 $N$-级正则区间 $[k/2^N, (k+1)/2^N)$: 端点 $a, b$ 最多落在两个 dyadic 区间里, 这两个"骑墙"区间 $\osc = 1$, 其余完全在 $I$ 内部 (贡献 $0$ 振荡) 或完全在 $I$ 外部 (贡献 $0$). 故 $U_N(\mathbf{1}_I) - L_N(\mathbf{1}_I) \le 2 \cdot 1/2^N \to 0$, 即 $\mathbf{1}_I \in \IR$ (Cauchy 准则). 取一个 $[a,b]$ 自身的等分 $N$ 段 partition, 每段完全在 $I$ 内, 给出 $U = L = b - a$, 故 $\int \mathbf{1}_I = b - a$. $\square$</p>
+
+      <div class="box thm">
+        <span class="box-title">Proposition 4.1 (方块体积, H&amp;H Prop 4.1.11)</span>
+        <p>设 $P = [a_1, b_1] \times \cdots \times [a_n, b_n] \subset \R^n$. 则 $P$ pavable 且
+        $$\vol_n(P) = \prod_{i=1}^n (b_i - a_i).$$
+        即<em>方块体积等于边长之积</em>.</p>
+      </div>
+
+      <p><strong>Proof sketch.</strong> 关键观察: $\mathbf{1}_P(x_1, \ldots, x_n) = \mathbf{1}_{I_1}(x_1) \cdot \mathbf{1}_{I_2}(x_2) \cdots \mathbf{1}_{I_n}(x_n)$ — 方块的示性函数是各个区间示性函数的<em>张量积</em>. 由 Lemma 4.1, 每个 $\mathbf{1}_{I_i} \in \IR(\R)$ 且 $\int \mathbf{1}_{I_i} = b_i - a_i$. 由 Topic 03 的 product 性质 ("baby Fubini") 反复应用 $n - 1$ 次, $\mathbf{1}_P \in \IR(\R^n)$ 且
+      $$\int_{\R^n} \mathbf{1}_P \, dV = \prod_{i=1}^n \int_\R \mathbf{1}_{I_i} \, dV = \prod_{i=1}^n (b_i - a_i). \quad \square$$
+      </p>
+
+      <p>这是一个非常优雅的论证: 我们没有重新打开 dyadic paving 做组合学论证, 而是<em>复用</em>了 Topic 03 已经辛苦建立的乘积公式. 抽象工具的回报在这里清晰可见.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 4.1 (有限可加性, finite additivity)</span>
+        <p>设 $A, B \subseteq \R^n$ 都 pavable 且<strong>不相交</strong> ($A \cap B = \emptyset$). 则 $A \cup B$ pavable, 且
+        $$\vol_n(A \cup B) = \vol_n(A) + \vol_n(B).$$
+        </p>
+        <p>更一般地, 若 $A_1, \ldots, A_k$ 两两不相交且都 pavable, 则 $\bigcup_{i=1}^k A_i$ pavable, $\vol_n\bigl(\bigcup_i A_i\bigr) = \sum_i \vol_n(A_i)$.</p>
+      </div>
+
+      <p><strong>Proof sketch.</strong> 不相交 $\Rightarrow$ 示性函数加法关系: $\mathbf{1}_{A \cup B} = \mathbf{1}_A + \mathbf{1}_B$ (在 $A$ 上 $\mathbf{1}_A = 1, \mathbf{1}_B = 0$; 在 $B$ 上反之; 在 $\R^n \setminus (A \cup B)$ 上两者都 $0$). 由 $\mathbf{1}_A, \mathbf{1}_B \in \IR$ (pavability) 和 Topic 03 线性, $\mathbf{1}_{A \cup B} \in \IR$, 即 $A \cup B$ pavable, 且
+      $$\vol_n(A \cup B) = \int (\mathbf{1}_A + \mathbf{1}_B) = \int \mathbf{1}_A + \int \mathbf{1}_B = \vol_n(A) + \vol_n(B). \quad \square$$
+      </p>
+
+      <p>有限可加性是"体积"配得起"测度"称号的最低要求. 但请<strong>注意它仅是有限</strong>: Riemann 框架下<em>不</em>保证可数可加性. 一个反例: 把 $[0,1] \cap \Q$ 写成可数多个单点 $\{q_j\}$ 的不交并 — 每个 $\{q_j\}$ pavable (单点体积 $0$), 但并集 (Dirichlet 支集) 不 pavable. 这是 Riemann 积分的根本局限, 也是 Lebesgue 积分扩展的动机 (Topic 12).</p>
+
+      <div class="box thm">
+        <span class="box-title">Proposition 4.2 (平移不变性, translation invariance; H&amp;H Prop 4.1.10)</span>
+        <p>设 $A \subseteq \R^n$ pavable, $v \in \R^n$. 定义 <strong>平移 (translate)</strong>
+        $$A + v := \{x + v \mid x \in A\}.$$
+        则 $A + v$ pavable 且 $\vol_n(A + v) = \vol_n(A)$.</p>
+      </div>
+
+      <p><strong>Proof sketch.</strong> 关键观察: $\mathbf{1}_{A + v}(y) = \mathbf{1}_A(y - v)$ 对所有 $y \in \R^n$ 成立. 故"平移集合的示性函数" = "把示性函数在 $\R^n$ 上整体平移 $-v$". 在 dyadic paving 层面, 平移 $-v$ 把每个 dyadic 立方体 $C$ 映成<em>另一个</em>等体积的 (一般不再 dyadic 的) 立方体 $C - v$. 通过取充分细的 paving (使得几何上的"非对齐误差"远小于 $\eps$), 可以证明 $\mathbf{1}_{A+v}$ 的上下和与 $\mathbf{1}_A$ 的上下和之差可任意小, 由此 $\mathbf{1}_{A+v} \in \IR$ 且 $\int \mathbf{1}_{A+v} = \int \mathbf{1}_A$. </p>
+
+      <details>
+        <summary>展开技术细节</summary>
+        <div class="details-body">
+          <p>完整论证见 H&amp;H §4.1 (Prop 4.1.10) 或 Lec 3.1. 关键技术点:</p>
+          <ul>
+            <li><strong>"非对齐"对上下和影响小</strong>: 把 $\R^n$ 用 $\mathcal{D}_N$ 切, 再用平移后的 $\mathcal{D}_N - v$ 切, 两套立方体几乎重合, 仅在 "网格交界附近" 的<em>有限多</em>层有差异. 这一边界层的总体积 $\to 0$ 当 $N \to \infty$.</li>
+            <li><strong>体积守恒</strong>: 因为每个 dyadic 立方体在平移下保持体积 (Prop 4.1 是平移不变的特殊情形 — 当 $A$ 本身是方块时显然 $\vol(A + v) = \vol(A)$, 由边长不变得).</li>
+            <li><strong>极限</strong>: $\lim U_N(\mathbf{1}_{A+v}) = \lim U_N(\mathbf{1}_A) = \int \mathbf{1}_A$.</li>
+          </ul>
+          <p>更优雅的方式是把平移不变性看作下一节 (Topic 08) <em>"行列式 scales 体积"</em>定理的特殊情形 — 平移虽不是线性, 但它的体积保持性与正交矩阵 (det $= \pm 1$) 的体积保持性是同源的几何事实.</p>
+        </div>
+      </details>
+
+      <p>平移不变性看似显然 ("把图形挪一下当然不改面积"), 但请注意它是<em>定理</em>而不是定义 — 我们在 Def 4.2 里用积分定义体积时<strong>没有</strong>把平移不变性写进定义. 这个性质必须从更基本的层面 (Riemann 积分 + dyadic paving) 推出. 学好分析的一个标志, 是能识别"什么是定义、什么是定理": 几何直觉提供 should-be 的等式, 严格证明把它落实.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 4.2 (缩放定律, scaling law)</span>
+        <p>设 $A \subseteq \R^n$ pavable, $t \in \R$. 定义 <strong>位似 (dilation)</strong>
+        $$tA := \{tx \mid x \in A\}.$$
+        则 $tA$ pavable 且
+        $$\vol_n(tA) = \abs{t}^n \, \vol_n(A).$$
+        </p>
+      </div>
+
+      <p><strong>Proof sketch.</strong> 同样从示性函数关系入手: $\mathbf{1}_{tA}(y) = \mathbf{1}_A(y/t)$ (当 $t \ne 0$). 在 dyadic paving 上, 位似 $x \mapsto tx$ 把每个 dyadic 立方体 $C$ 映成体积 $\abs{t}^n \vol_n(C)$ 的 (旋转/反射可能的) 立方体. 在 $A$ 为方块 $P$ 时, Prop 4.1 直接给出 $\vol_n(tP) = \prod (\abs{t}(b_i - a_i)) = \abs{t}^n \prod (b_i - a_i) = \abs{t}^n \vol_n(P)$. 一般 pavable $A$ 通过上下和极限交换得到. $\square$</p>
+
+      <p>$\abs{t}^n$ 的指数 $n$ 反映了<em>"在 $n$ 个独立方向上各拉伸 $\abs{t}$ 倍"</em>的几何直觉 — 每个方向贡献 $\abs{t}$, 加总到 $\abs{t}^n$. 绝对值 $\abs{\cdot}$ 来自 $t < 0$ 时的反射 — 反射保体积 (相当于一种正交变换). </p>
+
+      <div class="box remark">
+        <span class="box-title">Looking ahead — Topic 08 的 "Determinant Scales Volume"</span>
+        <p>Thm 4.2 是更普遍定理的<strong>子情形</strong>: 对任何线性 $T \colon \R^n \to \R^n$ 和 pavable $A$, $T(A)$ pavable 且
+        $$\vol_n(T(A)) = \abs{\det T} \cdot \vol_n(A).$$
+        当 $T = t \cdot I_n$ (标量乘以单位矩阵) 时, $\det T = t^n$, $\abs{\det T} = \abs{t}^n$, 恰好回到 Thm 4.2. 这条普遍定理是 Topic 08 的核心 (Lec 5.1–5.2), 而 Topic 04 中的 scaling 与 translation 是它的两个"种子" — translation 对应于 $\det = 1$ 的极端 trivial 情形, scaling 对应于 $T = tI_n$ 的对角情形. 这个 forward link 是本课程"几何统一"的标志性时刻.</p>
+      </div>
+
+      <!-- §5 Worked Examples -->
+      <h2 id="examples">§5 Worked Examples</h2>
+
+      <div class="box example">
+        <span class="box-title">Example 4.1 (单位正方形与单位球的体积关系)</span>
+        <p>令 $Q = [0, 1]^n \subset \R^n$ (单位立方体), $B = B_1(0) \subset \R^n$ (单位开/闭球). 由 Prop 4.1, $Q$ pavable 且 $\vol_n(Q) = 1^n = 1$. 球的 pavability 不能由 Prop 4.1 直接给出, 但用 §3 末的 forward look: $\partial B = S^{n-1}$ 是 $n$-维<em>球面</em>, 它在 $\R^n$ 中具有测度零 (Topic 05 会证), 故 $B$ pavable. 它的具体体积 $\vol_n(B) = \pi^{n/2} / \Gamma(n/2 + 1)$ 需要 Fubini (Topic 07).</p>
+        <p>对比这两个 baseline 集合的体积比 $\vol_n(B)/\vol_n(Q)$: $n = 2$ 时 $\pi / 1 \approx 3.14$, $n = 3$ 时 $\frac{4\pi}{3} / 1 \approx 4.19$ — 球比同直径立方体"大". 但当 $n$ 增大, $\vol_n(B) \to 0$ 而 $\vol_n(Q) = 1$ 恒定 — 高维球面相对立方体"瘦"得惊人. 这是高维几何的一条经典 fact, 也是本课程后期 Lebesgue 与高维积分的隐含背景.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 4.2 (用平移与缩放计算移位伸缩盒子的体积)</span>
+        <p>设 $P = [0, 1]^3 \subset \R^3$, $t = 2$, $v = (3, -5, 7)$. 计算 $\vol_3(t P + v)$, 即<em>先把 $P$ 放大 2 倍, 再平移到 $(3, -5, 7)$ 起</em>所得立方体的体积.</p>
+        <p><strong>解</strong>: 由 Thm 4.2 (scaling) 与 Prop 4.2 (translation) 复合:
+        $$\vol_3(tP + v) = \vol_3(tP) = \abs{t}^3 \vol_3(P) = 2^3 \cdot 1 = 8.$$
+        几何上这就是 $[3, 5] \times [-5, -3] \times [7, 9]$, 边长 $2, 2, 2$, 体积 $8$. 注意平移完全不参与最终值 — 体积只在乎"形状", 不在乎"位置".</p>
+        <p><strong>小要点</strong>: 即使 $t = -2$ 也得到 $\vol = \abs{-2}^3 \cdot 1 = 8$. 这里反射的几何效果 (把方块翻一下) 不改变体积; 这与你对 Riemann 积分"$|\det T|$ 而非 $\det T$"的直觉一致 (体积是非负量).</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 4.3 (有限可加性的应用: $L$ 形区域)</span>
+        <p>设 $L \subset \R^2$ 由两个不相交的矩形拼成:
+        $$R_1 = [0,2] \times [0,1], \quad R_2 = [0,1] \times [1,3], \quad L := R_1 \cup R_2.$$
+        ($R_1$ 与 $R_2$ 在 $y = 1$ 共享一条线段, 但这条线段在 $\R^2$ 中体积 $0$; 严格来说"开"$R_1, R_2$ 不相交, 共享边界的并集仍 pavable, 因为边界线段是测度零的.)</p>
+        <p><strong>解</strong>: 取 $R_1, R_2$ 的内部 $\mathring{R}_1, \mathring{R}_2$ — 它们严格不交且 pavable, $\vol_2(\mathring{R}_i) = \vol_2(R_i)$ (因为边界测度零). 由 Thm 4.1 (finite additivity) 和 Prop 4.1:
+        $$\vol_2(L) = \vol_2(R_1) + \vol_2(R_2) = 2 \cdot 1 + 1 \cdot 2 = 2 + 2 = 4.$$
+        </p>
+        <p><strong>反思</strong>: $L$ 是一个非凸的 "L" 形, 不是单一方块, 但它依然 pavable — 因为它由两个 pavable 块拼出. 一般"分块光滑 (piecewise smooth)"边界的区域都是 pavable, 这是 §3 forward look 中"$\partial L$ 测度零"的具体表现.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 4.4 (单点的体积与 Dirichlet 不 pavable)</span>
+        <p>(a) 单点 $\{p\} \subset \R^n$ pavable, $\vol_n(\{p\}) = 0$.</p>
+        <p><strong>证</strong>: $\mathbf{1}_{\{p\}}$ 仅在 $x = p$ 处取 $1$, 其余处取 $0$. 在 $\mathcal{D}_N$ 的任意 paving 下, $U_N(\mathbf{1}_{\{p\}}) \le 1 \cdot 1/2^{nN} \to 0$ (只有含 $p$ 的那个 cube 的 $M_C = 1$, 其余 cube 的 $M_C = 0$), $L_N(\mathbf{1}_{\{p\}}) = 0$ (没有 cube 完全在 $\{p\}$ 内). 故 $U_N \to 0 = L_N$, $\mathbf{1}_{\{p\}} \in \IR$, $\vol_n = 0$.</p>
+        <p>(b) Dirichlet 集 $A = \Q \cap [0, 1]$ 在 $\R$ 中<strong>不</strong> pavable.</p>
+        <p><strong>证</strong>: $\mathbf{1}_A$ 是经典 Dirichlet 函数. $U_N(\mathbf{1}_A) = 1$ (每个 dyadic 区间都含有理点, $M_C = 1$), $L_N(\mathbf{1}_A) = 0$ (每个 dyadic 区间都含无理点, $m_C = 0$). 故 $U_N - L_N = 1$ 恒不 $\to 0$, $\mathbf{1}_A \notin \IR$, $A$ 不 pavable.</p>
+        <p><strong>对比</strong>: 单点 $\{p\}$ 和 Dirichlet $A = \Q \cap [0,1]$ 都"看上去很小" (countable!) — 但前者 pavable, 后者不. 区别在于 $\{p\}$ 是<em>孤立点</em>, 它的边界 $\partial\{p\} = \{p\}$ 本身测度零; 而 $A$ 在 $[0,1]$ 中<em>稠密</em>, $\partial A = [0,1]$ 不是测度零. 这又是 §3 forward look 的具体应用: pavability ≠ "集合可数".</p>
+      </div>
+
+      <!-- §6 常见陷阱 -->
+      <h2 id="pitfalls">§6 常见陷阱</h2>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 4.1 — 默认"任意集合都有体积"</span>
+        <p>不是所有 $A \subseteq \R^n$ 都 pavable. Def 4.2 中"$\vol_n(A) := \int \mathbf{1}_A$"前面有一句<em>"若 $\mathbf{1}_A \in \IR$"</em> — 这不是装饰. Example 4.4(b) 给出 $\Q \cap [0,1]$, 它<strong>没有 Riemann 体积</strong>.</p>
+        <p>这个陷阱在做题时表现为: 看到一个"集合", 直接写出 "$\vol(A) = \cdots$" 而<strong>没有验证 pavability</strong>. 严格写作要求是: 先论证 $A$ pavable (通常用"边界测度零"或"分块组合 pavable 集"), 再计算它的体积. 在 Lebesgue 框架下这个 hypothesis 会松很多 (Topic 12), 但 Riemann 框架下必须先证 pavability.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 4.2 — 把"可数可加性"错用到 Riemann 体积上</span>
+        <p>Riemann 体积只有<strong>有限可加性</strong> (Thm 4.1), <strong>没有可数可加性</strong>. 一个常见错误推理:
+        <em>"$\Q \cap [0,1] = \bigcup_{j=1}^\infty \{q_j\}$, 每个 $\{q_j\}$ 体积 $0$, 所以 $\vol(\Q \cap [0,1]) = \sum_j 0 = 0$."</em>
+        这<strong>不对</strong> — 推理的第一步 ($\Q \cap [0,1]$ 有体积) 已经错了, 因为它根本不 pavable!</p>
+        <p>正确的对应陈述: 在 Lebesgue 框架下 (Topic 12+), 体积扩展为 Lebesgue 测度, <em>那时</em>可数可加性成立, 此时 $\Q \cap [0,1]$ 测度 $0$. 但<strong>在 Riemann 框架下</strong>, 不能用可数可加性绕过 pavability 检查.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 4.3 — 缩放公式中漏掉绝对值或指数</span>
+        <p>Thm 4.2 写的是 $\vol_n(tA) = \abs{t}^n \vol_n(A)$, 两个细节常被弄错:</p>
+        <ul>
+          <li><strong>绝对值 $\abs{t}$</strong>: $t = -1$ 时 $-A$ 是 $A$ 的"原点反射", 体积当然等于 $A$ 的, 但 $(-1)^n$ 在 $n$ 奇时是 $-1$ — 写成 "$t^n$"在 $n = 3, t = -1$ 时会得到 $\vol_3(-A) = -\vol_3(A)$, 这是负的, 显然错. <strong>体积非负, 必须 $\abs{t}$</strong>.</li>
+          <li><strong>指数 $n$</strong>: 在 $\R^2$ 里把图形放大 2 倍, 面积变 $4$ 倍而不是 $2$ 倍. 学生在用错维度时容易直接写 $\vol = t \cdot \vol(A)$, 漏掉 $n$ 个方向各贡献一份 $\abs{t}$ 的事实.</li>
+        </ul>
+        <p><strong>记忆要点</strong>: 拉伸 $t$ 倍, 体积变 $\abs{t}^n$ 倍 — 与 $\det(tI_n) = t^n$ 平行 (然后取 $\abs{\cdot}$).</p>
+      </div>
+
+      <!-- §7 练习 -->
+      <h2 id="exercises">§7 练习</h2>
+      <p>展开 <code>&lt;details&gt;</code> 查看答案 (建议先自己想 10 分钟再看).</p>
+
+      <div class="exercise">
+        <p><span class="ex-num">1.</span> 设 $A = [0, 1] \cup [2, 3] \subset \R$. 证 $A$ pavable 并计算 $\vol_1(A)$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>$[0,1]$ 与 $[2,3]$ 是不相交的闭区间 (前者最大值 $1 < 2$ 后者最小值). 由 Lemma 4.1 (或 Prop 4.1 with $n = 1$), 每个 $[i, i+1]$ pavable, $\vol_1([i, i+1]) = 1$. 由 Thm 4.1 (有限可加性), $A$ pavable, $\vol_1(A) = 1 + 1 = 2$.</p>
+            <p>这道题是"组合 pavable 集"的最基础例子, 注意必须显式验证不相交才能用 Thm 4.1.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">2.</span> 设 $A = \{(x, y) \in \R^2 : 0 \le x \le 1, 0 \le y \le x\}$ (单位三角形). 证 $A$ pavable. (体积的具体值不要求计算, 但你可以猜测.)</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>$A$ 的边界由三条线段组成: $y = 0$ 上 $x \in [0,1]$、$x = 1$ 上 $y \in [0,1]$、$y = x$ 上 $x \in [0, 1]$. 每条线段都是 $\R^2$ 中的 1-维子空间的有界部分, 由 Topic 05 (lower-dim subspaces have measure zero), 每条线段测度零; 三条的并仍测度零 (countable union); $\partial A$ 测度零 $\Rightarrow$ $A$ pavable (forward look).</p>
+            <p>体积猜测 $1/2$ — 这是几何高 1 底 1 直角三角形的标准面积, 用 Fubini (Topic 07) 可验证: $\int_0^1 (\int_0^x 1 \, dy) \, dx = \int_0^1 x \, dx = 1/2$.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">3.</span> ("证明或反例") 若 $A, B \subseteq \R^n$ pavable (<strong>未必</strong>不交), 是否 $A \cup B$ pavable?</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>真</strong>, $A \cup B$ pavable.</p>
+            <p>证: 用容斥关系 $\mathbf{1}_{A \cup B} = \mathbf{1}_A + \mathbf{1}_B - \mathbf{1}_{A \cap B}$. 关键: 我们需要 $\mathbf{1}_{A \cap B}$ 也可积. 注意 $\mathbf{1}_{A \cap B} = \mathbf{1}_A \cdot \mathbf{1}_B$ (两个示性函数的积). 由 Topic 03 (product of integrable functions on $\R^n$ is integrable), $\mathbf{1}_A \cdot \mathbf{1}_B \in \IR$. 因此由线性, $\mathbf{1}_{A \cup B} = \mathbf{1}_A + \mathbf{1}_B - \mathbf{1}_A \mathbf{1}_B \in \IR$, 即 $A \cup B$ pavable.</p>
+            <p>顺便得到一个体积公式: $\vol_n(A \cup B) = \vol_n(A) + \vol_n(B) - \vol_n(A \cap B)$ — 经典的 inclusion-exclusion. 当 $A \cap B = \emptyset$ 时退化回 Thm 4.1.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">4.</span> 设 $A \subseteq \R^n$ pavable. 证 $\R^n \setminus A$ 在<strong>有界域上的限制</strong>也 pavable: 即对任意方块 $P \supset A$, $P \setminus A$ pavable.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>$P \setminus A = P \cap A^c$. 由于 $A \subseteq P$, $\mathbf{1}_{P \setminus A} = \mathbf{1}_P - \mathbf{1}_A$ (在 $P \setminus A$ 上 $\mathbf{1}_P = 1, \mathbf{1}_A = 0$, 差是 $1$; 在 $A$ 上 $\mathbf{1}_P = 1, \mathbf{1}_A = 1$, 差是 $0$; 在 $\R^n \setminus P$ 上两者都 $0$).</p>
+            <p>由 Prop 4.1, $\mathbf{1}_P \in \IR$; 假设给 $\mathbf{1}_A \in \IR$. 由线性, $\mathbf{1}_P - \mathbf{1}_A \in \IR$, 即 $P \setminus A$ pavable. 同时 $\vol_n(P \setminus A) = \vol_n(P) - \vol_n(A)$.</p>
+            <p><strong>注</strong>: 整体补集 $\R^n \setminus A$ 不必 pavable, 因为它无界 (示性函数没有有界支集), 不满足 Riemann 积分的 hypothesis. 必须<em>限制到有界域</em>才行 — 这又一次提醒"bounded support" 是 Riemann 框架不能省的前提.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">5.</span> 设 $A \subseteq \R^n$ pavable, $t > 0$, $v \in \R^n$. 设 $\Phi(x) = tx + v$ 是 affine 映射. 证 $\Phi(A)$ pavable 且 $\vol_n(\Phi(A)) = t^n \vol_n(A)$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>分两步: 先缩放, 再平移. 令 $B = tA$. 由 Thm 4.2, $B$ pavable, $\vol_n(B) = t^n \vol_n(A)$ (这里 $t > 0$ 所以 $\abs{t} = t$).</p>
+            <p>再令 $C = B + v = tA + v = \Phi(A)$. 由 Prop 4.2, $C$ pavable, $\vol_n(C) = \vol_n(B) = t^n \vol_n(A)$.</p>
+            <p><strong>注</strong>: $t < 0$ 时同样成立, 但需要 $\abs{t}^n$. 这是 affine 映射 (= 线性 + 平移) 对 pavable 集的作用; 它是 Topic 08 "Determinant Scales Volume" 的预演 — 把这里的"缩放 $tI_n$"换成任意可逆线性 $T$, 把 $t^n$ 换成 $\abs{\det T}$, 结论就是 Topic 08 的主定理.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">6.</span> 设 $f \colon \R^n \to \R$ 可积, $A \subseteq \R^n$ pavable. 给"$f$ 在 $A$ 上的积分"下定义并证它良定 (well-defined).</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>定义</strong>: $\int_A f \, dV := \int_{\R^n} f \cdot \mathbf{1}_A \, dV$.</p>
+            <p><strong>良定性</strong>: 需要证 $f \cdot \mathbf{1}_A \in \IR(\R^n)$. 由 hypothesis, $f \in \IR$, $\mathbf{1}_A \in \IR$ ($A$ pavable). 由 Topic 03 的 product 性质 (两个 $\R^n$ 上可积函数的积可积), $f \cdot \mathbf{1}_A \in \IR(\R^n)$. 故 $\int_{\R^n} f \cdot \mathbf{1}_A$ 存在, 定义有意义.</p>
+            <p>这是积分"集合上的积分"的标准 mode: 限制在域 $A$ 上的积分 = 把 $A$ 外强制设为 $0$ 后整体积分. 这个 trick 让我们能 reuse 整个 $\R^n$ 上的 Riemann 理论 — 不需要"对 $A$ 单独建立积分论". 这条 trick 在 Topic 07 (Fubini) 和 Topic 09 (CoV) 中无处不在.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">7.</span> ("证明或反例") 任意单点集 $\{p\} \subset \R^n$ 体积为 $0$. 那么有限集 $\{p_1, \ldots, p_k\} \subset \R^n$ 呢? 可数集 $\{p_j\}_{j=1}^\infty$ 呢?</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <ul>
+              <li><strong>单点</strong>: 已在 Example 4.4(a) 中证, pavable 且 $\vol_n(\{p\}) = 0$.</li>
+              <li><strong>有限集</strong>: $\{p_1, \ldots, p_k\} = \bigcup_{i=1}^k \{p_i\}$, 这是 $k$ 个 pavable 集的<em>有限</em>不交并 (各点两两不同 $\Rightarrow$ 不交). 由 Thm 4.1, pavable 且 $\vol_n = \sum_i 0 = 0$.</li>
+              <li><strong>可数集</strong>: <strong>不一定 pavable!</strong> Dirichlet 集 $\Q \cap [0,1]$ 是经典反例 — 它是可数 (有理数), 每个单点 $\{q_j\}$ pavable 且 $\vol = 0$, 但它们的<em>可数</em>并不 pavable (Example 4.4(b)). 因为 Riemann 体积没有可数可加性.</li>
+            </ul>
+            <p><strong>关键 takeaway</strong>: pavability 不随可数运算保持. 这正是 Lebesgue 测度要补的洞 (Topic 12). 在 Lebesgue 框架下, "可数集测度零" 总是真的.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">8.</span> 设 $A \subseteq \R^n$, $B \subseteq \R^m$ 都 pavable. 证 $A \times B \subseteq \R^{n+m}$ pavable, 且 $\vol_{n+m}(A \times B) = \vol_n(A) \cdot \vol_m(B)$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>关键观察: $\mathbf{1}_{A \times B}(x, y) = \mathbf{1}_A(x) \cdot \mathbf{1}_B(y)$ 对 $(x, y) \in \R^n \times \R^m$ 成立. (若 $(x, y) \in A \times B$, 两边都 $1$; 否则至少一边 $0$.)</p>
+            <p>由 hypothesis, $\mathbf{1}_A \in \IR(\R^n)$, $\mathbf{1}_B \in \IR(\R^m)$. 由 Topic 03 "baby Fubini" (Prop on product of integrable functions on $\R^n \times \R^m$):
+            $$\int_{\R^{n+m}} \mathbf{1}_A(x) \mathbf{1}_B(y) \, dV_{n+m} = \left(\int_{\R^n} \mathbf{1}_A \, dV_n\right)\left(\int_{\R^m} \mathbf{1}_B \, dV_m\right) = \vol_n(A) \cdot \vol_m(B).$$
+            </p>
+            <p>同时这个 product proposition 也告诉我们左边的被积函数可积, 即 $A \times B$ pavable.</p>
+            <p>这个结论是 Prop 4.1 (方块的乘积公式) 的<em>推广</em>: 不要求 $A, B$ 是区间, 任意 pavable 集合的笛卡尔乘积都有乘积体积. 这条引理在 Fubini (Topic 07) 中是不断重用的"基础组件".</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- §8 速查表 -->
+      <h2 id="cheat">§8 速查表</h2>
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def"><strong>体积定义</strong>: $\vol_n(A) := \int_{\R^n} \mathbf{1}_A \, dV$ (前提: 该积分存在).</li>
+          <li class="cs-def"><strong>Pavable</strong>: $A$ 称 pavable 当且仅当 $\mathbf{1}_A \in \IR(\R^n)$. 即 $A$ 有 well-defined 体积.</li>
+          <li class="cs-thm"><strong>方块体积 (Prop 4.1)</strong>: $\vol_n(\prod_i [a_i, b_i]) = \prod_i (b_i - a_i)$. 1D 退化为 $\vol_1([a, b]) = b - a$.</li>
+          <li class="cs-thm"><strong>有限可加性 (Thm 4.1)</strong>: $A, B$ pavable 且不交 $\Rightarrow$ $A \cup B$ pavable, $\vol(A \cup B) = \vol(A) + \vol(B)$. (注: 仅有限, 非可数.)</li>
+          <li class="cs-thm"><strong>平移不变 (Prop 4.2)</strong>: $\vol_n(A + v) = \vol_n(A)$ 对任意 $v \in \R^n$.</li>
+          <li class="cs-thm"><strong>缩放定律 (Thm 4.2)</strong>: $\vol_n(tA) = \abs{t}^n \vol_n(A)$. 注意 $\abs{t}$ 和 $n$ 次幂都不可省.</li>
+          <li class="cs-tech"><strong>Pavability 判定 (forward link)</strong>: 有界 $A$ pavable $\Longleftrightarrow$ $\partial A$ 测度零 (Topic 05/06). 常用判据: 边界由有限多分块光滑曲面/曲线组成.</li>
+          <li class="cs-tech"><strong>典型 pavable</strong>: 方块、单点、有限点集、闭球、椭球、三角/多边形区域、几何"分块光滑"区域. <br/> <strong>典型不可铺</strong>: $\Q^n \cap [0,1]^n$ (Dirichlet) — 因为其边界 $= [0,1]^n$ 不是测度零.</li>
+          <li class="cs-pitfall"><strong>陷阱 1</strong>: 不要默认任意集合都有体积; 用 Def 4.2 前要先证 pavable.</li>
+          <li class="cs-pitfall"><strong>陷阱 2</strong>: Riemann 体积<strong>没有</strong>可数可加性. $\Q \cap [0,1] = \bigcup \{q_j\}$ 不能用来推 $\vol = 0$, 因为左边根本不 pavable.</li>
+          <li class="cs-pitfall"><strong>陷阱 3</strong>: 缩放写 $\abs{t}^n$, 不要漏绝对值或指数. 平移不变性是<em>定理</em>不是定义.</li>
+        </ul>
+      </div>
+
+      <!-- §9 进一步阅读 -->
+      <h2 id="further">§9 进一步阅读</h2>
+      <ul>
+        <li><strong>H&amp;H 教材</strong>: §4.1 (定义 pavable 与体积, Prop 4.1.10 平移不变, Def 4.1.12 pavable, Prop 4.1.11 box 公式); §4.3 提供一些 measure-theoretic preview (countable additivity 失败的讨论).</li>
+        <li><strong>Typed lecture notes</strong>:
+          <ul>
+            <li><code>../../Notes/Typed/2.2_notes/2.2_notes.pdf</code> §5–§6 — 体积定义、box 公式、有限可加性</li>
+            <li><code>../../Notes/Typed/3.1_notes/3.1_notes.pdf</code> §1 — 平移不变与 scaling 定律</li>
+          </ul>
+        </li>
+        <li><strong>关联 review topics</strong>:
+          <ul>
+            <li><a href="02-nd-riemann.html">Topic 02</a>: dyadic paving 与 Riemann 可积 — 本页定义的<em>语言层</em>来源</li>
+            <li><a href="03-algebra-properties.html">Topic 03</a>: 线性、product 性质 — 本页所有定理证明的<em>引擎</em></li>
+            <li><a href="05-measure-zero-basics.html">Topic 05</a>: 测度零 — 提供"$\partial A$ 测度零 $\Rightarrow$ pavable"这条判 pavability 的实用工具</li>
+            <li><a href="06-lebesgue-criterion.html">Topic 06</a>: Lebesgue 准则 — 把 §3 末的 forward look (pavability $\Leftrightarrow$ $\partial A$ 测度零) 严格化</li>
+            <li><a href="08-linear-cov.html">Topic 08</a>: Determinant Scales Volume — 把本页 Thm 4.2 (scaling) 与 Prop 4.2 (translation) 统一到 $\abs{\det T}$ 的<em>普遍</em>定理</li>
+          </ul>
+        </li>
+        <li><strong>同主题外读</strong>: Rudin, <em>Principles of Mathematical Analysis</em>, Ch 11 — Jordan content 的视角, 与 H&amp;H 的 pavability 等价但 framing 不同; 也可比较 Folland <em>Real Analysis</em> 的 Lebesgue 测度构造作为"为什么需要 Lebesgue"的更彻底动机.</li>
+      </ul>
+
+      <hr style="margin: 60px 0 20px; border: 0; border-top: 1px solid #d8d3c4;">
+      <p style="font-size: 13px; color: #888; text-align: center;">MATH 31CH 复习指南 · Topic 04 · Phase 3</p>
+
+    </main>
+  </div>
+
+</body>
+</html>

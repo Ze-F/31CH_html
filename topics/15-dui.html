@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Topic 15: 微分号下求积 (DUI) 与 Feynman trick | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\C': '\\mathbb{C}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="14-lebesgue-properties.html">Topic 14</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="16-fourier-transform.html">Topic 16</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#motivation">§1 动机</a></li>
+        <li><a href="#prereq">§2 前置知识</a></li>
+        <li><a href="#definitions">§3 核心定义</a></li>
+        <li><a href="#theorems">§4 主要定理</a></li>
+        <li><a href="#examples">§5 Worked Examples</a></li>
+        <li><a href="#pitfalls">§6 常见陷阱</a></li>
+        <li><a href="#exercises">§7 练习</a></li>
+        <li><a href="#cheat">§8 速查表</a></li>
+        <li><a href="#further">§9 进一步阅读</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>Topic 15: 微分号下求积 (DUI) 与 Feynman trick</h1>
+      <p class="subtitle">Source: Lec 9.2 §2-3 · H&amp;H §4.11 (Lebesgue 收敛工具的应用) · 应用篇第 1 页</p>
+
+      <!-- §1 动机 -->
+      <h2 id="motivation">§1 动机</h2>
+      <p>到目前为止 (Topic 01-14) 我们花了一个学期建立 Riemann 与 Lebesgue 积分的理论框架。一个自然的问题是: <strong>这套框架除了"严格化已知"之外，还能给我们什么<em>新</em>的计算工具吗？</strong>答案是肯定的，本页的 DUI 定理就是第一个例子。</p>
+
+      <p>很多有意思的积分本身不依赖单个数，而依赖一个 <strong>参数 (parameter)</strong> $t$。比如:
+      $$ F(t) \;=\; \int_0^1 \frac{x^t - 1}{\ln x}\,dx. $$
+      这个积分对每个 $t \ge 0$ 都收敛，所以 $F$ 是一个良好定义的 $t$ 的函数。但 $\int (x^t - 1)/\ln x\,dx$ 本身没有<em>初等</em>原函数 — 你不可能通过常规换元/分部积分解出。然而如果允许 <strong>对 $t$ 求导并把求导穿到积分里</strong>，得到
+      $$ F'(t) \;=\; \int_0^1 \frac{\partial}{\partial t}\frac{x^t - 1}{\ln x}\,dx \;=\; \int_0^1 x^t\,dx \;=\; \frac{1}{t+1}, $$
+      这是初等积分! 然后再积回去 $F(t) = \ln(t+1) + C$，配合 $F(0) = 0$ 给出 $C = 0$，所以 $F(t) = \ln(t+1)$。原题在四行内解决。</p>
+
+      <p>这个 <strong>"参数化 → 求导 → 解 ODE → 反解原积分"</strong> 的招数被称为 <strong>Feynman trick</strong> (Feynman 在自传里大力推崇)。但它的合法性 — 即"求导与积分能否交换" — 不是显然的，需要 measure-theoretic 工具来保证。这个工具就是 <strong>DUI 定理 (Differentiation Under the Integral sign)</strong>，本页的中心。它的证明用的是我们刚学的 DCT (Dominated Convergence Theorem)。</p>
+
+      <p>本页除了把定理与证明梳理清楚，也会展示<strong>三个典型应用</strong>: Gaussian integral 的经典推导、上面 log 积分的完整推算、以及一个新型的 oscillating Gaussian 例子。DUI 是后两个 topic (Fourier transform 推导、Heat equation 解法) 的<em>必经之路</em>，所以这一页是应用篇的基石。</p>
+
+      <!-- §2 前置知识 -->
+      <h2 id="prereq">§2 前置知识</h2>
+      <div class="box prereq">
+        <span class="box-title">在阅读本页前，你应该已经掌握:</span>
+        <ul>
+          <li>导数的<strong>序列定义</strong>: $F'(t_0) = \lim_{s_k \to t_0}\dfrac{F(s_k) - F(t_0)}{s_k - t_0}$ 对所有满足 $s_k \to t_0$, $s_k \ne t_0$ 的序列成立。</li>
+          <li>Dominated Convergence Theorem (<strong>DCT</strong> for Lebesgue, H&amp;H Thm 4.11.12): 若 $f_k \to f$ a.e.\, 且 $|f_k| \le g$ a.e.\ 对某个 $g \in \IL$ 成立，则 $\int f_k \to \int f$. 这是 §4.11 的主力工具，见 <a href="../midterm2/MT2-C_lebesgue.html">MT2-C</a>。</li>
+          <li>Mean Value Theorem (MVT, 一维): $f(t) - f(s) = f'(\xi)(t - s)$ 对某个介于 $s, t$ 之间的 $\xi$ 成立 (若 $f$ 在区间上可微)。</li>
+          <li><a href="14-lebesgue-properties.html">Topic 14</a>: Lebesgue 积分的线性性质 — 用于把 $\int (f - g)$ 拆成 $\int f - \int g$.</li>
+        </ul>
+      </div>
+
+      <!-- §3 核心定义 -->
+      <h2 id="definitions">§3 核心定义</h2>
+      <p>DUI 处理的是<strong>参数积分</strong>这种特殊对象。给一个两变量函数 $f(t, x)$ 与一个固定的 $x$-积分域，对每个 $t$ 我们都得到一个数 (积分值)，从而 $t$-axis 上得到一个新函数 $F$。问题是: <em>$F$ 何时可微？$F'(t)$ 是否等于"先对 $t$ 求偏导再积分"？</em>这一节先把对象与必要的"控制条件"严格地讲清。</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 15.1 (参数积分 / parameter integral)</span>
+        <p>设 $f \colon \R \times \R^n \to \R$, $(t, x) \mapsto f(t, x)$。固定 $t$, 假设映射 $x \mapsto f(t, x)$ 在 $\R^n$ 上 Lebesgue 可积。定义
+        $$ F(t) \;:=\; \int_{\R^n} f(t, x)\,dV(x). $$
+        即 $F(t)$ 是"对 $x$ 积分，把 $t$ 当作参数"后得到的 $t$-函数。</p>
+      </div>
+
+      <p><strong>直觉</strong>: 把 $f(t, x)$ 想成"每个 $t$ 切片是一个 $\R^n$ 上的函数"，把这些函数的积分值连起来就得到 $F(t)$。下面要讨论的是: $F$ 的可微性，能否从切片 $f(t, \cdot)$ 在 $t$ 方向上的可微性"<em>透传</em>"过来。</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 15.2 (uniform Lipschitz domination / 一致差商控制条件)</span>
+        <p>设 $f$ 与 $F$ 如 Def 15.1。称 $f$ 在点 $t_0$ 处具有 <strong>uniform Lipschitz domination</strong> 条件，若存在 $\eps &gt; 0$ 与一个 Lebesgue 可积函数 $g \colon \R^n \to [0, \infty)$ 使得: 对所有 $s, t$ 满足 $|s - t_0|, |t - t_0| &lt; \eps$ 且 $s \ne t$, 以及对几乎所有 $x \in \R^n$,
+        $$ \left|\frac{f(t, x) - f(s, x)}{t - s}\right| \;\le\; g(x). $$</p>
+      </div>
+
+      <p><strong>直觉</strong>: 差商 $(f(t, x) - f(s, x))/(t - s)$ 是 $\partial_t f(t, x)$ 的离散近似。条件要求所有这些差商<strong>同时</strong>被一个 $\IL$ 函数 $g(x)$ 控制 — 控制不能随 $s, t$ 改变。这是 DCT 在 $F$ 的差商序列上能够应用的<em>关键 hypothesis</em>。</p>
+
+      <p>实际计算时，更<strong>容易验证</strong>的等价条件 (由 MVT) 是: 存在 $\eps &gt; 0$ 与 $g \in \IL$ 使得
+      $$ |\partial_t f(\tau, x)| \;\le\; g(x) \qquad \text{对所有 $\tau \in (t_0 - \eps, t_0 + \eps)$ 与 a.e.\ $x$.} $$
+      这是因为 $f(t, x) - f(s, x) = \partial_t f(\xi, x)(t - s)$ 对某个 $\xi \in (s, t)$。后者是<strong>实战常用的 hypothesis 形式</strong> — 你只要给 $\partial_t f$ 找一个 $\IL$ 的上界 (在 $t$ 的小邻域内一致) 就够了。</p>
+
+      <!-- §4 主要定理 -->
+      <h2 id="theorems">§4 主要定理</h2>
+
+      <p>本节有一个主要定理 (DUI) 与一个"招数 template" (Feynman trick)。两者在精神上一致: 先求导拿到一个简单的等式，再积回原函数。</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 15.1 (DUI / Leibniz 求导法则; H&amp;H §4.11)</span>
+        <p>设 $f \colon \R \times \R^n \to \R$, $F(t) = \int_{\R^n} f(t, x)\,dV(x)$。假设:
+        <ol>
+          <li>对 a.e. $x \in \R^n$, $\partial_t f(t, x)$ 在 $t = t_0$ 处存在 (实际上在 $t_0$ 的邻域内存在);</li>
+          <li>Uniform Lipschitz domination (Def 15.2) 在 $t_0$ 处成立，即 $\exists\,\eps &gt; 0$ 与 $g \in \IL$ 使所有差商 $|(f(t, x) - f(s, x))/(t-s)| \le g(x)$ 对 $|s - t_0|, |t - t_0| &lt; \eps$ 与 a.e. $x$ 成立.</li>
+        </ol>
+        则 $F$ 在 $t_0$ 处可微，且
+        $$ F'(t_0) \;=\; \int_{\R^n} \partial_t f(t_0, x)\,dV(x). $$
+        换言之: <em>在 hypothesis 下，求导与积分可交换</em>.</p>
+      </div>
+
+      <p><strong>Proof sketch.</strong> 整个证明只是<em>把 DCT 套在差商序列上</em>。给定任意序列 $s_k \to t_0$ ($s_k \ne t_0$)，定义
+      $$ \widetilde F_k(x) \;:=\; \frac{f(s_k, x) - f(t_0, x)}{s_k - t_0}. $$
+      由积分线性性, $(F(s_k) - F(t_0))/(s_k - t_0) = \int_{\R^n} \widetilde F_k(x)\,dV(x)$. 要证 $F'(t_0)$ 存在并等于 $\int \partial_t f(t_0, x)\,dV$, 就需证</p>
+      <ul>
+        <li><strong>逐点收敛</strong>: $\widetilde F_k(x) \to \partial_t f(t_0, x)$ a.e. $x$ — 这是 hypothesis (1).</li>
+        <li><strong>一致控制</strong>: $|\widetilde F_k(x)| \le g(x)$ for $k$ large — 这是 hypothesis (2) (因 $s_k \to t_0$ 故 eventually $|s_k - t_0| &lt; \eps$).</li>
+      </ul>
+      <p>两条加在一起就是 DCT 的 hypothesis，所以
+      $$ \lim_k \int \widetilde F_k(x)\,dV \;=\; \int \lim_k \widetilde F_k(x)\,dV \;=\; \int \partial_t f(t_0, x)\,dV. $$
+      左边由定义就是 $F'(t_0)$. 序列 $s_k$ 任意，故 $F'(t_0)$ 在序列意义上存在并等于上式。$\square$</p>
+
+      <details>
+        <summary>展开完整证明 (technical bookkeeping)</summary>
+        <div class="details-body">
+          <p>完整证明在 H&amp;H §4.11 与 typed notes <code>9.2_notes.tex</code> 的 §2。技术细节:</p>
+          <ul>
+            <li><strong>差商在 $s_k = t_0$ 处未定义</strong>: 我们要求 $s_k \ne t_0$。这是序列定义的导数的标准约定。</li>
+            <li><strong>$\widetilde F_k$ 的 Lebesgue 可积性</strong>: 由 $|\widetilde F_k| \le g$ 与 $g \in \IL$ 推出 $\widetilde F_k \in \IL$. 这是 DCT 的隐含 hypothesis 之一 (DCT 也要求各 $f_k$ 可积).</li>
+            <li><strong>测度零集的处理</strong>: hypothesis (1) 与 (2) 都是 a.e.\ 而非 everywhere。无所谓 — DCT 也是 a.e.-tolerant 的，例外集 union 仍测度零。</li>
+            <li><strong>等价 hypothesis (MVT 形式)</strong>: 若把 $|\partial_t f(\tau, x)| \le g(x)$ 作 hypothesis (对 $\tau \in (t_0 - \eps, t_0 + \eps)$ 与 a.e. $x$), 由 MVT $\widetilde F_k(x) = \partial_t f(\xi_k, x)$ 对某个 $\xi_k \in (s_k, t_0)$, 故 $|\widetilde F_k(x)| \le g(x)$ — 自动验证 Def 15.2。这就是实战常用形式.</li>
+          </ul>
+        </div>
+      </details>
+
+      <p>定理本身一行就能背出来: <em>求导穿入积分号; hypothesis 是差商被一个 $\IL$ 函数一致控制。</em>下面这个 template 是它的"工程化"应用形式。</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 15.2 (Feynman trick / 参数化解积分的方法论)</span>
+        <p>给定一个 hard 积分 $I = \int f(x)\,dx$ (没有初等原函数)。Feynman trick 的步骤:
+        <ol>
+          <li><strong>参数化</strong>: 引入参数 $t$ 让 $I = F(t_0)$ 是某 $F(t) = \int f(t, x)\,dx$ 的特殊取值。常用方法: 把 $f(x)$ 替换成 $f(x) \cdot e^{-tx}$, $f(x)^t$, $x^t f(x)$ 等。</li>
+          <li><strong>求 $F'(t)$</strong>: 用 DUI (Thm 15.1) 把 $\partial_t$ 穿入积分号, 得到一个新的 (希望更简单的) 积分。</li>
+          <li><strong>解 ODE</strong>: 通过 $F'(t)$ 与已知 $F$-值 (e.g.\ $F(0) = 0$ 或 $F(\infty)$ trivial), 把 $F$ 反解出来。</li>
+          <li><strong>取 $t_0$</strong>: 代回得到 $I = F(t_0)$.</li>
+        </ol>
+        </p>
+      </div>
+
+      <p>这不是一个 strict theorem，而是一个 design pattern。它的有效性依赖每一步: (i) 参数化要"自然" — 让 $F$ 在不同 $t$ 处有比原 $I$ 更可计算的性质; (ii) DUI 的 hypothesis 必须可验证; (iii) 解出的 ODE 必须 explicitly 可积。下面 §5 三个例子展示 Feynman trick 在三种典型场景下的展开。</p>
+
+      <!-- §5 Worked Examples -->
+      <h2 id="examples">§5 Worked Examples</h2>
+
+      <div class="box example">
+        <span class="box-title">Example 15.1 (Gaussian integral via Fubini + polar)</span>
+        <p><strong>问题</strong>: 证明 $\int_{-\infty}^\infty e^{-x^2}\,dx = \sqrt{\pi}$.</p>
+        <p>这个 $C = \int e^{-x^2}$ 看似与 DUI 无关，但它的<em>经典证明</em>展示了"通过参数化绕开缺乏原函数"的思路 — Feynman trick 的精神先驱。考虑 $C^2$:
+        $$ C^2 \;=\; \left(\int_\R e^{-x^2}\,dx\right)\!\!\left(\int_\R e^{-y^2}\,dy\right) \;=\; \int_{\R^2}e^{-(x^2+y^2)}\,dV $$
+        (Fubini 把乘积转成 $\R^2$ 上的二重积分)。然后用 polar coordinates $\Phi(r, \theta) = (r\cos\theta, r\sin\theta)$, Jacobian $r$:
+        $$ \int_{\R^2}e^{-(x^2+y^2)}\,dV \;=\; \int_0^{2\pi}\!\!\int_0^\infty e^{-r^2}\,r\,dr\,d\theta \;=\; 2\pi\cdot\frac{1}{2} \;=\; \pi. $$
+        (内积分用代换 $u = r^2$: $\int_0^\infty r e^{-r^2}\,dr = \frac{1}{2}\int_0^\infty e^{-u}\,du = \frac{1}{2}$).</p>
+        <p>所以 $C^2 = \pi$, $C = \sqrt{\pi}$ (因为 $C \ge 0$).</p>
+        <p><strong>这与 DUI 的关系</strong>: 这里我们的"参数化"是<em>多变量化</em> ($C \mapsto C^2$), 不是引入 $t$。但思路是一样的: <em>原积分没法直接算，把它嵌进一个高一维的对象里，那个对象里的几何/对称性提供了 $r e^{-r^2}$ 这种"幸运的"原函数</em>。$r$ 是 Jacobian 自动送来的，相当于我们"求导拿到 $r$ 因子"。下面的 Example 15.2 才是真正的 DUI 应用，但 Example 15.1 是 Topic 16 (Gaussian Fourier transform) 反复要用的关键事实。</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 15.2 (Log integral via Feynman trick)</span>
+        <p><strong>问题</strong>: 计算 $F(t) := \int_0^1 \frac{x^t - 1}{\ln x}\,dx$ 对 $t \ge 0$.</p>
+        <p><strong>步骤 1: 改写</strong>. 用 $x^t = e^{t\ln x}$:
+        $$ F(t) \;=\; \int_0^1 \frac{e^{t\ln x} - 1}{\ln x}\,dx. $$</p>
+        <p><strong>步骤 2: 求 $\partial_t f$</strong>. 设 $f(t, x) = (e^{t\ln x} - 1)/\ln x$. 则
+        $$ \partial_t f(t, x) \;=\; \frac{(\ln x) e^{t\ln x}}{\ln x} \;=\; e^{t\ln x} \;=\; x^t. $$</p>
+        <p><strong>步骤 3: 验证 DUI hypothesis</strong> (这是最技术的一步). 固定 $t_0 &gt; -1$, 取 $\eps$ 小使 $t_0 - 3\eps &gt; -1$. 对 $s, t$ 在 $t_0$ 的 $\eps$-邻域内, 用 elementary 不等式 $|e^u - 1|/|u| \le e^{|u|}$ (Taylor 展开):
+        $$ \left|\frac{f(t, x) - f(s, x)}{t - s}\right| \;\le\; x^s \cdot x^{-|t-s|} \;\le\; x^{s - |t-s|} \;\le\; x^{t_0 - 3\eps}. $$
+        而 $g(x) := x^{t_0 - 3\eps}$ 在 $(0, 1)$ 上 Lebesgue 可积 (因 $t_0 - 3\eps &gt; -1$ 所以 $\int_0^1 x^a\,dx = 1/(a+1)$ 收敛). $\checkmark$</p>
+        <p><strong>步骤 4: 求 $F'(t)$ 并解 ODE</strong>. DUI 给出
+        $$ F'(t) \;=\; \int_0^1 x^t\,dx \;=\; \frac{1}{t + 1}. $$
+        积分得 $F(t) = \ln(t+1) + C$. 用 $F(0) = \int_0^1 (1 - 1)/\ln x\,dx = 0$ 确定 $C = 0$. 故
+        $$ \boxed{F(t) \;=\; \ln(t + 1).} $$</p>
+        <p><strong>核心 takeaway</strong>: 原积分形式 $\int (x^t - 1)/\ln x\,dx$ 没有初等原函数, 但 $\partial_t (x^t - 1)/\ln x = x^t$ 是初等的。Feynman trick 的全部威力在此: <em>原积分的复杂性藏在 $1/\ln x$ 这个因子里，求一次 $\partial_t$ 把它消掉了</em>。</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 15.3 (Oscillating Gaussian: $\int e^{-x^2}\cos(2tx)\,dx$ via DUI)</span>
+        <p><strong>问题</strong>: 计算 $F(t) := \int_{-\infty}^\infty e^{-x^2}\cos(2tx)\,dx$.</p>
+        <p>这是经典的 Fourier transform of Gaussian (Topic 16 主菜) 的实部, 也是 DUI 的标志性应用之一。</p>
+        <p><strong>步骤 1: 求 $\partial_t f$</strong>. 设 $f(t, x) = e^{-x^2}\cos(2tx)$. 则
+        $$ \partial_t f(t, x) \;=\; -2x \sin(2tx) \cdot e^{-x^2}. $$
+        DUI hypothesis: $|\partial_t f| \le 2|x|\, e^{-x^2}$, 后者 Lebesgue 可积 (polynomial × Gaussian decays at $\infty$). $\checkmark$</p>
+        <p><strong>步骤 2: 求 $F'(t)$ 并用分部积分</strong>.
+        $$ F'(t) \;=\; -2\int_\R x \sin(2tx)\,e^{-x^2}\,dx. $$
+        注意 $-2x\, e^{-x^2} = \frac{d}{dx}e^{-x^2}$. 设 $u = \sin(2tx)$, $dv = -2x e^{-x^2}\,dx$. 则 $du = 2t\cos(2tx)\,dx$, $v = e^{-x^2}$. 分部:
+        $$ F'(t) \;=\; \left[\sin(2tx)\,e^{-x^2}\right]_{-\infty}^\infty - 2t\int_\R \cos(2tx)\,e^{-x^2}\,dx \;=\; 0 - 2t\,F(t). $$
+        (边界项 vanish 因为 $e^{-x^2} \to 0$ at $\pm\infty$.)</p>
+        <p><strong>步骤 3: 解 ODE</strong>. $F'(t) = -2t\, F(t)$ 是可分离的:
+        $$ \frac{F'(t)}{F(t)} \;=\; -2t \quad\Rightarrow\quad \ln F(t) \;=\; -t^2 + c \quad\Rightarrow\quad F(t) \;=\; K\,e^{-t^2}. $$
+        用 $F(0) = \int e^{-x^2}\,dx = \sqrt{\pi}$ (Example 15.1), 得 $K = \sqrt{\pi}$. 故
+        $$ \boxed{\int_{-\infty}^\infty e^{-x^2}\cos(2tx)\,dx \;=\; \sqrt{\pi}\,e^{-t^2}.} $$</p>
+        <p><strong>这是 Topic 16 主要结果的前身</strong>: 它告诉我们 $\widehat{e^{-x^2}}(\zeta) = \sqrt{\pi}\,e^{-\pi^2\zeta^2}$ (代 $t = \pi\zeta$, 因 Fourier transform 的 cos 部分就是这种积分). Gaussian 的 Fourier transform 仍是 Gaussian — 这个"自我对偶"的事实在 §16 还会重现。</p>
+      </div>
+
+      <!-- §6 常见陷阱 -->
+      <h2 id="pitfalls">§6 常见陷阱</h2>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 15.1 (跳过 hypothesis 检查直接换序)</span>
+        <p>最常见的错误: 看见参数积分就直接写 $F'(t) = \int \partial_t f\,dV$, 不验证差商被 $\IL$ 函数控制。这在大多数"良好"情况下侥幸正确, 但<strong>没有 hypothesis 保证</strong>就是 unjustified 的。</p>
+        <p><strong>反例</strong>: 取 $f(t, x) = \frac{1}{\pi t}\,\mathbf{1}_{[-t, t]}(x)$ for $t &gt; 0$, $f(0, x) = 0$. 显然 $F(t) = 1$ for $t &gt; 0$, $F(0) = 0$ — $F$ 在 $t = 0$ 处<em>不连续</em>更别说可微. 但 $\partial_t f$ 在 a.e. $(t, x)$ 处都<em>等于 0</em> (内部), 所以盲目套 DUI 会得 $F'(t) = 0$ 处处, 矛盾. 问题在 hypothesis: 找不到一个 $\IL$ 函数 $g(x)$ 来控制差商 (差商在 $t = 0$ 附近爆炸).</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 15.2 (把"$\partial_t f$ 几乎处处存在"误读成"处处存在")</span>
+        <p>Hypothesis (1) 是 "a.e. $x$ 处 $\partial_t f$ 存在", 不要求"对所有 $x$"。这一灵活性允许我们处理在测度零集上不可导的 $f$ (e.g.\ 有限多个 kink)。但反过来: <em>$\partial_t f$ <strong>必须</strong>对几乎所有 $x$ 存在</em>, 否则 hypothesis (1) 不成立。学生有时把 "a.e." 当作万能 escape hatch, 然后忘了实际验证。</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 15.3 (没找到 $\IL$ dominator 就放弃)</span>
+        <p>这个 hypothesis 验证常常是 Feynman trick 中最"恶心"的一步, 但通常<strong>不会太难</strong>: 你要做的只是"对 $\partial_t f$ 找一个不依赖 $t$ 的 $\IL$ 上界"。常用招数:
+        <ul>
+          <li>把 $t$ 限制在 $t_0$ 的 $\eps$-邻域内, 然后取邻域上 $|\partial_t f|$ 的最大值.</li>
+          <li>用 Taylor 展开把指数项的差商化成 polynomial $\times$ exponential 的形式 (Example 15.2 的招数).</li>
+          <li>对 polynomial $\times$ Gaussian / exponential decay 项, 利用 $\R$ 上 $|x|^k e^{-x^2} \in \IL$ 这类 well-known 事实.</li>
+        </ul>
+        如果你真的找不到 dominator, 那 DUI 可能 fail — 此时考虑用其他工具 (Fubini 直接换序, MCT, 或 contour integration).</p>
+      </div>
+
+      <!-- §7 练习 -->
+      <h2 id="exercises">§7 练习</h2>
+
+      <div class="exercise">
+        <span class="ex-num">练习 15.1.</span> 用 Feynman trick 计算 $\displaystyle \int_0^\infty \frac{\sin(tx)}{x}\,dx$ for $t &gt; 0$ (即 sinc 积分). 提示: 引入辅助因子 $e^{-sx}$ ($s \ge 0$), 令 $F(s) := \int_0^\infty e^{-sx}\sin(tx)/x\,dx$, 然后看 $F'(s)$.
+        <details><summary>答案</summary><div class="details-body">
+        $\partial_s f(s, x) = -e^{-sx}\sin(tx)$ (注意 $1/x$ 因子消失 — 这是 trick 的关键). 求 $F'(s)$: $F'(s) = -\int_0^\infty e^{-sx}\sin(tx)\,dx = -t/(s^2 + t^2)$ (标准 Laplace transform). 积回 $F(s) = -\arctan(s/t) + C$. 用 $F(\infty) = 0$ (因 $e^{-sx}$ kills everything as $s \to \infty$) 得 $C = \pi/2$. 故 $F(s) = \pi/2 - \arctan(s/t)$. 取 $s = 0$: $\int_0^\infty \sin(tx)/x\,dx = \pi/2$. (与 $t$ 无关 — 这是著名的 Dirichlet integral!)</div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 15.2.</span> 验证 Example 15.3 中的 hypothesis: 即对 $t$ 在任意紧区间 $[a, b]$ 上, 找 $g \in \IL(\R)$ 使 $|\partial_t (e^{-x^2}\cos(2tx))| \le g(x)$.
+        <details><summary>答案</summary><div class="details-body">
+        $|\partial_t f| = |2x \sin(2tx)|\,e^{-x^2} \le 2|x|\,e^{-x^2}$ (因 $|\sin| \le 1$). 这个上界与 $t$ 无关! 故 $g(x) = 2|x|\,e^{-x^2} \in \IL(\R)$ (polynomial × Gaussian). $\checkmark$
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 15.3.</span> (DUI 失败的反例) 设 $f(t, x) = \mathbf{1}_{(0, t)}(x)$ for $t &gt; 0$, $f(t, x) = 0$ otherwise. 令 $F(t) = \int_0^\infty f(t, x)\,dx$. 计算 $F(t)$ 与 $F'(t)$. 验证 DUI 的形式套法 $F'(t) = \int \partial_t f(t, x)\,dx$ 是否成立? hypothesis 哪里失败了?
+        <details><summary>答案</summary><div class="details-body">
+        $F(t) = t$ (长度), 故 $F'(t) = 1$. 但 $\partial_t f(t, x) = 0$ 在 a.e. $(t, x)$ 处 (因 $f$ 在 $x \ne t$ 处对 $t$ 局部常数), 所以盲目套 DUI 会得到 $F'(t) = 0$, 矛盾! 问题在于差商: $(f(t + h, x) - f(t, x))/h$ 在 $x \in (t, t+h)$ 处取 $1/h$, 这个量在 $h \to 0$ 时爆炸到 $\infty$. 因此不存在 $g \in \IL$ 让差商一致 bounded — hypothesis (2) 失败。本例的"导数"实际上是 Dirac delta $\delta(x - t)$ (distribution 意义下), 不是 a.e. 函数。
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 15.4.</span> 用 Feynman trick 求 $\int_0^\infty e^{-x^2 - t/x^2}\,dx$ for $t \ge 0$. 提示: 求 $F'(t)$ 然后用代换 $u = \sqrt{t}/x$ 把 $F'$ 写成 $-F$.
+        <details><summary>答案</summary><div class="details-body">
+        $\partial_t f(t, x) = -e^{-x^2 - t/x^2}/x^2$. 用代换 $u = \sqrt{t}/x$, $du = -\sqrt{t}/x^2\,dx$, 即 $-dx/x^2 = du/\sqrt{t}$:
+        $$F'(t) = -\int_0^\infty \frac{e^{-x^2 - t/x^2}}{x^2}\,dx = -\frac{1}{\sqrt{t}}\int_0^\infty e^{-(t/u^2 + u^2)}\,du = -\frac{F(t)}{\sqrt{t}}.$$
+        (上界变下界给负号被 $du/\sqrt{t}$ 的负号抵消.) 这是 ODE $F'(t) = -F(t)/\sqrt{t}$, 分离变量 $\ln F = -2\sqrt{t} + C$, 故 $F(t) = K e^{-2\sqrt{t}}$. 由 $F(0) = \int_0^\infty e^{-x^2}\,dx = \sqrt{\pi}/2$ 得 $K = \sqrt{\pi}/2$. 故 $F(t) = \frac{\sqrt{\pi}}{2}e^{-2\sqrt{t}}$.
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 15.5.</span> (理论题) 设 $f(t, x) = e^{-tx}/(1 + x^2)$ for $t \ge 0$, $x \ge 0$. 令 $F(t) = \int_0^\infty f(t, x)\,dx$. 证明 $F$ 在 $(0, \infty)$ 上无限次可微 (smooth). 提示: 验证对每个 $k$, $\partial_t^k f$ 被 $\IL$ 函数控制.
+        <details><summary>答案</summary><div class="details-body">
+        $\partial_t^k f(t, x) = (-x)^k e^{-tx}/(1 + x^2)$. 固定 $t_0 &gt; 0$, 取邻域 $t \ge t_0/2$. 则 $|\partial_t^k f| \le x^k e^{-(t_0/2)x}/(1 + x^2) \le x^k e^{-(t_0/2)x}$, 后者 $\in \IL([0, \infty))$ (polynomial × exponential decay). 故 DUI 应用于 $F^{(k-1)} \to F^{(k)}$, 归纳 $F$ 在 $t_0$ 处可任意次可导, $t_0$ 任意, 所以 $F \in C^\infty((0, \infty))$.
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 15.6.</span> 用 Feynman trick 求 $\int_0^1 \frac{\ln(1 + ax)}{1 + x^2}\,dx$ for $a \ge 0$. 提示: 引入 $a$ 作为参数, 求 $F'(a)$, 用 partial fractions 解.
+        <details><summary>答案</summary><div class="details-body">
+        $F'(a) = \int_0^1 \frac{x}{(1 + ax)(1 + x^2)}\,dx$. 用 partial fractions: $\frac{x}{(1 + ax)(1 + x^2)} = \frac{A}{1 + ax} + \frac{Bx + C}{1 + x^2}$. 解得 $A = -1/(1+a^2)$, $B = 1/(1+a^2)$, $C = a/(1+a^2)$. 积分:
+        $$F'(a) = \frac{1}{1+a^2}\left[-\frac{1}{a}\ln(1+a) + \frac{1}{2}\ln 2 + \frac{a\pi}{4}\right].$$
+        再积 $F(a) = \int_0^a F'(\tau)\,d\tau$, 用 $F(0) = 0$. 代 $a = 1$ 给经典值 $F(1) = (\pi/8)\ln 2$. (此即著名的 Serret integral. 这里只列出思路, 完整算回 $F$ 需多步.) <em>难题, 主要展示参数化思路</em>.
+        </div></details>
+      </div>
+
+      <!-- §8 速查表 -->
+      <h2 id="cheat">§8 速查表</h2>
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def"><strong>参数积分 (Def 15.1)</strong>: $F(t) = \int_{\R^n} f(t, x)\,dV(x)$, 把 $t$ 视作参数, 对 $x$ 积分.</li>
+          <li class="cs-def"><strong>Uniform Lipschitz domination (Def 15.2)</strong>: 差商 $|(f(t,x) - f(s,x))/(t-s)| \le g(x)$, $g \in \IL$, 对 $|s-t_0|, |t-t_0| &lt; \eps$ 与 a.e. $x$ 成立.</li>
+          <li class="cs-thm"><strong>DUI (Thm 15.1)</strong>: 上述 hypothesis $\Rightarrow$ $F'(t_0) = \int \partial_t f(t_0, x)\,dV$. 求导可穿入积分号.</li>
+          <li class="cs-thm"><strong>等价 (MVT) hypothesis</strong>: $|\partial_t f(\tau, x)| \le g(x)$ 对 $\tau \in (t_0 - \eps, t_0 + \eps)$, a.e. $x$, $g \in \IL$ — 实战首选验证形式.</li>
+          <li class="cs-tech"><strong>Feynman trick 四步</strong>: (1) 参数化让 $I = F(t_0)$; (2) DUI 求 $F'(t)$; (3) 解 ODE 把 $F$ 反算出; (4) 代回 $t_0$ 得 $I$.</li>
+          <li class="cs-tech"><strong>Gaussian integral</strong>: $\int_\R e^{-x^2}\,dx = \sqrt{\pi}$. 经典证明: $C^2 = \int_{\R^2} e^{-(x^2+y^2)} \to $ polar coords $\to \pi$. 在 §16 反复用.</li>
+          <li class="cs-tech"><strong>Cosine-Gaussian (Example 15.3)</strong>: $\int_\R e^{-x^2}\cos(2tx)\,dx = \sqrt{\pi}\,e^{-t^2}$. Gaussian Fourier transform 的实部, §16 主菜的雏形.</li>
+          <li class="cs-tech"><strong>Log integral (Example 15.2)</strong>: $\int_0^1 (x^t - 1)/\ln x\,dx = \ln(t+1)$. 通过 $\partial_t$ 消掉 $1/\ln x$ 的经典 Feynman trick.</li>
+          <li class="cs-pitfall"><strong>不能跳过 hypothesis (Pitfall 15.1)</strong>: 没有 $\IL$ dominator 就盲套 DUI 可能出错, 见反例 $\mathbf{1}_{[-t, t]}/(\pi t)$.</li>
+          <li class="cs-pitfall"><strong>找不到 dominator 时怎么办 (Pitfall 15.3)</strong>: 试 Taylor 展开消差商、限制 $t$ 在紧区间内取上界、利用 polynomial × Gaussian/exp $\in \IL$ 这类基础事实.</li>
+        </ul>
+      </div>
+
+      <!-- §9 进一步阅读 -->
+      <h2 id="further">§9 进一步阅读</h2>
+      <ul>
+        <li><strong>H&amp;H §4.11</strong>: Lebesgue 积分的初等性质. DUI 不是 H&amp;H 中带标号的定理, 但是 DCT 的标准应用; 见 §4.11 末尾的 exercises.</li>
+        <li><strong>Typed notes</strong>: <code>Notes/Typed/9.2_notes/9.2_notes.tex</code> 的 §2-3 (DUI 定理 + 完整证明 + log integral worked example).</li>
+        <li><strong>下一站</strong>: <a href="16-fourier-transform.html">Topic 16 (Fourier transform)</a> — Gaussian Fourier transform 的推导<em>正是</em> DUI 的标志性应用; 完整 framework 见那里.</li>
+        <li><strong>Cross-references</strong>:
+          <ul>
+            <li>DCT 工具: <a href="../midterm2/MT2-C_lebesgue.html">MT2-C</a>, Section "DCT for Lebesgue" 部分.</li>
+            <li>Lebesgue 积分性质: <a href="14-lebesgue-properties.html">Topic 14</a>.</li>
+            <li>测度零的语言: <a href="06-lebesgue-criterion.html">Topic 06</a>.</li>
+          </ul>
+        </li>
+        <li><strong>课程外延伸</strong>: Stein-Shakarchi 的 <em>Real Analysis</em> Chapter 2 有 "Integration in Several Variables" 的 systematic treatment; Folland 的 <em>Real Analysis</em> 的 §2.4 "Modes of Convergence" 给出 DUI 的另一形式 (用 $L^p$ 控制取代 a.e.\ bound).</li>
+      </ul>
+
+    </main>
+  </div>
+
+</body>
+</html>

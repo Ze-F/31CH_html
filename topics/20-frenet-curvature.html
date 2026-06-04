@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Topic 20: Frenet–Serret 公式与曲率 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\C': '\\mathbb{C}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\diam': '\\operatorname{diam}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|',
+        '\\Span': '\\operatorname{span}',
+        '\\T': '\\mathbf{T}',
+        '\\NN': '\\mathbf{N}',
+        '\\B': '\\mathbf{B}',
+        '\\sgn': '\\operatorname{sgn}',
+        '\\dddot': '\\overset{\\,\\cdot\\,\\cdot\\,\\cdot\\,}{#1}'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="19-curves-frenet.html">Topic 19</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="21-surfaces-first-form.html">Topic 21</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#motivation">§1 动机</a></li>
+        <li><a href="#prereq">§2 前置知识</a></li>
+        <li><a href="#definitions">§3 核心定义</a></li>
+        <li><a href="#theorems">§4 主要定理</a></li>
+        <li><a href="#examples">§5 Worked Examples</a></li>
+        <li><a href="#pitfalls">§6 常见陷阱</a></li>
+        <li><a href="#exercises">§7 练习</a></li>
+        <li><a href="#cheat">§8 速查表</a></li>
+        <li><a href="#further">§9 进一步阅读</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>Topic 20: Frenet–Serret 公式与曲率</h1>
+      <p class="subtitle">Source: Lec 10.2 (前半) · Klingenberg <em>A Course in Differential Geometry</em> §§1.2–1.5 · 微分几何入门第 2 页</p>
+
+      <!-- §1 动机 -->
+      <h2 id="motivation">§1 动机</h2>
+      <p>在 <a href="19-curves-frenet.html">Topic 19</a> 我们引入了 Frenet frame 的<em>定义</em>: 沿曲线的 orthonormal moving frame, 其前 $k$ 个向量张成 $\Span\{\dot c, \ddot c, \ldots, c^{(k)}\}$. 那一页用一个 cliffhanger 结尾 — Frenet frame 是否<em>存在</em>? 又如何<em>从它读出几何信息</em>?</p>
+
+      <p>本页给出两个答案:</p>
+      <ol>
+        <li><strong>存在性 (Thm 20.1)</strong>: 只要 $\{\dot c(t), \ddot c(t), \ldots, c^{(n-1)}(t)\}$ 处处线性独立, distinguished Frenet frame 就存在且唯一. 构造方法是<em>沿曲线逐点应用 Gram–Schmidt</em>.</li>
+        <li><strong>Frenet–Serret 公式 (Thm 20.2)</strong>: frame 各分量的导数 $\dot e_i(t)$ 用 frame 自身展开, 系数构成一个 <strong>tridiagonal skew-symmetric 矩阵</strong>; 那些 supra-diagonal 系数就是<em>曲率函数</em> $\kappa_1, \kappa_2, \ldots, \kappa_{n-1}$.</li>
+      </ol>
+
+      <p>把这套理论 specialize 到 $n = 2, 3$, 我们得到:</p>
+      <ul>
+        <li><strong>平面曲线</strong> ($n = 2$): 单一的<em>signed 曲率</em> $\kappa(t)$, 与一个干净的公式 $\kappa = (x'y'' - y'x'')/((x')^2 + (y')^2)^{3/2}$.</li>
+        <li><strong>空间曲线</strong> ($n = 3$): <em>曲率</em> $\kappa$ (总 $\ge 0$) + <em>挠率 (torsion)</em> $\tau$ (有符号), 公式 $\kappa = |\dot c \times \ddot c|/|\dot c|^3$, $\tau = \det(\dot c, \ddot c, \dddot c)/|\dot c \times \ddot c|^2$.</li>
+      </ul>
+
+      <p>最具标志性的例子是 <strong>circular helix (圆柱螺线)</strong> $c(t) = (a\cos t, a\sin t, bt)$: 它的 $\kappa$ 与 $\tau$ <em>都是常数</em>, 分别为 $a/(a^2 + b^2)$ 与 $b/(a^2 + b^2)$ — 这是<em>整门差几入门</em>的最重要 worked example, 也是期末考试最可能的 computational target.</p>
+
+      <p><strong>期末考试 priority</strong>: 老师明确说期末有 ~20 分是 "two straightforward computations" 来自这块, 大概率就是<em>这一页的内容</em>: 给一条具体空间曲线, 算 $\kappa$ 与 $\tau$. 这一页学到 mastery, 你拿到的不是一个分数, 是一个<em>必拿</em>的分数.</p>
+
+      <!-- §2 前置知识 -->
+      <h2 id="prereq">§2 前置知识</h2>
+      <div class="box prereq">
+        <span class="box-title">在阅读本页前，你应该已经掌握:</span>
+        <ul>
+          <li><strong><a href="19-curves-frenet.html">Topic 19</a></strong>: regular curve, vector field along curve, moving frame, Frenet frame 的<em>定义</em>, arc-length 重参数化 (Thm 19.1).</li>
+          <li><strong>Linear algebra</strong>: <em>Gram–Schmidt 正交化过程</em> (核心), 行列式 (Frenet equations 中出现), <em>cross product</em> 与 <em>scalar triple product</em> (空间曲线公式必备).</li>
+          <li><strong>Multivariable calculus</strong>: chain rule (推导 reparametrization invariance), 矩阵-向量乘法.</li>
+          <li><strong>无 H&amp;H 章节前置</strong> — 本页内容是 Klingenberg §§1.2–1.5, 完全在 H&amp;H 范围之外.</li>
+        </ul>
+      </div>
+
+      <!-- §3 核心定义 -->
+      <h2 id="definitions">§3 核心定义</h2>
+
+      <p>本节有 <strong>5 个</strong>定义. 前两个 (Frenet 矩阵 + curvatures) 是 $n$ 维通用的; 后三个是平面/空间曲线的 specialization.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 20.1 (Frenet 矩阵 $\omega(t)$ 与第 $i$ 曲率 $\kappa_i$)</span>
+        <p>设 $c \colon I \to \R^n$ 是 regular curve, $(e_1(t), \ldots, e_n(t))$ 是其 distinguished Frenet frame (Thm 20.1 提供). 对每个 $t$, $\dot e_i(t) \in \R^n$ 可以用 frame $\{e_1, \ldots, e_n\}$ 唯一展开:
+        $$ \dot e_i(t) \;=\; \sum_{j=1}^n \omega_{ij}(t)\,e_j(t), \qquad \omega_{ij}(t) \;:=\; \dot e_i(t) \cdot e_j(t). $$
+        矩阵 $\omega(t) = (\omega_{ij}(t))$ 称<strong>Frenet 矩阵</strong>.</p>
+        <p>对 $1 \le i \le n-1$, 第 $i$ <strong>曲率</strong>定义为:
+        $$ \boxed{\;\kappa_i(t) \;:=\; \frac{\omega_{i, i+1}(t)}{|\dot c(t)|} \;=\; \frac{\dot e_i(t) \cdot e_{i+1}(t)}{|\dot c(t)|}.\;} $$
+        除以 $|\dot c(t)|$ 是为了让 $\kappa_i$ 成为<em>几何不变量</em> (不依赖参数化, 见 Remark 后面).</p>
+      </div>
+
+      <p><strong>解读</strong>: $\omega_{ij}$ 是"$e_i$ 沿 $e_j$ 方向的瞬时旋转速度". skew-symmetry $\omega_{ji} = -\omega_{ij}$ 与 tridiagonal 结构 ($\omega_{ij} = 0$ for $|i - j| \ge 2$) 是 Thm 20.2 的内容. 在 distinguished Frenet frame 下, 矩阵的<em>有效</em>信息只有上次对角线上的 $n - 1$ 个数 — 这就是<em>$n - 1$ 个曲率</em>.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 20.2 (平面曲线的 signed curvature)</span>
+        <p>设 $c \colon I \to \R^2$ 是 regular 平面曲线. 它的 distinguished Frenet 2-frame 是:
+        $$ e_1(t) \;=\; \frac{\dot c(t)}{|\dot c(t)|}, \qquad e_2(t) \;=\; R_{90°}\,e_1(t), $$
+        即 $e_2$ 是 $e_1$ 逆时针旋转 $90°$ (若 $e_1 = (a, b)$ 则 $e_2 = (-b, a)$). 该曲线的<strong>signed curvature (有符号曲率)</strong> 是
+        $$ \kappa(t) \;:=\; \kappa_1(t) \;=\; \frac{\dot e_1(t) \cdot e_2(t)}{|\dot c(t)|}. $$
+        约定: $\kappa(t) &gt; 0$ 表示曲线向 $e_2$ 方向 (左侧, 凸向) 弯; $\kappa(t) &lt; 0$ 表示向 $-e_2$ 方向 (右侧, 凹向) 弯; $\kappa(t) = 0$ 是 inflection point.</p>
+      </div>
+
+      <p><strong>对比空间曲线</strong>: 平面曲线<em>只有</em>这一个曲率 $\kappa$, 且<em>有符号</em>. 后面空间曲线的 $\kappa$ 总是 $\ge 0$ (是 $\kappa_1$, 即 $\kappa_{n-2}$, 由 Gram–Schmidt 的正性保证), <em>无符号</em>; 符号信息全部跑到挠率 $\tau$ 上去 (它是 $\kappa_{n-1}$, 可正可负). 详见 Pitfall 20.1.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 20.3 ★ (空间曲线的 Frenet trihedron $(\T, \NN, \B)$)</span>
+        <p>设 $c \colon I \to \R^3$ 是 regular curve, 满足 $\dot c(t)$ 与 $\ddot c(t)$ <em>处处线性独立</em> (即 Frenet hypothesis for $n = 3$). 定义 along $c$ 的三个 unit 向量场:</p>
+        <ul>
+          <li><strong>Unit tangent (单位切向)</strong>: $\T(t) := \dfrac{\dot c(t)}{|\dot c(t)|}$.</li>
+          <li><strong>Principal normal (主法向)</strong>: $\NN(t) := \dfrac{\dot \T(t)}{|\dot \T(t)|}$.</li>
+          <li><strong>Binormal (副法向)</strong>: $\B(t) := \T(t) \times \NN(t)$.</li>
+        </ul>
+        <p>三元组 $(\T(t), \NN(t), \B(t))$ 就是 $c$ 的 distinguished Frenet 3-frame, 称 <strong>Frenet trihedron</strong>. 由 cross product 性质, 它自动 right-handed orthonormal at every $t$.</p>
+      </div>
+
+      <p><strong>记号迁移</strong>: $\T = e_1$, $\NN = e_2$, $\B = e_3$ — 三个传统名字与 generic indices 一一对应. 后面公式两套记号互用.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 20.4 ★ (空间曲线的曲率 $\kappa$ 与挠率 $\tau$)</span>
+        <p>对满足 Def 20.3 hypothesis 的 $c$:</p>
+        <ul>
+          <li><strong>曲率 (curvature)</strong>: $\kappa(t) := \kappa_1(t) = \dfrac{\dot \T(t) \cdot \NN(t)}{|\dot c(t)|}$. 总 $\ge 0$ (实际 $&gt; 0$, by Frenet hypothesis).</li>
+          <li><strong>挠率 (torsion)</strong>: $\tau(t) := \kappa_2(t) = \dfrac{\dot \NN(t) \cdot \B(t)}{|\dot c(t)|}$. <em>可正可负</em>, 符号区分手性 (right-handed vs left-handed twist).</li>
+        </ul>
+      </div>
+
+      <div class="box def">
+        <span class="box-title">Definition 20.5 (空间曲线在一点处的三个特征平面)</span>
+        <p>对空间曲线 $c$ 在 $c(t_0)$ 处, 由 Frenet trihedron $(\T(t_0), \NN(t_0), \B(t_0))$ 确定的三个平面 (都过 $c(t_0)$):</p>
+        <ul>
+          <li><strong>Osculating plane (密切平面)</strong>: $\Span\{\T, \NN\}$. 这是"最 best-approximate 曲线到 second order" 的平面 — 在该点附近曲线"几乎落在"这个平面里. 平面曲线的 osculating plane 永远是<em>该曲线所在的平面</em> (因 $\tau \equiv 0$).</li>
+          <li><strong>Normal plane (法平面)</strong>: $\Span\{\NN, \B\}$. 与曲线 instantaneous 运动方向 $\T$ <em>垂直</em>的平面.</li>
+          <li><strong>Rectifying plane (整流平面)</strong>: $\Span\{\T, \B\}$. 包含 $\T$ 但不含 $\NN$ — 曲线<em>瞬时</em>"不投影"到这个平面 (法向分量 $\NN$ 被滤掉).</li>
+        </ul>
+      </div>
+
+      <p><strong>geometric content</strong>: 在 $c(t_0)$ 附近, 曲线 (a) 主要在 osculating plane 里弯曲 (rate 由 $\kappa$ 控制), (b) 由 osculating plane <em>缓慢离开</em> 进入 binormal $\B$ 方向 (rate 由 $\tau$ 控制). 这是 Frenet-Serret 公式的几何 punchline.</p>
+
+      <!-- §4 主要定理 -->
+      <h2 id="theorems">§4 主要定理</h2>
+
+      <p>本节四个 theorem: Thm 20.1 是存在性 (closes Topic 19 的 cliffhanger); Thm 20.2 是 Frenet–Serret 公式; Thm 20.3 与 20.4 给出实战中最常用的<em>非 unit-speed</em> 参数化下的曲率/挠率公式.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 20.1 ★ (Distinguished Frenet frame 存在唯一性; Klingenberg 1.2.2)</span>
+        <p>设 $c \colon I \to \R^n$ 是 regular curve, 满足 hypothesis:
+        $$ \{\dot c(t), \ddot c(t), \ldots, c^{(n-1)}(t)\} \;\text{ 在每个 } t \in I \text{ 处线性独立}. $$
+        则存在<strong>唯一</strong>的 Frenet frame $(e_1, \ldots, e_n)$ 满足:
+        <ol>
+          <li>对 $1 \le k \le n-1$, 有序基 $(\dot c, \ddot c, \ldots, c^{(k)})$ 与 $(e_1, \ldots, e_k)$ 在 $\Span\{\dot c, \ldots, c^{(k)}\}$ 中有相同 orientation.</li>
+          <li>$(e_1, \ldots, e_n)$ 是 $\R^n$ 的 positively oriented basis (即 $\det[e_1 | \cdots | e_n] = +1$).</li>
+        </ol>
+        该 frame 称 <strong>distinguished Frenet frame</strong>.</p>
+      </div>
+
+      <details><summary><strong>证明</strong> (Gram–Schmidt 沿曲线逐点应用)</summary>
+      <div class="details-body">
+      <p>对每个固定的 $t \in I$, 对 $n - 1$ 个线性独立向量 $\dot c(t), \ddot c(t), \ldots, c^{(n-1)}(t)$ 做 Gram–Schmidt:</p>
+      <p><strong>Step 1</strong>: $e_1(t) := \dot c(t)/|\dot c(t)|$. 由 regularity $|\dot c| &gt; 0$, well-defined. 差分性 ($t$ 的光滑函数) 由 $\dot c$ smooth + $|\dot c|$ smooth 非零.</p>
+      <p><strong>Step $j$</strong> ($2 \le j \le n - 1$): 已得 $e_1(t), \ldots, e_{j-1}(t)$. 定义 Gram–Schmidt remainder:
+      $$ \tilde e_j(t) \;:=\; c^{(j)}(t) - \sum_{k=1}^{j-1}\bigl(c^{(j)}(t) \cdot e_k(t)\bigr)\,e_k(t), \qquad e_j(t) \;:=\; \frac{\tilde e_j(t)}{|\tilde e_j(t)|}. $$
+      $\tilde e_j(t) \ne 0$ <em>正因为</em> $c^{(j)}(t) \notin \Span\{\dot c, \ldots, c^{(j-1)}\} = \Span\{e_1, \ldots, e_{j-1}\}$ (线性独立 hypothesis). 差分性: $\tilde e_j$ 是 $c^{(j)}$ 与 $e_1, \ldots, e_{j-1}$ 的 polynomial 表达, 全部 smooth → $\tilde e_j$ smooth, $|\tilde e_j| &gt; 0$ smooth → $e_j$ smooth.</p>
+      <p><strong>Step $n$</strong>: 由前 $n - 1$ 步得 orthonormal $(n-1)$-frame $(e_1, \ldots, e_{n-1})$. 定义 $e_n(t)$ = 与 $e_1, \ldots, e_{n-1}$ 正交且使 $\det[e_1 | \cdots | e_n] = +1$ 的<em>唯一</em>单位向量. 用 cofactor 公式: $(e_n)_i = (-1)^{i+n}\det(M_i)/|\det\cdots|$, 其中 $M_i$ 是 $n \times (n-1)$ 矩阵 $[e_1 | \cdots | e_{n-1}]$ 删去第 $i$ 行的 minor. 由 cofactor 公式 + 前面的差分性, $e_n$ 也 smooth.</p>
+      <p><strong>Orientation 条件 (i)</strong>: Gram–Schmidt 的变换矩阵 (从 $(\dot c, \ldots, c^{(k)})$ 到 $(e_1, \ldots, e_k)$) 是<em>上三角</em> with 严格正对角元素 $1/|\dot c|, 1/|\tilde e_2|, \ldots, 1/|\tilde e_k|$, 故 $\det &gt; 0$, orientation preserved.</p>
+      <p><strong>Uniqueness</strong>: 满足 (i)–(ii) 的任何 Frenet frame 都必须与上述 Gram–Schmidt 输出一致 — orientation + unit norm + 包含关系 $e_k \in \Span\{e_1, \ldots, e_{k-1}\}^\perp \cap \Span\{\dot c, \ldots, c^{(k)}\}$ 唯一确定 $e_k$. $\square$</p>
+      </div>
+      </details>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 20.2 ★ (Frenet 方程: tridiagonal skew-symmetric 矩阵)</span>
+        <p>设 $c$ 满足 Thm 20.1 hypothesis, $(e_1, \ldots, e_n)$ 是 distinguished Frenet frame. 则其导数满足
+        $$ \begin{pmatrix}\dot e_1\\\dot e_2\\\dot e_3\\\vdots\\\dot e_{n-1}\\\dot e_n\end{pmatrix} = |\dot c(t)| \cdot \begin{pmatrix} 0 & \kappa_1 & 0 & & & 0\\ -\kappa_1 & 0 & \kappa_2 & 0 & & \vdots\\ 0 & -\kappa_2 & 0 & \kappa_3 & 0 & 0\\ & 0 & -\kappa_3 & 0 & \ddots & \\ & & 0 & \ddots & \ddots & \kappa_{n-1}\\ 0 & \cdots & & 0 & -\kappa_{n-1} & 0\end{pmatrix} \begin{pmatrix}e_1\\e_2\\e_3\\\vdots\\e_{n-1}\\e_n\end{pmatrix}. $$
+        即 Frenet 矩阵 $\omega(t)$ 是 <em>tridiagonal</em> + <em>skew-symmetric</em>; 上次对角线的 $n - 1$ 个元素就是 $|\dot c| \kappa_i(t)$.</p>
+      </div>
+
+      <details><summary><strong>证明</strong> (两步: skew-symmetry + tridiagonal)</summary>
+      <div class="details-body">
+      <p><strong>Step 1 (skew-symmetry)</strong>: 对 orthonormality $e_i \cdot e_j = \delta_{ij}$ 求导, 得
+      $$ \dot e_i \cdot e_j + e_i \cdot \dot e_j \;=\; 0 \quad\Rightarrow\quad \omega_{ij} + \omega_{ji} \;=\; 0. $$
+      取 $i = j$: $2\omega_{ii} = 0$, 故对角线全零.</p>
+      <p><strong>Step 2 (tridiagonal for Frenet frames)</strong>: 由 Frenet 定义 $c^{(k)} \in \Span\{e_1, \ldots, e_k\}$, 对 $i \le n - 1$, $e_i$ 可写为 $\dot c, \ddot c, \ldots, c^{(i)}$ 的线性组合. 因此 $\dot e_i$ 是 $\ddot c, \dddot c, \ldots, c^{(i+1)}$ 的线性组合, 即 $\dot e_i \in \Span\{e_1, \ldots, e_{i+1}\}$. 这强制 $\omega_{ij} = \dot e_i \cdot e_j = 0$ for $j &gt; i + 1$. 配合 skew-symmetry, 也得 $\omega_{ij} = 0$ for $i &gt; j + 1$. 故矩阵 tridiagonal.</p>
+      <p>剩下的非零元素只在上次对角线 (entries $(i, i+1)$) + 下次对角线 (entries $(i+1, i)$), 后者由 skew-symmetry 等于负前者. 故矩阵真的由 $n - 1$ 个数 $\omega_{i, i+1}$ 决定. 把它们除以 $|\dot c|$ 得 $\kappa_i$. $\square$</p>
+      </div>
+      </details>
+
+      <p><strong>解读</strong>: skew-symmetry 是<em>orthonormality 的必然推论</em>; 它意味着 frame 沿曲线"旋转"而不"伸缩". Tridiagonal 是 <em>Frenet 性 (与 $c^{(k)}$ chain 对齐) 的必然推论</em>. 两个独立条件叠加, 让原本可能 $n^2$ 个未知数的矩阵 collapse 到 $n - 1$ 个独立 scalar. 这就是为什么"曲率函数"是 $n - 1$ 个, 不是更多.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 20.3 ★ (平面曲线曲率的一般参数公式)</span>
+        <p>对 regular 平面曲线 $c(t) = (x(t), y(t))$ (任意参数化, 未必 unit-speed):
+        $$ \boxed{\;\kappa(t) \;=\; \frac{x'(t)\,y''(t) \,-\, y'(t)\,x''(t)}{\bigl((x'(t))^2 + (y'(t))^2\bigr)^{3/2}} \;=\; \frac{\det(\dot c(t), \ddot c(t))}{|\dot c(t)|^3}.\;} $$
+        分子的"$xy'' - yx''$" 是 $2 \times 2$ 行列式 $\det\bigl[\begin{smallmatrix}\dot x & \dot y\\\ddot x & \ddot y\end{smallmatrix}\bigr]$ (signed "2D cross product"), 分母是 $|\dot c|^3$.</p>
+      </div>
+
+      <details><summary><strong>证明</strong> (从 Frenet 方程直接计算)</summary>
+      <div class="details-body">
+      <p>记 $\dot c = (x', y')$, $|\dot c| = \sqrt{(x')^2 + (y')^2}$. 由 Def 20.2,
+      $$ e_1 = (x', y')/|\dot c|, \qquad e_2 = (-y', x')/|\dot c|. $$
+      由 Def 20.1 (取 $i = 1$),
+      $$ \kappa = \frac{\dot e_1 \cdot e_2}{|\dot c|}. $$
+      计算 $\dot e_1 = \frac{d}{dt}\bigl((x', y')/|\dot c|\bigr) = (\ddot x, \ddot y)/|\dot c| - (x', y') \cdot \frac{(|\dot c|)'}{|\dot c|^2}$. 注意第二项与 $e_1$ 平行, 故 $\dot e_1 \cdot e_2$ 中该项贡献为 0 (因 $e_1 \perp e_2$):
+      $$ \dot e_1 \cdot e_2 \;=\; \frac{(\ddot x, \ddot y)}{|\dot c|} \cdot \frac{(-y', x')}{|\dot c|} \;=\; \frac{-y' \ddot x + x' \ddot y}{|\dot c|^2} \;=\; \frac{x' \ddot y - y' \ddot x}{|\dot c|^2}. $$
+      故 $\kappa = (x' \ddot y - y' \ddot x)/|\dot c|^3$. $\square$</p>
+      </div>
+      </details>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 20.4 ★ (空间曲线的曲率/挠率一般公式; Klingenberg Ex 1.6.3)</span>
+        <p>对 regular 空间曲线 $c \colon I \to \R^3$, 假设 $\dot c$ 与 $\ddot c$ 处处线性独立:
+        $$ \boxed{\;\kappa(t) \;=\; \frac{|\dot c(t) \times \ddot c(t)|}{|\dot c(t)|^3}, \qquad \tau(t) \;=\; \frac{\det\bigl(\dot c(t),\,\ddot c(t),\,\dddot c(t)\bigr)}{|\dot c(t) \times \ddot c(t)|^2}.\;} $$
+        其中 $\det(\dot c, \ddot c, \dddot c) = (\dot c \times \ddot c) \cdot \dddot c$ 是 scalar triple product.</p>
+      </div>
+
+      <details><summary><strong>证明</strong> (先在 arc-length 下推, 再 invoke reparametrization invariance)</summary>
+      <div class="details-body">
+      <p><strong>Step 1 (arc-length case)</strong>: 假设 $|\dot c(s)| = 1$. 则 $\T(s) = \dot c(s)$, $\dot \T(s) = \ddot c(s)$. 由第一 Frenet 方程 $\dot \T = \kappa \NN$, 即 $\ddot c = \kappa \NN$, 故 $\kappa = |\ddot c| = |\dot c \times \ddot c|$ (因 $\dot c \cdot \ddot c = 0$ 来自 Pitfall 19.3, 故 $|\dot c \times \ddot c| = |\dot c| |\ddot c| = |\ddot c|$). 这就 verify $\kappa = |\dot c \times \ddot c|/|\dot c|^3$ 在 unit-speed 下 (因 $|\dot c| = 1$).</p>
+      <p>再求 $\dddot c$: 对 $\ddot c = \kappa \NN$ 求导, 用第二 Frenet 方程 $\dot \NN = -\kappa \T + \tau \B$:
+      $$ \dddot c \;=\; \kappa' \NN + \kappa \dot \NN \;=\; \kappa' \NN + \kappa(-\kappa \T + \tau \B) \;=\; -\kappa^2 \T + \kappa' \NN + \kappa \tau \B. $$
+      计算 $\dot c \times \ddot c = \T \times (\kappa \NN) = \kappa \B$ (因 $\T \times \NN = \B$). 故
+      $$ (\dot c \times \ddot c) \cdot \dddot c \;=\; \kappa \B \cdot (-\kappa^2 \T + \kappa' \NN + \kappa\tau \B) \;=\; \kappa^2 \tau \quad\text{(用正交性)}. $$
+      $|\dot c \times \ddot c|^2 = \kappa^2$, 故 $\tau = \kappa^2 \tau / \kappa^2 = (\dot c \times \ddot c) \cdot \dddot c / |\dot c \times \ddot c|^2$. $\checkmark$</p>
+      <p><strong>Step 2 (general parametrization)</strong>: 设 $\tilde c = c \circ \varphi$ 重参数化, $\varphi' &gt; 0$. 由 chain rule:
+      $$ \dot{\tilde c} = \varphi' \cdot \dot c, \quad \ddot{\tilde c} = (\varphi')^2 \ddot c + \varphi'' \dot c, \quad \dddot{\tilde c} = (\varphi')^3 \dddot c + (\ldots) \cdot \ddot c + (\ldots) \cdot \dot c. $$
+      Cross product: $\dot{\tilde c} \times \ddot{\tilde c} = (\varphi')^3 \dot c \times \ddot c$ (二阶项 $\varphi'' \dot c$ 与 $\dot c$ 平行, cross 后归零). 故 $|\dot{\tilde c} \times \ddot{\tilde c}| = (\varphi')^3 |\dot c \times \ddot c|$, $|\dot{\tilde c}|^3 = (\varphi')^3 |\dot c|^3$, ratio invariant. 同样 $\det(\dot{\tilde c}, \ddot{\tilde c}, \dddot{\tilde c}) = (\varphi')^6 \det(\dot c, \ddot c, \dddot c)$ (二阶/低阶项进入 determinant 都因 row dependency 归零), $|\dot{\tilde c} \times \ddot{\tilde c}|^2 = (\varphi')^6 |\dot c \times \ddot c|^2$, ratio invariant.</p>
+      <p>因此公式在两边都满足"reparametrization invariant", 既然在 arc-length 下成立, 则在<em>任何</em>参数化下都成立. $\square$</p>
+      </div>
+      </details>
+
+      <p><strong>记忆要诀</strong>: $\kappa$ 用 cross product 的<em>模</em>, 分母 $|\dot c|^3$ — 都是 "标量" / "三次方". $\tau$ 用 triple product (<em>有符号</em> scalar), 分母 $|\dot c \times \ddot c|^2$ — 注意是 cross product 的模平方, <em>不是</em> $|\dot c|^6$! 这是常见的混淆点 (Pitfall 20.2).</p>
+
+      <!-- §5 Worked Examples -->
+      <h2 id="examples">§5 Worked Examples</h2>
+
+      <div class="box example">
+        <span class="box-title">Example 20.1 (抛物线 $c(t) = (t, t^2)$)</span>
+        <p>用 Thm 20.3: $\dot c = (1, 2t)$, $\ddot c = (0, 2)$.</p>
+        <p>分子: $x' y'' - y' x'' = 1 \cdot 2 - 2t \cdot 0 = 2$.</p>
+        <p>分母: $(x')^2 + (y')^2 = 1 + 4t^2$, $|\dot c|^3 = (1 + 4t^2)^{3/2}$.</p>
+        <p>$$ \boxed{\;\kappa(t) \;=\; \frac{2}{(1 + 4t^2)^{3/2}} \;&gt;\; 0.\;} $$</p>
+        <p><strong>解读</strong>: 全程 $\kappa &gt; 0$ 说明抛物线全程凸 (向 $e_2$ 方向弯). 最大值 $\kappa(0) = 2$ 在顶点; $\kappa(t) \to 0$ as $|t| \to \infty$ (抛物线在远端"拉直").</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 20.2 (函数图象 $c(t) = (t, f(t))$ — 通用公式)</span>
+        <p>对 smooth $f \colon \R \to \R$: $\dot c = (1, f'(t))$, $\ddot c = (0, f''(t))$. 公式化简:</p>
+        <p>$$ \boxed{\;\kappa(t) \;=\; \frac{f''(t)}{\bigl(1 + (f'(t))^2\bigr)^{3/2}}.\;} $$</p>
+        <p><strong>这就是大一微积分教材里的"radius of curvature"公式</strong> — 我们刚<em>从 differential geometry 第一性原理</em>推出来. 注意符号: $\kappa &gt; 0$ ⟺ $f$ 凸 ($f'' &gt; 0$); $\kappa &lt; 0$ ⟺ $f$ 凹; $\kappa = 0$ at inflection points.</p>
+        <p><strong>校验</strong>: 对 $f(t) = \sin t$, $f' = \cos t$, $f'' = -\sin t$. $\kappa(t) = -\sin t / (1 + \cos^2 t)^{3/2}$. 在 $t \in (0, \pi)$ 上 $\sin t &gt; 0$ 故 $\kappa &lt; 0$ (sine 图象在该区间凹向下); 在 $(\pi, 2\pi)$ 上反过来. 与 Remark 19.X 的"$y = \sin x$ 曲率 sign"完全吻合.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 20.3 (圆 — sanity check)</span>
+        <p>半径 $r &gt; 0$ 的圆 $c(t) = (r\cos t, r\sin t)$: $\dot c = (-r\sin t, r\cos t)$, $\ddot c = (-r\cos t, -r\sin t)$.</p>
+        <p>分子: $(-r\sin t)(-r\sin t) - (r\cos t)(-r\cos t) = r^2 \sin^2 t + r^2 \cos^2 t = r^2$.</p>
+        <p>分母: $|\dot c|^2 = r^2$, $|\dot c|^3 = r^3$.</p>
+        <p>$$ \boxed{\;\kappa(t) \;\equiv\; \frac{r^2}{r^3} \;=\; \frac{1}{r}.\;} $$</p>
+        <p>常数, 与<em>圆是匀曲率曲线</em>的几何直觉吻合. 单位圆 ($r = 1$) $\kappa \equiv 1$; 半径越大, 弯曲越缓.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 20.4 ★★★ (圆柱螺线 $c(t) = (a\cos t, a\sin t, bt)$ — 必考)</span>
+        <p>整门课<em>最重要的 worked example</em>. 假设 $a &gt; 0$, $b \in \R$. 用 Thm 20.4 计算 $\kappa, \tau$.</p>
+
+        <p><strong>Step 1: 导数</strong>:
+        <ul>
+          <li>$\dot c(t) = (-a\sin t, a\cos t, b)$, $|\dot c|^2 = a^2 + b^2$ (常数!).</li>
+          <li>$\ddot c(t) = (-a\cos t, -a\sin t, 0)$.</li>
+          <li>$\dddot c(t) = (a\sin t, -a\cos t, 0)$.</li>
+        </ul>
+        </p>
+
+        <p><strong>Step 2: cross product $\dot c \times \ddot c$</strong>:
+        $$ \dot c \times \ddot c \;=\; \det\begin{pmatrix} \mathbf{i} & \mathbf{j} & \mathbf{k} \\ -a\sin t & a\cos t & b \\ -a\cos t & -a\sin t & 0 \end{pmatrix} $$
+        $$ = \mathbf{i}\bigl(a\cos t \cdot 0 - b \cdot (-a\sin t)\bigr) - \mathbf{j}\bigl((-a\sin t)\cdot 0 - b\cdot (-a\cos t)\bigr) + \mathbf{k}\bigl((-a\sin t)(-a\sin t) - (a\cos t)(-a\cos t)\bigr) $$
+        $$ = (ab\sin t,\; -ab\cos t,\; a^2). $$
+        Norm: $|\dot c \times \ddot c|^2 = a^2 b^2 (\sin^2 t + \cos^2 t) + a^4 = a^2(a^2 + b^2)$, 故 $|\dot c \times \ddot c| = a\sqrt{a^2 + b^2}$.</p>
+
+        <p><strong>Step 3: 曲率 $\kappa$</strong>:
+        $$ \kappa(t) \;=\; \frac{|\dot c \times \ddot c|}{|\dot c|^3} \;=\; \frac{a\sqrt{a^2 + b^2}}{(a^2 + b^2)^{3/2}} \;=\; \frac{a}{a^2 + b^2}. $$
+        $$ \boxed{\;\kappa(t) \;\equiv\; \frac{a}{a^2 + b^2}.\;} $$</p>
+
+        <p><strong>Step 4: scalar triple product $(\dot c \times \ddot c) \cdot \dddot c$</strong>:
+        $$ (ab\sin t,\; -ab\cos t,\; a^2) \cdot (a\sin t,\; -a\cos t,\; 0) \;=\; a^2 b \sin^2 t + a^2 b\cos^2 t + 0 \;=\; a^2 b. $$
+        </p>
+
+        <p><strong>Step 5: 挠率 $\tau$</strong>:
+        $$ \tau(t) \;=\; \frac{(\dot c \times \ddot c) \cdot \dddot c}{|\dot c \times \ddot c|^2} \;=\; \frac{a^2 b}{a^2(a^2 + b^2)} \;=\; \frac{b}{a^2 + b^2}. $$
+        $$ \boxed{\;\tau(t) \;\equiv\; \frac{b}{a^2 + b^2}.\;} $$</p>
+
+        <p><strong>解读</strong>:</p>
+        <ul>
+          <li><strong>$\kappa, \tau$ 都是常数</strong>: 这让 helix 成为"<em>最对称的非平凡空间曲线</em>". 由 fundamental theorem of curves (Topic 19 §9 的 outlook), <em>$\kappa, \tau$ 都是常数</em>的空间曲线恰好是<em>圆柱螺线</em>up to rigid motion.</li>
+          <li><strong>$b = 0$</strong>: helix 退化为半径 $a$ 的圆 (落在 $xy$-平面). $\kappa = 1/a$ (与 Example 20.3 一致), $\tau = 0$ (平面曲线无 torsion). $\checkmark$</li>
+          <li><strong>$a \to 0$</strong>: helix 退化为 $z$-轴 (直线 $c(t) = (0, 0, bt)$). $\kappa \to 0$ (直线无 curvature), $\tau$ 形式上为 $0/0$ 不定 — 与 Frenet 公式对直线失效一致 (因 $\ddot c = 0$, hypothesis 破坏).</li>
+          <li><strong>符号 of $\tau$ = handedness (手性)</strong>: $b &gt; 0$ → $\tau &gt; 0$ → right-handed helix (从上方看 CCW 上升); $b &lt; 0$ → $\tau &lt; 0$ → left-handed helix. 这两种 helix 在 $\R^3$ 中是<em>镜像</em>对方, 无法通过 rigid motion 互换 — torsion 的符号就是 detect 这件事的<em>不变量</em>.</li>
+          <li><strong>$\kappa/\tau = a/b$</strong>: 这个无量纲 ratio 是 helix 的"长宽比" — radius 与 pitch parameter 的比值, 也是 rigid-motion invariant.</li>
+        </ul>
+      </div>
+
+      <!-- §6 常见陷阱 -->
+      <h2 id="pitfalls">§6 常见陷阱</h2>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 20.1 (平面 $\kappa$ 有符号 / 空间 $\kappa$ 无符号)</span>
+        <p>这是<em>最容易混淆的</em>区别:</p>
+        <ul>
+          <li><strong>平面曲线</strong>: $\kappa(t) = \kappa_1(t)$. 注意 $1 = n - 1$ (即"最后一个" curvature), 而 $1 \ne n - 2 = 0$. 平面情形的 $\kappa$ 是<em>$\kappa_{n-1}$ 角色</em>, 故<em>可正可负</em> — Klingenberg 的 Positivity Proposition 只保证 $\kappa_1, \ldots, \kappa_{n-2}$ 正, 对 $\kappa_{n-1}$ 无 statement.</li>
+          <li><strong>空间曲线</strong>: $\kappa(t) = \kappa_1(t)$ (注意 $1 = n - 2 = 1$). 现在 $\kappa$ 是<em>$\kappa_{n-2}$ 角色</em>, 故<em>总 $&gt; 0$</em>. 符号信息全部跑到 $\tau = \kappa_2 = \kappa_{n-1}$ 上.</li>
+        </ul>
+        <p><strong>记忆</strong>: 唯一<em>可正可负</em>的 curvature 是<em>最后一个</em> ($\kappa_{n-1}$). 平面 ($n = 2$) 只有一个 curvature, 它<em>就是</em>最后一个, 所以 signed. 空间 ($n = 3$) 有两个, 第二个 (挠率 $\tau$) 是最后一个, 故 signed; 第一个 (曲率 $\kappa$) 不是最后一个, 故 unsigned (实际 $&gt; 0$).</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 20.2 ★ ($\kappa$ 与 $\tau$ 分母不同 — 常见考试错误)</span>
+        <p>空间曲线公式:
+        $$ \kappa \;=\; \frac{|\dot c \times \ddot c|}{|\dot c|^3}, \qquad \tau \;=\; \frac{\det(\dot c, \ddot c, \dddot c)}{|\dot c \times \ddot c|^2}. $$
+        <strong>分母不一样!</strong> $\kappa$ 用 $|\dot c|^3$ (<em>$\dot c$ 的模的立方</em>); $\tau$ 用 $|\dot c \times \ddot c|^2$ (<em>cross product 的模平方</em>). 学生常把 $\tau$ 的分母错写成 $|\dot c|^6$.</p>
+        <p><strong>为什么不一样?</strong> 量纲 check: 分子 $\det(\dot c, \ddot c, \dddot c)$ 是三个"速度量"的 product, 量纲 $[\text{length/time}]^6 = [\text{length}]^6/[\text{time}]^6$. $|\dot c \times \ddot c|^2$ 量纲也是 $[\text{length}]^6/[\text{time}]^6$. ratio 无量纲<em>且</em>有 1/[length] 几何 sense (curvature dimension), $\checkmark$. 如果错写成 $|\dot c|^6$, 分母 $[\text{length}]^6/[\text{time}]^6$ — 量纲 might 也对, 但<em>数值结果不对</em>! 因为 $|\dot c \times \ddot c|^2 \ne |\dot c|^4 |\ddot c|^2$ 一般而言. 验证: helix 例子里 $|\dot c|^6 = (a^2 + b^2)^3$ vs $|\dot c \times \ddot c|^2 = a^2 (a^2 + b^2)$. ratio 差了 $a^2/(a^2 + b^2)^2$ 倍 — 完全不同!</p>
+        <p>正确分母的<em>正确</em>方法: 先在 unit-speed case 推 $\tau = \kappa^2 \tau / \kappa^2$, 看到 $\kappa^2 = |\dot c \times \ddot c|^2$ (unit-speed). 在 general parametrization 下两边 reparametrization 因子<em>相同</em>抵消, formula 不变.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 20.3 (直线在空间情形 Frenet 失效)</span>
+        <p>空间曲线 $c(t) = x_0 + tv$ ($v \ne 0$): $\ddot c = 0$. Thm 20.4 hypothesis "$\dot c, \ddot c$ 线性独立" 失败 — 不存在 distinguished Frenet 3-frame, $\T$ 可定义但 $\NN, \B$ 都没意义 (因为 $\dot \T = 0$, 不能除以 $|\dot \T|$).</p>
+        <p>结果: 公式给出 $\kappa = 0/|\dot c|^3 = 0$ (一致 — 直线无 curvature), 但 $\tau$ 形式上是 $0/0$ 不定. 这是<em>形式无意义</em>的, 不要写"$\tau = 0$"作为直线的 torsion — 应该说 torsion 没有定义.</p>
+        <p>对比: 平面曲线情形只要 $\dot c \ne 0$ (即 regular) 就有 Frenet 2-frame, 直线在平面中<em>有</em>定义良好的 $\kappa$ (= 0), 因为平面 hypothesis 只要 $\dot c$ 独立 (即非零). 这是<em>维度 differ</em>: $n = 2$ 只需 $\dot c \ne 0$; $n = 3$ 需要 $\dot c, \ddot c$ 都独立.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 20.4 (圆柱螺线<em>不是</em> unit-speed)</span>
+        <p>$c(t) = (a\cos t, a\sin t, bt)$ 的 $|\dot c| = \sqrt{a^2 + b^2}$, 一般 $\ne 1$. 它是<em>常速度</em> (constant speed) 但<em>不是</em>单位速度.</p>
+        <p>常见错误: 看到 $c(t) = (\cos t, \sin t, t)$ 误以为 unit-speed (因 sin/cos 振幅 1), 实际 $|\dot c| = \sqrt{2}$.</p>
+        <p>幸好: Thm 20.4 公式<em>不要求</em> unit-speed — chain rule 已经处理好了. 你不必把 helix 显式 reparametrize (那需要 $s = t\sqrt{a^2 + b^2}$, 然后所有式子里 $t = s/\sqrt{a^2 + b^2}$ 代回 — 烦琐且无 benefit). 直接用一般公式即可. 这就是 Thm 20.3 与 20.4 存在的<em>意义</em> — 实战工具 vs 理论 (arc-length) 公式.</p>
+      </div>
+
+      <!-- §7 练习 -->
+      <h2 id="exercises">§7 练习</h2>
+
+      <div class="exercise">
+        <span class="ex-num">练习 20.1.</span> (Klingenberg Ex 1.6.1) 椭圆 $c(t) = (a\cos t, b\sin t)$ ($a, b &gt; 0$, $a \ne b$). 计算 $\kappa(t)$, 找出最大/最小曲率所在点.
+        <details><summary>答案</summary><div class="details-body">
+        $\dot c = (-a\sin t, b\cos t)$, $\ddot c = (-a\cos t, -b\sin t)$. 分子: $(-a\sin t)(-b\sin t) - (b\cos t)(-a\cos t) = ab(\sin^2 t + \cos^2 t) = ab$. 分母: $((a\sin t)^2 + (b\cos t)^2)^{3/2} = (a^2 \sin^2 t + b^2 \cos^2 t)^{3/2}$. 故
+        $$ \kappa(t) = \frac{ab}{(a^2 \sin^2 t + b^2 \cos^2 t)^{3/2}}. $$
+        最大 $\kappa$ 在分母最小处. 设 $a &gt; b$, 则 $a^2 \sin^2 t + b^2 \cos^2 t = b^2 + (a^2 - b^2)\sin^2 t$. 在 $\sin^2 t = 0$ (即 $t = 0, \pi$, 椭圆端点 $(\pm a, 0)$ — <em>短半轴</em>端点) 处分母最小 $= b^3$, $\kappa_{\max} = a/b^2$. 在 $\sin^2 t = 1$ (即 $t = \pi/2, 3\pi/2$, 椭圆端点 $(0, \pm b)$ — <em>长半轴</em>端点) 处分母最大 $= a^3$, $\kappa_{\min} = b/a^2$. 与几何直觉: 椭圆在"短轴端点"最尖, 在"长轴端点"最平.
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 20.2.</span> (Klingenberg Ex 1.6.4) 椭圆螺线 $c(t) = (a\cos t, b\sin t, ct)$ ($a, b, c$ 实, $ab \ne 0$). 计算 $\kappa(t), \tau(t)$. 对 $a = b = 1$, 取 $c \to \infty$, $\kappa$ 怎样? 几何上合理吗?
+        <details><summary>答案</summary><div class="details-body">
+        $\dot c = (-a\sin t, b\cos t, c)$, $\ddot c = (-a\cos t, -b\sin t, 0)$, $\dddot c = (a\sin t, -b\cos t, 0)$.
+        Cross product: $\dot c \times \ddot c = (bc\sin t, -ac\cos t, ab\sin^2 t + ab\cos^2 t \cdot ?)$. Let me compute properly:
+        $$ \dot c \times \ddot c = \begin{vmatrix} \mathbf{i} & \mathbf{j} & \mathbf{k} \\ -a\sin t & b\cos t & c \\ -a\cos t & -b\sin t & 0 \end{vmatrix} = (b\cos t \cdot 0 - c(-b\sin t),\; c(-a\cos t) - 0,\; (-a\sin t)(-b\sin t) - (b\cos t)(-a\cos t)) $$
+        $$ = (bc\sin t,\; -ac\cos t,\; ab). $$
+        $|\dot c \times \ddot c|^2 = b^2 c^2 \sin^2 t + a^2 c^2 \cos^2 t + a^2 b^2$.
+        $|\dot c|^2 = a^2 \sin^2 t + b^2 \cos^2 t + c^2$.
+        $\kappa(t) = \sqrt{b^2 c^2 \sin^2 t + a^2 c^2 \cos^2 t + a^2 b^2}/(a^2 \sin^2 t + b^2 \cos^2 t + c^2)^{3/2}$.
+        Triple product: $(\dot c \times \ddot c) \cdot \dddot c = bc\sin t \cdot a\sin t + (-ac\cos t)(-b\cos t) + ab \cdot 0 = abc(\sin^2 t + \cos^2 t) = abc$.
+        $\tau(t) = abc/(b^2 c^2 \sin^2 t + a^2 c^2 \cos^2 t + a^2 b^2)$.
+        对 $a = b = 1$: $\kappa = \sqrt{c^2 + 1}/(1 + c^2)^{3/2} = 1/(1 + c^2)$. As $c \to \infty$, $\kappa \to 0$. 几何意义: helix pitch 越大, 它在每"一圈"中沿 $z$ 上升越多, 局部上更接近<em>直线</em>, 故曲率趋于零. $\checkmark$ 直觉.
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 20.3.</span> Twisted cubic $c(t) = (t, t^2, t^3)$. 计算 $\kappa(0)$ 与 $\tau(0)$.
+        <details><summary>答案</summary><div class="details-body">
+        $\dot c = (1, 2t, 3t^2)$, $\ddot c = (0, 2, 6t)$, $\dddot c = (0, 0, 6)$.
+        在 $t = 0$: $\dot c = (1, 0, 0)$, $\ddot c = (0, 2, 0)$, $\dddot c = (0, 0, 6)$.
+        $\dot c \times \ddot c = (1, 0, 0) \times (0, 2, 0) = (0 \cdot 0 - 0 \cdot 2, 0 \cdot 0 - 1 \cdot 0, 1 \cdot 2 - 0 \cdot 0) = (0, 0, 2)$. $|\dot c \times \ddot c| = 2$. $|\dot c|^3 = 1$. $\kappa(0) = 2/1 = 2$.
+        $\det(\dot c, \ddot c, \dddot c)|_{t = 0} = \det\begin{pmatrix}1 & 0 & 0 \\ 0 & 2 & 0 \\ 0 & 0 & 6\end{pmatrix} = 12$. $|\dot c \times \ddot c|^2 = 4$. $\tau(0) = 12/4 = 3$.
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 20.4.</span> 证明: 若平面曲线 $c$ 满足 $\kappa(t) \equiv 0$, 则 $c$ 是直线.
+        <details><summary>答案</summary><div class="details-body">
+        WLOG arc-length 参数化. 由 Frenet 方程 $\dot e_1 = \kappa e_2 = 0$, 故 $e_1$ 是常向量, 设 $e_1 = v$ (单位向量). 因 $e_1 = \dot c$ (unit speed), $\dot c = v$ 常数, 积分得 $c(s) = c(0) + sv$ — 直线参数化. $\square$
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 20.5.</span> 证明: 若平面曲线 $c$ 满足 $|\kappa(t)| \equiv 1/r$ (正常数), 则 $c$ 是半径 $r$ 的圆弧.
+        <details><summary>答案</summary><div class="details-body">
+        WLOG arc-length 参数化, 假设 $\kappa = +1/r$ (else flip orientation). 由 Frenet 方程 $\dot e_1 = (1/r) e_2$, $\dot e_2 = -(1/r) e_1$. 考虑曲线 $\gamma(s) := c(s) + r e_2(s)$. 求导: $\dot \gamma = \dot c + r \dot e_2 = e_1 + r \cdot (-(1/r) e_1) = e_1 - e_1 = 0$. 故 $\gamma$ 是常数, 设 $\gamma \equiv x_0$. 即 $c(s) = x_0 - r e_2(s)$. 由 $|e_2| = 1$, $|c(s) - x_0| = r$ — $c$ 落在以 $x_0$ 为圆心、$r$ 为半径的圆上. $\square$
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 20.6.</span> 用 Frenet 方程<em>不用</em>公式直接证明 helix $c(t) = (a\cos t, a\sin t, bt)$ ($a^2 + b^2 = 1$, unit-speed) 的 $\kappa$ 与 $\tau$. (即从 Def 20.4 出发, 不用 Thm 20.4 一般公式.)
+        <details><summary>答案</summary><div class="details-body">
+        Unit speed, 故 $\T(t) = \dot c(t) = (-a\sin t, a\cos t, b)$. $\dot \T = \ddot c = (-a\cos t, -a\sin t, 0)$. $|\dot \T| = a$. 故 $\NN = \dot \T/|\dot \T| = (-\cos t, -\sin t, 0)$, $\kappa = |\dot \T|/|\dot c| = a/1 = a$. 但 wait, $a^2 + b^2 = 1$, 故公式给 $a/(a^2 + b^2) = a$. $\checkmark$
+        $\B = \T \times \NN$: 直接计算 $(-a\sin t, a\cos t, b) \times (-\cos t, -\sin t, 0) = (a\cos t \cdot 0 - b(-\sin t), b(-\cos t) - 0, (-a\sin t)(-\sin t) - (a\cos t)(-\cos t)) = (b\sin t, -b\cos t, a)$.
+        $\dot \B = (b\cos t, b\sin t, 0)$. 由 Frenet 第三 equation $\dot \B = -\tau \NN \cdot |\dot c|$ (因 $|\dot c| = 1$): $\dot \B = -\tau \NN$, i.e., $(b\cos t, b\sin t, 0) = -\tau (-\cos t, -\sin t, 0) = (\tau \cos t, \tau\sin t, 0)$. 比对得 $\tau = b$. 公式给 $b/(a^2 + b^2) = b$. $\checkmark$
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 20.7.</span> 推导一般空间曲线 $c$ 的 $\B$ 满足 $\dot \B = -\tau |\dot c| \NN$. (即 Frenet 方程的第三行.)
+        <details><summary>答案</summary><div class="details-body">
+        $\B = \T \times \NN$, 求导: $\dot \B = \dot \T \times \NN + \T \times \dot \NN$. 第一项: $\dot \T = \kappa |\dot c| \NN$, 故 $\dot \T \times \NN = \kappa |\dot c| (\NN \times \NN) = 0$. 第二项: 由第二 Frenet 方程 $\dot \NN = -\kappa |\dot c| \T + \tau |\dot c| \B$, 故 $\T \times \dot \NN = -\kappa |\dot c| (\T \times \T) + \tau |\dot c| (\T \times \B) = 0 + \tau |\dot c| (-\NN) = -\tau |\dot c| \NN$ (用 $\T \times \B = -\NN$, 由 right-handed orthonormal 关系). 总 $\dot \B = -\tau |\dot c| \NN$. $\square$
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 20.8.</span> (反向操作) 给定 $\kappa(t) = 1, \tau(t) = 1$, 找出一条 unit-speed 空间曲线 $c \colon \R \to \R^3$ with 这些 curvature/torsion. (提示: helix 是 fundamental theorem of curves 的"唯一" answer.)
+        <details><summary>答案</summary><div class="details-body">
+        由 Example 20.4: helix $(a\cos t, a\sin t, bt)$ 有 $\kappa = a/(a^2 + b^2), \tau = b/(a^2 + b^2)$. 要 $\kappa = \tau = 1$, 需 $a = b = a^2 + b^2$. 设 $a = b$: $a = 2a^2$, $a = 1/2$. 故 $a = b = 1/2$. Check: $\kappa = (1/2)/(1/4 + 1/4) = (1/2)/(1/2) = 1$, $\tau = 1$. $\checkmark$
+        但 helix 不 unit-speed in $t$: $|\dot c|^2 = a^2 + b^2 = 1/2$, $|\dot c| = 1/\sqrt 2$. Reparametrize: $s = t/\sqrt 2$, $t = s\sqrt 2$. $c(s) = ((1/2)\cos(s\sqrt 2), (1/2)\sin(s\sqrt 2), s/\sqrt 2)$. Now $|\dot c(s)|^2 = (1/2)(2)\sin^2 + (1/2)(2)\cos^2 + (1/2) = 1$, $\checkmark$ unit-speed.
+        (一般地, fundamental theorem of curves 保证<em>up to rigid motion</em>这条 helix 是唯一 $\kappa = \tau = 1$ 的 unit-speed 曲线.)
+        </div></details>
+      </div>
+
+      <!-- §8 速查表 -->
+      <h2 id="cheat">§8 速查表</h2>
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def"><strong>Frenet 矩阵 $\omega(t)$ (Def 20.1)</strong>: $\dot e_i = \sum_j \omega_{ij} e_j$, $\omega_{ij} = \dot e_i \cdot e_j$. 第 $i$ 曲率 $\kappa_i = \omega_{i, i+1}/|\dot c|$.</li>
+          <li class="cs-def"><strong>平面 signed $\kappa$ (Def 20.2)</strong>: $e_1 = \dot c/|\dot c|$, $e_2 = R_{90°} e_1$. $\kappa$ 可正可负, $+$ ⟺ 向 $e_2$ 凸向弯, $-$ ⟺ 反.</li>
+          <li class="cs-def"><strong>★ 空间 Frenet trihedron (Def 20.3)</strong>: $\T = \dot c/|\dot c|$, $\NN = \dot \T/|\dot \T|$, $\B = \T \times \NN$. 三者 right-handed orthonormal.</li>
+          <li class="cs-def"><strong>★ 空间 $\kappa, \tau$ (Def 20.4)</strong>: $\kappa = \dot \T \cdot \NN/|\dot c|$ ($&gt; 0$), $\tau = \dot \NN \cdot \B/|\dot c|$ (有符号). 符号 = 手性.</li>
+          <li class="cs-def"><strong>三个 Frenet 平面 (Def 20.5)</strong>: osculating $\Span\{\T, \NN\}$ (曲线"贴"的), normal $\Span\{\NN, \B\}$ (垂直运动), rectifying $\Span\{\T, \B\}$ (跳过法向).</li>
+          <li class="cs-thm"><strong>★ Distinguished Frenet 存在唯一 (Thm 20.1)</strong>: hypothesis "$\{\dot c, \ldots, c^{(n-1)}\}$ 处处线性独立". 构造 = pointwise Gram–Schmidt.</li>
+          <li class="cs-thm"><strong>★ Frenet 方程 (Thm 20.2)</strong>: $\omega(t)$ 是 tridiagonal skew-symmetric, $|\dot c|$ 倍 with 上次对角线 = $\kappa_i$.</li>
+          <li class="cs-thm"><strong>★ 平面公式 (Thm 20.3)</strong>: $\kappa(t) = (x' y'' - y' x'')/((x')^2 + (y')^2)^{3/2} = \det(\dot c, \ddot c)/|\dot c|^3$.</li>
+          <li class="cs-thm"><strong>★★ 空间公式 (Thm 20.4)</strong>: $\kappa = |\dot c \times \ddot c|/|\dot c|^3$, $\tau = \det(\dot c, \ddot c, \dddot c)/|\dot c \times \ddot c|^2$. <em>分母不同!</em></li>
+          <li class="cs-tech"><strong>★ Helix 标志值 (Example 20.4)</strong>: $c(t) = (a\cos t, a\sin t, bt)$ → $\kappa = a/(a^2 + b^2)$, $\tau = b/(a^2 + b^2)$. 两个都<em>常数</em>.</li>
+          <li class="cs-tech"><strong>函数图象曲率</strong>: $c(t) = (t, f(t))$ → $\kappa = f''/(1 + (f')^2)^{3/2}$. 大一微积分公式.</li>
+          <li class="cs-tech"><strong>圆半径 $r$ 曲率</strong>: $\kappa \equiv 1/r$ (常数). 圆 = $\kappa$ constant 平面曲线.</li>
+          <li class="cs-tech"><strong>Reparametrization invariance</strong>: $\kappa, \tau$ 不依赖参数化 (only 依赖 image + orientation). 故选简单参数化即可.</li>
+          <li class="cs-tech"><strong>Helix 是 $\kappa, \tau$ 全 constant 的<em>唯一</em>空间曲线</strong> (up to rigid motion). 由 fundamental theorem of curves.</li>
+          <li class="cs-pitfall"><strong>★ Pitfall 20.1</strong>: 平面 $\kappa$ signed, 空间 $\kappa$ unsigned ($\tau$ signed). 区别: $\kappa$ 是 $\kappa_{n-1}$ 还是 $\kappa_{n-2}$.</li>
+          <li class="cs-pitfall"><strong>★★ Pitfall 20.2</strong>: $\tau$ 分母是 $|\dot c \times \ddot c|^2$, <em>不</em>是 $|\dot c|^6$. 最常见 exam mistake!</li>
+          <li class="cs-pitfall"><strong>Pitfall 20.3</strong>: 直线在空间情形 $\tau = 0/0$ 不定 (Frenet 失效, $\ddot c = 0$). 不要说"直线 $\tau = 0$".</li>
+          <li class="cs-pitfall"><strong>Pitfall 20.4</strong>: $(a\cos t, a\sin t, bt)$ 是常速度 $\sqrt{a^2 + b^2}$, <em>不</em>是 unit-speed (除非 $a^2 + b^2 = 1$).</li>
+        </ul>
+      </div>
+
+      <!-- §9 进一步阅读 -->
+      <h2 id="further">§9 进一步阅读</h2>
+      <ul>
+        <li><strong>Typed notes</strong>: <code>Notes/Typed/10.2_notes/10.2_notes.tex</code> §§1–5 — full 板书 + Klingenberg 补充. 含 Frenet 存在性<em>完整</em>证明、Frenet–Serret skew-symmetric 推导、平面/空间公式两套推导、helix 全计算 + sanity checks.</li>
+        <li><strong>Klingenberg 教材</strong>: <code>A Course in Differential Geometry.pdf</code>:
+          <ul>
+            <li>§1.2 (existence/uniqueness of distinguished Frenet frame)</li>
+            <li>§1.3 (Frenet equations, definition of curvatures, fundamental theorem of curves)</li>
+            <li>§1.4 (plane curves, $\kappa$ as turning of $\theta$, characterizations of line/circle)</li>
+            <li>§1.5 (space curves, $\kappa, \tau$, Frenet–Serret in matrix form, Taylor expansion of $c(t)$ near $t_0$)</li>
+            <li>§1.6 Exercises (含本页的几道练习)</li>
+          </ul>
+        </li>
+        <li><strong>关联 review 页</strong>:
+          <ul>
+            <li><a href="19-curves-frenet.html">Topic 19</a> ← 这里是 prereq, 包含 curve/Frenet frame 的<em>定义</em>.</li>
+            <li><a href="21-surfaces-first-form.html">Topic 21</a> → 下一页, 转向 surfaces 的 first fundamental form.</li>
+          </ul>
+        </li>
+        <li><strong>外延伸阅读</strong>:
+          <ul>
+            <li><strong>do Carmo</strong> <em>Differential Geometry of Curves and Surfaces</em> Ch 1: 经典 elementary treatment, 含<em>大量</em>曲率挠率 worked examples.</li>
+            <li><strong>O'Neill</strong> <em>Elementary Differential Geometry</em> Ch 2: 类似 do Carmo, 含 differential forms 视角.</li>
+            <li><strong>Pressley</strong> <em>Elementary Differential Geometry</em>: 最入门, 适合自学.</li>
+            <li><strong>Fundamental theorem of curves</strong>: 任意 $\kappa(s) &gt; 0$ 与 $\tau(s)$ smooth 函数都来自某条 unit-speed 空间曲线, unique up to rigid motion. Klingenberg 1.3.5–1.3.6 完整证明 (用 ODE 存在唯一性).</li>
+          </ul>
+        </li>
+      </ul>
+
+    </main>
+  </div>
+
+</body>
+</html>

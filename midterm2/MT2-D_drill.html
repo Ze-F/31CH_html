@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MT2-D 押题练习 — §4.9 + §4.10 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\diam': '\\operatorname{diam}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="MT2-practice.html">MT2 Practice</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next nav-disabled" href="#">无</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#intro">导览</a></li>
+        <li><a href="#sec-4-9">§4.9 应用模板</a></li>
+        <li><a href="#sec-4-9-recap">┣ 核心定理 recap</a></li>
+        <li><a href="#sec-4-9-templates">┣ 三大应用模板</a></li>
+        <li><a href="#sec-4-9-exercises">┗ 练习 4 题</a></li>
+        <li><a href="#sec-4-10">§4.10 三大 Jacobian</a></li>
+        <li><a href="#sec-4-10-recap">┣ 主定理 recap</a></li>
+        <li><a href="#sec-4-10-polar">┣ Polar 推导</a></li>
+        <li><a href="#sec-4-10-cyl">┣ Cylindrical 推导</a></li>
+        <li><a href="#sec-4-10-sph">┣ Spherical 推导</a></li>
+        <li><a href="#sec-4-10-exercises">┗ 练习 4 题</a></li>
+        <li><a href="#cheat-30s">考前 30 秒 cheat</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>MT2-D 押题练习 — §4.9 + §4.10</h1>
+      <p class="subtitle">基于 Lec 8.2 老师亲口公示 · 集中火力打 §4.9 DSV 应用 + §4.10 CoV 计算 · 不练硬核证明</p>
+
+      <!-- ======================================================== -->
+      <h2 id="intro">导览</h2>
+
+      <p>本页是 MT2 复习的<strong>最后一公里</strong>: 既然 Lec 8.2 老师明确公示了 §4.11 部分只考 short MCT/DCT/Fatou 应用 (Practice MT2 的 P1, P2, P3, P8, P9 是直接模板, 见 <a href="MT2-practice.html">MT2-practice 页面</a>), 那 §4.9 + §4.10 这两个 "计算/直接应用" 模块就成了<strong>提分密度最高</strong>的部分: 它们的考题就是 "套定理 → 算行列式 → 写结果", 复杂度可控. 本页专注于:</p>
+
+      <ul>
+        <li><strong>§4.9</strong>: 整理 DSV (determinant scales volume) 与 Prop 4.9.5 (parallelepiped 体积 = $\abs{\det}$) 的<em>三大应用模板</em> + 4 道押题练习. 不重证 DSV 本身 (主定理 5-step proof 见 <a href="MT2-A_linear_cov.html">MT2-A</a>).</li>
+        <li><strong>§4.10</strong>: 从 $\Phi(r,\theta,\ldots)$ 公式出发, <strong>从零推</strong> polar / cylindrical / spherical 的 Jacobian 行列式 — 因为这是考场上唯一<em>可能记错</em>的环节. 然后 4 道押题练习 (1 polar + 1 cylindrical + 2 spherical), 难度不超过 H&amp;H Exercise 4.10.9 / 4.10.12 / 4.10.13.</li>
+      </ul>
+
+      <div class="box remark">
+        <span class="box-title">💡 与其他 MT2 页面的分工</span>
+        <ul>
+          <li><a href="MT2-A_linear_cov.html">MT2-A</a> = §4.9 <strong>深度</strong>: 5-step DSV proof + elementary matrix + 完整 HW3 整理. 适合"考前 1 周".</li>
+          <li><a href="MT2-B_nonlinear_cov.html">MT2-B</a> = §4.10 <strong>深度</strong>: 主定理证明 + Lipschitz/C¹ 关系 + 三种 design pattern. 适合"考前 1 周".</li>
+          <li><a href="MT2-practice.html">MT2-practice</a> = Practice MT2 全套 9 题 (主要是 §4.11 证明题模板). 适合"考前 2 天模拟".</li>
+          <li><strong>本页 MT2-D</strong> = §4.9 + §4.10 <em>计算肌肉记忆</em>. 适合"考前 1 天" 或"开考前 30 分钟"暖手. 不读 proof, 只刷题.</li>
+        </ul>
+      </div>
+
+      <!-- ================================================================
+           §4.9 部分
+           ================================================================ -->
+      <h2 id="sec-4-9">§4.9 DSV 应用模板</h2>
+
+      <h3 id="sec-4-9-recap">核心定理 recap (两条, 都当 black box)</h3>
+
+      <div class="box thm">
+        <span class="box-title">Theorem D.1 (Determinant Scales Volume / DSV, H&amp;H Thm 4.9.1)</span>
+        <p>设 $T \colon \R^n \to \R^n$ 是线性映射, $A \subset \R^n$ 是 pavable 集. 则 $T(A)$ 也是 pavable, 且
+        $$\vol_n(T(A)) \;=\; \abs{\det T}\cdot \vol_n(A).$$
+        $\abs{\det}$ 不是 $\det$ — 体积非负, 行列式可负.</p>
+      </div>
+
+      <div class="box thm">
+        <span class="box-title">Theorem D.2 (n-Parallelepiped 体积, H&amp;H Prop 4.9.5)</span>
+        <p>对任意 $v_1, \ldots, v_n \in \R^n$, 由这些向量张成的<strong>n-parallelepiped</strong>
+        $$P(v_1,\ldots,v_n) \;:=\; \{t_1 v_1 + \cdots + t_n v_n : 0 \le t_i \le 1\}$$
+        的体积是
+        $$\vol_n\bigl(P(v_1,\ldots,v_n)\bigr) \;=\; \abs{\det[v_1\ |\ v_2\ |\ \cdots\ |\ v_n]}.$$
+        证明: 令 $T$ 是把 $\vec e_i$ 映到 $v_i$ 的线性映射, 则 $T(Q_n) = P(v_1,\ldots,v_n)$ 其中 $Q_n = [0,1]^n$ 是单位立方体. 由 DSV, $\vol_n T(Q_n) = \abs{\det T}\cdot \vol_n Q_n = \abs{\det T}$. 而 $[T] = [v_1|\cdots|v_n]$ 的列就是 $T(\vec e_i) = v_i$.</p>
+      </div>
+
+      <div class="box remark">
+        <span class="box-title">为什么这两条会出现在 MT2</span>
+        <p>Practice MT2 <strong>P7</strong> 就是 Prop 4.9.5 本身. Lec 8.2 老师说 §4.9 部分会是 "Example 4.9.4 风格的直接应用" — Example 4.9.4 就是 Prop 4.9.5 用在 3 个具体向量上. 因此 §4.9 在 MT2 上的题型几乎是<em>把数据代入公式</em>, 难度上限就是 "你能不能用 cofactor 算 $3\times 3$ 或 $4\times 4$ 行列式".</p>
+      </div>
+
+      <h3 id="sec-4-9-templates">三大应用模板</h3>
+
+      <p>把 D.1 + D.2 灵活组合, 课本上一切 §4.9 题型可归为以下三类. 每类给一个 worked example.</p>
+
+      <div class="box example">
+        <span class="box-title">Template T.1 — 直接 Parallelepiped (Prop 4.9.5 一次套用)</span>
+        <p><em>给定 $\R^n$ 中 $n$ 个向量, 求它们张成的平行体的体积.</em></p>
+        <p><strong>方法</strong>: 把向量摆成列, 算 $\abs{\det}$.</p>
+        <p><strong>示例</strong>: 求 $\R^3$ 中 $v_1 = (2, 1, 0), v_2 = (1, 3, 1), v_3 = (0, 0, 4)$ 张成的平行体体积.</p>
+        <p>沿第 3 行展开 (有两个 0):
+        $$\det\begin{pmatrix} 2 &amp; 1 &amp; 0 \\ 1 &amp; 3 &amp; 0 \\ 0 &amp; 0 &amp; 4 \end{pmatrix}
+          = 4\cdot\det\begin{pmatrix} 2 &amp; 1 \\ 1 &amp; 3 \end{pmatrix} = 4\cdot(6-1) = 20.$$
+        故 $\vol_3 = \boxed{20}$.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Template T.2 — Simplex 体积 (扩展)</span>
+        <p><em>给定 $\R^n$ 中 $n+1$ 个点, 其中一个看作原点, 求 $n$-simplex 的体积.</em></p>
+        <p><strong>背景</strong>: 标准 simplex $T_1 = \{(t_1,\ldots,t_n) : t_i \ge 0, \sum t_i \le 1\}$ 的体积是 $1/n!$ (由 Fubini iterated 积分给, 或观察它是单位立方体的 $1/n!$ — 见 Topic 04). 任何带原点的 simplex 是 $T_1$ 在线性映射下的像, 故由 DSV
+        $$\vol_n\bigl(\text{simplex}(\mathbf{0}, v_1, \ldots, v_n)\bigr) = \frac{\abs{\det[v_1|\cdots|v_n]}}{n!}.$$</p>
+        <p><strong>示例</strong>: 求 $\R^3$ 中四面体顶点 $(0,0,0), (1,2,0), (3,0,1), (0,-1,4)$ 的体积.</p>
+        <p>取原点为基点, 三条边 $v_1 = (1,2,0), v_2 = (3,0,1), v_3 = (0,-1,4)$:
+        $$\det\begin{pmatrix} 1 &amp; 3 &amp; 0 \\ 2 &amp; 0 &amp; -1 \\ 0 &amp; 1 &amp; 4 \end{pmatrix}.$$
+        沿第 1 列展开:
+        $$= 1\cdot\det\begin{pmatrix} 0 &amp; -1 \\ 1 &amp; 4\end{pmatrix} - 2\cdot\det\begin{pmatrix} 3 &amp; 0 \\ 1 &amp; 4\end{pmatrix} + 0 = 1\cdot 1 - 2\cdot 12 = -23.$$
+        $\abs{\det} = 23$, 故 $\vol_3 = 23/3! = \boxed{23/6}$.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Template T.3 — Ellipsoid / 线性 image 的体积</span>
+        <p><em>给定一个"标准形状" $A$ 的体积 (圆盘, 球, 立方体 …), 求 $T(A)$ 的体积, $T$ 线性.</em></p>
+        <p><strong>方法</strong>: 直接套 DSV — $\vol_n T(A) = \abs{\det T}\cdot \vol_n(A)$. 不需要重新做积分.</p>
+        <p><strong>示例</strong>: 求椭球 $E = \{(x,y,z) : (x/a)^2 + (y/b)^2 + (z/c)^2 \le 1\}$ 的体积.</p>
+        <p>取 $T = \mathrm{diag}(a, b, c)$ ($a, b, c &gt; 0$), 则 $T$ 把单位球 $B_1 = \{u^2+v^2+w^2 \le 1\}$ 映成 $E$ (代换 $x=au, y=bv, z=cw$ 直接验证). $\abs{\det T} = abc$. 已知 $\vol_3(B_1) = 4\pi/3$. 故
+        $$\vol_3(E) = abc \cdot \frac{4\pi}{3} = \boxed{\frac{4\pi abc}{3}}.$$</p>
+      </div>
+
+      <h3 id="sec-4-9-exercises">练习 4 题 (§4.9)</h3>
+
+      <div class="exercise">
+        <p><span class="ex-num">D9.1.</span> <em>(基础)</em> 求 $\R^3$ 中向量 $v_1 = (1,1,2), v_2 = (3, 0, 1), v_3 = (-1, 2, 0)$ 张成的平行体的体积.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>把向量摆列:
+            $$\det\begin{pmatrix} 1 &amp; 3 &amp; -1 \\ 1 &amp; 0 &amp; 2 \\ 2 &amp; 1 &amp; 0 \end{pmatrix}.$$
+            沿第 1 行展开:
+            $$= 1\cdot\det\begin{pmatrix} 0 &amp; 2 \\ 1 &amp; 0\end{pmatrix} - 3\cdot\det\begin{pmatrix} 1 &amp; 2 \\ 2 &amp; 0\end{pmatrix} + (-1)\cdot\det\begin{pmatrix} 1 &amp; 0 \\ 2 &amp; 1\end{pmatrix}$$
+            $$= 1\cdot(0-2) - 3\cdot(0-4) + (-1)\cdot(1-0) = -2 + 12 - 1 = 9.$$
+            $\abs{\det} = 9$, 故 $\vol_3 = \boxed{9}$.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">D9.2.</span> <em>(Simplex)</em> 求 $\R^3$ 中四面体顶点 $(1,0,0), (0,2,0), (0,0,3), (1,1,1)$ 的体积.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>取 $(1,1,1)$ 为基点 (任何顶点都行, 但选这个让 $v_i$ 数小). 三条边:
+            $$v_1 = (1,0,0)-(1,1,1) = (0,-1,-1),$$
+            $$v_2 = (0,2,0)-(1,1,1) = (-1, 1, -1),$$
+            $$v_3 = (0,0,3)-(1,1,1) = (-1, -1, 2).$$
+            $$\det\begin{pmatrix} 0 &amp; -1 &amp; -1 \\ -1 &amp; 1 &amp; -1 \\ -1 &amp; -1 &amp; 2 \end{pmatrix}.$$
+            沿第 1 列展开:
+            $$= 0 - (-1)\det\begin{pmatrix} -1 &amp; -1 \\ -1 &amp; 2\end{pmatrix} + (-1)\det\begin{pmatrix} -1 &amp; -1 \\ 1 &amp; -1\end{pmatrix}$$
+            $$= 0 + 1\cdot(-2-1) + (-1)\cdot(1-(-1)\cdot 1) \cdot \ldots$$
+            <p>(算反了一个符号, 重做仔细些.) 沿第 1 列展开 ($a_{11} = 0$, 跳过; $a_{21} = -1$ 带 $(-1)^{2+1} = -1$ cofactor; $a_{31} = -1$ 带 $(-1)^{3+1} = +1$ cofactor):
+            $$\det = 0 + (-1)\cdot(-1)\det\begin{pmatrix} -1 &amp; -1 \\ -1 &amp; 2\end{pmatrix} + (-1)\cdot(+1)\det\begin{pmatrix} -1 &amp; -1 \\ 1 &amp; -1\end{pmatrix}.$$</p>
+            <p>第一项 $= 1\cdot((-1)(2)-(-1)(-1)) = 1\cdot(-2-1) = -3$. 第二项 $= -1\cdot((-1)(-1)-(-1)(1)) = -1\cdot(1+1) = -2$. 加起来 $\det = -3 + (-2) = -5$.</p>
+            <p>$\abs{\det} = 5$, 故 $\vol_3 = 5/3! = \boxed{5/6}$.</p>
+            <p><em>陷阱检查</em>: 一定要除 $n! = 6$, 不要忘. 选哪个顶点为基点不影响结果 (DSV 平移不变).</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">D9.3.</span> <em>(线性 image)</em> 求 $E = \{(x,y) \in \R^2 : x^2 + xy + y^2 \le 1\}$ (旋转椭圆) 的面积.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>方法 1 (找 $T$ 使 $T(\text{disk}) = E$)</strong>. 二次型 $Q(x,y) = x^2+xy+y^2$ 对应矩阵 $M = \begin{pmatrix}1 &amp; 1/2 \\ 1/2 &amp; 1\end{pmatrix}$. $\det M = 1 - 1/4 = 3/4$. 设 $T$ 满足 $T^T M T = I_2$ (这把 $E$ 拉回单位圆盘), 则 $\abs{\det T}^2 \det M = \det I = 1$, 故 $\abs{\det T} = 1/\sqrt{\det M} = 2/\sqrt{3}$.</p>
+            <p>$T$ 把 unit disk $D_1$ 映到 $E$, 由 DSV
+            $$\vol_2(E) = \abs{\det T}\cdot\vol_2(D_1) = \frac{2}{\sqrt 3}\cdot \pi = \boxed{\frac{2\pi}{\sqrt 3}}.$$</p>
+            <p><strong>方法 2 (公式直接)</strong>. 对正定二次型 $Q(x) = x^T M x$, 椭球 $\{Q \le 1\}$ 的体积是 $\beta_n/\sqrt{\det M}$, 其中 $\beta_n = \vol_n(B_1)$. 此处 $n=2, \beta_2 = \pi, \det M = 3/4$, 给 $\pi/\sqrt{3/4} = 2\pi/\sqrt 3$ ✓.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">D9.4.</span> <em>(线性 CoV 算积分)</em> 设 $T = \begin{pmatrix} 2 &amp; 1 \\ 0 &amp; 3\end{pmatrix}$ 把单位正方形 $Q_2 = [0,1]^2$ 映成平行四边形 $P = T(Q_2)$. 计算 $\int_P (x+y)\, dV$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>用线性 CoV (H&amp;H §4.9 末 / Lec 5.2 — 由 DSV 推得):
+            $$\int_{T(A)} f(y)\, dV \;=\; \abs{\det T}\int_A f(T(u))\, dV.$$
+            $T(u, v) = (2u + v, 3v)$, 故 $f(T(u,v)) = (2u + v) + 3v = 2u + 4v$. $\abs{\det T} = 6$.</p>
+            <p>$$\int_P (x+y)\, dV = 6\int_0^1\!\int_0^1 (2u + 4v)\, du\, dv = 6\left[\int_0^1\!\int_0^1 2u\,du\,dv + \int_0^1\!\int_0^1 4v\,du\,dv\right]$$
+            $$= 6[1 \cdot 1 + 1\cdot 2] = 6\cdot 3 = \boxed{18}.$$</p>
+            <p><em>陷阱检查</em>: (a) 是 $\abs{\det T}$ 不是 $\det T$ (这里 $\det T = 6 &gt; 0$ 所以无所谓, 但 general case 要记). (b) 公式里 $f$ 自变量是 $T(u)$, 不是 $u$ — 整个 $f$ 复合 $T$.</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- ================================================================
+           §4.10 部分
+           ================================================================ -->
+      <h2 id="sec-4-10">§4.10 三大 Jacobian 推导 + 练习</h2>
+
+      <h3 id="sec-4-10-recap">主定理 recap</h3>
+
+      <div class="box thm">
+        <span class="box-title">Theorem D.3 (Nonlinear CoV, H&amp;H Thm 4.10.12)</span>
+        <p>设 $X \subset \R^n$ 紧致, $\vol_n(\partial X) = 0$; $U \supset X$ 开集; $\Phi \colon U \to \R^n$ 在 $X \setminus \partial X$ 上 $C^1$ 且单射, $[D\Phi(x)]$ 可逆且 Lipschitz. 则对任意 L-可积 $f$,
+        $$\int_{\Phi(X)} f \, dV \;=\; \int_X f\!\circ\!\Phi \cdot \abs{\det[D\Phi(x)]} \, dV.$$
+        Lec 8.2 老师明确公示: <strong>不要求验证 Lipschitz / 单射等条件</strong>, 考题中可直接默认这些 hypotheses 成立, 重点是<em>正确计算 Jacobian + 设区域</em>.</p>
+      </div>
+
+      <p>下面三节从 $\Phi$ 公式出发, <strong>从零推</strong> Jacobian 行列式. 不查表, 不背公式 — 考场上一切都能用 60 秒重推出来.</p>
+
+      <!-- POLAR -->
+      <h3 id="sec-4-10-polar">Polar 坐标 Jacobian</h3>
+
+      <div class="box def">
+        <span class="box-title">Def D.4 (Polar)</span>
+        <p>$\Phi_P \colon (0, \infty) \times [0, 2\pi) \to \R^2 \setminus \{(0,0)\}$, 定义
+        $$\Phi_P(r, \theta) = (r\cos\theta,\ r\sin\theta).$$</p>
+      </div>
+
+      <p><strong>推导</strong>. 写出 Jacobian 矩阵 ($x = r\cos\theta, y = r\sin\theta$):
+      $$[D\Phi_P(r,\theta)] = \begin{pmatrix} \partial x/\partial r &amp; \partial x/\partial\theta \\ \partial y/\partial r &amp; \partial y/\partial\theta\end{pmatrix} = \begin{pmatrix} \cos\theta &amp; -r\sin\theta \\ \sin\theta &amp; r\cos\theta\end{pmatrix}.$$
+      算行列式:
+      $$\det[D\Phi_P] = (\cos\theta)(r\cos\theta) - (-r\sin\theta)(\sin\theta) = r\cos^2\theta + r\sin^2\theta = r.$$
+      由于 $r &gt; 0$, $\abs{\det[D\Phi_P]} = r$. </p>
+
+      <div class="box remark">
+        <span class="box-title">结论</span>
+        <p>$$\boxed{\;dA \;=\; dx\,dy \;=\; r\,dr\,d\theta\;}$$</p>
+      </div>
+
+      <!-- CYLINDRICAL -->
+      <h3 id="sec-4-10-cyl">Cylindrical 坐标 Jacobian</h3>
+
+      <div class="box def">
+        <span class="box-title">Def D.5 (Cylindrical)</span>
+        <p>$\Phi_C \colon (0, \infty) \times [0, 2\pi) \times \R \to \R^3 \setminus \{z\text{-axis}\}$, 定义
+        $$\Phi_C(r, \theta, z) = (r\cos\theta,\ r\sin\theta,\ z).$$</p>
+      </div>
+
+      <p><strong>推导</strong>. Jacobian 矩阵:
+      $$[D\Phi_C] = \begin{pmatrix}
+          \partial x/\partial r &amp; \partial x/\partial\theta &amp; \partial x/\partial z \\
+          \partial y/\partial r &amp; \partial y/\partial\theta &amp; \partial y/\partial z \\
+          \partial z/\partial r &amp; \partial z/\partial\theta &amp; \partial z/\partial z
+        \end{pmatrix}
+      = \begin{pmatrix}
+          \cos\theta &amp; -r\sin\theta &amp; 0 \\
+          \sin\theta &amp; r\cos\theta &amp; 0 \\
+          0 &amp; 0 &amp; 1
+        \end{pmatrix}.$$
+      第 3 行只有 $a_{33} = 1$ 非零, 沿第 3 行 cofactor expansion:
+      $$\det[D\Phi_C] = 1 \cdot \det\begin{pmatrix} \cos\theta &amp; -r\sin\theta \\ \sin\theta &amp; r\cos\theta\end{pmatrix} = r.$$
+      即 $\abs{\det[D\Phi_C]} = r$ — 跟 polar 一样, 因为 $z$ 方向"自由不收缩".</p>
+
+      <div class="box remark">
+        <span class="box-title">结论</span>
+        <p>$$\boxed{\;dV \;=\; dx\,dy\,dz \;=\; r\,dr\,d\theta\,dz\;}$$</p>
+      </div>
+
+      <!-- SPHERICAL -->
+      <h3 id="sec-4-10-sph">Spherical 坐标 Jacobian (H&amp;H latitude 约定)</h3>
+
+      <div class="box def">
+        <span class="box-title">Def D.6 (Spherical, H&amp;H 约定)</span>
+        <p>H&amp;H 用<strong>latitude</strong> (维度) $\varphi \in (-\pi/2, \pi/2)$, 不是 colatitude (跟物理书的 $\phi$ 不同!). 定义
+        $$\Phi_S(r, \theta, \varphi) = \bigl(r\cos\theta\cos\varphi,\ r\sin\theta\cos\varphi,\ r\sin\varphi\bigr).$$
+        几何: $\theta$ 是赤道平面 $(x,y)$ 上的方位角 ($\theta = 0$ 指向 $+x$); $\varphi$ 是<em>从赤道平面起算</em>的仰角 ($\varphi = +\pi/2$ 是北极, $\varphi = -\pi/2$ 是南极); $r$ 是到原点距离. 看 $z = r\sin\varphi$: $\varphi$ 越靠近 $\pi/2$, $z$ 越接近 $r$ (北极); $\varphi = 0$ 时 $z = 0$ (赤道).</p>
+      </div>
+
+      <p><strong>推导</strong>. 设 $x = r\cos\theta\cos\varphi, y = r\sin\theta\cos\varphi, z = r\sin\varphi$. Jacobian 矩阵的 9 个偏导:</p>
+
+      <p>$$\begin{array}{lll}
+        \partial x/\partial r = \cos\theta\cos\varphi & \partial x/\partial\theta = -r\sin\theta\cos\varphi & \partial x/\partial\varphi = -r\cos\theta\sin\varphi \\
+        \partial y/\partial r = \sin\theta\cos\varphi & \partial y/\partial\theta = +r\cos\theta\cos\varphi & \partial y/\partial\varphi = -r\sin\theta\sin\varphi \\
+        \partial z/\partial r = \sin\varphi & \partial z/\partial\theta = 0 & \partial z/\partial\varphi = r\cos\varphi
+      \end{array}$$</p>
+
+      <p>所以
+      $$[D\Phi_S] = \begin{pmatrix}
+          \cos\theta\cos\varphi &amp; -r\sin\theta\cos\varphi &amp; -r\cos\theta\sin\varphi \\
+          \sin\theta\cos\varphi &amp; +r\cos\theta\cos\varphi &amp; -r\sin\theta\sin\varphi \\
+          \sin\varphi &amp; 0 &amp; r\cos\varphi
+        \end{pmatrix}.$$</p>
+
+      <p><strong>沿第 3 行展开</strong> (因为 $a_{32} = 0$, 减少计算量). $a_{31} = \sin\varphi$ 带 cofactor $(-1)^{3+1} = +1$; $a_{33} = r\cos\varphi$ 带 cofactor $(-1)^{3+3} = +1$:
+      $$\det[D\Phi_S] = \sin\varphi \cdot M_{31} \;+\; 0 \;+\; r\cos\varphi\cdot M_{33},$$
+      其中 $M_{31}, M_{33}$ 是去掉对应行列后的 $2\times 2$ minor.</p>
+
+      <p><strong>算 $M_{31}$</strong> (去掉第 3 行第 1 列):
+      $$M_{31} = \det\begin{pmatrix} -r\sin\theta\cos\varphi &amp; -r\cos\theta\sin\varphi \\ +r\cos\theta\cos\varphi &amp; -r\sin\theta\sin\varphi\end{pmatrix}$$
+      $$= (-r\sin\theta\cos\varphi)(-r\sin\theta\sin\varphi) - (-r\cos\theta\sin\varphi)(r\cos\theta\cos\varphi)$$
+      $$= r^2\sin^2\theta\cos\varphi\sin\varphi + r^2\cos^2\theta\sin\varphi\cos\varphi$$
+      $$= r^2\sin\varphi\cos\varphi(\sin^2\theta + \cos^2\theta) = r^2\sin\varphi\cos\varphi.$$</p>
+
+      <p><strong>算 $M_{33}$</strong> (去掉第 3 行第 3 列):
+      $$M_{33} = \det\begin{pmatrix} \cos\theta\cos\varphi &amp; -r\sin\theta\cos\varphi \\ \sin\theta\cos\varphi &amp; +r\cos\theta\cos\varphi\end{pmatrix}$$
+      $$= (\cos\theta\cos\varphi)(r\cos\theta\cos\varphi) - (-r\sin\theta\cos\varphi)(\sin\theta\cos\varphi)$$
+      $$= r\cos^2\theta\cos^2\varphi + r\sin^2\theta\cos^2\varphi = r\cos^2\varphi.$$</p>
+
+      <p><strong>合起来</strong>:
+      $$\det[D\Phi_S] = \sin\varphi \cdot r^2\sin\varphi\cos\varphi + r\cos\varphi \cdot r\cos^2\varphi$$
+      $$= r^2\sin^2\varphi\cos\varphi + r^2\cos^3\varphi = r^2\cos\varphi(\sin^2\varphi + \cos^2\varphi) = r^2\cos\varphi.$$
+      由于 $\varphi \in (-\pi/2, \pi/2)$ ⟹ $\cos\varphi &gt; 0$, 故 $\abs{\det[D\Phi_S]} = r^2\cos\varphi$.</p>
+
+      <div class="box remark">
+        <span class="box-title">结论</span>
+        <p>$$\boxed{\;dV \;=\; dx\,dy\,dz \;=\; r^2\cos\varphi\,dr\,d\theta\,d\varphi\;}$$
+        <strong>陷阱</strong>: 如果用 colatitude (physics 约定, $\phi$ 从北极起算, $\phi \in (0, \pi)$, $z = r\cos\phi$), 则 Jacobian 是 $r^2\sin\phi$. 看 $z$ 的表达式 ($\sin\varphi$ vs $\cos\phi$) 反推用的是哪个约定. H&amp;H 用 latitude, 所以 Jacobian 里是 $\cos\varphi$.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">⚠ 三大 Jacobian 一句话总结</span>
+        <ul>
+          <li><strong>Polar</strong> ($\R^2$): $\abs{\det[D\Phi_P]} = r$. 来源: $2\times 2$ 直接算.</li>
+          <li><strong>Cylindrical</strong> ($\R^3$, 圆柱): $\abs{\det[D\Phi_C]} = r$. 来源: $3\times 3$ block 沿末行展开, 等同 polar.</li>
+          <li><strong>Spherical</strong> ($\R^3$, latitude $\varphi$): $\abs{\det[D\Phi_S]} = r^2\cos\varphi$. 来源: $3\times 3$ 沿第 3 行 ($a_{32}=0$) 展开 + 三角恒等式.</li>
+        </ul>
+      </div>
+
+      <h3 id="sec-4-10-exercises">练习 4 题 (§4.10)</h3>
+
+      <div class="exercise">
+        <p><span class="ex-num">D10.1.</span> <em>(基础 polar)</em> 计算 $\displaystyle\int_D (x^2 + y^2)\, dA$ 其中 $D = \{x^2 + y^2 \le 1\}$ 是单位圆盘.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>极坐标. $x^2 + y^2 = r^2$, $dA = r\,dr\,d\theta$. 区域: $r \in [0,1], \theta \in [0, 2\pi)$.
+            $$\int_D (x^2+y^2)\, dA = \int_0^{2\pi}\!\int_0^1 r^2 \cdot r\, dr\, d\theta = 2\pi\int_0^1 r^3\, dr = 2\pi \cdot \frac{1}{4} = \boxed{\frac{\pi}{2}}.$$</p>
+            <p><em>陷阱</em>: 不要忘 Jacobian $r$ ($r^2 \cdot r = r^3$, 不是 $r^2$).</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">D10.2.</span> <em>(Cylindrical 体积)</em> 求由 paraboloid $z = x^2 + y^2$ 与平面 $z = 4$ 围成的区域 $W$ 的体积.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>区域 $W = \{(x,y,z) : x^2+y^2 \le z \le 4\}$. 用柱坐标 $(r,\theta,z)$. 由 $z \ge x^2+y^2 = r^2$ 与 $z \le 4$, 得 $r^2 \le z \le 4$; 又 $r^2 \le 4 \Rightarrow r \le 2$. 区域:
+            $$\widetilde W = \{(r,\theta, z) : 0 \le r \le 2,\ 0 \le \theta &lt; 2\pi,\ r^2 \le z \le 4\}.$$
+            $dV = r\,dr\,d\theta\,dz$:
+            $$\vol_3(W) = \int_0^{2\pi}\!\int_0^2\!\int_{r^2}^4 r\, dz\, dr\, d\theta = 2\pi\int_0^2 r(4 - r^2)\, dr$$
+            $$= 2\pi\left[2r^2 - \frac{r^4}{4}\right]_0^2 = 2\pi(8 - 4) = \boxed{8\pi}.$$</p>
+            <p><em>Sanity</em>: paraboloid 高度 4 在半径 2, 直觉上应该 $\sim$ 圆柱体积 $\pi\cdot 2^2\cdot 4 = 16\pi$ 的一半, 即 $8\pi$ ✓ (paraboloid 占圆柱体积的一半是经典事实).</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">D10.3.</span> <em>(Spherical, integral)</em> 计算 $\displaystyle\int_B e^{-(x^2+y^2+z^2)^{3/2}}\, dV$ 其中 $B = \{x^2 + y^2 + z^2 \le 1\}$ 是单位球.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>球坐标. $x^2+y^2+z^2 = r^2$, 故 $(x^2+y^2+z^2)^{3/2} = r^3$. $dV = r^2\cos\varphi\, dr\, d\theta\, d\varphi$. 单位球: $r \in [0,1], \theta \in [0, 2\pi), \varphi \in [-\pi/2, \pi/2]$.</p>
+            <p>积分变量分离:
+            $$\int_B e^{-r^3}\, dV = \int_{-\pi/2}^{\pi/2}\!\!\int_0^{2\pi}\!\!\int_0^1 e^{-r^3}\cdot r^2\cos\varphi\, dr\, d\theta\, d\varphi$$
+            $$= \underbrace{\left(\int_{-\pi/2}^{\pi/2}\cos\varphi\, d\varphi\right)}_{= [\sin\varphi]_{-\pi/2}^{\pi/2} = 1-(-1) = 2}\cdot\underbrace{\left(\int_0^{2\pi} d\theta\right)}_{= 2\pi}\cdot\underbrace{\left(\int_0^1 r^2 e^{-r^3}\, dr\right)}_{(*)}.$$
+            $(*)$: 令 $u = r^3, du = 3r^2\,dr$, 则 $\int_0^1 r^2 e^{-r^3}\,dr = \frac{1}{3}\int_0^1 e^{-u}\,du = \frac{1}{3}(1 - e^{-1})$.</p>
+            <p>合起来:
+            $$\int_B e^{-r^3}\, dV = 2\cdot 2\pi\cdot \frac{1-e^{-1}}{3} = \boxed{\frac{4\pi(1 - e^{-1})}{3}}.$$</p>
+            <p><em>Sanity</em>: 注意 $(\int_{-\pi/2}^{\pi/2}\cos\varphi\,d\varphi)\cdot(\int_0^{2\pi}d\theta) = 2\cdot 2\pi = 4\pi$ — 这正是单位球的"角度积分总量". 跟 $\vol_3(B_1) = (4\pi/3)$ 比, 差一个 $\int_0^1 r^2\,dr = 1/3$, 也对 ✓.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">D10.4.</span> <em>(Spherical, 部分区域 + 验证三大 Jacobian)</em> 用球坐标计算上半球 $H = \{x^2+y^2+z^2 \le R^2, z \ge 0\}$ 的体积, 验证答案 $\vol_3(H) = \frac{2\pi R^3}{3}$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>$z = r\sin\varphi \ge 0 \iff \sin\varphi \ge 0 \iff \varphi \in [0, \pi/2]$ (北半球). $r \in [0, R], \theta \in [0, 2\pi)$.
+            $$\vol_3(H) = \int_0^{\pi/2}\!\!\int_0^{2\pi}\!\!\int_0^R r^2\cos\varphi\, dr\, d\theta\, d\varphi$$
+            $$= \underbrace{[\sin\varphi]_0^{\pi/2}}_{=1}\cdot 2\pi\cdot \frac{R^3}{3} = \boxed{\frac{2\pi R^3}{3}}.\quad\checkmark$$</p>
+            <p><em>陷阱</em>: 若 colatitude $\phi \in [0, \pi]$ ($z = r\cos\phi$), 上半球是 $\phi \in [0, \pi/2]$, Jacobian $r^2\sin\phi$, 同样积出 $2\pi R^3/3$ — 但两个约定<em>不要混</em>. 记诀: 看 $z$ 表达式, $\sin\varphi$ 是 latitude, $\cos\phi$ 是 colatitude. H&amp;H = latitude = $\sin\varphi$.</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- ================================================================
+           Cheat
+           ================================================================ -->
+      <h2 id="cheat-30s">考前 30 秒 cheat</h2>
+
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-thm"><strong>DSV</strong> ($\R^n$): $\vol_n(T(A)) = \abs{\det T}\cdot\vol_n(A)$. 用 $\abs{\det}$ 不是 $\det$.</li>
+          <li class="cs-thm"><strong>Parallelepiped 体积</strong>: $\vol_n P(v_1,\ldots,v_n) = \abs{\det[v_1|\cdots|v_n]}$. 向量摆列就行.</li>
+          <li class="cs-thm"><strong>Simplex 体积</strong>: $\vol_n(\text{simplex with origin}) = \abs{\det}/n!$. 多一个 $n!$.</li>
+          <li class="cs-thm"><strong>椭球/线性 image</strong>: $\vol_n(T(B_1)) = \abs{\det T}\cdot \beta_n$. ($\beta_2 = \pi$, $\beta_3 = 4\pi/3$, $\beta_4 = \pi^2/2$.)</li>
+          <li class="cs-thm"><strong>Linear CoV</strong>: $\int_{T(A)} f(y)\,dV = \abs{\det T}\int_A f(T(u))\,dV$. $f$ 复合 $T$, $\abs{\det T}$ 在前.</li>
+          <li class="cs-thm"><strong>Polar Jacobian</strong>: $r$. $dA = r\,dr\,d\theta$.</li>
+          <li class="cs-thm"><strong>Cylindrical Jacobian</strong>: $r$. $dV = r\,dr\,d\theta\,dz$.</li>
+          <li class="cs-thm"><strong>Spherical (latitude)</strong>: $r^2\cos\varphi$. $dV = r^2\cos\varphi\,dr\,d\theta\,d\varphi$, $\varphi \in (-\pi/2, \pi/2)$, $z = r\sin\varphi$.</li>
+          <li class="cs-tech"><strong>Cofactor 沿零行</strong>: 行/列含 0 多的, 沿它展开省事. Spherical 的第 3 行有 $a_{32}=0$, cylindrical 的第 3 行三个全是 $(0,0,1)$.</li>
+          <li class="cs-tech"><strong>三角恒等式核心</strong>: $\sin^2 + \cos^2 = 1$. Spherical Jacobian 展开过程用了 2 次.</li>
+          <li class="cs-tech"><strong>变量分离</strong>: 球坐标积分若 $f$ 形如 $f(r)\cdot g(\theta)\cdot h(\varphi)$, $r^2\cos\varphi$ Jacobian 自动允许三重积分拆成三个 1D 积分相乘. (例: $\int_B e^{-r^3}$ 题.)</li>
+          <li class="cs-pitfall"><strong>陷阱: $\abs{\det T}$ 不是 $\det T$</strong> — 体积非负.</li>
+          <li class="cs-pitfall"><strong>陷阱: simplex 别忘 $/n!$</strong> — parallelepiped 不除, simplex 要除.</li>
+          <li class="cs-pitfall"><strong>陷阱: spherical 约定</strong> — H&amp;H = latitude $\varphi$, $z = r\sin\varphi$, Jacobian $r^2\cos\varphi$. Physics = colatitude $\phi$, $z = r\cos\phi$, Jacobian $r^2\sin\phi$. 看 $z$ 表达式反推约定.</li>
+          <li class="cs-pitfall"><strong>陷阱: 上半球 $\varphi$ 范围</strong> — latitude 约定下 $\varphi \in [0, \pi/2]$ 是上半 ($z\ge 0$). 不是 $[-\pi/2, 0]$.</li>
+          <li class="cs-pitfall"><strong>陷阱: linear CoV 公式方向</strong> — $\abs{\det T}$ 出现在<em>代换后</em>那一侧 (与 1D $u$-sub 同侧). $\int_{T(A)} f\,dy = \abs{\det T}\int_A f\!\circ\!T\, du$.</li>
+        </ul>
+      </div>
+
+      <hr style="margin: 60px 0 20px; border: 0; border-top: 1px solid #d8d3c4;">
+      <p style="font-size: 13px; color: #888; text-align: center;">MATH 31CH 复习指南 · MT2-D 押题练习 · H&amp;H §4.9-4.10 · Lec 8.2 策略导向</p>
+
+    </main>
+  </div>
+
+</body>
+</html>

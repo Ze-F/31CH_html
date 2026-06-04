@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Topic 21: 曲面参数化与第一基本形式 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\C': '\\mathbb{C}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\diam': '\\operatorname{diam}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|',
+        '\\Span': '\\operatorname{span}',
+        '\\T': '\\mathbf{T}',
+        '\\NN': '\\mathbf{N}',
+        '\\B': '\\mathbf{B}',
+        '\\Form': '\\mathrm{I}',
+        '\\dddot': '\\overset{\\,\\cdot\\,\\cdot\\,\\cdot\\,}{#1}'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="20-frenet-curvature.html">Topic 20</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next nav-disabled" href="#">下一页 (待补)</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#motivation">§1 动机</a></li>
+        <li><a href="#prereq">§2 前置知识</a></li>
+        <li><a href="#definitions">§3 核心定义</a></li>
+        <li><a href="#theorems">§4 主要定理</a></li>
+        <li><a href="#examples">§5 Worked Examples</a></li>
+        <li><a href="#pitfalls">§6 常见陷阱</a></li>
+        <li><a href="#exercises">§7 练习</a></li>
+        <li><a href="#cheat">§8 速查表</a></li>
+        <li><a href="#further">§9 进一步阅读</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>Topic 21: 曲面参数化与第一基本形式</h1>
+      <p class="subtitle">Source: Lec 10.2 (后半) · Klingenberg <em>A Course in Differential Geometry</em> §§3.1–3.2 · 微分几何入门第 3 页</p>
+
+      <!-- §1 动机 -->
+      <h2 id="motivation">§1 动机</h2>
+      <p>前两页 (<a href="19-curves-frenet.html">Topic 19</a> + <a href="20-frenet-curvature.html">Topic 20</a>) 完整发展了<em>1D objects</em> (曲线) 的几何理论: regular curve, Frenet frame, 曲率, 挠率, helix 等. 本页开始一次<strong>维度跃迁</strong>: 从 1D 曲线到 <strong>2D 曲面 (surface)</strong>.</p>
+
+      <p>维度跃迁带来两个本质变化:</p>
+      <ol>
+        <li><strong>切空间从 1D 变 2D</strong>: 曲线在每点只有"一条切线方向" $\dot c$. 曲面在每点有"<em>整个 2D 切平面</em>", 由 $X_u, X_v$ 张成. 因此"sigle direction of bending" 不再唯一 — 后续会引出<em>主方向</em>与<em>主曲率</em>的二维概念.</li>
+        <li><strong>Regularity 升级</strong>: 曲线 regularity 是 $\dot c \ne 0$ (1D 非零). 曲面 regularity 是 $[DX]$ rank = 2 (等价 $X_u \times X_v \ne 0$). 这是"参数化不退化为低维"的条件.</li>
+      </ol>
+
+      <p>本页的主题是<strong>第一基本形式 (first fundamental form)</strong>: 一个 $2 \times 2$ 对称正定矩阵 $\mathrm{I} = \bigl[\begin{smallmatrix}E & F\\ F & G\end{smallmatrix}\bigr]$, 它把 $\R^3$ 的内积"<em>拉回</em>"到参数空间 $(u, v) \in U \subset \R^2$ — 是 surface theory 中最基本的<em>度量</em>对象, 让我们能在参数空间里直接计算曲面上的<em>弧长</em>、<em>角度</em>、<em>面积</em>.</p>
+
+      <p>具体的 punchline 公式:</p>
+      <ul>
+        <li><strong>曲面上曲线的弧长</strong>: $L = \int \sqrt{E \dot u^2 + 2F \dot u \dot v + G \dot v^2}\,dt$.</li>
+        <li><strong>曲面上区域的面积</strong>: $\mathrm{area} = \iint \sqrt{EG - F^2}\,du\,dv$.</li>
+      </ul>
+      <p>第二个公式应该让你感到熟悉: 它和 Topic 09 (非线性 CoV) 里出现的面积元 $|X_u \times X_v|\,du\,dv$ <em>就是同一个东西</em>, 因为 $|X_u \times X_v|^2 = EG - F^2$. 这是 surface theory 与 integration theory 的<em>第一次握手</em>.</p>
+
+      <p>本页只覆盖<em>第一</em>基本形式; <em>第二</em>基本形式 + 主曲率 + Gauss 曲率 + Theorema Egregium 全部留给<strong>下一页 (待 Lec 10.3+ 完成)</strong>.</p>
+
+      <!-- §2 前置知识 -->
+      <h2 id="prereq">§2 前置知识</h2>
+      <div class="box prereq">
+        <span class="box-title">在阅读本页前，你应该已经掌握:</span>
+        <ul>
+          <li><strong>31BH</strong>: 偏导数 $\partial X/\partial u$, Jacobian matrix $[DX]$, rank of matrix.</li>
+          <li><strong><a href="09-nonlinear-cov.html">Topic 09</a></strong>: $X_u \times X_v$ 在非线性 CoV 中作为<em>面积/体积放缩因子</em>的角色 — 那里是把 $\R^n \to \R^n$ 的 diffeomorphism, 这里是 $\R^2 \to \R^3$ 的 immersion. 概念相通.</li>
+          <li><strong>Linear algebra</strong>: <em>对称双线性型</em> (symmetric bilinear form), <em>正定矩阵</em>, $2 \times 2$ 行列式公式.</li>
+          <li><strong>Vector calculus</strong>: <em>cross product</em> in $\R^3$, 单位法向量, Lagrange's identity $|u \times v|^2 = |u|^2 |v|^2 - (u \cdot v)^2$.</li>
+          <li><strong>无 H&amp;H 章节前置</strong> — Klingenberg §3.1–3.2.</li>
+        </ul>
+      </div>
+
+      <!-- §3 核心定义 -->
+      <h2 id="definitions">§3 核心定义</h2>
+
+      <p>本节有 <strong>5 个</strong>定义, 串成 surface 理论的"vocabulary chain": 曲面 → regularity → 法向 → 第一基本形式 → Gauss frame.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 21.1 (Parametrized surface patch)</span>
+        <p>设 $U \subseteq \R^2$ 是开集, 元素记 $(u, v) \in U$ (或 $(u^1, u^2)$). 一个 <strong>parametrized surface patch (参数化曲面片)</strong>, 简称 <strong>surface (曲面)</strong>, 是 differentiable 映射
+        $$ X \;\colon\; U \;\longrightarrow\; \R^3, $$
+        使得对<em>每个</em> $(u, v) \in U$, Jacobian
+        $$ [DX(u, v)] \;\colon\; \R^2 \;\longrightarrow\; \R^3 $$
+        是 rank 2 (即 injective). 这条件称 <strong>regularity</strong>; 满足它的 $X$ 称 <strong>regular surface</strong>.</p>
+        <p>记号: $X(u, v) = (x(u, v), y(u, v), z(u, v))$. 偏导
+        $$ X_u(u, v) \;:=\; \frac{\partial X}{\partial u}(u, v), \qquad X_v(u, v) \;:=\; \frac{\partial X}{\partial v}(u, v) $$
+        是 $\R^3$ 中的向量, 也是 Jacobian $[DX(u, v)]$ 的<em>两列</em>.</p>
+      </div>
+
+      <p><strong>直觉</strong>: $X$ 把参数平面里的"图案" (像 $(u, v) \in [0, 1]^2$) <em>嵌入</em>到 $\R^3$ 里, 形成一片"皮"。Regularity 保证<em>不退化</em>: 没有"褶皱" (rank drop to 1), 没有"点状坍缩" (rank drop to 0). 是曲面版的 "$\dot c \ne 0$".</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 21.2 (Regularity ⟺ $X_u \times X_v \ne 0$)</span>
+        <p>对 $X \colon U \to \R^3$ smooth, 以下等价:
+        <ol>
+          <li>$[DX(u, v)]$ rank 2 (Def 21.1 中的 regularity).</li>
+          <li>$X_u(u, v)$ 与 $X_v(u, v)$ 在 $\R^3$ 中<em>线性独立</em>.</li>
+          <li><strong>$X_u(u, v) \times X_v(u, v) \;\ne\; 0$</strong> (cross product in $\R^3$ 非零).</li>
+        </ol>
+        因为 $\R^3$ 中两个向量线性独立 ⟺ 它们的 cross product 非零, 我们通常用 condition (3) 作为<em>实战检验</em>.</p>
+      </div>
+
+      <p><strong>注意维度对比</strong>: 曲线的 regularity 是 "$\dot c \ne 0$" (1 个 $\R^n$ 向量非零); 曲面的 regularity 是 "$X_u \times X_v \ne 0$" (2 个 $\R^3$ 向量的 cross product 非零). 维度跃迁让 condition 形式"复杂"了一层 — 但本质都是"<em>参数化不退化</em>".</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 21.3 (单位法向场 $\nu$ 与 Gauss 映射)</span>
+        <p>对 regular surface $X \colon U \to \R^3$, 定义<strong>unit normal field (单位法向场)</strong>:
+        $$ \boxed{\;\nu(u, v) \;:=\; \frac{X_u(u, v) \;\times\; X_v(u, v)}{|X_u(u, v) \;\times\; X_v(u, v)|}.\;} $$
+        $\nu(u, v) \in \R^3$ 处处单位长度且<em>垂直</em>切平面 $\Span\{X_u(u, v), X_v(u, v)\}$ — 这是 $\R^3$ 中 cross product 的标准性质. 映射
+        $$ \nu \;\colon\; U \;\longrightarrow\; S^2 \;\subset\; \R^3 $$
+        把每个参数点送到单位球面 $S^2$ 上, 称 <strong>Gauss 映射 (Gauss map)</strong>.</p>
+      </div>
+
+      <p><strong>预告</strong>: Gauss 映射 $\nu$ 是 surface 几何的<em>核心对象</em>. 它的 differential $[D\nu]$ 在 Topic 22+ 会引出<em>第二基本形式 / 主曲率 / Gauss 曲率</em>; "$\nu$ 怎么变" 就是"曲面怎么弯". 平面 ($X(u, v) = $ 仿射) 的 $\nu$ 是常向量, 反映"平面不弯"; 球面的 $\nu$ 把每点送到自己 (= 单位球面的同一点), 反映"球面均匀弯".</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 21.4 ★★★ (第一基本形式 $\mathrm{I}$ — Klingenberg 3.2.2)</span>
+        <p>对 regular surface $X \colon U \to \R^3$ 与 $(u, v) \in U$, <strong>第一基本形式 (first fundamental form)</strong> 是 $2 \times 2$ 对称矩阵
+        $$ \boxed{\;\mathrm{I}(u, v) \;:=\; \begin{pmatrix} E(u, v) & F(u, v) \\ F(u, v) & G(u, v) \end{pmatrix},\;} $$
+        其中 (Gauss 记号):
+        $$ \boxed{\;E \;:=\; X_u \cdot X_u, \qquad F \;:=\; X_u \cdot X_v, \qquad G \;:=\; X_v \cdot X_v.\;} $$
+        所有内积都用 $\R^3$ 的标准 Euclidean dot product.</p>
+      </div>
+
+      <p><strong>解读 (双视角)</strong>:</p>
+      <ul>
+        <li><strong>切平面上的内积矩阵</strong>: 若 $\xi = \xi_1 X_u + \xi_2 X_v$ 与 $\eta = \eta_1 X_u + \eta_2 X_v$ 是切平面 $\Span\{X_u, X_v\}$ 中的两个向量, 则它们在 $\R^3$ 中的内积可以由 $E, F, G$ 表达:
+        $$ \xi \cdot \eta \;=\; \begin{pmatrix}\xi_1 & \xi_2\end{pmatrix}\,\mathrm{I}\,\begin{pmatrix}\eta_1 \\ \eta_2\end{pmatrix} \;=\; \xi_1 \eta_1 E + (\xi_1 \eta_2 + \xi_2 \eta_1) F + \xi_2 \eta_2 G. $$
+        即 $\mathrm{I}$ 是"切平面内积在 $\{X_u, X_v\}$ 基下的矩阵".</li>
+        <li><strong>参数空间的诱导度量</strong>: 同一对内积也可以读作"参数空间 $\R^2$ 通过 $X$ <em>诱导</em>出来的度量" — 给参数向量 $(\xi_1, \xi_2), (\eta_1, \eta_2) \in T_{(u, v)} \R^2 = \R^2$, 它们的"曲面距离"由 $\xi^T \mathrm{I} \eta$ 给出. 这是 manifold theory 中"<em>pull-back metric</em>"的最早出现.</li>
+      </ul>
+
+      <div class="box def">
+        <span class="box-title">Definition 21.5 (Gauss frame — 沿曲面的 3-frame)</span>
+        <p>对 regular surface $X$, 三元组
+        $$ (X_u(u, v),\;\; X_v(u, v),\;\; \nu(u, v)) $$
+        称<strong>Gauss frame</strong>. 它在每点 $(u, v)$ 构成 $\R^3$ 的一组 basis (rank 3 = 2 切 + 1 法).</p>
+        <p><strong>重要警告</strong>: Gauss frame <em>一般不是 orthonormal</em>! $X_u$ 与 $X_v$ 既不一定单位长度 (实际 $|X_u|^2 = E$ 可任意), 也不一定正交 ($X_u \cdot X_v = F$ 可任意). 唯一保证正交单位的是 $\nu$ 与 $\{X_u, X_v\}$ 的关系. 这与 Frenet trihedron $(\T, \NN, \B)$ <em>完全 orthonormal</em> 的情况显著不同.</p>
+      </div>
+
+      <p><strong>为什么不 Gram-Schmidt 化?</strong> 想象一下做了 Gram-Schmidt: 设 $\tilde X_u = X_u/|X_u|$, $\tilde X_v = (X_v - (X_v \cdot \tilde X_u)\tilde X_u)/(\ldots)$. 这样得到的 orthonormal frame 确实存在 (称 "orthonormal frame field"), 但<em>失去了与参数化的对齐</em>. 在 surface theory 中我们偏好直接处理"非正交但与参数对齐"的 $(X_u, X_v)$, 因为最终的几何对象 (如曲面上区域的面积, 第一基本形式) 都是<em>关于参数</em>表达的. 把 $E, F, G$ 算出来再说.</p>
+
+      <!-- §4 主要定理 -->
+      <h2 id="theorems">§4 主要定理</h2>
+
+      <p>本节四个 theorem, 全是关于<em>如何用第一基本形式做计算</em>: 正定性 (Thm 21.1), 弧长公式 (21.2), 面积公式 (21.3), 重参数化变换律 (21.4).</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 21.1 (第一基本形式是正定的)</span>
+        <p>对 regular surface $X$ 与每个 $(u, v) \in U$:
+        <ol>
+          <li>$E(u, v) = |X_u|^2 &gt; 0$.</li>
+          <li>$\det \mathrm{I} \;=\; EG - F^2 \;=\; |X_u \times X_v|^2 \;&gt;\; 0$.</li>
+        </ol>
+        故 $\mathrm{I}(u, v)$ 是<strong>对称正定</strong> $2 \times 2$ 矩阵.</p>
+      </div>
+
+      <details><summary><strong>证明</strong></summary>
+      <div class="details-body">
+      <p>(i) $E = X_u \cdot X_u = |X_u|^2$. By regularity, $X_u, X_v$ 线性独立 (Def 21.2), 故都非零, 特别 $X_u \ne 0$, $E &gt; 0$. $\checkmark$</p>
+      <p>(ii) <strong>Lagrange's identity</strong> (基本 vector calculus): 对任意 $u, v \in \R^3$,
+      $$ |u \times v|^2 \;=\; |u|^2 |v|^2 - (u \cdot v)^2. $$
+      应用到 $X_u, X_v$:
+      $$ |X_u \times X_v|^2 \;=\; |X_u|^2 |X_v|^2 - (X_u \cdot X_v)^2 \;=\; EG - F^2. $$
+      由 regularity $X_u \times X_v \ne 0$ (Def 21.2 的等价 form), 故 $EG - F^2 = |X_u \times X_v|^2 &gt; 0$. $\checkmark$</p>
+      <p>综合 (i) + (ii): $E &gt; 0$ 且 $\det = EG - F^2 &gt; 0$, 故 $\mathrm{I}$ 正定 (由 Sylvester's criterion). $\square$</p>
+      </div>
+      </details>
+
+      <p><strong>geometric content</strong>: 正定性反映"切平面是<em>真正</em>的 2D 平面" — 内积非退化, 长度严格正. 失去正定就意味着 regularity 失败.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 21.2 (曲面上曲线的弧长公式)</span>
+        <p>设 $\gamma(t) = X(u(t), v(t))$ 是曲面 $X$ 上的曲线 (即 $(u(t), v(t))$ 是参数空间 $U$ 中的曲线). 则 $\gamma$ 在 $[a, b]$ 上的<strong>弧长</strong>是
+        $$ \boxed{\;L(\gamma) \;=\; \int_a^b \sqrt{E\,\dot u^2 + 2 F\,\dot u\,\dot v + G\,\dot v^2}\,dt,\;} $$
+        其中 $E = E(u(t), v(t))$ 等是<em>$\gamma$ 上的函数</em>, $\dot u = du/dt$, $\dot v = dv/dt$.</p>
+      </div>
+
+      <details><summary><strong>证明</strong> (chain rule + 第一基本形式)</summary>
+      <div class="details-body">
+      <p>By chain rule, $\dot \gamma(t) = X_u(u(t), v(t)) \dot u(t) + X_v(u(t), v(t)) \dot v(t)$. 这是切向量 $\dot \gamma \in T_{\gamma(t)}\R^3$ 在 $\{X_u, X_v\}$ 基下的展开, 坐标 $(\dot u, \dot v)$.</p>
+      <p>由 Def 21.4 解读 (i):
+      $$ |\dot \gamma|^2 \;=\; \dot \gamma \cdot \dot \gamma \;=\; \begin{pmatrix}\dot u & \dot v\end{pmatrix} \mathrm{I} \begin{pmatrix}\dot u \\ \dot v\end{pmatrix} \;=\; E \dot u^2 + 2 F \dot u \dot v + G \dot v^2. $$
+      故 $|\dot \gamma| = \sqrt{E \dot u^2 + 2 F \dot u \dot v + G \dot v^2}$. 积分得弧长. $\square$</p>
+      </div>
+      </details>
+
+      <p><strong>实战意义</strong>: 这条公式让我们在<em>参数空间</em> $(u(t), v(t))$ 里直接计算曲面上的"曲线弧长", <em>不需要</em>先写出 $\gamma(t) \in \R^3$ 三个坐标再算 $|\dot \gamma|$. 在球面、椭球面等参数化复杂的曲面上, 这是<em>巨大的简化</em>.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 21.3 ★ (曲面上区域的面积公式)</span>
+        <p>设 $\Omega \subseteq U$ 是参数空间的可测子集 (e.g.\ rectangle, 圆盘), 其在曲面下的 image $X(\Omega) \subset \R^3$. 则
+        $$ \boxed{\;\mathrm{area}(X(\Omega)) \;=\; \iint_\Omega |X_u \times X_v|\,du\,dv \;=\; \iint_\Omega \sqrt{EG - F^2}\,du\,dv.\;} $$
+        </p>
+      </div>
+
+      <p><strong>这就是 Topic 09 的面积元</strong>: 在 nonlinear CoV 中我们看到, $\R^2 \to \R^3$ 的 immersion $X$ 把面积元 $du\,dv$ 映成 $|X_u \times X_v|\,du\,dv$. 由 Thm 21.1 (ii), $|X_u \times X_v| = \sqrt{EG - F^2}$. 二者是同一公式的两种写法. 这是<em>differential geometry 与 integration theory 的桥</em>.</p>
+
+      <details><summary><strong>证明思路</strong> (与 Topic 09 的 nonlinear CoV 连接)</summary>
+      <div class="details-body">
+      <p>取 $\Omega$ 中的一个小 dyadic cube $[u_0, u_0 + h] \times [v_0, v_0 + h]$. 该小 cube 在 $X$ 下的 image 近似一个平行四边形 (linearization), 由两条边
+      $$ X_u(u_0, v_0) \cdot h, \qquad X_v(u_0, v_0) \cdot h $$
+      生成. 这个平行四边形在 $\R^3$ 中的面积是 $|X_u \times X_v| \cdot h^2$ (cross product 的几何意义). 故 image 的"近似面积" $\approx |X_u \times X_v|\,du\,dv$. 极限下 (Riemann 和) 得面积公式. $\square$ (严格证明需用 nonlinear CoV theorem, Klingenberg / do Carmo 用更直接的 immersion argument.)</p>
+      </div>
+      </details>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 21.4 (重参数化下第一基本形式的变换律)</span>
+        <p>设 $X \colon U \to \R^3$ 是 surface, $\varphi \colon V \to U$ 是 diffeomorphism (即<em>参数变换</em>), 设 $\tilde X := X \circ \varphi \colon V \to \R^3$ 是<em>重参数化</em>的曲面. 设 $A := [D\varphi]$ ($2 \times 2$ Jacobian matrix). 则
+        $$ \boxed{\;\widetilde{\mathrm{I}}(v) \;=\; A(v)^T \cdot \mathrm{I}(\varphi(v)) \cdot A(v).\;} $$
+        即"基本形式矩阵"按<em>合同变换 (congruent transformation)</em> 律. 特别地, $\det \widetilde{\mathrm{I}} = (\det A)^2 \det \mathrm{I}$.</p>
+      </div>
+
+      <details><summary><strong>证明</strong></summary>
+      <div class="details-body">
+      <p>用链法则: $\tilde X = X \circ \varphi$, $[D\tilde X] = [DX] \cdot [D\varphi] = [DX] \cdot A$. 也就是
+      $$ (\tilde X_v^1,\, \tilde X_v^2) \;=\; (X_u,\, X_v) \cdot A, $$
+      即新参数下的 $\tilde X_{v^1}, \tilde X_{v^2}$ 是旧 $X_u, X_v$ 通过 $A$ 的线性组合.</p>
+      <p>然后:
+      $$ \widetilde{\mathrm{I}}_{jk} \;=\; \tilde X_{v^j} \cdot \tilde X_{v^k} \;=\; \sum_{l, m} A_{lj} A_{mk} (X_{u^l} \cdot X_{u^m}) \;=\; \sum_{l, m} A_{lj} A_{mk} \mathrm{I}_{lm} \;=\; (A^T \mathrm{I} A)_{jk}. \quad\square $$
+      </p>
+      </div>
+      </details>
+
+      <p><strong>意义</strong>: 这条变换律告诉我们 <em>$\mathrm{I}$ 不是"绝对"</em>的几何对象 — 它依赖参数化. 但<em>合同类</em> ($A^T \mathrm{I} A$ 等价类) 是几何不变的; <em>$\sqrt{\det \mathrm{I}}\,du\,dv$</em> 与 <em>弧长积分</em>都是 reparam-invariant (前者用 $|\det A|$ 因子 cancel JTV, 后者用 chain rule). 这与曲线的 $\kappa, \tau$ reparam-invariant 类似 — 几何量都<em>有此性质</em>.</p>
+
+      <!-- §5 Worked Examples -->
+      <h2 id="examples">§5 Worked Examples</h2>
+
+      <div class="box example">
+        <span class="box-title">Example 21.1 (函数图象 $X(u, v) = (u, v, f(u, v))$)</span>
+        <p>对 smooth $f \colon U \to \R$, 取 $X(u, v) = (u, v, f(u, v))$ — 这是 $f$ 的<em>graph</em>.</p>
+        <p>偏导:
+        $$ X_u = (1, 0, f_u), \qquad X_v = (0, 1, f_v). $$
+        第一基本形式:
+        $$ E = X_u \cdot X_u = 1 + f_u^2, \qquad F = X_u \cdot X_v = f_u f_v, \qquad G = X_v \cdot X_v = 1 + f_v^2. $$
+        $$ EG - F^2 = (1 + f_u^2)(1 + f_v^2) - f_u^2 f_v^2 = 1 + f_u^2 + f_v^2. $$
+        单位法向场:
+        $$ X_u \times X_v = (0 \cdot f_v - f_u \cdot 1,\; f_u \cdot 0 - 1 \cdot f_v,\; 1 \cdot 1 - 0 \cdot 0) = (-f_u, -f_v, 1). $$
+        $|X_u \times X_v| = \sqrt{1 + f_u^2 + f_v^2}$, 故
+        $$ \nu(u, v) = \frac{(-f_u, -f_v, 1)}{\sqrt{1 + f_u^2 + f_v^2}}. $$
+        面积元 $\sqrt{EG - F^2}\,du\,dv = \sqrt{1 + f_u^2 + f_v^2}\,du\,dv$ — <strong>这恰好是大一多元微积分的"surface area of a graph"公式</strong>! 我们刚从 differential geometry 第一基本形式重新推出来.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 21.2 ★★★ (单位球面 spherical coordinates — 必考)</span>
+        <p>单位球面 $S^2 \subset \R^3$ 用 spherical coordinates 参数化 (老师惯用约定 $u$ = 北极角, $v$ = 经度):
+        $$ X(u, v) = (\sin u \cos v,\;\; \sin u \sin v,\;\; \cos u), \quad u \in (0, \pi),\; v \in [0, 2\pi). $$
+        (即<em>$z = \cos u$</em>, $\rho = \sin u$ 是赤道半径. 这与 Lec 5.3 老师用的 $\varphi \in (-\pi/2, \pi/2)$ "纬度"约定不同, 这里 $u$ 是<em>colatitude</em>从北极算起.)</p>
+
+        <p>偏导:
+        $$ X_u = (\cos u \cos v,\;\; \cos u \sin v,\;\; -\sin u), $$
+        $$ X_v = (-\sin u \sin v,\;\; \sin u \cos v,\;\; 0). $$
+
+        <p>计算 $E, F, G$:
+        $$ E = X_u \cdot X_u = \cos^2 u \cos^2 v + \cos^2 u \sin^2 v + \sin^2 u = \cos^2 u + \sin^2 u = 1. $$
+        $$ G = X_v \cdot X_v = \sin^2 u \sin^2 v + \sin^2 u \cos^2 v + 0 = \sin^2 u. $$
+        $$ F = X_u \cdot X_v = \cos u \cos v \cdot (-\sin u \sin v) + \cos u \sin v \cdot \sin u \cos v + (-\sin u) \cdot 0 = -\cos u \sin u \cos v \sin v + \cos u \sin u \sin v \cos v = 0. $$
+        故
+        $$ \boxed{\;\mathrm{I} \;=\; \begin{pmatrix} 1 & 0 \\ 0 & \sin^2 u \end{pmatrix}.\;} $$
+        $$ \sqrt{EG - F^2} \;=\; \sin u. $$</p>
+
+        <p><strong>解读</strong>:</p>
+        <ul>
+          <li>$F = 0$ 反映 spherical coordinates 的"<em>正交参数化</em>" — coordinate curves (经线 + 纬线) 在球面上处处垂直.</li>
+          <li>$E = 1$ 反映: 沿"经线"($v$ 固定, $u$ 变) 走的速度等于<em>角速度 1</em> in colatitude — 因为弧长 $ds = R\,du$ 在 $R = 1$ 时是 $du$ 本身. 即<em>经线已经是 unit-speed 参数化</em>.</li>
+          <li>$G = \sin^2 u$ 反映: 沿"纬线"($u$ 固定, $v$ 变) 走的速度是<em>纬度圆的半径乘角速度</em>, 即 $\sin u$. 在赤道 ($u = \pi/2$) 上 $G = 1$, 在两极 ($u \to 0, \pi$) 上 $G \to 0$ — 反映"两极是 coordinate singularity, 纬线圆收缩成点".</li>
+          <li>面积元 $\sin u\,du\,dv$ 恰好是<em>球极坐标变换</em>中的 Jacobian! 球面总面积:
+            $$ \int_0^{2\pi}\int_0^\pi \sin u\,du\,dv \;=\; 2\pi \cdot [-\cos u]_0^\pi \;=\; 2\pi \cdot 2 \;=\; 4\pi. \checkmark $$
+          </li>
+        </ul>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 21.3 (圆柱面 — flat 曲面)</span>
+        <p>$X(u, v) = (\cos u, \sin u, v)$, $u \in [0, 2\pi)$, $v \in \R$. 圆柱面 $x^2 + y^2 = 1$.</p>
+        <p>偏导:
+        $$ X_u = (-\sin u, \cos u, 0), \qquad X_v = (0, 0, 1). $$
+        第一基本形式:
+        $$ E = \sin^2 u + \cos^2 u + 0 = 1, \qquad F = 0, \qquad G = 1. $$
+        $$ \boxed{\;\mathrm{I} \;=\; \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} \;=\; I_2.\;} $$
+        即圆柱面的<em>第一基本形式等于平面的</em>! 面积元 $\sqrt{1 - 0} = 1$, $\mathrm{area} = \iint 1\,du\,dv =$ 参数矩形面积.</p>
+
+        <p><strong>这就是"flat" (平坦) 的 first 含义</strong>: 圆柱面与平面在第一基本形式 (即"度量") 层面<em>无法分辨</em> — 一只在圆柱面上爬行的蚂蚁<em>不能用度量信息</em>判断自己住在曲面上还是住在平面上 (这是"内蕴几何 intrinsic geometry"的关键 insight). Gauss 后来的<em>Theorema Egregium</em> 进一步说: <em>Gauss 曲率</em>只依赖第一基本形式, 故圆柱面与平面有<em>相同</em> Gauss 曲率 (都 = 0).</p>
+
+        <p>相比之下: 球面的 $\mathrm{I} = \mathrm{diag}(1, \sin^2 u)$ <em>不可</em>能等于平面的 — 因为 $\sin^2 u \ne 1$ 一般. 这反映球面"内在弯曲", 与平面/圆柱面本质不同.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 21.4 (旋转曲面 — generic 模板)</span>
+        <p>由一条 plane profile curve $\gamma(u) = (r(u), 0, h(u))$ (在 $xz$-平面上, $r &gt; 0$) 绕 $z$-轴旋转得到的<strong>旋转曲面 (surface of revolution)</strong>:
+        $$ X(u, v) = (r(u) \cos v,\;\; r(u) \sin v,\;\; h(u)), \quad u \in I,\; v \in [0, 2\pi). $$
+        ($u$ 是"profile 参数", $v$ 是"绕轴角度".)</p>
+        <p>偏导:
+        $$ X_u = (r' \cos v,\; r' \sin v,\; h'), \qquad X_v = (-r \sin v,\; r \cos v,\; 0). $$
+        $E, F, G$:
+        $$ E = (r')^2 \cos^2 v + (r')^2 \sin^2 v + (h')^2 = (r')^2 + (h')^2 \quad\text{(即 profile 曲线的速度平方)}. $$
+        $$ G = r^2 \sin^2 v + r^2 \cos^2 v + 0 = r^2. $$
+        $$ F = -r r' \cos v \sin v + r r' \sin v \cos v + 0 = 0. $$
+        $$ \boxed{\;\mathrm{I} \;=\; \begin{pmatrix} (r')^2 + (h')^2 & 0 \\ 0 & r^2 \end{pmatrix}.\;} $$
+        $F = 0$ 反映"profile 方向"与"旋转方向"<em>正交</em>. 面积元 $\sqrt{EG} = r\sqrt{(r')^2 + (h')^2}$.</p>
+        <p><strong>校验</strong>: Example 21.2 的球面是 $r(u) = \sin u, h(u) = \cos u$ 的旋转面. 套公式: $E = \cos^2 u + (-\sin u)^2 = 1$, $G = \sin^2 u$, 与 Example 21.2 一致. $\checkmark$</p>
+        <p>Example 21.3 的圆柱面是 $r(u) = 1, h(u) = u$ 的旋转面: $E = 0 + 1 = 1$, $G = 1$. $\checkmark$</p>
+      </div>
+
+      <!-- §6 常见陷阱 -->
+      <h2 id="pitfalls">§6 常见陷阱</h2>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 21.1 (Gauss frame <em>不是</em> orthonormal)</span>
+        <p>与 Frenet trihedron $(\T, \NN, \B)$ 完全 orthonormal 不同, Gauss frame $(X_u, X_v, \nu)$ <em>一般不</em>正交也<em>一般不</em>单位长. 唯一总是 unit + orthogonal 的关系是 $\nu \perp X_u, X_v$ 与 $|\nu| = 1$.</p>
+        <p><em>不要</em>预设 "$X_u \cdot X_v = 0$" 或 "$|X_u| = 1$"! 这两个性质要看具体参数化:</p>
+        <ul>
+          <li>球面 spherical coordinates: $F = 0$ 但 $E = 1, G = \sin^2 u \ne 1$ — 正交但不归一.</li>
+          <li>函数图象 $(u, v, f(u, v))$: $F = f_u f_v$ — 当 $f_u f_v \ne 0$ 时<em>不</em>正交.</li>
+          <li>圆柱面 $(\cos u, \sin u, v)$: $E = G = 1, F = 0$ — orthonormal! 但这是<em>特殊</em>情况.</li>
+        </ul>
+        <p>实战: 给一个 $X$, 先<em>算</em> $E, F, G$, 不要假设 nice form.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 21.2 ★ (面积元是 $\sqrt{EG - F^2}$, <em>不</em>是 $\sqrt{EG}$)</span>
+        <p>面积元公式来自 Lagrange's identity:
+        $$ |X_u \times X_v|^2 \;=\; |X_u|^2 |X_v|^2 - (X_u \cdot X_v)^2 \;=\; EG - F^2. $$
+        故 $|X_u \times X_v| = \sqrt{EG - F^2}$. 学生有时简化为 $\sqrt{EG}$ — 这只在 $F = 0$ (正交参数化) 时对.</p>
+        <p>对 Example 21.1 (函数图象) $f_u f_v \ne 0$ 的点: $\sqrt{EG} = \sqrt{(1 + f_u^2)(1 + f_v^2)}$ vs 正确值 $\sqrt{1 + f_u^2 + f_v^2}$ — 完全不同!</p>
+        <p>具体数字校验: 取 $f(u, v) = uv$, 在 $(1, 1)$ 处 $f_u = 1, f_v = 1$. $\sqrt{EG} = \sqrt{2 \cdot 2} = 2$, $\sqrt{EG - F^2} = \sqrt{4 - 1} = \sqrt 3 \approx 1.73$. 错误大约 15%, 不是 negligible.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 21.3 (法向 $\nu$ 的方向依赖 $(u, v)$ 顺序 — 定向问题)</span>
+        <p>$\nu = X_u \times X_v / |X_u \times X_v|$. 如果你<em>对调 $u, v$</em> 重参数化, 即 $\tilde X(u, v) = X(v, u)$, 则 $\tilde X_u = X_v$ (旧的), $\tilde X_v = X_u$, 故
+        $$ \tilde \nu \;=\; \frac{\tilde X_u \times \tilde X_v}{|\cdot|} \;=\; \frac{X_v \times X_u}{|X_v \times X_u|} \;=\; -\,\frac{X_u \times X_v}{|X_u \times X_v|} \;=\; -\nu. $$
+        故法向<em>翻转</em>! 这是<em>orientation</em>问题: 曲面有"两面" ($\nu$ 与 $-\nu$), 选择哪一面是 orientation 的一部分.</p>
+        <p>实战意义: 算 $\nu$ 时要明确"用什么参数化". 球面常约定 $\nu$ 指向"<em>外</em>" (即指向球外); 若 $\nu$ 算出来指向内 (指 origin), 就 swap $u, v$ 或 negate.</p>
+        <p>校验: 球面 Example 21.2 用 $(u, v) = $ (colatitude, longitude) 参数化, $\nu = X_u \times X_v / |\cdot|$. 在赤道 $u = \pi/2$ + $v = 0$ 处, $X = (1, 0, 0)$ (赤道上 $x$-轴交点). $X_u = (0, 0, -1)$, $X_v = (0, 1, 0)$. $X_u \times X_v = (0 \cdot 0 - (-1) \cdot 1, (-1) \cdot 0 - 0 \cdot 0, 0 \cdot 1 - 0 \cdot 0) = (1, 0, 0) = X$. 故 $\nu(\pi/2, 0) = X(\pi/2, 0) = (1, 0, 0)$ — 指向<em>外</em>, $\checkmark$ 与"外法向"约定一致.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 21.4 ($\mathrm{I}$ 是 point-dependent matrix, <em>不</em>是常数)</span>
+        <p>$\mathrm{I}(u, v) = \begin{pmatrix}E & F \\ F & G\end{pmatrix}$ 中 $E, F, G$ 都是<em>$(u, v)$ 的函数</em>. 不要把球面例子算出来的 $\mathrm{I} = \mathrm{diag}(1, \sin^2 u)$ 当成"独立于 $u$"的 — 它<em>依赖 $u$</em>! 在<em>不同的点</em> $\mathrm{I}$ <em>不同</em>.</p>
+        <p>例外: 圆柱面 (Example 21.3) 的 $\mathrm{I} = I_2$ 是<em>真的</em>常数 — 这是 flat 曲面的特征. 平面 $X(u, v) = (u, v, 0)$ 同样常数. 几乎任何"非平凡弯曲"曲面的 $\mathrm{I}$ 都会<em>随点变化</em>.</p>
+        <p>在弧长公式里 $E = E(u(t), v(t))$ — <em>把曲线代进去后才能积分</em>. 这是 chain rule 的 careful 应用.</p>
+      </div>
+
+      <!-- §7 练习 -->
+      <h2 id="exercises">§7 练习</h2>
+
+      <div class="exercise">
+        <span class="ex-num">练习 21.1.</span> 计算<strong>平面</strong> $X(u, v) = (u, v, 0)$ 的第一基本形式. 验证它与圆柱面 (Example 21.3) 的 $\mathrm{I}$ 相同.
+        <details><summary>答案</summary><div class="details-body">
+        $X_u = (1, 0, 0)$, $X_v = (0, 1, 0)$. $E = 1, F = 0, G = 1$, $\mathrm{I} = I_2$. 与 Example 21.3 圆柱面相同. $\checkmark$ 这是"平面与圆柱面在第一基本形式层面无法分辨"的精确 statement, 也就是<em>circus tent</em>能展开成平面的几何原因.
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 21.2.</span> 计算<strong>锥面</strong> $X(u, v) = (u \cos v, u \sin v, u)$ ($u &gt; 0, v \in [0, 2\pi)$) 的第一基本形式 $\mathrm{I}$ 与面积元.
+        <details><summary>答案</summary><div class="details-body">
+        $X_u = (\cos v, \sin v, 1)$, $X_v = (-u \sin v, u \cos v, 0)$.
+        $E = \cos^2 v + \sin^2 v + 1 = 2$. $F = -u\cos v \sin v + u \sin v \cos v + 0 = 0$. $G = u^2 \sin^2 v + u^2 \cos^2 v + 0 = u^2$.
+        $$\mathrm{I} = \begin{pmatrix} 2 & 0 \\ 0 & u^2 \end{pmatrix}.$$
+        面积元 $\sqrt{EG - F^2} = \sqrt{2u^2} = u\sqrt 2\,du\,dv$.
+        校验: 锥面 $\{x^2 + y^2 = z^2, z \in [0, 1]\}$ 的面积 = $\int_0^{2\pi}\int_0^1 u\sqrt 2\,du\,dv = 2\pi \cdot \sqrt 2 \cdot (1/2) = \pi\sqrt 2$, 与几何公式 "$\pi r \cdot l = \pi \cdot 1 \cdot \sqrt 2 = \pi\sqrt 2$" (圆锥侧面积 = $\pi r l$, $l$ = slant) 一致. $\checkmark$
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 21.3.</span> 用 Thm 21.3 (面积公式) 计算半径 $R$ 球面的总面积. (即 generic $R$, 不只 $R = 1$.)
+        <details><summary>答案</summary><div class="details-body">
+        $X(u, v) = (R \sin u \cos v, R \sin u \sin v, R \cos u)$. 套 Example 21.2 但 scale by $R$: $E = R^2, F = 0, G = R^2 \sin^2 u$. $\sqrt{EG - F^2} = R^2 \sin u$. $\int_0^{2\pi}\int_0^\pi R^2 \sin u\,du\,dv = 2\pi R^2 \cdot 2 = 4\pi R^2$. $\checkmark$
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 21.4.</span> 设 $\varphi(s, t) = (u(s, t), v(s, t))$ 是参数变换, $A = [D\varphi]$. 验证 Thm 21.4: 直接计算 $\tilde X_s$ 与 $\tilde X_t$ (用 chain rule), 再算 $\tilde E, \tilde F, \tilde G$, 与 $A^T \mathrm{I} A$ 比对.
+        <details><summary>答案</summary><div class="details-body">
+        $\tilde X(s, t) = X(u(s, t), v(s, t))$. By chain rule:
+        $$ \tilde X_s = X_u u_s + X_v v_s, \qquad \tilde X_t = X_u u_t + X_v v_t. $$
+        $\tilde E = \tilde X_s \cdot \tilde X_s = u_s^2 E + 2 u_s v_s F + v_s^2 G$.
+        $\tilde F = \tilde X_s \cdot \tilde X_t = u_s u_t E + (u_s v_t + u_t v_s) F + v_s v_t G$.
+        $\tilde G = \tilde X_t \cdot \tilde X_t = u_t^2 E + 2 u_t v_t F + v_t^2 G$.
+        现在 $A = \begin{pmatrix} u_s & u_t \\ v_s & v_t \end{pmatrix}$. 算 $A^T \mathrm{I} A$:
+        $$ A^T \mathrm{I} A = \begin{pmatrix} u_s & v_s \\ u_t & v_t \end{pmatrix} \begin{pmatrix} E & F \\ F & G \end{pmatrix} \begin{pmatrix} u_s & u_t \\ v_s & v_t \end{pmatrix}. $$
+        中间 column-by-column 算: $\mathrm{I} A = \begin{pmatrix} E u_s + F v_s & E u_t + F v_t \\ F u_s + G v_s & F u_t + G v_t \end{pmatrix}$.
+        $A^T (\mathrm{I} A) = \begin{pmatrix} u_s(E u_s + F v_s) + v_s(F u_s + G v_s) & u_s(E u_t + F v_t) + v_s(F u_t + G v_t) \\ \ldots & \ldots \end{pmatrix}$
+        $= \begin{pmatrix} u_s^2 E + 2 u_s v_s F + v_s^2 G & u_s u_t E + (u_s v_t + u_t v_s) F + v_s v_t G \\ \ldots & u_t^2 E + 2 u_t v_t F + v_t^2 G \end{pmatrix} = \tilde{\mathrm I}$. $\checkmark$
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 21.5.</span> 找一个参数变换 $\varphi \colon V \to U$ 使球面 (Example 21.2) 的<em>新</em>第一基本形式仍保持 $F = 0$ (即 orthogonal). 提示: spherical coordinates 已经是 orthogonal — 试 $\varphi = \text{id}$ 后, 试 swap $u \leftrightarrow v$ 或 scale.
+        <details><summary>答案</summary><div class="details-body">
+        Trivial: $\varphi = \text{id}$, $\tilde{\mathrm I} = \mathrm I$, $\tilde F = 0$. $\checkmark$
+        Scaling $\varphi(s, t) = (s/2, t)$: $A = \mathrm{diag}(1/2, 1)$, $A^T \mathrm{I} A = \mathrm{diag}(E/4, G)$ — 仍 $F = 0$. 不过这破坏了 unit-speed convention.
+        Swap $\varphi(s, t) = (t, s)$: $A = \begin{pmatrix}0 & 1\\ 1 & 0\end{pmatrix}$, $A^T \mathrm I A = \begin{pmatrix}0 & 1\\ 1 & 0\end{pmatrix}\begin{pmatrix}E & F\\ F & G\end{pmatrix}\begin{pmatrix}0 & 1\\ 1 & 0\end{pmatrix} = \begin{pmatrix}G & F\\ F & E\end{pmatrix}$. 仍 $F = 0$. (Just swapped $E$ 与 $G$.)
+        一般的 nonlinear $\varphi$ 把 orthogonal 变 non-orthogonal: e.g.\ $\varphi(s, t) = (s + t, t)$, $A = \begin{pmatrix}1 & 1\\ 0 & 1\end{pmatrix}$, $A^T \mathrm I A$ 会有 off-diagonal $F$.
+        Lesson: 保持 $F = 0$ 是<em>苛刻条件</em>, 大部分 $\varphi$ 会破坏正交性.
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 21.6.</span> 计算<strong>螺旋面 (helicoid)</strong> $X(u, v) = (u \cos v, u \sin v, v)$ ($u \in \R, v \in \R$) 的第一基本形式. 它是 orthogonal parametrized 吗?
+        <details><summary>答案</summary><div class="details-body">
+        $X_u = (\cos v, \sin v, 0)$, $X_v = (-u \sin v, u \cos v, 1)$.
+        $E = \cos^2 v + \sin^2 v + 0 = 1$. $G = u^2 \sin^2 v + u^2 \cos^2 v + 1 = u^2 + 1$. $F = -u \cos v \sin v + u \sin v \cos v + 0 = 0$. 故 $\mathrm{I} = \mathrm{diag}(1, u^2 + 1)$. orthogonal parametrized ($F = 0$). $\checkmark$
+        面积元 $\sqrt{u^2 + 1}\,du\,dv$.
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 21.7.</span> 设 $X(u, v) = (u, v, 0)$ 是平面, $\gamma(t) = X(t, t^2) = (t, t^2, 0)$ 是抛物线 in 平面. 用 Thm 21.2 计算 $\gamma$ 在 $t \in [0, 1]$ 上的弧长. 与"直接计算 $|\dot \gamma|$"对比.
+        <details><summary>答案</summary><div class="details-body">
+        平面: $E = G = 1, F = 0$. 弧长公式: $L = \int_0^1 \sqrt{1 \cdot 1 + 0 + 1 \cdot (2t)^2}\,dt = \int_0^1 \sqrt{1 + 4t^2}\,dt$.
+        直接: $\gamma(t) = (t, t^2, 0), \dot \gamma = (1, 2t, 0), |\dot \gamma| = \sqrt{1 + 4t^2}$. $L = \int_0^1 \sqrt{1 + 4t^2}\,dt$. 一致 $\checkmark$.
+        值: 这个积分 = $(1/2)[t\sqrt{1 + 4t^2} + (1/2)\sinh^{-1}(2t)]_0^1 = (1/2)[\sqrt 5 + (1/2)\sinh^{-1} 2] \approx 1.479$.
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 21.8.</span> 球面上经线 $\gamma(t) = X(t, v_0)$ ($v_0$ 固定, $t \in [0, \pi]$) 的弧长 = ?
+        <details><summary>答案</summary><div class="details-body">
+        Example 21.2 球面: $E = 1, F = 0, G = \sin^2 u$. $\gamma$ 上 $u(t) = t, v(t) = v_0$, 故 $\dot u = 1, \dot v = 0$. 弧长 $L = \int_0^\pi \sqrt{1 \cdot 1 + 0 + \sin^2 t \cdot 0}\,dt = \int_0^\pi 1\,dt = \pi$. 几何上正确 — 单位球的经线从北极到南极弧长 $= \pi R = \pi$. $\checkmark$
+        </div></details>
+      </div>
+
+      <!-- §8 速查表 -->
+      <h2 id="cheat">§8 速查表</h2>
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def"><strong>Parametrized surface (Def 21.1)</strong>: $X \colon U \to \R^3$ smooth, $[DX]$ rank 2 (即 regular).</li>
+          <li class="cs-def"><strong>Regularity (Def 21.2)</strong>: $[DX]$ rank 2 ⟺ $X_u, X_v$ 线性独立 ⟺ <em>$X_u \times X_v \ne 0$</em>. 实战常用第三个.</li>
+          <li class="cs-def"><strong>★ Unit normal field $\nu$ (Def 21.3)</strong>: $\nu = (X_u \times X_v)/|X_u \times X_v|$. Gauss map $\nu \colon U \to S^2$.</li>
+          <li class="cs-def"><strong>★★ 第一基本形式 (Def 21.4)</strong>: $\mathrm I = \begin{pmatrix}E & F\\ F & G\end{pmatrix}$, $E = X_u \cdot X_u$, $F = X_u \cdot X_v$, $G = X_v \cdot X_v$.</li>
+          <li class="cs-def"><strong>Gauss frame (Def 21.5)</strong>: $(X_u, X_v, \nu)$. <em>非</em> orthonormal 一般.</li>
+          <li class="cs-thm"><strong>$\mathrm I$ 正定 (Thm 21.1)</strong>: $E &gt; 0$, $\det \mathrm I = EG - F^2 = |X_u \times X_v|^2 &gt; 0$. By Lagrange's identity.</li>
+          <li class="cs-thm"><strong>★ 弧长 (Thm 21.2)</strong>: $L = \int \sqrt{E \dot u^2 + 2 F \dot u \dot v + G \dot v^2}\,dt$. 在参数空间里算, 不用展开到 $\R^3$.</li>
+          <li class="cs-thm"><strong>★★ 面积 (Thm 21.3)</strong>: $\mathrm{area}(X(\Omega)) = \iint_\Omega \sqrt{EG - F^2}\,du\,dv = \iint_\Omega |X_u \times X_v|\,du\,dv$. 与 Topic 09 的 nonlinear CoV 一致.</li>
+          <li class="cs-thm"><strong>重参数化变换 (Thm 21.4)</strong>: $\tilde{\mathrm I} = A^T \mathrm I A$ where $A = [D\varphi]$. 合同变换.</li>
+          <li class="cs-tech"><strong>★ 球面 Example 21.2</strong>: $X = (\sin u \cos v, \sin u \sin v, \cos u)$, $\mathrm I = \mathrm{diag}(1, \sin^2 u)$, 面积元 $\sin u$, 总面积 $4\pi$.</li>
+          <li class="cs-tech"><strong>圆柱面 Example 21.3</strong>: $\mathrm I = I_2$ — flat! 与平面在 $\mathrm I$ 层面 indistinguishable.</li>
+          <li class="cs-tech"><strong>函数图象 Example 21.1</strong>: $X = (u, v, f(u, v))$, $\sqrt{EG - F^2} = \sqrt{1 + f_u^2 + f_v^2}$ — 大一微积分的 surface area 公式.</li>
+          <li class="cs-tech"><strong>旋转曲面 Example 21.4</strong>: $X = (r(u)\cos v, r(u)\sin v, h(u))$, $\mathrm I = \mathrm{diag}((r')^2 + (h')^2, r^2)$. 总 orthogonal parametrized.</li>
+          <li class="cs-tech"><strong>Orthogonal parametrization</strong>: $F = 0$. 球面、圆柱、旋转面、helicoid 都是.</li>
+          <li class="cs-tech"><strong>Lagrange identity</strong>: $|X_u \times X_v|^2 = EG - F^2$ — 把面积元与 $\mathrm I$ 的 determinant 联系起来.</li>
+          <li class="cs-pitfall"><strong>★ Pitfall 21.1</strong>: Gauss frame 一般<em>非</em> orthonormal! 不同于 Frenet trihedron.</li>
+          <li class="cs-pitfall"><strong>★★ Pitfall 21.2</strong>: 面积元 $\sqrt{EG - F^2}$ 不是 $\sqrt{EG}$! 必须减去 $F^2$.</li>
+          <li class="cs-pitfall"><strong>Pitfall 21.3</strong>: $\nu$ 方向依赖参数化 $(u, v)$ 顺序; swap 后翻转. orientation 是 surface 的一部分.</li>
+          <li class="cs-pitfall"><strong>Pitfall 21.4</strong>: $\mathrm I$ 与点 $(u, v)$ <em>相关</em>, 不是常数. 把 $u(t), v(t)$ 代进去后才能积分.</li>
+        </ul>
+      </div>
+
+      <!-- §9 进一步阅读 -->
+      <h2 id="further">§9 进一步阅读</h2>
+      <ul>
+        <li><strong>Typed notes</strong>: <code>Notes/Typed/10.2_notes/10.2_notes.tex</code> §6 — 完整 surface theory 入门, 包含 Klingenberg 引用与多个 example.</li>
+        <li><strong>Klingenberg 教材</strong>: <code>A Course in Differential Geometry.pdf</code>:
+          <ul>
+            <li>§3.1 (definitions, change of variables, vector fields along surfaces, Gauss frame, Gauss map)</li>
+            <li>§3.2 (quadratic forms review, first fundamental form, positive definiteness, reparametrization variance)</li>
+            <li>§3.3 → 下一页内容 (第二基本形式)</li>
+          </ul>
+        </li>
+        <li><strong>关联 review 页</strong>:
+          <ul>
+            <li><a href="20-frenet-curvature.html">Topic 20</a> ← 前一页 (空间曲线 + helix); 此页对照 surface 维度.</li>
+            <li><a href="09-nonlinear-cov.html">Topic 09</a> (nonlinear CoV) ← 面积元 $|X_u \times X_v|$ 在那里以 Jacobian-of-immersion 角色出现. 此页给出"<em>第一基本形式</em>" 视角.</li>
+            <li>下一页 (待 Lec 10.3+ 完成): 第二基本形式, shape operator/Weingarten map, 主曲率, Gauss curvature, mean curvature, Theorema Egregium.</li>
+          </ul>
+        </li>
+        <li><strong>外延伸阅读</strong>:
+          <ul>
+            <li><strong>do Carmo</strong> <em>Differential Geometry of Curves and Surfaces</em> Ch 2-3: 经典 surface theory treatment, 含<em>大量</em>具体曲面 worked examples (椭球、双曲面、Enneper 曲面、Möbius 带等).</li>
+            <li><strong>O'Neill</strong> <em>Elementary Differential Geometry</em> Ch 4-6: 更 explicit, 含 covariant derivative + 测地线.</li>
+            <li><strong>Spivak</strong> <em>A Comprehensive Introduction to Differential Geometry</em> Vol 2 Ch 4: 历史视角, 解释为什么"第一/第二基本形式"叫这个名字 (Gauss 1827 原 paper 中的术语).</li>
+            <li><strong>Gauss 1827</strong> <em>Disquisitiones generales circa superficies curvas</em>: 原始论文, 第一次定义 $\mathrm I, \mathrm{II}$ 与 Theorema Egregium. 现代符号有所不同但概念是同一的.</li>
+          </ul>
+        </li>
+      </ul>
+
+    </main>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Topic 10: CoV 实战 — 三种设计模式 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\Area': '\\operatorname{Area}',
+        '\\Vol': '\\operatorname{Vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="09-nonlinear-cov.html">Topic 09</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="11-limits-riemann.html">Topic 11</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#motivation">§1 动机</a></li>
+        <li><a href="#prereq">§2 前置知识</a></li>
+        <li><a href="#definitions">§3 核心定义</a></li>
+        <li><a href="#theorems">§4 三种设计模式</a></li>
+        <li><a href="#examples">§5 Worked Examples</a></li>
+        <li><a href="#pitfalls">§6 常见陷阱</a></li>
+        <li><a href="#exercises">§7 练习</a></li>
+        <li><a href="#cheat">§8 速查表</a></li>
+        <li><a href="#further">§9 进一步阅读</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>Topic 10: CoV 实战 — 三种设计模式</h1>
+      <p class="subtitle">Source: Lec 6.1 · H&amp;H §4.10 · 14 topics 中第 10 个</p>
+
+      <!-- §1 动机 -->
+      <h2 id="motivation">§1 动机</h2>
+      <p>Topic 09 给出了<strong>非线性 Change of Variables 定理</strong> (H&amp;H Thm 4.10.12) 的完整 statement，并推导出 polar / spherical / cylindrical 三个经典坐标系的 Jacobian 公式。从 logic 上看 CoV 的 theory 已经 closed loop — 定理是已知的，公式是给定的，剩下的"只是套公式"。但这种印象大错特错: CoV 实战的难点<strong>不在</strong>验证 hypothesis (那些通常 routine)，而在<em>设计</em> $\Phi$ — 在一道具体题目面前，你怎么知道该用哪种坐标变换？</p>
+
+      <p>本页的目的是把 CoV 应用<strong>从"知道定理"提升到"会用定理"</strong>。我们不引入任何新定理，而是把 Lec 6.1 的实践 lecture 整理成一套 <em>可复用的设计语言</em>: 三种 design pattern，每一种对应一类典型问题，配一个完整 worked example 演示该模式的全部步骤。读完本页后，你看到一道新的 CoV 题，应该能问自己:</p>
+      <ul>
+        <li>这题的 <em>对称性</em> 给我提示了吗？(symmetry-driven)</li>
+        <li>这题的 <em>边界形状</em> 给我提示了吗？(boundary-driven)</li>
+        <li>这题能不能 <em>按某个坐标切片</em> 来理解？(slice-driven)</li>
+      </ul>
+      <p>这三个问题的答案如果有任何一个是"是"，对应的 pattern 会立刻告诉你 $\Phi$ 的设计。如果三个都不是 — 那大概率这道题不是 CoV 题，老老实实直接 Fubini 即可。</p>
+
+      <p>这一页比之前的几页例子更密集，是 example-heavy 的。建议跟着每个 example 把笔算一遍 — 三个 example 都不太长但每一个都演示了一种关键技巧 (z-innermost order，inverse function theorem shortcut，slice-driven bottom row collapse)。这些技巧记住之后，CoV 才真正变成"工具"而非"知识点"。</p>
+
+      <!-- §2 前置知识 -->
+      <h2 id="prereq">§2 前置知识</h2>
+      <div class="box prereq">
+        <span class="box-title">在阅读本页前，你应该已经掌握:</span>
+        <ul>
+          <li><a href="09-nonlinear-cov.html">Topic 09</a>: <strong>非线性 CoV 定理</strong> (Thm 9.1) 完整 statement，三个 hypothesis (compact + boundary measure zero, 内部单射, 内部 Jacobian 可逆 + Lipschitz)，以及 polar / spherical / cylindrical 三大公式</li>
+          <li><a href="08-linear-cov.html">Topic 08</a>: linear CoV (作为 Thm 9.1 的常数 Jacobian 特例)，"determinant scales volume" 的几何含义</li>
+          <li><a href="07-fubini.html">Topic 07</a>: Fubini 定理 — slice-driven pattern 本质上是 Fubini 思想加 CoV 包装</li>
+          <li>线性代数基础: $2 \times 2$ 与 $3 \times 3$ 行列式的余子式 (cofactor) 展开</li>
+          <li>反函数定理 (inverse function theorem) 中的 Jacobian 倒数关系: $\det[D(\Psi^{-1})](\Psi(x)) = 1 / \det[D\Psi](x)$</li>
+        </ul>
+      </div>
+
+      <!-- §3 核心定义 -->
+      <h2 id="definitions">§3 核心定义</h2>
+      <p>本页不引入新数学概念，只引入<strong>方法学定义</strong>。"design pattern" 一词借自软件工程，在数学里也是一个有用的语言: 它指一类问题的<em>解题模板</em>，包含 (1) 适用条件、(2) 关键设计步骤、(3) Jacobian 计算的特殊技巧。</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 10.1 (CoV design pattern)</span>
+        <p>一个 <strong>CoV design pattern</strong> 是把一类 CoV 问题映射到"自动得到 $\Phi$"的程式化流程。每个 pattern 由三部分构成:</p>
+        <ul>
+          <li><strong>识别条件 (recognition cue)</strong>: 哪些 surface-level 特征能让你认出这道题适合这个 pattern。</li>
+          <li><strong>设计步骤 (design step)</strong>: 从识别到的特征出发，如何<em>构造</em> $\Phi$。</li>
+          <li><strong>Jacobian 技巧 (Jacobian shortcut)</strong>: 这个 pattern 下计算 $\det[D\Phi]$ 的特殊方法 — 通常比"硬算偏导数"快得多。</li>
+        </ul>
+      </div>
+
+      <p>注意 design pattern <em>不是</em>一个 theorem — 它没有 statement 和 proof，更像是一个"问题分类树"。下面我们用 proposition 的形式把三个 pattern 的内容固定下来，但这些 proposition 都不需要证明 — 它们是 Thm 9.1 在不同情境下的"使用说明"。</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 10.2 (适用 CoV 的题型预判)</span>
+        <p>给定积分 $\int_A f(x)\, dV$，按以下 checklist 决定 pattern:</p>
+        <ol>
+          <li>$A$ 或 $f$ 是否有 <strong>对称性</strong> (rotational about an axis, spherical, translational)? 若是 → <em>Symmetry-driven</em> (Prop 10.1)。</li>
+          <li>$A$ 的边界是否由几条<strong>函数 level set</strong> $\{g_i(x) = c_i\}$ 描述? 若是 → <em>Boundary-driven</em> (Prop 10.2)。</li>
+          <li>$A$ 是否可以按某个坐标(通常是 $z$)<strong>切片</strong>，每个切片有 parameter 依赖该坐标的标准形状 (disk, ellipse, square ...)? 若是 → <em>Slice-driven</em> (Prop 10.3)。</li>
+          <li>三个都不满足 → 直接 Fubini，可能不需要 CoV。</li>
+        </ol>
+      </div>
+
+      <p>多数题目其实可以套<em>多个</em> pattern (Lec 6.1 的 twisted ellipsoid 既能 slice-driven 也能 boundary-driven)。但通常其中一个会显著简单 — 实战经验告诉我们 <strong>slice-driven 通常最简洁</strong>，因为它直接利用 $(0, 0, 1)$ bottom row 折叠 $3 \times 3$ 行列式。</p>
+
+      <!-- §4 主要定理 -->
+      <h2 id="theorems">§4 三种设计模式</h2>
+
+      <p>下面把三个 design pattern 表述成 proposition 形式。每个 proposition 都是 Thm 9.1 (非线性 CoV) 的一个 routine 应用 — 这里"证明"略，因为它们都是同一个定理的不同使用方式。</p>
+
+      <div class="box thm">
+        <span class="box-title">Proposition 10.1 (Symmetry-driven pattern)</span>
+        <p><strong>识别条件</strong>: 区域 $A$ 和/或被积函数 $f$ 有显式对称性 — 例如绕原点旋转不变 ($f(x) = g(|x|)$，$A$ 是 ball / annulus)，绕 $z$-轴旋转不变 (cylindrical symmetry)，或者球对称。</p>
+        <p><strong>设计步骤</strong>: 直接从"货架上"取对应坐标:</p>
+        <ul>
+          <li>$\R^2$ 绕原点旋转 $\to$ <strong>polar</strong> $(r, \theta)$, $|\det| = r$</li>
+          <li>$\R^3$ 球对称 $\to$ <strong>spherical</strong> $(r, \theta, \varphi)$, $|\det| = r^2 \cos\varphi$ (其中 $\varphi \in (-\pi/2, \pi/2)$ 是 latitude convention)</li>
+          <li>$\R^3$ 绕 $z$-轴旋转 $\to$ <strong>cylindrical</strong> $(r, \theta, z)$, $|\det| = r$</li>
+        </ul>
+        <p><strong>Jacobian 技巧</strong>: 公式现成。需要决定的<em>不是</em> Jacobian 而是<em>积分顺序</em> — 经常需要 $z$ 或 $r$ 作为 innermost，由约束不等式决定 (见 Example 10.1)。</p>
+      </div>
+
+      <p>Symmetry-driven 是"最低门槛"的 pattern: 看到 $x^2 + y^2$ 就上 polar，看到 $x^2 + y^2 + z^2$ 就上 spherical。但<em>判断</em>用哪一种坐标只是第一步，<em>选好积分顺序</em>是第二步，往往同样重要。Example 10.1 (cone) 就演示了 cylindrical 之下 $z$-innermost 的安排，避免了 polar over 半径变化的 disk 这类繁琐。</p>
+
+      <div class="box thm">
+        <span class="box-title">Proposition 10.2 (Boundary-driven pattern)</span>
+        <p><strong>识别条件</strong>: 区域 $A$ 的边界由若干个 level set $\{g_i(x) = c_i\}$ 给出，且每个 $g_i$ 在 $A$ 上的取值范围 $[c_i^{\min}, c_i^{\max}]$ 是个有限区间。</p>
+        <p><strong>设计步骤</strong>:</p>
+        <ol>
+          <li>定义新坐标 $u_i := g_i(x)$ — 也就是 $\Psi(x) := (g_1(x), \dots, g_n(x))$。</li>
+          <li>在新坐标下，$A$ 变成 axis-aligned box $\prod_i [c_i^{\min}, c_i^{\max}]$。</li>
+          <li>真正插入 Thm 9.1 的 $\Phi$ 是 $\Psi^{-1}$ — 因为我们要从 box 出发回到 $A$。</li>
+          <li>验证 $\Psi$ 可逆 (这通常需要明确算出 $\Psi^{-1}$ 或用反函数定理论证)。</li>
+        </ol>
+        <p><strong>Jacobian 技巧 (key)</strong>: <em>不要</em>直接对 $\Phi = \Psi^{-1}$ 求偏导数 — $\Psi^{-1}$ 经常含分数次幂 (cube roots, $\sqrt{\cdot}$)，求导易错。改用反函数定理身份:</p>
+        <p>$$\det[D\Phi]\bigl(\Psi(x)\bigr) \;=\; \frac{1}{\det[D\Psi](x)}.$$</p>
+        <p>$\Psi$ 通常是 polynomial 或 rational，求导极简。这是 boundary-driven 模式最关键的"省力 trick"，Lec 6.1 称之为 <em>inverse-function-theorem shortcut</em>。</p>
+      </div>
+
+      <p>"边界变 axis-aligned" 这件事看似几何上 trivial，但 algebraic 上效果惊人: 原本几条曲线围出的"curvilinear quadrilateral"在新坐标下变成 $[1,2]^2$ 这样的矩形，Fubini 之后变成两个独立的一元积分。Example 10.2 完整演示了这个过程，以及反函数 shortcut 的具体节省。</p>
+
+      <div class="box thm">
+        <span class="box-title">Proposition 10.3 (Slice-driven pattern)</span>
+        <p><strong>识别条件</strong>: 区域 $A \subset \R^n$ 可按某个坐标 (通常 $z$ 或 $x_n$) 切片，每个 $z$-切片有简单 parametric 形状 (disk, ellipse, square...)，其参数 (radius, semi-axes, side length...) 是 $z$ 的函数。</p>
+        <p><strong>设计步骤</strong>: 构造 $\Phi$ 让最后一个坐标 $z$ <em>原样通过</em>，前面坐标 parameterize 该切片:</p>
+        <p>$$\Phi(r, \theta, z) \;=\; \bigl(\,\text{(切片 parameterization, $z$-依赖)},\ z\,\bigr).$$</p>
+        <p>例如 $z$-切片是椭圆 with semi-axes $a(z), b(z)$，则取 $\Phi = (r\, a(z)\cos\theta,\ r\, b(z)\sin\theta,\ z)$。</p>
+        <p><strong>Jacobian 技巧</strong>: 因为 $\Phi$ 第三行是 $\partial/\partial z$ 应用到 $z$，即 $[D\Phi]$ 最后一行只有 $(0, \dots, 0, 1)$ (前面是 $\partial/\partial r$, $\partial/\partial \theta$ 这些都对 $z$ 求偏导给 $0$ — 等等，注意是 column 还是 row…)。准确地说: $[D\Phi]$ 的 <strong>最后一行</strong>是 $(\partial \Phi_3 / \partial r,\ \partial \Phi_3 / \partial \theta,\ \partial \Phi_3 / \partial z) = (0, 0, 1)$。所以 $3 \times 3$ 行列式可按最后一行 cofactor 展开，只剩左上 $2 \times 2$ — 算起来跟 polar in 2D 一样轻松。</p>
+      </div>
+
+      <p>Slice-driven 的核心 insight 是: 既然 Fubini 已经告诉我们"$n$ 维积分 = $\int($ 切片 $n-1$ 维积分 $)\, dz$"，那 CoV 也可以"按切片"做 — 一个 $z$-依赖的局部 CoV，外面再积 $z$。bottom row collapse 让这一切自动化: 你不需要分两步做，单个 $\Phi$ 就 encode 了"slice parameterization $+$ $z$-pass-through"。Example 10.3 演示 twisted ellipsoid 用这个 pattern 解决，并且揭示了一个 Cavalieri 巧合。</p>
+
+      <details>
+        <summary>展开: 为什么我们不把 Strategy 严格写成定理?</summary>
+        <div class="details-body">
+          <p>因为 Strategy 不是数学陈述，它是 <em>方法学陈述</em>。例如 Strategy 10.1 说"绕 $z$-轴对称 $\to$ cylindrical" — 这不是"if and only if"的等价关系，只是"在这种情境下 cylindrical 通常 work"。把它写成 theorem 就需要严格定义"何为 symmetry"、"何为 obviously"，反而 obscure 了精神。Stratagy 类似于 "Heuristic" — 它是来指导思考的 prompt，不是 logic 链条上的一步。</p>
+          <p>类比: 经典力学里的"在加速参照系中要加 fictitious force"也是个 strategy/heuristic — 它告诉你怎么列方程，但它不是从 Newton's laws 推出来的 theorem。CoV design pattern 也是同一类。</p>
+        </div>
+      </details>
+
+      <!-- §5 Worked Examples -->
+      <h2 id="examples">§5 Worked Examples</h2>
+
+      <p>下面三个例子各演示一种 pattern，全部按以下统一模板写: (1) 几何图像; (2) 选 $\Phi$ 并说明 pattern 归属; (3) source region $X$; (4) 单射 + Jacobian 验证 (Thm 9.1 的 C1/C2/C3); (5) 计算。建议第一次阅读跟着自己手写一遍。</p>
+
+      <div class="box example">
+        <span class="box-title">Example 10.1 (Symmetry-driven: 圆锥上 $\int (x^2+y^2)z$)</span>
+        <p>计算
+        $$I \;:=\; \int_A (x^2 + y^2)\, z \,dV, \qquad A := \{(x,y,z) : x^2 + y^2 \le z^2,\ 0 \le z \le 1\}.$$</p>
+        <p><strong>(1) 几何图像</strong>: $A$ 是顶点在原点、底面在 $z = 1$ 平面上单位圆盘的<em>实心右圆锥</em>。$z = z_0$ 切片是半径 $z_0$ 的圆盘。</p>
+        <p><strong>(2) 选 $\Phi$</strong>: 被积函数 $(x^2+y^2)z$ 和区域 $A$ 都绕 $z$-轴旋转对称 — Prop 10.1 直接告诉我们用 cylindrical:
+        $$\Phi(r, \theta, z) = (r\cos\theta,\ r\sin\theta,\ z), \qquad \abs{\det[D\Phi]} = r.$$</p>
+        <p><strong>(3) Source $X$</strong>: 把约束翻译: $x^2 + y^2 \le z^2$ $\to$ $r^2 \le z^2$ $\to$ $0 \le r \le z$ (取 $r \ge 0$)。所以
+        $$X = \{(r, \theta, z) : 0 \le r \le z,\ 0 \le z \le 1,\ 0 \le \theta \le 2\pi\}.$$
+        $X$ 是 compact ($\R^3$ 中有界闭集) 且 $\partial X$ 是若干 smooth 面 + 一个 cone surface 的有限 union，全部测度零。</p>
+        <p><strong>(4) 单射与 Jacobian</strong>: cylindrical 在内部 $r > 0,\ \theta \in (0, 2\pi),\ z \in (0, 1)$ 上单射，$|\det| = r > 0$。Lipschitz $C^1$ standard。</p>
+        <p><strong>(5) 计算</strong>: 被积函数变成 $(r^2)\, z \cdot r = r^3 z$。<em>关键技巧</em>: 选择积分顺序 — 我们用 $dz\, dr\, d\theta$，且 $z$ 是<strong>innermost</strong>。理由: 对固定 $r \in [0, 1]$，约束 $r \le z \le 1$ 是一个简单 vertical slab，$z$-界跟 $\theta$ 无关，跟 $r$ 是简单线性关系。
+        $$\begin{aligned}
+            I &= \int_0^{2\pi}\!\!\int_0^1\!\!\int_r^1 r^3\, z \, dz\, dr\, d\theta \\
+              &= 2\pi \int_0^1 r^3 \left[\frac{z^2}{2}\right]_r^1 dr \\
+              &= 2\pi \int_0^1 r^3 \cdot \frac{1 - r^2}{2}\, dr \\
+              &= \pi \int_0^1 (r^3 - r^5)\, dr \\
+              &= \pi \left(\frac{1}{4} - \frac{1}{6}\right) \;=\; \boxed{\frac{\pi}{12}}.
+        \end{aligned}$$</p>
+        <p><em>对比另一种顺序</em>: 用 $dr\, dz\, d\theta$ ($r$ innermost from $0$ to $z$, $z$ from $0$ to $1$) 给出
+        $$I = \int_0^{2\pi}\!\!\int_0^1 z \int_0^z r^3\, dr\, dz\, d\theta = 2\pi \int_0^1 z \cdot \frac{z^4}{4}\, dz = 2\pi \cdot \frac{1}{4} \cdot \frac{1}{6} = \frac{\pi}{12}.$$
+        Two orderings 给同一答案 (Fubini)；都简洁，选哪个看个人偏好。Lec 5.3 用了后者，Lec 6.1 用了前者，<em>本页采用前者作为"非 standard"展示</em>，让你看到 $z$-innermost 也是 viable option。</p>
+      </div>
+
+      <p><strong>What we learned from Example 10.1</strong>: Symmetry-driven 的难点<em>不</em>在选坐标 (那是 routine)，而在选<em>积分顺序</em>。一旦约束转换成不等式，看哪个变量的范围"最干净"——即不依赖其他变量 — 把它放最外层；最依赖外层变量的放 innermost。这个 ordering 直觉到了下一个 example (boundary-driven) 完全用不上，因为 boundary-driven 之后区域<em>变成 axis-aligned box</em>，每个 ordering 都 trivially equivalent。</p>
+
+      <div class="box example">
+        <span class="box-title">Example 10.2 (Boundary-driven: 双曲线/抛物线围成的 quadrilateral)</span>
+        <p>计算
+        $$\Area(A), \qquad A := \{(x, y) \in \R^2 : 1 \le xy \le 2,\ x^2 \le y \le 2 x^2\}.$$</p>
+        <p><strong>(1) 几何图像</strong>: $A$ 由四条曲线围成 — 两条 hyperbolas $xy = 1, xy = 2$，两条 parabolas $y = x^2, y = 2x^2$。这是一个 <em>curvilinear quadrilateral</em>。求四角:
+        $$\begin{array}{ll}
+            xy=1,\ y=x^2: & x^3 = 1 \Rightarrow (1, 1) \\
+            xy=1,\ y=2x^2: & 2x^3 = 1 \Rightarrow (2^{-1/3}, 2^{1/3}) \\
+            xy=2,\ y=x^2: & x^3 = 2 \Rightarrow (2^{1/3}, 2^{2/3}) \\
+            xy=2,\ y=2x^2: & 2x^3 = 2 \Rightarrow (1, 2)
+        \end{array}$$
+        都在第一象限 ($xy \ge 1 > 0$, $y \ge x^2 > 0$)。</p>
+        <p><strong>(2) 选 $\Phi$ (boundary-driven)</strong>: 边界是 $\{xy = c\}$ 和 $\{y/x^2 = c\}$ 的 level set — 自然的 $\Psi$:
+        $$u := xy, \qquad v := \frac{y}{x^2}, \qquad \Psi(x, y) = (xy,\ y/x^2).$$
+        在 $A$ 上 $u \in [1, 2]$, $v \in [1, 2]$，所以新坐标下区域变成 $[1, 2]^2$ — axis-aligned。Prop 10.2 告诉我们插入 Thm 9.1 的 $\Phi = \Psi^{-1}$。</p>
+        <p><strong>(3) 算出 $\Phi$ 的 explicit 公式</strong>: 解 $(x, y)$ 用 $(u, v)$ 表示。从 $v = y/x^2$ 和 $u = xy$ (即 $y = u/x$) 得
+        $$v = \frac{u/x}{x^2} = \frac{u}{x^3} \;\Rightarrow\; x^3 = \frac{u}{v} \;\Rightarrow\; x = u^{1/3} v^{-1/3},$$
+        然后 $y = u/x = u^{2/3} v^{1/3}$. 所以
+        $$\boxed{\Phi(u, v) = \bigl(u^{1/3} v^{-1/3},\ u^{2/3} v^{1/3}\bigr).}$$
+        $u, v \in [1, 2]$ 全部 $> 0$，cube roots 实数光滑，$\Phi$ 在 $[1, 2]^2$ 邻域 $C^\infty$。</p>
+        <p><strong>(4) Checklist</strong>:</p>
+        <ul>
+          <li><strong>(C1)</strong> $X = [1, 2]^2$ compact, $\partial X$ 是四条线段的 union，测度零。</li>
+          <li><strong>(C2) 单射</strong>: 验证 $\Psi \circ \Phi = \mathrm{id}$:
+            $$xy = u^{1/3} v^{-1/3} \cdot u^{2/3} v^{1/3} = u \cdot 1 = u,$$
+            $$\frac{y}{x^2} = \frac{u^{2/3} v^{1/3}}{u^{2/3} v^{-2/3}} = v.$$
+            因此 $\Phi$ 有 left inverse $\Psi$，$\Phi$ 单射。</li>
+          <li><strong>(C3) Jacobian</strong>: 两种方式都做一遍。
+            <p><em>直接法</em>: 求偏导
+            $$[D\Phi] = \begin{pmatrix}
+                \frac{1}{3} u^{-2/3} v^{-1/3} & -\frac{1}{3} u^{1/3} v^{-4/3} \\
+                \frac{2}{3} u^{-1/3} v^{1/3} & \frac{1}{3} u^{2/3} v^{-2/3}
+            \end{pmatrix}.$$
+            算行列式:
+            $$\begin{aligned}
+                \det[D\Phi]
+                &= \tfrac{1}{3} u^{-2/3} v^{-1/3} \cdot \tfrac{1}{3} u^{2/3} v^{-2/3} - \left(-\tfrac{1}{3} u^{1/3} v^{-4/3}\right) \cdot \tfrac{2}{3} u^{-1/3} v^{1/3} \\
+                &= \tfrac{1}{9} v^{-1} + \tfrac{2}{9} v^{-1} = \tfrac{1}{3 v}.
+            \end{aligned}$$</p>
+            <p><em>反函数 shortcut</em>: 算 $\det[D\Psi]$ 容易得多 — $\Psi$ 只有 polynomial / rational:
+            $$[D\Psi(x, y)] = \begin{pmatrix} y & x \\ -2y/x^3 & 1/x^2 \end{pmatrix}, \quad \det[D\Psi] = \frac{y}{x^2} - x \cdot \left(-\frac{2y}{x^3}\right) = \frac{y}{x^2} + \frac{2 y}{x^2} = \frac{3 y}{x^2} = 3 v.$$
+            由 $\det[D\Phi](\Psi(x,y)) = 1/\det[D\Psi](x,y)$ 得 $\det[D\Phi] = 1/(3v)$。<em>瞬间得到</em>，且不出错。</p>
+            $v \in [1, 2]$ 故 $\det[D\Phi] > 0$，非零。
+          </li>
+        </ul>
+        <p><strong>(5) 计算</strong>: 由 Thm 9.1 取 $f \equiv 1$，
+        $$\begin{aligned}
+            \Area(A) &= \int_A dx\, dy = \int_{[1,2]^2} \abs{\det[D\Phi(u,v)]}\, du\, dv \\
+            &= \int_1^2 \int_1^2 \frac{1}{3v}\, du\, dv = \frac{1}{3} \cdot 1 \cdot \bigl[\ln v\bigr]_1^2 = \boxed{\frac{\ln 2}{3}}.
+        \end{aligned}$$</p>
+        <p><em>Sanity check</em>: 四角粗略 $(1, 1), (0.79, 1.26), (1.26, 1.59), (1, 2)$，直线 quadrilateral 面积约 $0.27$；曲线 quadrilateral 略小，与 $\ln 2 / 3 \approx 0.231$ 吻合。</p>
+      </div>
+
+      <p><strong>What we learned from Example 10.2</strong>: (1) 看到"区域被 level set 围成"立即想 boundary-driven; (2) $\Psi$ (forward) 容易算偏导 — 反函数 shortcut 几乎总是首选 — Lec 6.1 的 highlight。(3) 这道题如果不用 CoV 而直接 Fubini 会非常痛苦: 把 $A$ 切成两段 $1 \le x \le 2^{1/3}$ 和 $2^{1/3} \le x \le 1$ 都不对，再做 $y$-界还得讨论 hyperbola 跟 parabola 谁高谁低 — 我们用 CoV 把这种复杂边界一次性"拍平"。</p>
+
+      <div class="box example">
+        <span class="box-title">Example 10.3 (Slice-driven: twisted ellipsoid 的体积)</span>
+        <p>计算
+        $$\Vol(T), \qquad T := \left\{(x, y, z) \in \R^3 : \left(\frac{x}{1-z}\right)^2 + \left(\frac{y}{1+z}\right)^2 \le 1,\ \abs{z} < 1\right\}.$$</p>
+        <p><strong>(1) 几何图像</strong>: $z = z_0$ 切片是椭圆 with semi-axes $1 - z_0$ (沿 $x$-轴) 和 $1 + z_0$ (沿 $y$-轴)。$z = 0$ 切片是 unit disk。$z \to -1^+$ 时 $x$-半轴拉到 $2$、$y$-半轴塌到 $0$，切片退化成水平线段; $z \to 1^-$ 反过来。<em>形状</em>: 一个 hourglass-meets-ellipsoid。</p>
+        <p><strong>(2) 选 $\Phi$ (slice-driven)</strong>: 每个 $z$-切片是椭圆 with semi-axes $(a, b) = (1 - z, 1 + z)$，标准的椭圆极坐标 parameterization 是 $(r, \theta) \mapsto (a r \cos\theta, b r \sin\theta)$。让 $z$ 原样 pass through:
+        $$\boxed{\Phi(r, \theta, z) = \bigl(r(1-z)\cos\theta,\ r(1+z)\sin\theta,\ z\bigr).}$$
+        这就是 Prop 10.3 的标准模板。</p>
+        <p><strong>(3) Source $X$</strong>: 取 $X = [0, 1] \times [0, 2\pi] \times [-1, 1]$ — 一个 closed 矩形 box (compact)，$\partial X$ 是若干 face 的 union (测度零)。注意我们 close 了 $z = \pm 1$ 端面 — 那里 $\Phi$ 退化 (椭圆塌成线段)，但单射性只要求在<em>内部</em>成立。</p>
+        <p><strong>(4) Checklist</strong>:</p>
+        <ul>
+          <li><strong>(C1)</strong> 上面已说。</li>
+          <li><strong>(C2) 内部单射</strong>: 设 $\Phi(r_1, \theta_1, z_1) = \Phi(r_2, \theta_2, z_2)$，两点都在 $X \setminus \partial X$，即 $r_i \in (0, 1)$, $\theta_i \in (0, 2\pi)$, $z_i \in (-1, 1)$。第三个坐标比较立即给 $z_1 = z_2 =: z$。然后前两个:
+            $$r_1 (1-z) \cos\theta_1 = r_2 (1-z) \cos\theta_2, \quad r_1 (1+z) \sin\theta_1 = r_2 (1+z) \sin\theta_2.$$
+            因 $z \in (-1, 1)$，$1 \pm z > 0$，可以约掉:
+            $$r_1 \cos\theta_1 = r_2 \cos\theta_2, \quad r_1 \sin\theta_1 = r_2 \sin\theta_2.$$
+            平方相加: $r_1^2 = r_2^2$，正实数所以 $r_1 = r_2$。然后 $\cos\theta_1 = \cos\theta_2$ 且 $\sin\theta_1 = \sin\theta_2$ 在 $(0, 2\pi)$ 上唯一解 $\theta_1 = \theta_2$。完成。</li>
+          <li><strong>(C3) Jacobian — 关键 trick</strong>: 写出
+            $$[D\Phi] = \begin{pmatrix}
+                (1-z) \cos\theta & -r(1-z) \sin\theta & -r \cos\theta \\
+                (1+z) \sin\theta & r(1+z) \cos\theta & r \sin\theta \\
+                0 & 0 & 1
+            \end{pmatrix}.$$
+            最后一行是 $(\partial \Phi_3/\partial r, \partial \Phi_3/\partial \theta, \partial \Phi_3/\partial z) = (0, 0, 1)$ — slice-driven 的标志 bottom row。Cofactor 沿最后一行展开:
+            $$\begin{aligned}
+                \det[D\Phi] &= 1 \cdot \det\begin{pmatrix}(1-z)\cos\theta & -r(1-z) \sin\theta \\ (1+z) \sin\theta & r(1+z)\cos\theta\end{pmatrix} \\
+                &= (1-z)\cos\theta \cdot r(1+z)\cos\theta - (-r(1-z) \sin\theta) \cdot (1+z) \sin\theta \\
+                &= r(1-z)(1+z)(\cos^2\theta + \sin^2\theta) \\
+                &= r(1 - z^2).
+            \end{aligned}$$
+            $r > 0$, $z \in (-1, 1)$ 所以 $|\det| = r(1 - z^2) > 0$ 内部。
+          </li>
+        </ul>
+        <p><strong>(5) 计算</strong>: $f \equiv 1$，
+        $$\begin{aligned}
+            \Vol(T) &= \int_X r(1 - z^2)\, dr\, d\theta\, dz \\
+            &= \int_0^{2\pi} d\theta \int_0^1 r\, dr \int_{-1}^1 (1 - z^2)\, dz \\
+            &= 2\pi \cdot \frac{1}{2} \cdot \left[z - \frac{z^3}{3}\right]_{-1}^1 \\
+            &= 2\pi \cdot \frac{1}{2} \cdot \frac{4}{3} = \boxed{\frac{4\pi}{3}}.
+        \end{aligned}$$</p>
+      </div>
+
+      <div class="box remark">
+        <span class="box-title">Remark 10.1 — 惊人巧合 (Cavalieri)</span>
+        <p>注意 $\Vol(T) = 4\pi/3 = \Vol(B_3)$，<em>等于单位球的体积</em>！这不是巧合: $T$ 的 $z$-切片是 area $\pi(1-z)(1+z) = \pi(1-z^2)$ 的椭圆，单位球 $B_3$ 的 $z$-切片是半径 $\sqrt{1-z^2}$ 的圆盘，面积 $\pi(1-z^2)$ — <strong>完全相同</strong>。</p>
+        <p>由 <em>Cavalieri 原理</em> (Fubini 的几何换装): 两个立体若每个 $z$-切片面积相等，则它们体积相等。<em>形状</em>不需要相等 — 一个有 circular 切片、另一个有 elliptical 切片但 area 相等，二者就 same volume。</p>
+        <p>这也解释了为什么本例 slice-driven 的 Jacobian 出现因子 $(1-z^2)$: 这正是切片<em>面积</em>，被 CoV 自动 incorporated 进 Jacobian 里。所以 slice-driven CoV 本质上就是 "Cavalieri wearing a Jacobian costume" — 你可以同时把它看成 "用 CoV 转坐标" 或 "对 $z$ 切片"，结果数值上完全等价。</p>
+      </div>
+
+      <div class="box remark">
+        <span class="box-title">Remark 10.2 — 为什么这题不用 boundary-driven?</span>
+        <p>有人会想: $T$ 的定义本身就是一个 level set $\{(x/(1-z))^2 + (y/(1+z))^2 \le 1\}$，为什么不直接 boundary-driven 取 $u = x/(1-z), v = y/(1+z), w = z$？</p>
+        <p>答: 这个 $\Psi$ 把 $T$ 映成 cylinder $\{u^2 + v^2 \le 1\} \times (-1, 1)$ — 仍然 curvilinear (圆柱面)，不是 axis-aligned box。所以一次 CoV 只完成了 "$T \to $ cylinder" 这一步，要继续做 cylinder 上的积分还得再用一次 polar — <em>两次 CoV</em>。slice-driven 模式直接把"slice parameterize + $z$-pass-through"合并成<em>一次</em> CoV，省一步。</p>
+        <p><em>Takeaway</em>: 同一道题可能套多个 pattern，但通常 slice-driven 是最短路径。如果 boundary-driven 没把区域变成真正的 box (而只变成"另一个 curvilinear shape")，要警觉考虑别的 pattern。</p>
+      </div>
+
+      <!-- §6 常见陷阱 -->
+      <h2 id="pitfalls">§6 常见陷阱</h2>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 10.1 — 忘了验证内部单射 (C2)</span>
+        <p>Boundary-driven 模式里，"解 $u = g_1(x), v = g_2(x)$ 求 $x, y$" 是个 implicit 假设: 这个方程组有唯一解。<em>不验证</em>这个就直接用 $\Phi = \Psi^{-1}$ 是危险的。</p>
+        <p><strong>反例</strong>: 取 $u = x^2, v = y$。"解出"$x = \sqrt{u}$ 看上去对，但其实 $x = -\sqrt{u}$ 也是解 — $\Psi$ 不单射 (它把 $(x, y)$ 和 $(-x, y)$ 都映到同一个 $(u, v)$)。如果 $A$ 跨越 $x$-轴的两边，这个 $\Phi$ 就 fail。</p>
+        <p><strong>预防</strong>: 两种检查方法。<em>(a) Explicit 写出 $\Phi$ 公式</em> — 如果你只能写出 "$x = \pm\dots$" 表示有歧义。<em>(b) 直接论证</em>: 设 $\Phi(p_1) = \Phi(p_2)$ 推 $p_1 = p_2$ (Example 10.3 的做法)。Example 10.2 的 cube root 单调正在第一象限，安全。如果你的 $A$ 横跨多个象限，单射性需要格外小心。</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 10.2 — 用硬算法做 Jacobian (反函数 shortcut 浪费了)</span>
+        <p>本页最 highlight 的 trick: boundary-driven 设计中 $\Phi = \Psi^{-1}$，$\Psi$ 是 polynomial/rational, 易求偏导。<em>不要</em>对 $\Phi$ 求偏导 — 那意味着对 cube root 或更糟的函数微分，又长又易错。</p>
+        <p>Example 10.2 中 $\Phi$ 含 $u^{1/3} v^{-1/3}$ 等，直接微分需要 4 个不平凡偏导数 + 一个 $2 \times 2$ 行列式; 而 $\Psi$ 微分只 4 个简单偏导数 (一个常数、一个 $-2y/x^3$ 等)，行列式秒算 $3v$，反函数倒数 $1/(3v)$ — done。<em>同一个数，三分之一行数</em>。</p>
+        <p><strong>记忆</strong>: 看到 $\Phi$ 公式里有 fractional power, 立刻问"我能不能反着算 $\Psi$？"</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 10.3 — 忘记绝对值 $|\det|$</span>
+        <p>Thm 9.1 公式里是 $\abs{\det[D\Phi]}$, 不是 $\det[D\Phi]$。本页三个例子里 $\det[D\Phi]$ 都恰好<em>正</em> (cylindrical, $1/(3v), r(1-z^2)$)，绝对值看似 vacuous — 但这是因为我们的 $\Phi$ 都 preserve orientation。</p>
+        <p><strong>什么时候绝对值非 vacuous</strong>: 涉及 reflection 的 $\Phi$。例如 $\Phi(u, v) = (v, u)$ (交换两个坐标) 有 $\det = -1$，必须取 $|\cdot| = 1$。又如 spherical coord 在某些 convention 下 $\varphi$ 范围让 $\cos\varphi$ 可以负 — typed notes 用 latitude convention $\varphi \in (-\pi/2, \pi/2)$ 故 $\cos\varphi > 0$ 一直，但其他书的 colatitude convention $\varphi \in (0, \pi)$ 时 $\sin\varphi$ 同样保正。<em>初学者最常犯的错</em>: 抄下 $\det$ 公式忘记 $|\cdot|$，遇上 orientation-reversing $\Phi$ 就翻车 (符号错)。</p>
+        <p><strong>预告</strong>: Chapter 5 引入 differential forms 后，绝对值会"消失" — 取而代之是 signed $\det$，因为 forms 本身就 carry orientation information。这是 CoV 公式自然推广到 forms 的关键，但<em>在 Chapter 4 范围内绝对值不可省</em>。</p>
+      </div>
+
+      <!-- §7 练习 -->
+      <h2 id="exercises">§7 练习</h2>
+      <p>展开 <code>&lt;details&gt;</code> 查看答案 (建议先自己想 10-15 分钟再看 — 这一页的题主要练 pattern 识别)。</p>
+
+      <div class="exercise">
+        <p><span class="ex-num">1.</span> (Pattern 识别) 下列每道题应该用哪种 pattern? <em>不必</em>计算，只判断:</p>
+        <ul>
+          <li>(a) $\int_A z^2\, dV$, $A = \{(x, y, z) : x^2 + y^2 + z^2 \le R^2\}$</li>
+          <li>(b) $\int_A dx\, dy$, $A = \{(x, y) : y \le x \le 2y,\ 1 \le x + y \le 3\}$</li>
+          <li>(c) $\Vol(A)$, $A = \{(x, y, z) : x^2 + y^2 \le (1 + z^2)^2,\ 0 \le z \le 1\}$</li>
+          <li>(d) $\int_{\R^2} e^{-(x^2 + y^2)}\, dx\, dy$</li>
+        </ul>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>(a) <strong>Symmetry-driven</strong>: 球对称 + 球区域 — 用 spherical。被积函数 $z^2 = r^2 \sin^2\varphi$ (latitude convention) 简单分离。</p>
+            <p>(b) <strong>Boundary-driven</strong>: 边界是 $\{y/x = c\}$ 和 $\{x+y = c\}$ 的 level set。取 $u = y/x, v = x+y$ (或类似)。$u, v \in $ 闭区间 $\Rightarrow$ 矩形 box。</p>
+            <p>(c) <strong>Slice-driven</strong>: 每个 $z$-切片是 $\{x^2 + y^2 \le (1+z^2)^2\}$ 即半径 $1 + z^2$ 的 disk。$\Phi(r, \theta, z) = (r(1+z^2)\cos\theta, r(1+z^2)\sin\theta, z)$，$|\det| = r(1+z^2)^2$。 — 但其实这题<em>也</em> symmetry-driven (cylindrical 直接 work)。两种都行，slice-driven 让 $r$ 范围变成 $[0, 1]$ ($z$-independent) 是好处; symmetry-driven 让 $r$ 范围变成 $[0, 1+z^2]$ 是 trade-off。</p>
+            <p>(d) <strong>Symmetry-driven</strong>: 这是经典的 Gaussian integral — polar 立刻让 $x^2 + y^2 = r^2$ 简化为单变量积分 $\int_0^\infty r e^{-r^2}\, dr$。</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">2.</span> 计算 $\int_A dx\, dy\, dz$，其中 $A = \{(x, y, z) : x^2 + y^2 + z^2 \le 1,\ z \ge 0,\ x^2 + y^2 \le z^2\}$ (即 ice-cream cone — 单位球与上半空间圆锥的交集)。</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>Symmetry-driven，球对称 — 用 spherical $(r, \theta, \varphi)$ with latitude convention $\varphi \in (-\pi/2, \pi/2)$, $z = r \sin\varphi$, $|\det| = r^2 \cos\varphi$。</p>
+            <p>约束: $x^2 + y^2 + z^2 \le 1$ $\to$ $r \le 1$; $z \ge 0$ $\to$ $\varphi \ge 0$; $x^2 + y^2 \le z^2$ $\to$ $r^2 \cos^2\varphi \le r^2 \sin^2\varphi$ $\to$ $\tan^2\varphi \ge 1$ $\to$ $\varphi \ge \pi/4$ (因 $\varphi \in [0, \pi/2)$)。所以 $r \in [0, 1], \varphi \in [\pi/4, \pi/2], \theta \in [0, 2\pi]$.</p>
+            <p>$\Vol = \int_0^{2\pi}\!\!\int_{\pi/4}^{\pi/2}\!\!\int_0^1 r^2 \cos\varphi\, dr\, d\varphi\, d\theta = 2\pi \cdot \frac{1}{3} \cdot [\sin\varphi]_{\pi/4}^{\pi/2} = 2\pi \cdot \frac{1}{3} \cdot (1 - \frac{\sqrt{2}}{2}) = \frac{2\pi}{3}(1 - \frac{\sqrt{2}}{2}) = \frac{(2 - \sqrt{2})\pi}{3}$.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">3.</span> (Boundary-driven 经典) 计算 $\Area(A)$, $A = \{(x, y) : 0 \le x \le y \le 2x,\ x + y \le 1\}$ (注意这里 boundary 是直线 — 还需要 CoV 吗?)</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>这题直线边界 — boundary-driven 仍然 work 但 not necessarily simpler。一种自然 $\Psi$: $u = y - x, v = 2x - y$ (让 $u \ge 0$, $v \ge 0$ 表示 $y \ge x$ 和 $y \le 2x$; 然后 $x + y = ?\, u, v$)。$x = u + v, y = 2u + v$ — 由此 $x + y = 3u + 2v \le 1$。new region: $u \ge 0, v \ge 0, 3u + 2v \le 1$ — 三角形 area $= \frac{1}{2} \cdot \frac{1}{3} \cdot \frac{1}{2} = \frac{1}{12}$。$|\det[D\Phi]| = \det\begin{pmatrix}1 & 1 \\ 2 & 1\end{pmatrix} = -1, |\cdot| = 1$. So $\Area(A) = 1/12$.</p>
+            <p>校验: 直接积分。$A = \{x \le y \le \min(2x, 1-x), 0 \le x\}$。$2x = 1 - x$ at $x = 1/3$. So $A$ 是两段:</p>
+            <ul>
+              <li>$0 \le x \le 1/3$, $x \le y \le 2x$: 长度 $x$。积分 $\int_0^{1/3} x\, dx = 1/18$。</li>
+              <li>$1/3 \le x \le 1/2$, $x \le y \le 1 - x$: 长度 $1 - 2x$。积分 $\int_{1/3}^{1/2} (1 - 2x)\, dx = [x - x^2]_{1/3}^{1/2} = (1/4) - (2/9) = 1/36$。</li>
+            </ul>
+            <p>总: $1/18 + 1/36 = 2/36 + 1/36 = 3/36 = 1/12$. ✓</p>
+            <p><em>Lesson</em>: 直线边界 boundary-driven 仍 useful，避免 case discussion ("两段")；不过 CoV 不是必须的，直接 Fubini 也能做 — 衡量 tradeoff。</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">4.</span> (Slice-driven 实战) 求 $A = \{(x, y, z) : 0 \le z \le 1, x^2 + y^2 \le z\}$ 的体积 — 一个 "paraboloid 下方"区域。用 slice-driven 模式。</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>每个 $z$-切片是 $\{x^2 + y^2 \le z\}$ 即半径 $\sqrt{z}$ 的 disk。slice-driven: $\Phi(r, \theta, z) = (r \sqrt{z} \cos\theta, r\sqrt{z}\sin\theta, z)$, $X = [0, 1] \times [0, 2\pi] \times [0, 1]$.</p>
+            <p>Bottom row $(0, 0, 1)$, cofactor 沿最后一行: $\det[D\Phi] = \det\begin{pmatrix}\sqrt{z}\cos\theta & -r\sqrt{z}\sin\theta \\ \sqrt{z}\sin\theta & r\sqrt{z}\cos\theta\end{pmatrix} = z (r \cos^2\theta + r \sin^2\theta) = r z$.</p>
+            <p>$\Vol = \int_X r z\, dr\, d\theta\, dz = \int_0^{2\pi} d\theta \int_0^1 r\, dr \int_0^1 z\, dz = 2\pi \cdot 1/2 \cdot 1/2 = \pi / 2$. </p>
+            <p><em>Cross-check</em>: 直接 Fubini — slice area $= \pi z$, $\Vol = \int_0^1 \pi z\, dz = \pi/2$. ✓ 印证 slice-driven 本质就是 Cavalieri。</p>
+            <p><em>注</em>: 这题用 cylindrical (symmetry-driven) 也行 — 约束 $r^2 \le z$ 即 $r \le \sqrt{z}$，$\int_0^{2\pi}\!\!\int_0^1\!\!\int_0^{\sqrt{z}} r\, dr\, dz\, d\theta = 2\pi \int_0^1 z/2\, dz = \pi/2$. 两种 pattern 都简洁。</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">5.</span> (Boundary + symmetry 混合) 求由 $z = 0, z = x^2 + y^2, x^2 + y^2 = 4, x^2 + y^2 = 9$ 围成的区域 $A$ 体积。</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>区域是 $\{4 \le x^2 + y^2 \le 9, 0 \le z \le x^2 + y^2\}$ — 一个 annular cylinder 下被 paraboloid $z = x^2 + y^2$ 截。Symmetry-driven (cylindrical): $r \in [2, 3], \theta \in [0, 2\pi], z \in [0, r^2]$.</p>
+            <p>$\Vol = \int_0^{2\pi}\!\!\int_2^3\!\!\int_0^{r^2} r\, dz\, dr\, d\theta = 2\pi \int_2^3 r^3\, dr = 2\pi \cdot \frac{r^4}{4}\Big|_2^3 = 2\pi \cdot \frac{81 - 16}{4} = 2\pi \cdot \frac{65}{4} = \frac{65\pi}{2}$.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">6.</span> ("证明或反例") Boundary-driven $\Psi$ 是<em>多项式</em>映射 (例如 $\Psi(x, y) = (xy, y/x^2)$ — 严格说不是 polynomial 但 rational)。则反函数 $\Phi$ 一定光滑 ($C^\infty$)。</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>真</strong> (在 $\Psi$ 内部 Jacobian 可逆的区域上)。这是反函数定理 (inverse function theorem) 的标准 corollary: 若 $\Psi$ 是 $C^k$ 且 $[D\Psi]$ 在 $p$ 处可逆，则 $\Psi$ 在 $p$ 邻域有 $C^k$ 局部 inverse。这里 $\Psi$ rational $\Rightarrow$ $C^\infty$，可逆性给 $\Phi$ $C^\infty$。</p>
+            <p><em>注</em>: 这告诉我们 boundary-driven 的 Lipschitz $[D\Phi]$ hypothesis (Thm 9.1 (iii)) 自动 — $\Phi$ $C^\infty$ 在紧集上 $\Rightarrow$ $[D\Phi]$ $C^1$ $\Rightarrow$ $[D\Phi]$ Lipschitz (by MVT)。</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- §8 速查表 -->
+      <h2 id="cheat">§8 速查表</h2>
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def"><strong>三种 design pattern</strong>: <em>Symmetry-driven</em> (区域/被积函数有对称性), <em>Boundary-driven</em> (边界由 level set 描述), <em>Slice-driven</em> (按某坐标切片有简单 parametric 形状)。</li>
+          <li class="cs-thm"><strong>Symmetry (Prop 10.1)</strong>: 旋转对称 $\to$ polar/cylindrical/spherical。难点不在选坐标，在选<em>积分顺序</em> — 把"范围最干净"的变量放最外层。</li>
+          <li class="cs-thm"><strong>Boundary (Prop 10.2)</strong>: $u_i := g_i(x)$, $\Psi := (g_1, \dots, g_n)$, $\Phi := \Psi^{-1}$。新区域是 axis-aligned box。</li>
+          <li class="cs-thm"><strong>Slice (Prop 10.3)</strong>: $\Phi = ($slice param. with $z$-dep, $z)$，bottom row $(0,\dots,0,1)$ 让 $3\times 3$ det collapse 到 $2\times 2$。</li>
+          <li class="cs-tech"><strong>反函数 shortcut (boundary-driven 关键)</strong>: $\det[D\Phi](\Psi(x)) = 1/\det[D\Psi](x)$. 算 $\Psi$ 偏导比 $\Phi$ 偏导省力得多 — Lec 6.1 最重要的 takeaway。</li>
+          <li class="cs-tech"><strong>Bottom row trick (slice-driven 关键)</strong>: $\Phi$ 最后一坐标 $= z$ 让 $[D\Phi]$ 最后一行 $(0,0,1)$，cofactor 展开 $3\times 3$ det = $2\times 2$ 上左子 det。</li>
+          <li class="cs-tech"><strong>Thm 9.1 验证 checklist</strong>: (C1) $X$ compact, $\partial X$ 测度零; (C2) $\Phi$ 内部单射; (C3) $\det[D\Phi]$ 内部非零。 $[D\Phi]$ Lipschitz 通常自动 ($C^1$ on compact)。</li>
+          <li class="cs-tech"><strong>积分顺序选择</strong> (cylindrical, cone example): 看哪个变量范围依赖最少的<em>其他</em>变量，把它放外层。$z$-innermost from $r$ to $1$ 比 $r$-innermost from $0$ to $z$ 偏好取决于内层 antiderivative 难度。</li>
+          <li class="cs-pitfall"><strong>Pitfall 单射 (10.1)</strong>: Boundary-driven 别假设 $\Psi$ 自动单射 — 验证它 (explicit inverse 或推 $p_1 = p_2$)。</li>
+          <li class="cs-pitfall"><strong>Pitfall 硬算 Jacobian (10.2)</strong>: $\Phi$ 含 fractional power 时<em>不要</em>对它求偏导。反函数 shortcut 一定试。</li>
+          <li class="cs-pitfall"><strong>Pitfall 绝对值 (10.3)</strong>: 公式是 $\abs{\det[D\Phi]}$ 不是 $\det[D\Phi]$。Orientation-reversing $\Phi$ 会让你翻车。</li>
+          <li class="cs-tech"><strong>Cavalieri 与 slice-driven 等价</strong>: slice-driven CoV 本质上是 "Cavalieri wearing Jacobian" — twisted ellipsoid 体积 $= 4\pi/3 = $ unit ball 体积，因切片面积逐点相等。</li>
+        </ul>
+      </div>
+
+      <!-- §9 进一步阅读 -->
+      <h2 id="further">§9 进一步阅读</h2>
+      <ul>
+        <li><strong>H&amp;H 教材</strong>: §4.10 (change of variables, 包括 examples)。§4.11 后续 examples (Lebesgue 框架下) 也用同样的 design patterns，但 hypothesis 更宽。</li>
+        <li><strong>Typed lecture notes</strong>:
+          <ul>
+            <li><code>../../Notes/Typed/6.1_notes/6.1_notes.pdf</code> — 本页直接来源，三个 worked example 完整 + Strategy summary</li>
+            <li><code>../../Notes/Typed/5.3_notes/5.3_notes.pdf</code> — CoV 定理 statement 与 polar/spherical/cylindrical Jacobian 推导</li>
+          </ul>
+        </li>
+        <li><strong>关联 review topics</strong>:
+          <ul>
+            <li><a href="09-nonlinear-cov.html">Topic 09</a>: 本页应用的<em>定理本身</em> (Thm 9.1) — 没看过 Topic 09 不要直接读本页</li>
+            <li><a href="08-linear-cov.html">Topic 08</a>: linear CoV (Thm 9.1 的常数 Jacobian 特例); "determinant scales volume" 是本页所有 Jacobian 的本质</li>
+            <li><a href="07-fubini.html">Topic 07</a>: Fubini 定理 — slice-driven 本质上是 Fubini 加 CoV 包装, Cavalieri 原理也是 Fubini 几何阐述</li>
+            <li><a href="11-limits-riemann.html">Topic 11</a>: Riemann 框架下 limits and integration — 接下来要讨论极限和积分的交换</li>
+          </ul>
+        </li>
+        <li><strong>同主题外读</strong>:
+          <ul>
+            <li>Spivak, <em>Calculus on Manifolds</em>, Ch 3 — 简洁但更抽象的 CoV 处理</li>
+            <li>Folland, <em>Real Analysis</em>, §2.7 — Lebesgue 框架下的 CoV，hypothesis 极弱</li>
+          </ul>
+        </li>
+      </ul>
+
+      <hr style="margin: 60px 0 20px; border: 0; border-top: 1px solid #d8d3c4;">
+      <p style="font-size: 13px; color: #888; text-align: center;">MATH 31CH 复习指南 · Topic 10 · CoV 实战</p>
+
+    </main>
+  </div>
+
+</body>
+</html>

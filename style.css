@@ -1,0 +1,312 @@
+/* ============================================
+   MATH 31CH Review — Global Stylesheet
+   ============================================ */
+
+/* ---------- 0. Reset & Base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 70px; }
+body {
+  margin: 0;
+  font-family: "Source Serif Pro", Charter, "Iowan Old Style", Georgia, serif;
+  font-size: 17px;
+  line-height: 1.7;
+  color: #1d1d1d;
+  background-color: #fbfaf6;
+}
+code, kbd, .mono {
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.92em;
+}
+
+/* ---------- 1. Top Nav ---------- */
+.top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  padding: 0 24px;
+  background: #fffefa;
+  border-bottom: 1px solid #d8d3c4;
+  font-size: 15px;
+}
+.top-nav a { color: #0b58a6; text-decoration: none; }
+.top-nav a:hover { text-decoration: underline; }
+.top-nav .nav-center { font-weight: 600; color: #444; }
+.top-nav .nav-prev::before { content: "← "; }
+.top-nav .nav-next::after { content: " →"; }
+.top-nav .nav-disabled { color: #aaa; pointer-events: none; }
+
+/* ---------- 2. Container Layout ---------- */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 40px;
+}
+
+/* ---------- 3. Sidebar TOC ---------- */
+.sidebar-toc {
+  position: sticky;
+  top: 72px;
+  align-self: start;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  font-size: 14.5px;
+  border-right: 1px solid #ebe6d8;
+  padding-right: 12px;
+}
+.sidebar-toc h3 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #888;
+  margin: 0 0 12px 0;
+  font-weight: 600;
+}
+.sidebar-toc ul { list-style: none; padding: 0; margin: 0; }
+.sidebar-toc li { margin: 6px 0; }
+.sidebar-toc a {
+  color: #555;
+  text-decoration: none;
+  display: block;
+  padding: 4px 8px;
+  border-left: 3px solid transparent;
+  border-radius: 0 4px 4px 0;
+  transition: all 0.15s;
+}
+.sidebar-toc a:hover { color: #0b58a6; background: #f0ebda; }
+.sidebar-toc a.active {
+  color: #0b58a6;
+  background: #f0ebda;
+  border-left-color: #0b58a6;
+  font-weight: 600;
+}
+
+/* ---------- 4. Main Column ---------- */
+main {
+  max-width: 70ch;
+  min-width: 0; /* 防止 grid item 溢出 */
+}
+main h1 { font-size: 32px; line-height: 1.3; margin: 0 0 8px 0; }
+main .subtitle { color: #777; font-size: 17px; margin-bottom: 32px; }
+main h2 {
+  font-size: 24px;
+  line-height: 1.3;
+  margin: 48px 0 16px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #ebe6d8;
+  scroll-margin-top: 70px;
+}
+main h3 { font-size: 19px; line-height: 1.3; margin: 24px 0 8px 0; }
+main p { margin: 0 0 14px 0; }
+main a { color: #0b58a6; }
+main strong { font-weight: 600; }
+
+/* ---------- 5. Boxed Cards (5 component types) ---------- */
+.box {
+  margin: 20px 0;
+  padding: 14px 18px;
+  border-left: 4px solid;
+  border-radius: 4px;
+  font-size: 0.97em;
+}
+.box .box-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+  display: block;
+}
+.box p:last-child { margin-bottom: 0; }
+
+.box.def      { background: #e8f0fb; border-color: #2b6cb5; }
+.box.def .box-title    { color: #1c4d8a; }
+
+.box.thm      { background: #fcf6e3; border-color: #b08412; }
+.box.thm .box-title    { color: #7d5b04; }
+
+.box.example  { background: #eaf5e9; border-color: #3a8a3a; }
+.box.example .box-title { color: #1f5b1f; }
+
+.box.pitfall  { background: #fbeaea; border-color: #b03030; }
+.box.pitfall .box-title { color: #802020; }
+
+.box.remark   { background: #f1ecf7; border-color: #6b4ba0; }
+.box.remark .box-title { color: #4a3070; font-style: italic; }
+
+/* §2 Prerequisites — smaller variant of def box */
+.box.prereq {
+  background: #f4f7fc;
+  border-color: #6b8db5;
+  font-size: 0.92em;
+}
+.box.prereq .box-title { color: #3a5878; font-size: 0.92em; }
+.box.prereq ul { margin: 6px 0; padding-left: 22px; }
+
+/* ---------- 6. Details (expandable proofs / answers) ---------- */
+details {
+  margin: 14px 0;
+  border: 1px solid #d8d3c4;
+  border-radius: 4px;
+  background: #fdfcf6;
+}
+details > summary {
+  cursor: pointer;
+  padding: 8px 14px;
+  font-weight: 600;
+  color: #444;
+  user-select: none;
+}
+details > summary:hover { background: #f5f1e3; }
+details[open] > summary { border-bottom: 1px solid #d8d3c4; }
+details > div.details-body { padding: 12px 18px; }
+
+/* ---------- 7. Exercises ---------- */
+.exercise {
+  margin: 18px 0;
+  padding-left: 16px;
+  border-left: 3px solid #b8b0a0;
+}
+.exercise .ex-num { font-weight: 700; color: #555; margin-right: 6px; }
+
+/* ---------- 8. Cheat Sheet (bullet list with emoji) ---------- */
+.cheat-sheet { margin-top: 12px; }
+.cheat-sheet ul { list-style: none; padding-left: 0; }
+.cheat-sheet li {
+  margin: 8px 0;
+  padding: 6px 0 6px 32px;
+  position: relative;
+  border-bottom: 1px dotted #e0dcd0;
+}
+.cheat-sheet li::before {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  font-size: 1.1em;
+}
+.cheat-sheet li.cs-def::before     { content: "🟦"; }
+.cheat-sheet li.cs-thm::before     { content: "🟨"; }
+.cheat-sheet li.cs-tech::before    { content: "🟢"; }
+.cheat-sheet li.cs-pitfall::before { content: "🟥"; }
+
+/* ---------- 9. KaTeX adjustments ---------- */
+.katex-display {
+  margin: 1em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.katex { font-size: 1.05em; }
+
+/* ---------- 10. Mobile TOC Toggle ---------- */
+.toc-toggle {
+  display: none;
+  background: none;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #555;
+}
+
+/* ---------- 11. Index Page Specific ---------- */
+body.index .container { display: block; max-width: 900px; }
+body.index main { max-width: none; }
+.part-section { margin: 36px 0; }
+.part-section h2 {
+  font-size: 22px;
+  color: #555;
+  margin: 0 0 16px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #ebe6d8;
+}
+.topic-list { list-style: none; padding: 0; margin: 0; }
+.topic-list li {
+  margin: 14px 0;
+  padding: 14px 18px;
+  background: #fffefa;
+  border: 1px solid #ebe6d8;
+  border-radius: 6px;
+  display: grid;
+  grid-template-columns: 50px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+.topic-list .topic-num {
+  font-size: 22px;
+  font-weight: 700;
+  color: #b08412;
+  text-align: center;
+}
+.topic-list .topic-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: #0b58a6;
+  text-decoration: none;
+}
+.topic-list .topic-title:hover { text-decoration: underline; }
+.topic-list .topic-meta {
+  font-size: 13.5px;
+  color: #888;
+  margin-top: 2px;
+}
+.topic-list .topic-desc {
+  font-size: 14.5px;
+  color: #444;
+  margin-top: 4px;
+  line-height: 1.5;
+}
+.topic-list li.unavailable { opacity: 0.5; }
+.topic-list li.unavailable .topic-title {
+  color: #888;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+/* ---------- 12. Responsive: hide sidebar < 900px ---------- */
+@media (max-width: 900px) {
+  .container { grid-template-columns: 1fr; gap: 0; }
+  .sidebar-toc {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    right: 0;
+    background: #fffefa;
+    border-bottom: 1px solid #d8d3c4;
+    border-right: none;
+    padding: 16px 24px;
+    max-height: calc(100vh - 56px);
+    z-index: 90;
+    transform: translateY(-100%);
+    transition: transform 0.2s;
+  }
+  .sidebar-toc.open { transform: translateY(0); }
+  .toc-toggle { display: inline-block; }
+  main { max-width: none; }
+}
+
+/* ---- Textbook example index table (MT2 review §5) ---- */
+.textbook-index {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 16px 0;
+  font-size: 0.92em;
+}
+.textbook-index th,
+.textbook-index td {
+  border: 1px solid #d8d3c4;
+  padding: 6px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+.textbook-index thead th {
+  background: #f5efde;
+  font-weight: 600;
+  color: #4a4030;
+}
+.textbook-index tbody tr:hover {
+  background: #faf7ec;
+}

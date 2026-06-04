@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Topic 19: 曲线与 Frenet frame 入门 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\C': '\\mathbb{C}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\diam': '\\operatorname{diam}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|',
+        '\\Span': '\\operatorname{span}'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="18-laplace-transform.html">Topic 18</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="20-frenet-curvature.html">Topic 20</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#motivation">§1 动机</a></li>
+        <li><a href="#prereq">§2 前置知识</a></li>
+        <li><a href="#definitions">§3 核心定义</a></li>
+        <li><a href="#theorems">§4 主要定理</a></li>
+        <li><a href="#examples">§5 Worked Examples</a></li>
+        <li><a href="#pitfalls">§6 常见陷阱</a></li>
+        <li><a href="#exercises">§7 练习</a></li>
+        <li><a href="#cheat">§8 速查表</a></li>
+        <li><a href="#further">§9 进一步阅读</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>Topic 19: 曲线与 Frenet frame 入门</h1>
+      <p class="subtitle">Source: Lec 9.3 · Klingenberg <em>A Course in Differential Geometry</em> §0-1 · 微分几何入门第 1 页</p>
+
+      <!-- §1 动机 -->
+      <h2 id="motivation">§1 动机</h2>
+      <p>整学期我们的主线一直是 Hubbard &amp; Hubbard 的 <strong>integration theory</strong>: Riemann 积分、测度零、Fubini、CoV、Lebesgue 收敛 — 这是 $\R^n$ 上"<em>测量函数值大小</em>"的标准框架。课程末段, 我们转向一个完全不同的话题: <strong>differential geometry (微分几何)</strong>, 关心 $\R^n$ 中的<em>几何对象</em> (curves 与 surfaces) 本身的"形状", 不再问"积分多大", 而问"<em>曲多少</em>"。</p>
+
+      <p>这一转向有几个理由:</p>
+      <ul>
+        <li><strong>课程结构</strong>: H&amp;H Chapter 4 (integration) 已完, Chapter 5-6 是 differential forms + Stokes, 但本课程末段选择从 <em>Klingenberg 的 differential geometry 教材</em>切入 — 这是 H&amp;H 之外的补充材料, 用熟悉的 $\R^n$ 框架引入 manifold theory 的核心概念 (tangent space, vector field).</li>
+        <li><strong>期末</strong>: 老师明确说期末有 "20 points of straightforward computation" 来自这块. 这是<em>必考</em>内容.</li>
+        <li><strong>知识整合</strong>: 这是<em>把过去两年</em> linear algebra (orthonormal basis, Gram-Schmidt), multivariable calculus (derivative as linear map), 与 honors 风格的严格性整合起来的最后一站. 31BH 的 "[Df(a)]" 在这里以 "$df_p \colon T_p S \to T_{f(p)} M$" 的 manifold 形式重现.</li>
+      </ul>
+
+      <p><strong>本页内容</strong>是 differential geometry 的<em>入门</em>: 引入<strong>curve (曲线)</strong> 与<strong>Frenet frame (动标架)</strong>的概念体系。Frenet frame 是一个沿曲线"运动" 的 orthonormal basis, 它的演化方式 (Frenet-Serret 公式) 编码了曲线的全部几何信息 (曲率、挠率)。本页只覆盖 Frenet frame 的<strong>定义</strong>; 它的存在性证明 (Gram-Schmidt 应用)、Frenet-Serret 公式与曲率定义将在 <strong>Topic 20</strong> (待 Lec 10.2+ 上完后补) 中给出。</p>
+
+      <p>叙事重点: <em>从"$\R^n$ 中一根smooth曲线"出发, 逐层引入参数化、正则性、along-curve 向量场、orthonormal frame, 最后到 Frenet frame</em>。这一连串定义之间环环相扣, 看似冗长, 但每一个都为下一步的 Frenet-Serret theory 准备语言.</p>
+
+      <!-- §2 前置知识 -->
+      <h2 id="prereq">§2 前置知识</h2>
+      <div class="box prereq">
+        <span class="box-title">在阅读本页前，你应该已经掌握:</span>
+        <ul>
+          <li><strong>31BH</strong>: derivative as linear transformation $[Df(a)]$, Jacobian matrix, chain rule, $C^k$ 与 smooth 函数.</li>
+          <li><strong>Linear algebra</strong>: <strong>orthonormal basis (标准正交基)</strong> 概念, <strong>Gram-Schmidt 过程</strong> (从 linearly independent 集构造 orthonormal basis), 内积 $\langle \cdot, \cdot\rangle$ 与正交概念.</li>
+          <li>基本概念: <strong>diffeomorphism (微分同胚)</strong> — differentiable bijection 其 inverse 也 differentiable.</li>
+          <li>Multivariable calculus: 曲线的<strong>velocity</strong> $\dot c(t) = (c_1'(t), \ldots, c_n'(t))^\top$ 的几何意义.</li>
+          <li>无 H&amp;H 章节前置 — 本页内容超出 H&amp;H 范围, 用的是 Klingenberg <em>A Course in Differential Geometry</em> §0-1.</li>
+        </ul>
+      </div>
+
+      <!-- §3 核心定义 -->
+      <h2 id="definitions">§3 核心定义</h2>
+
+      <p>本节有 <strong>7 个</strong>定义, 串成一条 conceptual chain. 一次性把所有词汇都建立, 才能在 §4 与 §5 看到它们如何拼装.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 19.1 (Tangent space, 操作性定义)</span>
+        <p>对 $x_0 \in \R^n$, 称
+        $$ T_{x_0}\R^n \;:=\; \R^n $$
+        为 <strong>$x_0$ 处的 tangent space (切空间)</strong>, 视为"一个把原点移到 $x_0$ 的 $\R^n$ 副本"。它的元素是所有"从 $x_0$ 出发的速度向量"。</p>
+      </div>
+
+      <p><strong>直觉</strong>: 集合上 $T_{x_0}\R^n$ 就是 $\R^n$, 但<strong>记号</strong>把 base point $x_0$ 标出来。这个 bookkeeping 看似多余, 但当我们考虑<em>低维子流形</em> (e.g.\ $S^{n-1} \subset \R^n$) 时, $T_p S^{n-1}$ 是 $T_p \R^n$ 的一个真子空间 ($(n-1)$ 维, 与 $p$ 正交), 不再等于整个 $\R^n$. 提前把 $T_{x_0}$ 当成"独立 vector space" 训练直觉, 是为 manifold theory 铺路.</p>
+
+      <p><strong>实战 takeaway</strong>: 给一个 tangent vector $v \in T_{x_0}\R^n$, 它<em>就是</em> $\R^n$ 中的一个向量, 但你应该把它想成"在 $x_0$ 处长出的箭头", 而非"自由向量"。把它实现成某曲线的速度: $c(t) = x_0 + tv$, $\dot c(0) = v$. 这就是 §3.5 中 "curve realization" 的最简形式.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 19.2 (曲线与 regular curve)</span>
+        <p>设 $I \subset \R$ 是开区间. $\R^n$ 中的一条 <strong>curve (曲线)</strong> 是一个 smooth map
+        $$ c \;\colon\; I \;\longrightarrow\; \R^n, $$
+        即 $c$ 是 $C^\infty$ (infinitely differentiable). 变量 $t \in I$ 称 <strong>parameter (参数)</strong>.</p>
+        <p>$c$ 称 <strong>regular (正则)</strong> 若其 velocity vector $\dot c(t) \in \R^n$ 处处非零:
+        $$ \dot c(t) \;\ne\; 0 \qquad \forall t \in I. $$</p>
+      </div>
+
+      <p><strong>直觉</strong>: smooth 控制 $c$ 作 $t$-函数的<em>analytic</em> regularity (无限可导). Regular 是一个<em>geometric</em> 条件: 它保证曲线"<em>从不停顿</em>"。停顿的瞬间 $\dot c(t_0) = 0$ 可以让 image 在该点出现尖角 (cusp) 或自我交叉, 即使 $c$ 本身 smooth。Example 19.3 中的 $c(t) = (t^2, t^3)$ 是 cusp 的经典反例 — smooth but not regular.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 19.3 (Vector field along curve, 沿曲线的向量场)</span>
+        <p>设 $c \colon I \to \R^n$ 是一条 curve. 一个 <strong>沿 $c$ 的向量场 (vector field along $c$)</strong> 是一个 differentiable map
+        $$ X \;\colon\; I \;\longrightarrow\; \R^n $$
+        使得 $X(t) \in T_{c(t)}\R^n$ 对每个 $t \in I$.</p>
+        <p>特例: <strong>Tangent vector field (切向量场)</strong> 是
+        $$ X(t) \;=\; \dot c(t), $$
+        即把每个 $t$ 处的切向量 (曲线的瞬时速度) 串起来.</p>
+      </div>
+
+      <p><strong>直觉 (解读 carefully)</strong>: 学生最常 confuse 的几点:</p>
+      <ul>
+        <li><strong>定义域是 $I$, 不是 $\R^n$</strong>. $X$ 是参数 $t$ 的函数, 给每个参数值<em>一个向量</em> — 不是"全空间上的向量场"。我们对 curve <em>外</em>的点不作任何 statement.</li>
+        <li><strong>$X(t) \in T_{c(t)}\R^n$ 是 base-point 提醒</strong>, 不是限制. 因 $T_{c(t)}\R^n = \R^n$, "$X(t) \in T_{c(t)}\R^n$"<em>实际上就是</em> "$X(t) \in \R^n$". 但 conceptually 我们认为 $X(t)$ 是"附着在 $c(t)$ 处的箭头", 不是自由向量。</li>
+        <li><strong>$X(t)$ <em>不必</em>切于曲线</strong>. 任何向量都行, 只要 $t$ 的函数 differentiable. 比如 normal vector field, binormal vector field 都是 along $c$ 的向量场 (Frenet frame 各分量都是).</li>
+      </ul>
+
+      <div class="box def">
+        <span class="box-title">Definition 19.4 (Parameter transformation, 参数变换)</span>
+        <p>设 $c \colon I \to \R^n$ 与 $\tilde c \colon \tilde I \to \R^n$ 是两条曲线. 若存在 diffeomorphism $\varphi \colon \tilde I \to I$ 使 $\tilde c = c \circ \varphi$, 则 $\varphi$ 称<strong>参数变换</strong> (parameter transformation / change of variable).</p>
+        <p>$\varphi$ 称 <strong>orientation preserving (保向)</strong> 若 $\varphi'(\tilde t) &gt; 0$ for all $\tilde t \in \tilde I$; <strong>orientation reversing (反向)</strong> 若 $\varphi'(\tilde t) &lt; 0$ for all $\tilde t$. (因 $\varphi$ 是 diffeomorphism, $\varphi'$ 处处非零, 必为其一.)</p>
+      </div>
+
+      <p><strong>直觉</strong>: 同一条曲线 (相同 image) 可以用很多种参数化 — 这是 1D 版的 change-of-variable. orientation 区分"沿同一方向走"和"反方向走"。考虑单位圆 $c(t) = (\cos 2\pi t, \sin 2\pi t)$ on $[0, 1)$ (逆时针) 与 $\tilde c(\tilde t) = (\cos 2\pi \tilde t, -\sin 2\pi \tilde t)$ (顺时针), 二者 image 相同, $\varphi(\tilde t) = -\tilde t \pmod 1$ 把后者映到前者, $\varphi'(\tilde t) = -1 &lt; 0$ — orientation reversing.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 19.5 (Arc-length, length, energy)</span>
+        <p>对曲线 $c \colon I \to \R^n$:</p>
+        <ol>
+          <li><strong>Arc-length parametrized (弧长参数化) / unit-speed (单位速度)</strong>: $c$ 满足
+          $$ |\dot c(t)| \;=\; 1 \qquad \forall t \in I. $$</li>
+          <li><strong>长度 (Length)</strong>:
+          $$ L(c) \;:=\; \int_I |\dot c(t)|\,dt. $$</li>
+          <li><strong>能量 (Energy)</strong>:
+          $$ E(c) \;:=\; \frac{1}{2}\int_I |\dot c(t)|^2\,dt. $$</li>
+        </ol>
+      </div>
+
+      <p><strong>物理直觉</strong>: $|\dot c(t)|$ 是 instantaneous speed. $L(c) = \int \text{speed}\,dt = $ 总路程 (geometric, 不依赖参数化). $E(c) = \frac{1}{2}\int |\dot c|^2\,dt$ 是动能积分 (取质量 = 1), <em>依赖</em>参数化 — 在 image 与方向都固定下, $E$ 在 arc-length 参数化时取最小. 这是 differential geometry 中 geodesic = energy minimizer 的直观由来 (但我们不深入).</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 19.6 (Moving $n$-frame, 动标架)</span>
+        <p>设 $c \colon I \to \R^n$ 是一条曲线. 一个 <strong>moving $n$-frame along $c$ (沿 $c$ 的动 $n$-标架)</strong> 是 $n$ 个 along-curve 向量场
+        $$ e_1, e_2, \ldots, e_n \;\colon\; I \;\longrightarrow\; \R^n $$
+        (每个 $e_i$ differentiable, $e_i(t) \in T_{c(t)}\R^n$), 满足: 对每个 $t \in I$, $\{e_1(t), \ldots, e_n(t)\}$ 是 $T_{c(t)}\R^n = \R^n$ 的<strong>orthonormal basis (标准正交基)</strong>. 即
+        $$ e_i(t)\cdot e_j(t) \;=\; \delta_{ij} \;=\; \begin{cases} 1, & i = j, \\ 0, & i \ne j. \end{cases} $$
+      </div>
+
+      <p><strong>直觉</strong>: 想象沿 $c$ 走时, 在每个点 $c(t)$ 安插一组<em>标准正交基</em> $\{e_1(t), \ldots, e_n(t)\}$, 这组基随 $t$ 平滑转动 (smoothly rotates). 这就是"动标架"形象 — 帧像太空船的局部坐标系, 随旅程逐步调整.</p>
+
+      <p><strong>$\R^2$ 中最自然的例子</strong>: 对正则平面曲线, 取 $e_1(t) = \dot c(t)/|\dot c(t)|$ (单位切向), $e_2(t) = e_1(t)$ 逆时针转 $90°$ (单位法向). 这就是 plane 曲线的<em>natural moving 2-frame</em>.</p>
+
+      <p>更高维: 没有自动的"单位法向" (因 normal space 是 $(n-1)$ 维), 需要额外选择 — Frenet frame 就是一种<em>正典选择</em>.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 19.7 ★ (Frenet frame — 与曲线对齐的动标架)</span>
+        <p>设 $c \colon I \to \R^n$ 是曲线, $(e_1, \ldots, e_n)$ 是 along $c$ 的 moving $n$-frame. 该 frame 称 <strong>Frenet frame</strong> 若对每个 $k = 1, 2, \ldots, n$ 与每个 $t \in I$,
+        $$ c^{(k)}(t) \;\in\; \Span\{e_1(t), e_2(t), \ldots, e_k(t)\}. $$
+        即 $c$ 的 $k$ 阶导数落在前 $k$ 个 frame 向量的张成里.</p>
+      </div>
+
+      <p><strong>解读</strong>:</p>
+      <ul>
+        <li>$k = 1$ 条件: $\dot c(t) \in \Span\{e_1(t)\}$, 即 $e_1$ 与 $\dot c$ 平行 — 结合 $|e_1| = 1$ + 正向约定 → $e_1(t) = \dot c(t)/|\dot c(t)|$ (切向). 若 $c$ 是 arc-length 参数化, $e_1(t) = \dot c(t)$ 直接.</li>
+        <li>$k = 2$ 条件: $\ddot c(t) \in \Span\{e_1(t), e_2(t)\}$, 即 $e_2$ 在 $\dot c$ 与 $\ddot c$ 张成的平面里 (orthogonal to $e_1$). 这就是 <strong>normal vector (法向量)</strong>.</li>
+        <li>一般 $k$: $e_k(t)$ 是 $c^{(k)}(t)$ 投影到 $\Span\{e_1, \ldots, e_{k-1}\}^\perp$ 的单位化 — 这是 <strong>Gram-Schmidt</strong> 应用在 $\{\dot c, \ddot c, \ldots, c^{(n)}\}$ 上的结果!</li>
+      </ul>
+
+      <p>所以 Frenet frame <em>本质上是把 $\{\dot c, \ddot c, \ldots, c^{(n)}\}$ Gram-Schmidt 化</em>。当一名学生在 Lec 9.3 中问 "Is this similar to Gram-Schmidt?", 老师确认: yes, exactly so. Frenet frame 存在性即归到 "$\{\dot c, \ddot c, \ldots, c^{(n-1)}\}$ 在每个 $t$ 处线性独立" — 这就是 Thm 19.2 的 hypothesis.</p>
+
+      <!-- §4 主要定理 -->
+      <h2 id="theorems">§4 主要定理</h2>
+
+      <p>本页有两个 statement: 一个是 reparametrization 的 universal 性质 (Thm 19.1), 一个是 Frenet frame 的存在性 (Thm 19.2, 完整证明留 Topic 20).</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 19.1 (任何正则曲线都可以 arc-length 重参数化)</span>
+        <p>设 $c \colon I \to \R^n$ 是 regular curve. 则存在 diffeomorphism $\varphi \colon \tilde I \to I$ (对某区间 $\tilde I$) 使得 $\tilde c := c \circ \varphi$ 是 arc-length 参数化 (即 $|\dot{\tilde c}(\tilde t)| = 1$ for all $\tilde t$).</p>
+      </div>
+
+      <p><strong>Proof.</strong> 固定 $t_0 \in I$, 定义 <em>arc-length function</em>:
+      $$ s(t) \;:=\; \int_{t_0}^t |\dot c(\tau)|\,d\tau. $$
+      由 regular hypothesis $|\dot c| &gt; 0$ everywhere, $s$ 是 strictly increasing $C^\infty$ function (FTC + smooth $c$). 故 $s$ 有 $C^\infty$ inverse $\varphi := s^{-1}$. 设 $\tilde c := c \circ \varphi$. 由 chain rule + $s'(t) = |\dot c(t)|$:
+      $$ |\dot{\tilde c}(\tilde t)| \;=\; |\dot c(\varphi(\tilde t))| \cdot |\varphi'(\tilde t)| \;=\; |\dot c(\varphi(\tilde t))| \cdot \frac{1}{|\dot c(\varphi(\tilde t))|} \;=\; 1. $$
+      故 $\tilde c$ 是 unit-speed. $\square$</p>
+
+      <p><strong>意义</strong>: 这个 reparametrization 让我们<em>WLOG 假设 $c$ 是 arc-length 参数化</em>。所有 Frenet-Serret 公式、曲率定义都默认 arc-length parametrized. 实战中给一个 general regular $c$, 不需要先 explicit 算 $s, \varphi$ — 通常只需用 chain rule 在公式里把 $d/dt$ 换成 $|\dot c|\,d/ds$ 即可.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 19.2 (Frenet frame 存在性, 暂只声明)</span>
+        <p>设 $c \colon I \to \R^n$ 是 regular curve, 假设对每个 $t \in I$, 向量集
+        $$ \{\dot c(t), \ddot c(t), \ldots, c^{(n-1)}(t)\} $$
+        在 $\R^n$ 中线性独立. 则存在<strong>唯一的</strong> Frenet frame $(e_1, \ldots, e_n)$ 使 $\det(e_1, \ldots, e_n) = +1$ (positively oriented). 构造方法: 对 $\{\dot c(t), \ldots, c^{(n-1)}(t)\}$ 做 <strong>Gram-Schmidt</strong> 得到 $e_1, \ldots, e_{n-1}$; $e_n(t)$ 由 "$\{e_1, \ldots, e_n\}$ 正交正向"唯一确定.</p>
+      </div>
+
+      <p><strong>Proof</strong>: 用 Gram-Schmidt 与 determinant 的标准 linear algebra 论证. 详细推导 + Frenet-Serret 公式将在 <strong>Topic 20 (待 Lec 10.2+ 上完后补)</strong> 中. 本页只 anchor 定义.</p>
+
+      <p><strong>Hypothesis 的几何意义</strong>: $\{\dot c, \ddot c, \ldots, c^{(n-1)}\}$ 线性独立 是<em>"曲线足够弯"</em>的条件。Counter-example: 直线 $c(t) = x_0 + tv$ 有 $\ddot c = 0$, 故 $\{\dot c, \ddot c\}$ 不独立, 直线<em>没有</em>分明的"二阶 Frenet vector". 直觉: 直线"没拐弯", 不需要法向. 圆与 helix 有完整的 Frenet frame.</p>
+
+      <!-- §5 Worked Examples -->
+      <h2 id="examples">§5 Worked Examples</h2>
+
+      <div class="box example">
+        <span class="box-title">Example 19.1 (直线 / line in $\R^n$)</span>
+        <p><strong>定义</strong>: 给 $x_0 \in \R^n$ 与 $v \in \R^n \setminus \{0\}$, 直线
+        $$ c(t) \;=\; x_0 + tv, \qquad t \in \R. $$</p>
+        <p><strong>分析</strong>:</p>
+        <ul>
+          <li>$\dot c(t) = v \ne 0$: regular. $\checkmark$</li>
+          <li>$|\dot c(t)| = |v|$: 常数 speed. unit-speed iff $|v| = 1$.</li>
+          <li>$\ddot c(t) = 0$, $c^{(k)} = 0$ for $k \ge 2$. 故 $\{\dot c, \ddot c, \ldots\}$ 已经在 $k = 2$ 处线性 dependent. <strong>没有 Frenet frame</strong> (对 $n \ge 2$). 直线"太平", 不携带 enough 几何信息.</li>
+          <li>但仍可定义一个 (非 Frenet) moving frame: 取 $e_1 = v/|v|$, $e_2, \ldots, e_n$ 任意补成正交正典 basis (e.g.\ 沿坐标轴). 这只是 trivial 的 "frame 跟随平移", 不揭示几何.</li>
+        </ul>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 19.2 ★ (Helix in $\R^3$ — 标志性 Frenet 例子)</span>
+        <p><strong>定义</strong>: $c(t) = (a\cos t, a\sin t, bt)$ for $t \in \R$, $a^2 + b^2 \ne 0$.</p>
+        <p><strong>导数</strong>:
+        <ul>
+          <li>$\dot c(t) = (-a\sin t, a\cos t, b)$, $|\dot c(t)|^2 = a^2 \sin^2 t + a^2 \cos^2 t + b^2 = a^2 + b^2$. 故 $|\dot c| = \sqrt{a^2 + b^2}$ 常数 — <strong>unit-speed iff $a^2 + b^2 = 1$</strong>.</li>
+          <li>$\ddot c(t) = (-a\cos t, -a\sin t, 0)$, $|\ddot c| = a$. 注意 $\dot c \cdot \ddot c = 0$ — 二阶导数自动垂直 (因 $|\dot c|$ 常数, 见 Pitfall 19.3).</li>
+          <li>$\dddot c(t) = (a\sin t, -a\cos t, 0)$. 三阶导.</li>
+        </ul>
+        </p>
+        <p><strong>Frenet hypothesis 验证</strong>: $\{\dot c, \ddot c\}$ 线性独立 iff $\ddot c \ne 0$ (因 $\dot c \ne 0$), iff $a \ne 0$. 假设 $a \ne 0$ + $b \ne 0$ (helix proper, 不是平面圆也不是直线), 那 $\{\dot c, \ddot c, \dddot c\}$ 是否独立? 直接计算: $\dot c \times \ddot c = (a b\sin t, -ab\cos t, a^2)$, 与 $\dddot c$ 是否 parallel? $\dddot c = (a\sin t, -a\cos t, 0)$. 比较: $(ab\sin t)/(a\sin t) = b$, $(-ab\cos t)/(-a\cos t) = b$, but $a^2/0$ undefined — 不 parallel. 故三个 vector 独立.</p>
+        <p><strong>Frenet frame (假设 unit-speed, 即 $a^2 + b^2 = 1$)</strong>: 由 Gram-Schmidt:</p>
+        <ul>
+          <li>$e_1(t) = \dot c(t) = (-a\sin t, a\cos t, b)$ (已 unit, 因 unit-speed).</li>
+          <li>$e_2(t)$: 把 $\ddot c$ 投影到 $e_1^\perp$ 后单位化. 因 $\dot c \cdot \ddot c = 0$, $\ddot c$ 已经 $\perp e_1$. 故 $e_2(t) = \ddot c(t)/|\ddot c(t)| = (-\cos t, -\sin t, 0)$ — 指向圆柱 $x^2 + y^2 = a^2$ 的<em>圆心</em>! (与直觉: 法向指向"内", 一致.)</li>
+          <li>$e_3(t)$: 由 $\{e_1, e_2, e_3\}$ 正交正典 + 正向 → $e_3 = e_1 \times e_2 = (b\sin t, -b\cos t, a)$. (Binormal 向量, 既不切于 helix 也不指圆心.)</li>
+        </ul>
+        <p>这就是 helix 的 <strong>distinguished Frenet 3-frame</strong> (assuming unit speed). 在 Topic 20 中我们会看到, $e_1, e_2, e_3$ 的导数 $\dot e_i$ 用 frame 本身展开的<em>系数</em>就是<em>曲率 $\kappa$ 与挠率 $\tau$</em> — 这是 Frenet-Serret 公式.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 19.3 (Cusp $c(t) = (t^2, t^3)$ — smooth but not regular)</span>
+        <p><strong>定义</strong>: $c \colon \R \to \R^2$, $c(t) = (t^2, t^3)$.</p>
+        <p><strong>Image 方程</strong>: 写 $x = t^2$, $y = t^3$, 得 $y^2 = t^6 = (t^2)^3 = x^3$, 即<strong>cuspidal cubic</strong> $y^2 = x^3$.</p>
+        <p><strong>Image 形状</strong>: 在原点处有一个<em>尖角</em> — 从下方进入, 在 $(0, 0)$ 反弹回上方, 形成"鸟嘴"形:</p>
+        <pre style="font-family:monospace;line-height:1.2;text-align:center;color:#666;">
+              y
+              |     ___
+              |   _/
+              | _/
+              |/
+        ------+-------- x
+              |\
+              | \_
+              |   \_
+              |     \___</pre>
+        <p><strong>Regularity 检查</strong>: $\dot c(t) = (2t, 3t^2)$. $\dot c(0) = (0, 0) = 0$. 故 $c$ 在 $t = 0$ 处<em>不 regular</em> — 速度归零, 曲线"停了一下"然后反向. 在 $t \ne 0$ 处 $\dot c \ne 0$, regular. 但 $c$ 整体不是 regular curve (要求<em>处处</em>非零).</p>
+        <p><strong>Lessons</strong>:</p>
+        <ul>
+          <li>$c$ 作 $\R \to \R^2$ 是 smooth ($C^\infty$ polynomial), 但 image 在 $0$ 处有<em>不可去除的 geometric singularity</em> — smooth 不蕴含 image 光滑.</li>
+          <li>Regularity 是排除这类 geometric singularity 的<em>必要</em>条件 — 它保证 image 在每点都有 well-defined tangent line.</li>
+          <li>$y^2 = x^3$ 这个 algebraic curve 在 $(0, 0)$ 处是<em>奇点</em> (代数几何意义), 在那里 no tangent space可以良好定义. 我们的 regularity 条件正是为了排除这类点.</li>
+        </ul>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 19.4 (Curve 实现 tangent vector — Def 19.1 的最简应用)</span>
+        <p><strong>问题</strong>: 给 $x_0 \in \R^n$ 与 $v \in T_{x_0}\R^n$ (即任意 $v \in \R^n$), 构造曲线 $c$ 使 $c(0) = x_0$, $\dot c(0) = v$.</p>
+        <p><strong>解答</strong>: 取 $c(t) = x_0 + tv$. 显然 $c(0) = x_0$, $\dot c(t) = v$, $\dot c(0) = v$. $\checkmark$</p>
+        <p><strong>意义</strong>: 这告诉我们 $T_{x_0}\R^n$ 中<em>每个</em>向量 $v$ 都是<em>某条</em>曲线的 velocity. 反过来, 任意曲线在 $x_0$ 处的速度都 $\in T_{x_0}\R^n$ (by Def 19.1, 因 $T = \R^n$). 这是"tangent vector $=$ velocity of some curve"<strong>双向对应</strong>的最简实现. 在 manifold theory 中, 这种对应是 tangent space 的<em>定义</em>而非定理.</p>
+      </div>
+
+      <!-- §6 常见陷阱 -->
+      <h2 id="pitfalls">§6 常见陷阱</h2>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 19.1 (Smooth ≠ Regular — Example 19.3 的 lesson)</span>
+        <p>Smooth (即 $C^\infty$) 是<em>analytic</em> regularity ($c$ 作 $t$-函数无限可导). Regular 是<em>geometric</em> condition ($\dot c \ne 0$). 二者独立 — 一个 smooth curve 可以 not regular (cusp), 一个 regular 在 $C^k$ 但 not $C^\infty$ 也合法 (但本课程只关心 $C^\infty$, 所以"smooth"成为 default, regularity 是<em>额外</em>条件).</p>
+        <p>记忆口诀: <em>smooth 是分析, regular 是几何</em>.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 19.2 (Vector field along curve 的<em>定义域</em>是 $I$, 不是 $\R^n$)</span>
+        <p>$X \colon I \to \R^n$ 是参数 $t$ 的函数, 给每个 $t$ <em>一个</em>向量. 我们对 curve image 之外的点不作 statement.</p>
+        <p>对比: 整个 $\R^n$ 上的"vector field"是 $Y \colon \R^n \to \R^n$ (定义域 $\R^n$). 二者是不同对象, 在 differential geometry 早期定义中常被混淆. Lec 9.3 上多个学生问了相关 question; 老师反复强调 "<em>only at points of the curve, not the whole space</em>".</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 19.3 (constant-speed 蕴含 $\dot c \perp \ddot c$)</span>
+        <p>若 $|\dot c(t)| \equiv$ const (包括 unit-speed), 则
+        $$\frac{d}{dt}|\dot c|^2 = \frac{d}{dt}(\dot c \cdot \dot c) = 2\dot c \cdot \ddot c \equiv 0,$$
+        即 $\dot c \perp \ddot c$ everywhere. 这个事实让 Gram-Schmidt 第一步 (从 $\ddot c$ 中减去 $\dot c$ 分量) 变成<strong>trivial</strong> — $\ddot c$ 已经在 $e_1^\perp$ 中. 故对 arc-length 参数化的曲线, $e_2 = \ddot c/|\ddot c|$ 直接.</p>
+        <p>反之, <em>general parametrization 下 $\dot c \cdot \ddot c$ 通常非零</em>, Gram-Schmidt 需 honest 减分量. 这就是为什么 differential geometry 默认 arc-length 参数化 — algebra simpler.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 19.4 (Tangent space ≠ Tangent line)</span>
+        <p>"$T_{x_0}\R^n = \R^n$" 是 $n$-维 vector space, 不是几何上的 1-dimensional "切线"。学生有时把 "tangent space at $x_0$ to a curve $c$" 理解为"切线" — 但 differential geometry 里 tangent space 是 base point + 所有"出发方向", 是 $n$-D, 不是 1-D.</p>
+        <p>"曲线的 tangent line at $c(t_0)$" 是 image 在 $c(t_0)$ 处的几何切线, 1-dimensional. 它是 tangent space $T_{c(t_0)}\R^n$ 的一个<em>子</em>对象, 由 $\dot c(t_0)$ 张成.</p>
+      </div>
+
+      <!-- §7 练习 -->
+      <h2 id="exercises">§7 练习</h2>
+
+      <div class="exercise">
+        <span class="ex-num">练习 19.1.</span> 把单位圆 $c(t) = (\cos t, \sin t)$ ($t \in [0, 2\pi)$) reparametrize 到 arc-length. 验证 reparametrized 曲线满足 $|\dot{\tilde c}| = 1$.
+        <details><summary>答案</summary><div class="details-body">
+        $|\dot c(t)| = |(-\sin t, \cos t)| = 1$ — 哦, 原 parameterization <em>已经</em>是 unit-speed! ($t$ 等于弧长.) 所以 $\varphi = \text{id}$, $\tilde c = c$. (如果原 $c$ 是 $(2\cos t, 2\sin t)$ — 半径 2 圆, $|\dot c| = 2$ — 则需重参数化: $s(t) = 2t$, $\varphi(s) = s/2$, $\tilde c(s) = (2\cos(s/2), 2\sin(s/2))$. 验证 $|\dot{\tilde c}(s)| = |(-\sin(s/2), \cos(s/2))| = 1$ $\checkmark$.)
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 19.2.</span> 对 helix $c(t) = (\cos t, \sin t, t)$ on $\R$, 计算 $|\dot c|$, $\ddot c$, $|\ddot c|$. 验证 $\dot c \cdot \ddot c = 0$.
+        <details><summary>答案</summary><div class="details-body">
+        $\dot c(t) = (-\sin t, \cos t, 1)$. $|\dot c|^2 = \sin^2 t + \cos^2 t + 1 = 2$, $|\dot c| = \sqrt{2}$. <em>不</em>是 unit-speed; 但 $|\dot c|$ 常数 → Pitfall 19.3 蕴含 $\dot c \perp \ddot c$.
+        $\ddot c(t) = (-\cos t, -\sin t, 0)$. $|\ddot c| = 1$.
+        $\dot c \cdot \ddot c = \sin t \cos t - \cos t \sin t + 0 = 0$ $\checkmark$.
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 19.3.</span> 设 $c(t) = (t, t^2)$ on $\R$ (抛物线 $y = x^2$). 验证 regular, 找 $\dot c, \ddot c$, 计算 $\dot c \cdot \ddot c$. 是否 unit-speed?
+        <details><summary>答案</summary><div class="details-body">
+        $\dot c = (1, 2t)$, $|\dot c| = \sqrt{1 + 4t^2} \ne 0$ — regular $\checkmark$. <em>不</em>是 unit-speed (因 $|\dot c|$ 依赖 $t$).
+        $\ddot c = (0, 2)$, $\dot c \cdot \ddot c = 4t$, <em>非零</em> for $t \ne 0$. 与 Pitfall 19.3 一致: $|\dot c|$ 不常数, 所以 $\dot c \not\perp \ddot c$.
+        要 unit-speed reparametrize, 需 $s(t) = \int_0^t \sqrt{1 + 4\tau^2}\,d\tau$ — 这是 inverse hyperbolic 函数, no elementary closed form. 这就是为什么实战常常<em>不</em>显式 reparametrize, 而是用 chain rule 推公式.
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 19.4.</span> 在 Example 19.2 的 helix $c(t) = (a\cos t, a\sin t, bt)$ ($a, b &gt; 0$) 上, 写出非 unit-speed 参数化的 frame: $e_1(t) = \dot c(t)/|\dot c(t)|$, $e_2(t) = ?$ (法向), $e_3 = e_1 \times e_2$.
+        <details><summary>答案</summary><div class="details-body">
+        $|\dot c| = \sqrt{a^2 + b^2}$. $e_1 = \dot c/|\dot c| = (-a\sin t, a\cos t, b)/\sqrt{a^2 + b^2}$.
+        $\ddot c = (-a\cos t, -a\sin t, 0)$. $\dot c \cdot \ddot c = 0$ — already orthogonal. $|\ddot c| = a$. 故 $e_2 = \ddot c/|\ddot c| = (-\cos t, -\sin t, 0)$.
+        $e_3 = e_1 \times e_2$. 用 cross product 公式:
+        $e_3 = \dfrac{1}{\sqrt{a^2+b^2}}\begin{vmatrix} \mathbf{i} & \mathbf{j} & \mathbf{k} \\ -a\sin t & a\cos t & b \\ -\cos t & -\sin t & 0 \end{vmatrix}$
+        $= \dfrac{1}{\sqrt{a^2+b^2}}(a\cos t \cdot 0 - b(-\sin t), b(-\cos t) - 0, (-a\sin t)(-\sin t) - a\cos t (-\cos t))$
+        $= \dfrac{1}{\sqrt{a^2+b^2}}(b\sin t, -b\cos t, a)$.
+        Verify: $|e_3|^2 = (b^2 \sin^2 t + b^2 \cos^2 t + a^2)/(a^2 + b^2) = (a^2 + b^2)/(a^2 + b^2) = 1$ $\checkmark$.
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 19.5.</span> 设 $c \colon \R \to \R^2$ 是<em>平面</em>正则曲线. 证明在 $\R^2$ 中, 取 $e_1 = \dot c/|\dot c|$ 与 $e_2 = R_{90°}e_1$ (旋转 $90°$) 得 moving 2-frame. (其中 $R_{90°}(a, b) = (-b, a)$.)
+        <details><summary>答案</summary><div class="details-body">
+        $|e_1| = 1$ ($\dot c/|\dot c|$ 单位化). $R_{90°}$ 是 isometry 故 $|e_2| = |e_1| = 1$. $e_1 \cdot e_2$: 若 $e_1 = (a, b)$, $e_2 = (-b, a)$, $e_1 \cdot e_2 = -ab + ab = 0$ $\checkmark$ orthogonal. 故 $\{e_1, e_2\}$ orthonormal at each $t$. Smoothness: 二者都是 $\dot c$ 与 elementary 操作的合成 → smooth. 故是 moving 2-frame.
+        (这是平面正则曲线的<em>natural</em> Frenet 2-frame: tangent + normal.)
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 19.6.</span> 对直线 $c(t) = x_0 + tv$ ($v \ne 0$) on $\R^n$, $n \ge 2$, 解释为何<em>没有</em>"distinguished" Frenet frame.
+        <details><summary>答案</summary><div class="details-body">
+        $\dot c = v$, $\ddot c = 0$, $c^{(k)} = 0$ for $k \ge 2$. Thm 19.2 hypothesis "$\{\dot c, \ddot c, \ldots, c^{(n-1)}\}$ 线性独立" 在 $n \ge 2$ 时即 "$\dot c, \ddot c$ 独立", 但 $\ddot c = 0$ 不独立. 故 hypothesis 失败, 不存在 distinguished Frenet frame.
+        <em>直觉</em>: 直线"没拐弯", 没有 second 几何方向被 distinguish 出来. 可以<em>选</em>任何 orthonormal basis 配合 $e_1 = v/|v|$ 当作 frame, 但没有几何 reason 偏爱某一种.
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 19.7.</span> (思维题) 为什么定义 19.6 中的"<em>orthonormal</em>"是非琐碎条件? 即, "$n$ 个线性独立的 along-curve 向量场"为何<em>不</em>足以构成本课程意义下的 moving frame?
+        <details><summary>答案</summary><div class="details-body">
+        若只要 linearly independent, 没有 orthonormality, 你的 frame 在每个 $t$ 处是 $\R^n$ 的 basis, 但不一定<em>正交</em>. 这种 generalized frame 在 algebra (e.g.\ vector bundle trivialization) 中确实有意义, 但<em>Frenet 理论需要 orthonormality</em> 才能定义"导数沿 frame 展开的系数 = 曲率/挠率". 没有 orthonormality, 系数不再有"几何意义", 而仅是 algebra 数. 故 Klingenberg 与本课程把 orthonormality<em>编进 moving frame 的定义</em>, 而非"额外要求".
+        </div></details>
+      </div>
+
+      <!-- §8 速查表 -->
+      <h2 id="cheat">§8 速查表</h2>
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def"><strong>Tangent space (Def 19.1)</strong>: $T_{x_0}\R^n = \R^n$, "原点移到 $x_0$"的副本. 元素 = 出发方向 = 某曲线速度.</li>
+          <li class="cs-def"><strong>Curve / Regular (Def 19.2)</strong>: $c: I \to \R^n$ smooth ($C^\infty$). Regular = $\dot c(t) \ne 0$ everywhere.</li>
+          <li class="cs-def"><strong>Vector field along curve (Def 19.3)</strong>: $X: I \to \R^n$ differentiable, $X(t) \in T_{c(t)}\R^n$. 定义域是 $I$, 不是 $\R^n$.</li>
+          <li class="cs-def"><strong>Tangent vector field</strong>: $X(t) = \dot c(t)$.</li>
+          <li class="cs-def"><strong>Parameter transformation (Def 19.4)</strong>: $\varphi: \tilde I \to I$ diffeomorphism, $\tilde c = c \circ \varphi$. Orientation preserving iff $\varphi' &gt; 0$.</li>
+          <li class="cs-def"><strong>Arc-length / Length / Energy (Def 19.5)</strong>: unit-speed = $|\dot c| \equiv 1$. $L(c) = \int |\dot c|\,dt$. $E(c) = (1/2)\int |\dot c|^2\,dt$.</li>
+          <li class="cs-def"><strong>Moving $n$-frame (Def 19.6)</strong>: $n$ along-curve 向量场 $e_1, \ldots, e_n$, each $e_i \cdot e_j = \delta_{ij}$. <em>Orthonormal</em> 是必须.</li>
+          <li class="cs-def"><strong>★ Frenet frame (Def 19.7)</strong>: moving $n$-frame with $c^{(k)}(t) \in \Span\{e_1(t), \ldots, e_k(t)\}$. 本质上是对 $\{\dot c, \ddot c, \ldots, c^{(n)}\}$ 做 Gram-Schmidt.</li>
+          <li class="cs-thm"><strong>Arc-length reparam exists (Thm 19.1)</strong>: 任何 regular curve 都可 reparam 到 unit-speed. 用 $s(t) = \int_{t_0}^t |\dot c(\tau)|\,d\tau$ + inverse function.</li>
+          <li class="cs-thm"><strong>Frenet frame 存在性 (Thm 19.2)</strong>: 若 $\{\dot c, \ldots, c^{(n-1)}\}$ 处处线性独立, 则存在唯一 distinguished Frenet frame (positively oriented). 构造 = Gram-Schmidt. 详证 → Topic 20.</li>
+          <li class="cs-tech"><strong>$\R^2$ natural frame</strong>: $e_1 = \dot c/|\dot c|$ (单位切向), $e_2 = R_{90°}e_1$ (法向).</li>
+          <li class="cs-tech"><strong>Helix Frenet frame (Example 19.2)</strong>: $e_1$ tangent 在 helix 切线方向, $e_2 = (-\cos t, -\sin t, 0)$ 指向圆柱中心, $e_3$ binormal.</li>
+          <li class="cs-tech"><strong>Constant-speed shortcut (Pitfall 19.3)</strong>: $|\dot c|$ 常数 $\Rightarrow$ $\dot c \perp \ddot c$, Gram-Schmidt 第一步 trivial.</li>
+          <li class="cs-pitfall"><strong>Smooth ≠ Regular (Pitfall 19.1)</strong>: Cusp $c(t) = (t^2, t^3)$ 是 smooth but not regular at $t = 0$. Image 有 geometric singularity.</li>
+          <li class="cs-pitfall"><strong>Vector field 定义域 (Pitfall 19.2)</strong>: along curve 的 vector field 定义在 $I$ 上, 不是 $\R^n$ 上.</li>
+          <li class="cs-pitfall"><strong>直线无 Frenet frame</strong>: $\ddot c = 0$ 让 hypothesis 失败. 直线"太平", 没有"distinguished" 第二方向.</li>
+        </ul>
+      </div>
+
+      <!-- §9 进一步阅读 -->
+      <h2 id="further">§9 进一步阅读</h2>
+      <ul>
+        <li><strong>Typed notes</strong>: <code>Notes/Typed/9.3_notes/9.3_notes.tex</code> — full 板书重整理. 含 §1-8 完整推导.</li>
+        <li><strong>Klingenberg 教材</strong>: <code>A Course in Differential Geometry.pdf</code> (放在课程 root). 本页内容对应 §0 (preliminaries) + §1 (curves: arc-length, Frenet 2-frame). §2-3 是 Topic 20 内容 (Frenet-Serret 公式与平面/空间曲线的曲率挠率).</li>
+        <li><strong>下一站 (待补)</strong>:
+          <ul>
+            <li><strong>Topic 20</strong>: Frenet frame 存在性证明 (Gram-Schmidt 完整 application) + Frenet-Serret 公式 + 曲率 $\kappa$ 与挠率 $\tau$ 的定义.</li>
+            <li><strong>Topic 21+</strong>: Surface theory — 第一与第二 fundamental forms + Gauss map + 主曲率/Gaussian/平均曲率 + Theorema Egregium.</li>
+          </ul>
+        </li>
+        <li><strong>Cross-references</strong>: 本页与之前 Topic 01-18 没有直接 content 依赖, 是 differential geometry block 的 standalone 起点. 唯一的 implicit prereq 是 linear algebra (Gram-Schmidt) 与 multivariable calculus (chain rule).</li>
+        <li><strong>课程外延伸</strong>:
+          <ul>
+            <li><strong>do Carmo</strong> <em>Differential Geometry of Curves and Surfaces</em>: 经典 introductory 教材, 比 Klingenberg 更具体, 含许多 worked examples.</li>
+            <li><strong>Klingenberg</strong> <em>A Course in Differential Geometry</em>: 本课程指定教材, 风格 abstract 但 clean.</li>
+            <li><strong>O'Neill</strong> <em>Elementary Differential Geometry</em>: more elementary, 含 differential forms 视角.</li>
+            <li><strong>Lee</strong> <em>Introduction to Smooth Manifolds</em>: 进一步, 把 tangent space 推广到 abstract manifold setting (本课程末了的方向).</li>
+          </ul>
+        </li>
+      </ul>
+
+    </main>
+  </div>
+
+</body>
+</html>

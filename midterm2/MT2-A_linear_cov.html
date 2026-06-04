@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MT2-A: §4.9 线性 CoV | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\diam': '\\operatorname{diam}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="MT2-overview.html">MT2 总览</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="MT2-B_nonlinear_cov.html">MT2-B</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#cheatsheet">§1 速查表</a></li>
+        <li><a href="#theorems">§2 关键定理 + 重证</a></li>
+        <li><a href="#problem-types">§3 题型聚簇</a></li>
+        <li><a href="#pitfalls">§4 常考陷阱</a></li>
+        <li><a href="#textbook-index">§5 课本例题速查</a></li>
+        <li><a href="#exercises">§6 模拟练习</a></li>
+        <li><a href="#crossref">§7 Topics cross-reference</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>MT2-A: 行列式 scales 体积 + 线性 CoV</h1>
+      <p class="subtitle">H&amp;H §4.9 · Lec 5.1, 5.2 · MT2 复习 · 配套 <a href="../topics/08-linear-cov.html">Topic 08</a></p>
+
+      <!-- §1 -->
+      <h2 id="cheatsheet">§1 速查表</h2>
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-thm"><strong>DSV (Thm A.1, H&amp;H Thm 4.9.1)</strong>: $T$ 线性, $A$ pavable $\Rightarrow$ $T(A)$ pavable 且 $\vol_n(T(A)) = \abs{\det T}\cdot\vol_n(A)$.</li>
+          <li class="cs-thm"><strong>Linear CoV (Thm A.2, H&amp;H Thm 4.10 线性情形)</strong>: $T$ 可逆线性, $f \in \IR(\R^n)$ $\Rightarrow$ $\int_{\R^n} f\, dV = \abs{\det T} \int_{\R^n} f \circ T\, dV$.</li>
+          <li class="cs-thm"><strong>Orthogonal preserves vol (Cor A.1)</strong>: $S \in O(n) \Rightarrow \abs{\det S}=1 \Rightarrow \vol_n(S(A)) = \vol_n(A)$. 加平移 = rigid motion 保体积.</li>
+          <li class="cs-def"><strong>Paving 4 公理 (Def 8.1 in Topic 08)</strong>: (1) 覆盖, (2) 几乎不交, (3) 局部有限, (4) 各 piece 边界测度零.</li>
+          <li class="cs-def"><strong>Nested paving</strong>: 一列 paving 满足 (a) refinement, (b) $\sup \diam \to 0$. 原型: $\mathcal{D}_N$, $\diam = \sqrt{n}/2^N$.</li>
+          <li class="cs-tech"><strong>DSV 5-step 证明骨架 (Case 2 可逆)</strong>: (I) $T(\mathcal{D}_N)$ 是 paving (验 4 公理); (II) nested (refinement + $\diam \le \abs{T}\sqrt{n}/2^N$); (III) cube 同标度 $\vol_n(T(C)) = \vol_n(T(Q_n))\vol_n(C)$ (平移+scaling); (IV) 推广到任意 $A$ (上下和转移); (V) $\vol_n(T(Q_n)) = \abs{\det T}$ (elementary matrix + multiplicativity).</li>
+          <li class="cs-tech"><strong>Multiplicativity Lemma</strong>: $\vol_n((ST)(Q_n)) = \vol_n(S(Q_n))\cdot\vol_n(T(Q_n))$. 由 DSV 应用于 $A = T(Q_n)$ 得.</li>
+          <li class="cs-tech"><strong>Elementary matrix 三类</strong>: Type 1 (scaling $m$) $\vol_n(E(Q_n))=\abs{m}$; Type 2 (shear) $\vol_n=1$ (Cavalieri); Type 3 (swap) $\vol_n=1$ ($Q_n$ 顶点重排).</li>
+          <li class="cs-tech"><strong>Linear CoV 证明骨架 (3 步)</strong>: (1) 在 $T(\mathcal{D}_N)$ 上定义 $U_N^T, L_N^T$; (2) 用双射 + DSV 转移 $U_N(\abs{\det T}(f\circ T)) = U_N^T(f)$; (3) nested paving 上的积分理论给出 $\lim U_N^T = \int f$.</li>
+          <li class="cs-tech"><strong>Reduction 套路</strong>: 任何 pavable region $A$ 等于 $T(\text{nice region})$ 时, $\vol(A) = \abs{\det T}\vol(\text{nice})$. 经典 nice region: $Q_n$, $B_n$ (单位球), standard simplex.</li>
+          <li class="cs-pitfall"><strong>陷阱</strong>: 用 $\abs{\det T}$, 不是 $\det T$ — 体积 $\ge 0$ 但 $\det$ 可负.</li>
+          <li class="cs-pitfall"><strong>陷阱</strong>: CoV 方向 — 因子 $\abs{\det T}$ 贴在<em>代换后</em>那一侧, 与 1D $g'(x)$ 平行.</li>
+          <li class="cs-pitfall"><strong>陷阱</strong>: $\abs{\det T}=1 \not\Rightarrow T \in O(n)$. Shear matrix 是反例 (det = 1 但不正交).</li>
+          <li class="cs-pitfall"><strong>陷阱</strong>: DSV 只对<em>线性</em> $T$. 非线性 $\Phi$ 需要 nonlinear CoV (MT2-B), Jacobian 是 pointwise 的.</li>
+        </ul>
+      </div>
+
+      <!-- §2 -->
+      <h2 id="theorems">§2 关键定理 + 极简重证</h2>
+
+      <p>本页两大定理: <strong>DSV</strong> 处理 $\mathbf{1}_A$ 的积分 (即体积), <strong>Linear CoV</strong> 推广到任意可积 $f$. 中间有一个关键 lemma (Multiplicativity) 和一个 corollary ($O(n)$ 保体积).</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem A.1 (Determinant Scales Volume / DSV, ≡ Topic 08 Thm 8.1 / H&amp;H Thm 4.9.1)</span>
+        <p>设 $T \colon \R^n \to \R^n$ 线性, $A \subset \R^n$ pavable. 则:</p>
+        <ol>
+          <li>$T(A)$ pavable;</li>
+          <li>$\vol_n(T(A)) = \abs{\det T} \cdot \vol_n(A)$.</li>
+        </ol>
+      </div>
+
+      <p><strong>30-sec 重证骨架</strong> (分两个 case):</p>
+
+      <p><strong>Case 1: $T$ 不可逆</strong>. 一句话: $T(\R^n) \subset \R^n$ 是 $\le n-1$ 维子空间 $\Rightarrow$ 测度零 $\Rightarrow$ $T(A)$ 也测度零 $\Rightarrow$ $T(A)$ pavable 且 $\vol_n(T(A))=0$. 同时 $\det T = 0$, 公式两边 $= 0$. ✓</p>
+
+      <p><strong>Case 2: $T$ 可逆</strong>. 5 步:</p>
+      <ol>
+        <li><strong>构造 image paving</strong> $T(\mathcal{D}_N) := \{T(C) : C \in \mathcal{D}_N\}$. 验 4 公理: 覆盖 (用 $T$ 满射); 几乎不交 (用 $T$ 单射); 局部有限 (用 $\abs{T^{-1}}$ 控制); 边界测度零 (用 $\partial T(C) = T(\partial C)$ 且 $T$ 把 $(n-1)$ 维仿射子空间映到 $(n-1)$ 维, 仍测度零).</li>
+          <li><strong>$T(\mathcal{D}_N)$ 是 nested paving</strong>: refinement 来自 $T$ 保包含; $\diam(T(C)) \le \abs{T}\cdot\sqrt{n}/2^N \to 0$ 用 operator norm.</li>
+          <li><strong>cube 同标度</strong>: 任意 $C \in \mathcal{D}_N$, $C = (1/2^N)Q_n + v$ 故 $T(C) = (1/2^N)T(Q_n) + T(v)$; 平移不变 + scaling $\vol_n(tA)=\abs{t}^n\vol_n(A)$ 给 $\vol_n(T(C)) = \vol_n(T(Q_n))\cdot\vol_n(C)$. 所有 cube 共享同一个 stretching constant.</li>
+          <li><strong>推广到任意 $A$</strong>: 用 $T$ 可逆 $\Rightarrow$ $T(C) \cap T(A) \ne \emptyset \iff C \cap A \ne \emptyset$, 故 $U_N(\mathbf{1}_{T(A)}) = \vol_n(T(Q_n))\cdot U_N(\mathbf{1}_A)$ (在 paving $T(\mathcal{D}_N)$ 上). $A$ pavable $\Rightarrow$ 取 $N\to\infty$ 给 $\vol_n(T(A)) = \vol_n(T(Q_n))\cdot\vol_n(A)$ + $T(A)$ pavable.</li>
+          <li><strong>识别 $\vol_n(T(Q_n)) = \abs{\det T}$</strong>: 写 $T = E_k\cdots E_1$ (elementary matrix 分解); 用 multiplicativity Lemma A.1 把 $\vol_n(T(Q_n))$ 拆成 $\prod \vol_n(E_j(Q_n))$. 三类 elementary 逐一算: Type 1 (scaling $m$) 给 $\abs{m}$; Type 2 (shear) 给 $1$ (Cavalieri / 2D 直算 + block decomposition); Type 3 (swap) 给 $1$ ($Q_n$ 顶点重排). 三个都满足 $\vol_n(E(Q_n)) = \abs{\det E}$, 故 $\vol_n(T(Q_n)) = \prod \abs{\det E_j} = \abs{\det T}$.</li>
+      </ol>
+
+      <p>详证: 见 <a href="../topics/08-linear-cov.html">Topic 08 §4 Thm 8.1</a>; H&amp;H Thm 4.9.1.</p>
+
+      <div class="box thm">
+        <span class="box-title">Lemma A.1 (Multiplicativity / 乘法性, ≡ Topic 08 Lemma 8.1)</span>
+        <p>设 $S, T \colon \R^n \to \R^n$ 都可逆线性. 则
+        $$\vol_n((S \circ T)(Q_n)) = \vol_n(S(Q_n)) \cdot \vol_n(T(Q_n)).$$</p>
+      </div>
+
+      <p><strong>30-sec 重证</strong>: 把 $A = T(Q_n)$ 看作 pavable region (从 Step IV 已知). 把 DSV (Step IV 给出的版本, 此时还没引用 Step V) 应用到 $S$ 和 $A$: $\vol_n(S(A)) = \vol_n(S(Q_n))\cdot\vol_n(A)$. 代入 $A = T(Q_n)$: $\vol_n(S(T(Q_n))) = \vol_n(S(Q_n))\cdot\vol_n(T(Q_n))$. ✓</p>
+
+      <div class="box thm">
+        <span class="box-title">Corollary A.1 (Orthogonal map preserves volume, ≡ Topic 08 Cor 8.1)</span>
+        <p>$S \in O(n) \Rightarrow$ 对任意 pavable $A$, $\vol_n(S(A)) = \vol_n(A)$.</p>
+      </div>
+
+      <p><strong>30-sec 重证</strong>: $S \in O(n) \Rightarrow S^T S = I \Rightarrow (\det S)^2 = \det I = 1 \Rightarrow \abs{\det S} = 1$. 由 DSV: $\vol_n(S(A)) = 1\cdot\vol_n(A)$. ✓ 加上平移不变 $\Rightarrow$ rigid motion (旋转/反射 + 平移) 都保体积. 这是欧氏几何"全等图形等体积"的严格版本.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem A.2 (Linear Change of Variables, ≡ Topic 08 Thm 8.2 / H&amp;H Thm 4.10 线性情形)</span>
+        <p>设 $T \colon \R^n \to \R^n$ 可逆线性, $f \in \IR(\R^n)$. 则 $f \circ T \in \IR(\R^n)$, 且
+        $$\int_{\R^n} f(y)\, dV \;=\; \abs{\det T} \int_{\R^n} f(T(x))\, dV.$$</p>
+      </div>
+
+      <p><strong>30-sec 重证骨架</strong> (3 步):</p>
+      <ol>
+        <li><strong>定义 $U_N^T(f), L_N^T(f)$</strong> 为 $f$ 在 nested paving $T(\mathcal{D}_N)$ 上的上/下和. (注意: 不是 $\mathcal{D}_N$, 是它的<em>像</em>.)</li>
+        <li><strong>转移上下和</strong>: 在 $\mathcal{D}_N$ 上,
+          $$U_N(\abs{\det T}\cdot (f \circ T)) = \sum_C M_C(f\circ T)\cdot\abs{\det T}\cdot\vol_n(C) = \sum_C M_{T(C)}(f)\cdot\vol_n(T(C)) = U_N^T(f).$$
+          第二步用<em>双射</em> ($\sup$ 沿双射不变, $M_C(f\circ T) = M_{T(C)}(f)$) + <em>DSV</em> ($\abs{\det T}\vol_n(C) = \vol_n(T(C))$). $L_N$ 对偶.</li>
+        <li><strong>取极限</strong>: $T(\mathcal{D}_N)$ 是 nested paving (Step II of DSV), Topic 02 的 Cauchy 准则在<em>任意</em> nested paving 上仍成立, 故 $\lim U_N^T(f) = \lim L_N^T(f) = \int f\, dV$. 结合 Step 2: $\lim U_N(\abs{\det T}(f\circ T)) = \lim L_N(\abs{\det T}(f\circ T)) = \int f$. 由 Cauchy 准则 $\abs{\det T}(f\circ T) \in \IR$, 由 homogeneity $f\circ T \in \IR$. 公式两边相等. ✓</li>
+      </ol>
+
+      <p>详证: 见 <a href="../topics/08-linear-cov.html">Topic 08 §4 Thm 8.2</a>; H&amp;H §4.10 (linear case).</p>
+
+      <p><strong>Bridge to MT2-B</strong>: 把常数 $\abs{\det T}$ 换成 pointwise Jacobian $\abs{\det[D\Phi(x)]}$, 把 $T$ 换成 $C^1$ diffeomorphism $\Phi$, 就得到 nonlinear CoV (MT2-B). 证明思路: 在 $x$ 附近用 $[D\Phi(x)]$ 局部线性化, 直接调用 Thm A.2 + 控制 Lipschitz 余项.</p>
+
+      <!-- §3 -->
+      <h2 id="problem-types">§3 题型聚簇</h2>
+
+      <p>MT2-A 出题主要落在三个聚簇里: <strong>(I)</strong> 给定 $T$ 与 region, 求 $\vol(T(A))$ 或比值; <strong>(II)</strong> 反向 — 给定复杂 region, 找 $T$ 把它变成 $Q_n$/球/simplex 并算体积; <strong>(III)</strong> 用 linear CoV 简化积分计算 (二次型对角化, 旋转化简).</p>
+
+      <h3 id="cluster-compute-det">§3.1 给定 $T$, 用 DSV 求 $\vol(T(A))$ 或比值</h3>
+
+      <p><strong>识别信号</strong>: 题目直接给出一个矩阵 $T$ (或描述线性变换), 然后问 $\vol(T(A))$, 比值 $\vol(T(A))/\vol(A)$, 或某区域 $T(A)$ 的体积.</p>
+
+      <p><strong>标准做法</strong>:</p>
+      <ol>
+        <li>验证 $A$ pavable (通常题目已隐含, 但写一句"$A$ 闭有界 + 边界光滑").</li>
+        <li>算 $\det T$ (展开 / 三角矩阵直接乘对角 / 已知特殊结构).</li>
+        <li>取绝对值 $\abs{\det T}$.</li>
+        <li>套 DSV: $\vol(T(A)) = \abs{\det T}\cdot\vol(A)$ 或比值 $= \abs{\det T}$.</li>
+      </ol>
+
+      <div class="box example" id="example-A-1">
+        <span class="box-title">Example A.1 (HW3 P4.9.1 改编 — 下三角矩阵)</span>
+        <p>设 $T \colon \R^n \to \R^n$ 矩阵为
+        $$[T]_{ij} = \begin{cases} i, &amp; j \le i, \\ 0, &amp; j > i. \end{cases}$$
+        (即 $[T]$ 下三角, 第 $i$ 行全部填 $i$ 直到对角.) 设 $A = \{x \in \R^n : \abs{x_1} + \abs{x_2}^2 + \cdots + \abs{x_n}^n \le 1\}$. 求 $\vol_n(T(A))/\vol_n(A)$.</p>
+        <p><strong>解</strong>: $A$ 闭有界, 边界 $\{\sum \abs{x_i}^i = 1\}$ 是光滑 hypersurface, 测度零 ⟹ $A$ pavable. $T$ 是下三角矩阵 $\Rightarrow$ $\det T = \prod_{i=1}^n [T]_{ii} = 1 \cdot 2 \cdots n = n!$. 由 DSV (Thm A.1):
+        $$\frac{\vol_n(T(A))}{\vol_n(A)} = \abs{\det T} = n!.$$
+        $A$ 的具体形状 (类 $\ell^p$ 球) <em>完全不重要</em> — DSV 把"$T$ 对 region 的拉伸"压成单一标量, region 信息只剩 $\vol_n(A)$ 一个常数, 比值时被约掉.</p>
+        <p><strong>Takeaway</strong>: 当题目问"比值"时, $A$ 的形状几乎完全无关, 关键全在 $\det T$.</p>
+      </div>
+
+      <p><strong>常见变体</strong>:</p>
+      <ul>
+        <li><strong>多重线性变换复合</strong>: 题目可能给 $T = T_2 \circ T_1$, 用 $\det(T_2 T_1) = \det T_2 \cdot \det T_1$ 或 multiplicativity Lemma 链式计算.</li>
+        <li><strong>转置 $T^T$</strong>: $\det T^T = \det T$, 所以 $\vol(T^T(A)) = \vol(T(A))$ — 但作为 set $T^T(A) \ne T(A)$ 一般情况下. 区分"值相等"和"集合相等".</li>
+        <li><strong>对角化路径</strong>: $T$ 给作特征值/特征向量, 算 $\det T = \prod \lambda_i$ — 比展开 $n\times n$ 矩阵快.</li>
+      </ul>
+
+      <h3 id="cluster-find-T">§3.2 反向 — 给定不规则 region, 找 $T$ 化简</h3>
+
+      <p><strong>识别信号</strong>: 求一个具体 region 的体积, 该 region 是某个 "nice" region (单位球 / 单位正方体 / standard simplex) 在某个 linear map 下的像. 题目隐式或显式给出 vertices / 边界方程.</p>
+
+      <p><strong>标准做法</strong>:</p>
+      <ol>
+        <li>识别 region 的 "nice form" — ellipsoid 配单位球; parallelepiped 配 $Q_n$; tetrahedron 配 standard simplex.</li>
+        <li>构造 $T$ 把 nice region 映到 target. 通常 $T$ 的列向量 = target 区域顶点 (或半轴向量).</li>
+        <li>算 $\abs{\det T}$.</li>
+        <li>用 DSV: $\vol(\text{target}) = \abs{\det T}\cdot\vol(\text{nice})$. 经典常数: $\vol(Q_n) = 1$, $\vol(B_n) = \pi^{n/2}/\Gamma(n/2+1)$, $\vol(\text{standard simplex}) = 1/n!$.</li>
+      </ol>
+
+      <div class="box example" id="example-A-2">
+        <span class="box-title">Example A.2 (Ellipsoid 体积)</span>
+        <p>计算 $\R^n$ 中椭球 $E = \{x : \sum_{i=1}^n (x_i/a_i)^2 \le 1\}$ ($a_i > 0$) 的体积.</p>
+        <p><strong>解</strong>: 设 $B_n = \{u : \sum u_i^2 \le 1\}$ (单位球). 取 $T = \mathrm{diag}(a_1, \ldots, a_n)$. 验证 $T(B_n) = E$: 设 $u \in B_n$, $T(u) = (a_1 u_1, \ldots, a_n u_n)$; 检查 $\sum (a_i u_i / a_i)^2 = \sum u_i^2 \le 1$, 即 $T(u) \in E$. 反向同理用 $T^{-1}$ 双射. 故 $T(B_n) = E$.</p>
+        <p>$\det T = \prod a_i$, $\abs{\det T} = \prod a_i$. 由 DSV: $\vol_n(E) = (\prod a_i)\cdot \vol_n(B_n)$. 在 $n=3$, $\vol_3(E) = a_1 a_2 a_3 \cdot 4\pi/3$.</p>
+      </div>
+
+      <div class="box example" id="example-A-3">
+        <span class="box-title">Example A.3 (Tetrahedron via Standard Simplex, HW3 P4.9.3 改编)</span>
+        <p>计算四面体 $T_2 \subset \R^3$ 体积, 顶点为 $\mathbf{0}, v_1 = (2,1,1), v_2 = (-1,3,1), v_3 = (-2,-5,2)$.</p>
+        <p><strong>解</strong>: 设 $T_1 = $ 标准 simplex $= $ 顶点 $\mathbf{0}, e_1, e_2, e_3$ 的凸包 $= \{(x,y,z) : x,y,z \ge 0, x+y+z \le 1\}$. 由 Fubini (或 H&amp;H §4.5),
+        $$\vol_3(T_1) = \int_0^1\!\!\int_0^{1-x}\!\!\int_0^{1-x-y} dz\,dy\,dx = 1/6.$$
+        (这是 $n=3$ 的 $1/n! = 1/6$.)</p>
+        <p>构造 $S \colon \R^3 \to \R^3$ 把 $e_i$ 映到 $v_i$: 列向量为 $v_1, v_2, v_3$,
+        $$[S] = \begin{pmatrix} 2 &amp; -1 &amp; -2 \\ 1 &amp; 3 &amp; -5 \\ 1 &amp; 1 &amp; 2 \end{pmatrix}.$$
+        由线性性 $S(T_1) = T_2$ (顶点对顶点映射 + 凸包保持). $\det S = 2(3\cdot 2 - (-5)\cdot 1) - (-1)(1\cdot 2 - (-5)\cdot 1) + (-2)(1\cdot 1 - 3\cdot 1) = 2\cdot 11 + 7 + 4 = 33$.</p>
+        <p>由 DSV: $\vol_3(T_2) = \abs{\det S}\cdot\vol_3(T_1) = 33 \cdot (1/6) = 11/2$.</p>
+        <p><strong>Takeaway</strong>: 凡是顶点已知的 $n$-simplex 体积 = $\abs{\det[\text{顶点 - 原点}]}/n!$.</p>
+      </div>
+
+      <p><strong>常见变体</strong>:</p>
+      <ul>
+        <li><strong>原点不是顶点</strong>: 平移使其中一个顶点到 $\mathbf{0}$ — 不改变体积, 然后套上面公式.</li>
+        <li><strong>$n$-parallelepiped 体积</strong>: 给定 $n$ 个 edge vectors $v_1, \ldots, v_n$ 从一个顶点出发, $\vol_n = \abs{\det[v_1, \ldots, v_n]}$ — 直接 (没 $1/n!$ 因子, 因为 $\vol(Q_n) = 1$).</li>
+        <li><strong>2D 平行四边形顶点</strong>: 给 4 个顶点, 取 2 个相邻边向量 $u, v$, $\vol_2 = \abs{u_1 v_2 - u_2 v_1}$ (= det of $2\times 2$).</li>
+      </ul>
+
+      <h3 id="cluster-linear-cov-integral">§3.3 用 Linear CoV 简化积分</h3>
+
+      <p><strong>识别信号</strong>: 一个积分 $\int f\, dV$ 在原坐标下 awkward (e.g., 椭球区域, 不对齐二次型), 但用一个 linear substitution $y = T(x)$ 能让被积函数 $f(T(x))$ 简单 (e.g., 球对称, 标准 Gaussian).</p>
+
+      <p><strong>标准做法</strong>:</p>
+      <ol>
+        <li>识别 $f$ 的对称性 / 二次型主轴 — 找正交矩阵 $S$ 对角化, 或对角矩阵 $D$ 配 ellipsoid.</li>
+        <li>定义 $T$ 使 $f(T(x))$ 简单. (常见: $f(T(u)) = e^{-\norm{u}^2}$.)</li>
+        <li>算 $\abs{\det T}$.</li>
+        <li>套 Thm A.2: $\int f\, dV = \abs{\det T}\int f(T(x))\, dV$. 右边 (简化后) 通常用 Fubini + 1D Gaussian / 球坐标等.</li>
+      </ol>
+
+      <div class="box example" id="example-A-4">
+        <span class="box-title">Example A.4 (二次型 Gaussian, Topic 08 Ex 8.3 变体)</span>
+        <p>计算 $I = \int_{\R^2} e^{-(2x^2 + 2xy + 2y^2)}\, dV$.</p>
+
+        <p><strong>思路总览</strong>: 指数里的二次型 $Q(x,y) = 2x^2 + 2xy + 2y^2$ 不是球对称的 (有交叉项 $2xy$), 球坐标 / Fubini 都不好直接用. 但 $Q$ 是<em>正定二次型</em>, 总能通过一个线性变换把它"主轴化"成 $u^2 + v^2$, 之后剩下的就是经典球对称 Gaussian. 整个解答 = "找 $T$ 把 $Q$ 化成 $\norm{u}^2$" + "套 Linear CoV (Thm A.2)".</p>
+
+        <p><strong>第 1 步: 把 $Q$ 写成 $x^T M x$.</strong> 二次型矩阵约定<em>对称</em>, 把交叉项 $2xy$ 平均拆成 $xy + yx$:
+        $$Q(x,y) = \begin{pmatrix} x &amp; y\end{pmatrix} \begin{pmatrix} 2 &amp; 1 \\ 1 &amp; 2 \end{pmatrix} \begin{pmatrix} x \\ y \end{pmatrix} = x^T M x, \qquad M = \begin{pmatrix} 2 &amp; 1 \\ 1 &amp; 2 \end{pmatrix}.$$
+        必须取 $M$ 对称, 不然下面的<strong>谱定理</strong>用不了.</p>
+
+        <p><strong>第 2 步: 谱分解 $M$.</strong> 特征多项式 $(2-\lambda)^2 - 1 = \lambda^2 - 4\lambda + 3 = 0$, 故 $\lambda_1 = 3, \lambda_2 = 1$, $\det M = 3$. 由谱定理 ($M$ 对称) 存在 $S \in O(2)$ 使
+        $$S^T M S = D := \mathrm{diag}(3, 1).$$
+        (具体 $S$: 取单位特征向量 $v_1 = (1,1)/\sqrt{2}$ 配 $\lambda = 3$, $v_2 = (1,-1)/\sqrt{2}$ 配 $\lambda = 1$, 拼成 $S$ 的列即可. 不过下面只用 "$S$ 存在" 这件事, 不需要写出具体 $S$.)</p>
+
+        <p><strong>第 3 步: 把 $D$ 缩成 $I_2$, 拼出 $T$.</strong> 我们要的是 $T^T M T = I_2$, 即在 $D$ 的对角元 $3,1$ 上各乘 $1/3,1$. 取
+        $$T \;:=\; S\cdot D^{-1/2}, \qquad D^{-1/2} := \mathrm{diag}(1/\sqrt{3},\, 1).$$
+        验证:
+        $$T^T M T = (D^{-1/2})^T \underbrace{S^T M S}_{=\,D}\, D^{-1/2} = D^{-1/2}\cdot D\cdot D^{-1/2} = \mathrm{diag}\!\left(\tfrac{1}{\sqrt{3}}\cdot 3 \cdot \tfrac{1}{\sqrt{3}},\; 1\cdot 1\cdot 1\right) = I_2.\;\checkmark$$
+        (用到了对角阵转置 = 自己, 以及对角阵相乘 = 对角元逐位相乘.)</p>
+
+        <p><strong>第 4 步: 在 $T$ 下指数变干净.</strong> 把 $x = T(u,v)^T$ 代入:
+        $$Q(T(u,v)) = (Tu)^T M (Tu) = u^T\underbrace{(T^T M T)}_{=\,I_2}\, u = u^2 + v^2.$$
+        所以 $e^{-Q(T(u,v))} = e^{-(u^2+v^2)}$ — 球对称 Gaussian.</p>
+
+        <p><strong>第 5 步: 算 $\abs{\det T}$.</strong>
+        $$\abs{\det T} = \abs{\det S}\cdot \abs{\det D^{-1/2}} = 1\cdot \frac{1}{\sqrt{3}}\cdot 1 = \frac{1}{\sqrt{3}}.$$
+        ($\abs{\det S} = 1$ 因为 $S \in O(2)$; $\det D^{-1/2} = 1/\sqrt{3}\cdot 1$.)</p>
+
+        <p><strong>第 6 步: 套 Linear CoV (Thm A.2).</strong> $f(x) = e^{-Q(x)}$ 在 $\R^2$ 上 (Lebesgue) 可积, $T$ 可逆, 故
+        $$I = \int_{\R^2} e^{-Q(x,y)}\, dV \;=\; \abs{\det T}\int_{\R^2} e^{-Q(T(u,v))}\, dV \;=\; \frac{1}{\sqrt{3}}\int_{\R^2} e^{-(u^2 + v^2)}\, du\, dv.$$
+        对剩下的球对称 Gaussian 用 Fubini 分离:
+        $$\int_{\R^2} e^{-(u^2+v^2)}\, dV \;=\; \left(\int_\R e^{-t^2}\, dt\right)^2 = (\sqrt{\pi})^2 = \pi.$$
+        故
+        $$\boxed{\,I = \frac{\pi}{\sqrt{3}}.\,}$$
+        </p>
+
+        <p><strong>一般公式 (主轴化的通用 takeaway)</strong>: 对任何正定对称 $M \in \R^{n\times n}$,
+        $$\int_{\R^n} e^{-x^T M x}\, dV \;=\; \frac{\pi^{n/2}}{\sqrt{\det M}}.$$
+        <strong>为什么是 $\sqrt{\det M}$?</strong> 用同样方法找 $T$ 使 $T^T M T = I_n$. 两边取 det: $(\det T)^2 \cdot \det M = 1$, 故 $\abs{\det T} = 1/\sqrt{\det M}$. 再套 Thm A.2:
+        $$\int e^{-x^T M x} dV = \abs{\det T}\int e^{-\norm{u}^2} dV = \frac{1}{\sqrt{\det M}}\cdot \pi^{n/2}.$$
+        这就是多元正态分布密度归一化常数 $\frac{1}{(2\pi)^{n/2}\sqrt{\det \Sigma}}$ 的几何来源 (取 $M = \frac{1}{2}\Sigma^{-1}$).</p>
+      </div>
+
+      <p><strong>常见变体</strong>:</p>
+      <ul>
+        <li><strong>椭球区域上对球对称函数积分</strong>: 用 $T = \mathrm{diag}(a_1, \ldots, a_n)$ 把椭球映回单位球, $\abs{\det T} = \prod a_i$.</li>
+        <li><strong>旋转化简</strong>: 对 $f$ 关于某非标准坐标轴对称, 用 $S \in O(n)$ 旋转到标准轴 — $\abs{\det S} = 1$, 因子消失, 只剩 sub.</li>
+        <li><strong>"先平移再线性"</strong>: 若 region 中心不在原点, 先平移 (体积不变, 积分照常), 再线性变换. 整体可写成 affine map $\Phi(x) = Tx + v$, 但 CoV 等同于先平移再 Thm A.2.</li>
+      </ul>
+
+      <!-- §4 -->
+      <h2 id="pitfalls">§4 常考陷阱清单</h2>
+
+      <p>每条点击跳到详细的 cluster 或例子.</p>
+
+      <ul>
+        <li><a href="#pitfall-A-1"><strong>P-A.1</strong></a>: 公式右边写 $\det T$ 而非 $\abs{\det T}$ (体积非负, det 可负).</li>
+        <li><a href="#pitfall-A-2"><strong>P-A.2</strong></a>: Linear CoV 公式方向搞反 ($\abs{\det T}$ 应贴在<em>代换后</em>那一侧).</li>
+        <li><a href="#cluster-compute-det"><strong>P-A.3</strong></a>: $T$ 不可逆时仍套 Thm A.2 (RHS 无定义因 $T^{-1}$ 不存在; LHS 直接 = 0).</li>
+        <li><a href="#pitfall-A-4"><strong>P-A.4</strong></a>: $\abs{\det T} = 1$ 误以为 $T \in O(n)$ (shear 反例).</li>
+        <li><a href="#cluster-find-T"><strong>P-A.5</strong></a>: 计算 simplex 体积忘记 $1/n!$ 因子 (standard simplex 不是 unit cube).</li>
+        <li><a href="#cluster-find-T"><strong>P-A.6</strong></a>: 找 $T$ 时把列向量与行向量混了 (列向量 = $T(e_i)$, 即 image of basis).</li>
+        <li><a href="#cluster-linear-cov-integral"><strong>P-A.7</strong></a>: 用 DSV 套到 non-linear $\Phi$ (例如 $\Phi(x,y) = (x^2, y)$, Jacobian 是 pointwise 的, 不是常数).</li>
+        <li><strong>P-A.8</strong>: 忘记 $T(A)$ 的 pavability 是 DSV 的<em>结论</em> (而非 hypothesis) — 只需 $A$ pavable, $T(A)$ 自动 pavable.</li>
+      </ul>
+
+      <div class="box pitfall" id="pitfall-A-1">
+        <span class="box-title">Pitfall A.1 — $\det T$ vs $\abs{\det T}$</span>
+        <p>DSV 与 Linear CoV 都是 $\abs{\det T}$ 在公式里, 不是 $\det T$. 体积是非负量, $\det$ 可以是负 (反射 $\mathrm{diag}(-1,1,\ldots,1)$, $\det = -1$).</p>
+        <p><strong>快速 sanity check</strong>: 反射 $S = \mathrm{diag}(-1, 1)$ 把单位圆盘 $D$ 映回自己 ($D$ 对 $x$-轴对称). $\vol_2(S(D)) = \vol_2(D) = \pi$. 公式 $\abs{\det S}\cdot\pi = 1\cdot\pi = \pi$ ✓. 若漏掉绝对值 $\det S \cdot \pi = -\pi$, 显然错 (体积怎么会负?).</p>
+        <p><strong>为什么有符号信息?</strong> $\det T$ 的符号承载 "取向 (orientation)" 信息 — 在 Chapter 5-6 微分形式中, 我们会把有符号 $\det T$ 用回来 (oriented volume / oriented integral). 但在 Chapter 4 的 Riemann 积分里, 符号必须用绝对值去掉.</p>
+      </div>
+
+      <div class="box pitfall" id="pitfall-A-2">
+        <span class="box-title">Pitfall A.2 — Linear CoV 公式方向</span>
+        <p>正确公式:
+        $$\int_{\R^n} f(y)\, dV \;=\; \abs{\det T} \int_{\R^n} f(T(x))\, dV.$$
+        <strong>"未代换"那一侧</strong> $\int f(y)dV$ <strong>不带 $\abs{\det T}$ 因子</strong>; <strong>"代换后"那一侧</strong> $\int f(T(x))dV$ <strong>带</strong>. 初学者常方向搞反.</p>
+        <p><strong>记忆助手</strong>: 1D 类比 $\int f(y)dy = \int f(g(x))\,g'(x)\,dx$ — 因子贴在 $x$ 一侧 (与 $g'(x)$ 是 $g$ 的"局部拉伸率"一致). 在 $n$ 维, $g'(x)$ 换成常数 $\abs{\det T}$.</p>
+        <p><strong>另一种理解</strong>: 设 $y = T(x)$, 则 $dV_y = \abs{\det T}\, dV_x$ (DSV 的微分形式). 代入 $\int f(y)\, dV_y = \int f(T(x))\,\abs{\det T}\, dV_x$. 因子贴在<em>代换前坐标 $x$</em> 的微元上.</p>
+      </div>
+
+      <div class="box pitfall" id="pitfall-A-4">
+        <span class="box-title">Pitfall A.4 — $\abs{\det T} = 1$ 不等于 $T \in O(n)$</span>
+        <p>$T \in O(n) \Rightarrow \abs{\det T} = 1$ (一行: $(\det T)^2 = \det(T^T T) = \det I = 1$). 但<strong>反过来不成立</strong>.</p>
+        <p>反例: $T = \begin{pmatrix} 1 &amp; 1 \\ 0 &amp; 1 \end{pmatrix}$ (shear). $\det T = 1$, 所以 $\abs{\det T} = 1$. 但 $T^T T = \begin{pmatrix} 1 &amp; 1 \\ 1 &amp; 2 \end{pmatrix} \ne I_2$, 故 $T \notin O(2)$.</p>
+        <p>几何上: $T$ 把 $(x,y)$ 变成 $(x+y, y)$, 保面积但不保长度 (例如 $\norm{T(e_1)} = \norm{(1,0)} = 1$ 但 $\norm{T(e_2)} = \norm{(1,1)} = \sqrt{2} \ne 1 = \norm{e_2}$). Cavalieri 原理告诉我们 shear 保面积, 但 shear 不是 rigid motion.</p>
+        <p><strong>正确刻画 $O(n)$</strong>: $T \in O(n) \iff T^T T = I_n \iff$ "保所有内积" $\iff$ "保所有距离 (isometry)". $\abs{\det T} = 1$ 只是 $O(n)$ 的<em>必要</em>条件.</p>
+      </div>
+
+      <!-- §5 -->
+      <h2 id="textbook-index">§5 课本例题速查</h2>
+
+      <table class="textbook-index">
+        <thead><tr><th>H&amp;H 编号</th><th>主题</th><th>Takeaway</th></tr></thead>
+        <tbody>
+          <tr><td>Thm 4.9.1</td><td>DSV statement</td><td>本页的主定理</td></tr>
+          <tr><td>Example 4.9.1</td><td>$n$-parallelogram</td><td>由 $n$ 个 edge vectors 张成的体积 = $\abs{\det[v_1,\ldots,v_n]}$</td></tr>
+          <tr><td>Eq. 4.9.4</td><td>2D parallelogram</td><td>面积公式 $\abs{ad-bc}$ — DSV 在 $n=2$ 的写法</td></tr>
+          <tr><td>Example 4.9.3</td><td>椭圆面积</td><td>$\pi ab$ via $T = \mathrm{diag}(a,b)$ from unit disk</td></tr>
+          <tr><td>Example 4.9.5</td><td>O(n) 保体积</td><td>正交矩阵 $\det = \pm 1$ 推论</td></tr>
+          <tr><td>Exercise 4.9.1</td><td>下三角矩阵</td><td>$\vol(T(A))/\vol(A) = n!$ — 用对角元乘积</td></tr>
+          <tr><td>Exercise 4.9.3</td><td>Simplex 体积</td><td>$T_1$ 标准 simplex 体积 $1/n!$, 一般 simplex 由 DSV</td></tr>
+          <tr><td>Exercise 4.9.5</td><td>Wronskian = const</td><td>用 DSV + ODE 证 Abel 恒等式</td></tr>
+          <tr><td>Exercise 4.9.7</td><td>Cauchy-Schwarz via DSV</td><td>2-parallelogram 面积 $\ge 0$ 推出 CS</td></tr>
+          <tr><td>§4.10 开头</td><td>Linear CoV 引入</td><td>线性情形 = $\abs{\det T}$ 跨在积分外</td></tr>
+          <tr><td>§4.10 Example</td><td>Gaussian via diag</td><td>对角矩阵 $T$ 把 $\int e^{-Q}$ 化为 $\int e^{-\norm{u}^2}$</td></tr>
+          <tr><td>§4.10 nonlinear preview</td><td>Bridge 到 Topic B</td><td>常数 $\abs{\det T}$ → pointwise $\abs{\det[D\Phi(x)]}$</td></tr>
+        </tbody>
+      </table>
+
+      <!-- §6 -->
+      <h2 id="exercises">§6 模拟练习</h2>
+      <p>展开 <code>&lt;details&gt;</code> 查看答案。难度递增: 3 routine → 3 mid → 2 stretch。</p>
+
+      <div class="exercise">
+        <p><span class="ex-num">1.</span> <em>(Routine)</em> 设 $T \colon \R^3 \to \R^3$ 由矩阵 $[T] = \mathrm{diag}(2, -3, 1)$ 给出, $A \subset \R^3$ 是单位球 $B_3$. 求 $\vol_3(T(A))$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>$\det T = 2 \cdot (-3) \cdot 1 = -6$, $\abs{\det T} = 6$. 由 DSV:
+            $$\vol_3(T(B_3)) = 6 \cdot \vol_3(B_3) = 6 \cdot \frac{4\pi}{3} = 8\pi.$$
+            注意 $-3$ 引起的反射: $T(B_3)$ 几何上是椭球 $\{x^2/4 + y^2/9 + z^2 \le 1\}$ (跟 $\mathrm{diag}(2,3,1)$ 得到的椭球相同, 因为椭球关于原点对称). 但<em>计算体积时只关心 $\abs{\det}$</em>.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">2.</span> <em>(Routine)</em> 计算 $\R^3$ 中椭球 $E = \{(x,y,z) : x^2/a^2 + y^2/b^2 + z^2/c^2 \le 1\}$ 的体积 ($a, b, c > 0$).</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>取 $T = \mathrm{diag}(a, b, c)$, 则 $T(B_3) = E$. $\det T = abc$. 由 DSV:
+            $$\vol_3(E) = abc \cdot \frac{4\pi}{3} = \frac{4\pi abc}{3}.$$</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">3.</span> <em>(Routine)</em> 设 $T \colon \R^2 \to \R^2$ 把平面顺时针旋转 $45°$ 然后乘以 $\mathrm{diag}(2, 3)$. 计算 $\vol_2(T(D))$, $D = $ 单位圆盘.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>$T = \mathrm{diag}(2,3) \cdot R_{-45°}$. $\det T = \det\mathrm{diag}(2,3)\cdot\det R_{-45°} = 6 \cdot 1 = 6$. 由 DSV: $\vol_2(T(D)) = 6\pi$.</p>
+            <p>(旋转 $R_{-45°} \in O(2)$, $\det = 1$, 体积不变; 然后 $\mathrm{diag}(2,3)$ 把单位圆盘拉成椭圆面积 $6\pi$.)</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">4.</span> <em>(Mid)</em> 设 $T \colon \R^n \to \R^n$ 矩阵 $[T]_{ij} = i \cdot \mathbf{1}_{[j \le i]}$ (下三角, 第 $i$ 行全 $i$). $A \subset \R^n$ 是 $\ell^p$-球 $\{x : \sum_{i=1}^n \abs{x_i}^i \le 1\}$. 求 $\vol_n(T(A))/\vol_n(A)$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>($\equiv$ HW3 P4.9.1.) 下三角 $\Rightarrow$ $\det T = \prod [T]_{ii} = n!$. 由 DSV, 比值 $= \abs{\det T} = n!$. $A$ 的形状不重要 — 任意 pavable 都给同一比值.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">5.</span> <em>(Mid)</em> 四面体 $T_2 \subset \R^3$ 顶点 $\mathbf{0}, (2,1,1), (-1,3,1), (-2,-5,2)$. 求 $\vol_3(T_2)$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>($\equiv$ HW3 P4.9.3(b).) 设标准 simplex $T_1$ 顶点 $\mathbf{0}, e_1, e_2, e_3$, $\vol_3(T_1) = 1/6$. 构造 $S$ 列向量 = 给定 3 个顶点:
+            $$[S] = \begin{pmatrix} 2 &amp; -1 &amp; -2 \\ 1 &amp; 3 &amp; -5 \\ 1 &amp; 1 &amp; 2 \end{pmatrix}.$$
+            $S(T_1) = T_2$. 沿第 1 行展开 $\det S = 2(6+5) - (-1)(2+5) + (-2)(1-3) = 22 + 7 + 4 = 33$. 由 DSV:
+            $$\vol_3(T_2) = 33 \cdot (1/6) = 11/2.$$</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">6.</span> <em>(Mid)</em> 计算 $I = \int_{\R^2} e^{-(3x^2 + 4xy + 3y^2)}\, dV$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>$M = \begin{pmatrix} 3 &amp; 2 \\ 2 &amp; 3 \end{pmatrix}$, $\det M = 9 - 4 = 5$. 用公式 $\int_{\R^n} e^{-x^T M x}\, dV = \pi^{n/2}/\sqrt{\det M}$ 对 $n = 2$:
+            $$I = \frac{\pi}{\sqrt{5}}.$$
+            <strong>推导</strong>: 特征值 $\lambda^2 - 6\lambda + 5 = 0$ 给 $\lambda = 1, 5$. 找 $T = S \mathrm{diag}(1/\sqrt{5}, 1)$, $S \in O(2)$. $T^T M T = I$. $\abs{\det T} = 1/\sqrt{5}$. 由 Thm A.2: $I = (1/\sqrt{5}) \cdot \pi = \pi/\sqrt{5}$.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">7.</span> <em>(Stretch)</em> 设 $q \colon \R \to \R$ 连续, $f, g \colon \R \to \R$ 是 $y'' = q(x) y$ 的两个解. 定义 $A(x) := $ 由列向量 $\binom{f(x)}{f'(x)}$ 与 $\binom{g(x)}{g'(x)}$ 张成的 2-parallelogram 在 $\R^2$ 中的面积. 证: $A(x) \equiv A(0)$ (常数).</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>($\equiv$ HW3 P4.9.5 / Abel 恒等式.) 由 DSV (n=2 specialization, H&amp;H Eq. 4.9.4),
+            $$A(x) = \abs{W(x)}, \qquad W(x) := \det\begin{pmatrix} f(x) &amp; g(x) \\ f'(x) &amp; g'(x) \end{pmatrix} = f(x)g'(x) - g(x)f'(x).$$
+            $W$ 是 Wronskian. 求导并代入 ODE $f'' = qf$, $g'' = qg$:
+            $$W'(x) = f'g' + fg'' - g'f' - gf'' = f(qg) - g(qf) = 0.$$
+            故 $W$ 常数, $\abs{W}$ 常数, $A(x) = A(0)$ 对所有 $x$. ✓</p>
+            <p><strong>Remark</strong>: 这是 Abel 恒等式的特例 (对 $y'' + py' + qy = 0$ 一般有 $W'=-pW$; 此处 $p=0$ 故 $W$ 守恒). DSV 把"行列式的几何含义"提供给"行列式作 ODE 守恒量"这个 application — 体积视角让 Wronskian 守恒变得几何上直观.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">8.</span> <em>(Stretch / 证明或反例)</em> 命题: 若 $T \colon \R^n \to \R^n$ 可逆且 $\abs{\det T} = 1$, 则 $T \in O(n)$.</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>假</strong>. 反例: $T = \begin{pmatrix} 1 &amp; 1 \\ 0 &amp; 1 \end{pmatrix}$ (shear). $\det T = 1$, $\abs{\det T} = 1$. 但
+            $$T^T T = \begin{pmatrix} 1 &amp; 0 \\ 1 &amp; 1\end{pmatrix}\begin{pmatrix} 1 &amp; 1 \\ 0 &amp; 1\end{pmatrix} = \begin{pmatrix} 1 &amp; 1 \\ 1 &amp; 2\end{pmatrix} \ne I_2.$$
+            故 $T \notin O(2)$.</p>
+            <p><strong>正确版</strong>: $T \in O(n) \Rightarrow \abs{\det T} = 1$ (一行), 反向不成立. $O(n)$ 的刻画是 $T^T T = I$ (保所有内积). $\abs{\det T} = 1$ 只表示"保 $n$ 维体积", 但不保 1 维长度 (shear 例: $\norm{e_1} = 1 \to \norm{Te_1} = 1$ 但 $\norm{e_2} = 1 \to \norm{Te_2} = \sqrt{2}$).</p>
+            <p><strong>Takeaway</strong>: $\abs{\det T} = 1$ 是 $T \in O(n)$ 的必要不充分条件. 在 $n = 1$ 时 ($T$ 标量乘法), 二者重合 (因 $T = \pm 1$). 高维下严格弱.</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- §7 -->
+      <h2 id="crossref">§7 与 Topics 的 Cross-Reference</h2>
+      <ul>
+        <li><a href="../topics/08-linear-cov.html"><strong>Topic 08: 行列式 scales 体积 / 线性变量代换</strong></a> — 本页所有内容的完整 typed reference. 包含 paving 4 公理详细证明、5-step DSV 的逐 step 验证、Linear CoV 完整 $T(\mathcal{D}_N)$ transfer argument, 以及 Bridge to nonlinear CoV.</li>
+        <li><strong>Typed lecture notes</strong>:
+          <ul>
+            <li><code>../../Notes/Typed/5.1_notes/5.1_notes.pdf</code> — DSV 定理 statement, paving 公理, Case 1 + Case 2 setup, $T(\mathcal{D}_N)$ paving 4 公理验证</li>
+            <li><code>../../Notes/Typed/5.2_notes/5.2_notes.pdf</code> — DSV 5-step 完整证明 (Step II-V); elementary matrix 分解; Multiplicativity lemma; Linear CoV statement</li>
+          </ul>
+        </li>
+        <li><a href="../topics/04-volume-pavable.html"><strong>Topic 04</strong></a> — 体积平移不变性 + scaling $\vol(tA) = \abs{t}^n\vol(A)$, DSV Step III 反复使用</li>
+        <li><a href="../topics/05-measure-zero-basics.html"><strong>Topic 05</strong></a> — $k$-维子空间 ($k < n$) 测度零, DSV Case 1 (非可逆) 的全部技术</li>
+        <li><a href="../topics/02-nd-riemann.html"><strong>Topic 02</strong></a> — dyadic paving $\mathcal{D}_N$, $U_N/L_N$, Cauchy 准则; DSV Step IV 与 Linear CoV 证明的基础</li>
+        <li><a href="MT2-B_nonlinear_cov.html"><strong>MT2-B (next page)</strong></a> — 非线性 CoV, polar/spherical/cylindrical, 三种 design pattern</li>
+        <li><strong>H&amp;H 教材</strong>: §4.9 (Determinant Scales Volume, Thm 4.9.1; 引入一般 paving); §4.10 (Change of Variables, 线性 case 是前半)</li>
+        <li><strong>🆕 Practice MT2</strong>: <code>../../HW/Response/PracticeMT2_response.pdf</code> — Problem 7 直接是 H&amp;H Prop 4.9.5 ($\vol_n P(v_1,\ldots,v_n) = \abs{\det[v_1,\ldots,v_n]}$). 这是本页 Thm A.1 (DSV) 的几何 specialisation, 应用到 $T=[v_1|\ldots|v_n]$ + $A = Q_n$ 上.</li>
+      </ul>
+
+      <hr style="margin: 60px 0 20px; border: 0; border-top: 1px solid #d8d3c4;">
+      <p style="font-size: 13px; color: #888; text-align: center;">MATH 31CH 复习指南 · MT2-A · H&amp;H §4.9</p>
+
+    </main>
+  </div>
+
+</body>
+</html>

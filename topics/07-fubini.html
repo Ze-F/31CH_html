@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Topic 07: Fubini 定理与应用 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="06-lebesgue-criterion.html">Topic 06</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="08-linear-cov.html">Topic 08</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#motivation">§1 动机</a></li>
+        <li><a href="#prereq">§2 前置知识</a></li>
+        <li><a href="#definitions">§3 核心定义</a></li>
+        <li><a href="#theorems">§4 主要定理</a></li>
+        <li><a href="#examples">§5 Worked Examples</a></li>
+        <li><a href="#pitfalls">§6 常见陷阱</a></li>
+        <li><a href="#exercises">§7 练习</a></li>
+        <li><a href="#cheat">§8 速查表</a></li>
+        <li><a href="#further">§9 进一步阅读</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>Topic 07: Fubini 定理与应用</h1>
+      <p class="subtitle">Source: Lec 4.1, 4.2 · H&amp;H §4.5 · 14 topics 中第 7 个</p>
+
+      <!-- §1 动机 -->
+      <h2 id="motivation">§1 动机</h2>
+      <p>到目前为止我们已经建立了 $\R^n$ 上 Riemann 积分的完整理论 — dyadic paving、上下和、Cauchy 准则、Lebesgue 准则、a.e. 推论 — 但这些工具<strong>定义</strong>了积分，却几乎没有教我们怎么<strong>算</strong>。$\int_{\R^n} f\, dV$ 的定义是对越来越细的 paving 取极限；可这种极限在实际计算里几乎从来不会直接出现。我们需要一座桥，把这个 abstract 定义连接到 calculus 里"一次次的一维积分"。</p>
+
+      <p>这座桥就是 <strong>Fubini 定理 (H&amp;H Thm 4.5.1)</strong>: <em>多元积分 $=$ 迭代的一维积分</em>。给定 $f \in \IR(\R^n \times \R^m)$，我们可以先固定 $x$ 对 $y$ 积，得到 $g(x) := \int_{\R^m} f(x, y)\, dy$；再对 $x$ 积，结果就等于原本的 $(n+m)$-元积分。这把高维积分 reduce 到了我们 30 年前在 calc I 里就练熟的一维积分。所有的具体计算 — 求圆盘面积、球体积、四面体积分、Steinmetz 立体 — 全部依赖这个 reduction。</p>
+
+      <p>但 Fubini 不是没有代价的。它的 hypothesis 是"$f$ 在 product 上可积"，而不是"两个迭代积分都存在"。我们会看到一个标准反例: $f(x,y) = x \cdot \mathbf{1}_{y \in \Q}$ 在 $[-1,1] \times [0,1]$ 上 — 一个迭代积分等于 $0$，另一个根本不存在，$f$ 也不可积。这个例子告诉我们: <strong>"两个迭代积分都能算"</strong>不是<strong>"它们相等"</strong>的充分条件；正确的 hypothesis 是<strong>"$f$ 在 product 上可积"</strong>。本页的剩余部分围绕 Fubini 的 statement、计算应用、与 hypothesis 的精确含义展开。</p>
+
+      <!-- §2 前置知识 -->
+      <h2 id="prereq">§2 前置知识</h2>
+      <div class="box prereq">
+        <span class="box-title">在阅读本页前，你应该已经掌握:</span>
+        <ul>
+          <li><a href="02-nd-riemann.html">Topic 02</a>: $\R^n$ 上的 Riemann 积分定义、dyadic paving、Cauchy 准则</li>
+          <li><a href="03-algebra-properties.html">Topic 03</a>: 积分的线性、单调性、product 性质 (本页 ball volume 推导用到)</li>
+          <li><a href="04-volume-pavable.html">Topic 04</a>: 体积 $\vol_n(A) := \int \mathbf{1}_A$ 的定义和缩放性质 ($\vol_n(tA) = t^n \vol_n(A)$)</li>
+          <li><a href="06-lebesgue-criterion.html">Topic 06</a>: Lebesgue 准则 — 判断函数可积性, 本页反例分析依赖于它</li>
+          <li>1D 微积分: integration by parts (IBP), $u$-substitution, 基本不定积分</li>
+        </ul>
+      </div>
+
+      <!-- §3 核心定义 -->
+      <h2 id="definitions">§3 核心定义</h2>
+      <p>Fubini 定理本身没有引入新的概念 — 它讲的是"迭代积分"与"高维积分"的关系。但为了精确陈述定理，我们需要厘清几个相关的记号。</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 7.1 (迭代积分 / iterated integral)</span>
+        <p>设 $f \colon \R^n \times \R^m \to \R$ 有界、具有界支集。固定 $x \in \R^n$，若切片函数 $y \mapsto f(x, y)$ 在 $\R^m$ 上可积，则定义</p>
+        <p>$$g(x) := \int_{\R^m} f(x, y) \, dy.$$</p>
+        <p>若进一步 $g$ 在 $\R^n$ 上可积，则称</p>
+        <p>$$\int_{\R^n} \!\left(\int_{\R^m} f(x, y) \, dy\right) dx := \int_{\R^n} g(x)\, dx$$</p>
+        <p>为 $f$ 的 <strong>迭代积分</strong> (先 $y$ 后 $x$ 的顺序)。同样可以定义先 $x$ 后 $y$ 的迭代积分。</p>
+      </div>
+
+      <p><strong>直觉</strong>: 迭代积分是"先冻结一些变量，沿一个方向积分"，再"放开冻结的变量，沿剩下的方向积分"。在 calc III 里你会看到它写成 $\int_a^b \int_{c(x)}^{d(x)} f(x, y)\, dy\, dx$ — 这就是 $\R^2$ 情形的迭代积分。注意它依赖<strong>积分顺序</strong>: 在一般情形下，"$x$-先" 和 "$y$-先" 是两个不同的对象，未必相等也未必都存在。Fubini 定理就是给出"它们何时相等"的条件。</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 7.2 (Slice / 切片)</span>
+        <p>设 $f \colon \R^n \times \R^m \to \R$。对固定 $x_0 \in \R^n$，<strong>$x_0$ 处的切片函数</strong>定义为
+        $$f_{x_0} \colon \R^m \to \R, \qquad f_{x_0}(y) := f(x_0, y).$$
+        对一个集合 $A \subset \R^n \times \R^m$, <strong>$x_0$ 处的切片</strong>定义为
+        $$A_{x_0} := \{y \in \R^m : (x_0, y) \in A\} \subset \R^m.$$</p>
+      </div>
+
+      <p>切片是 Fubini 设置里最基本的对象。$A_{x_0}$ 是"用平面 $x = x_0$ 切 $A$ 之后剩下的横截面" — 这正是高中物理里"立体体积 = 截面积 $\times$ 厚度的极限"的直觉化。后面 ball volume、Steinmetz 都用切片实现。</p>
+
+      <!-- §4 主要定理 -->
+      <h2 id="theorems">§4 主要定理</h2>
+
+      <p>本节有两个结果。<strong>定理 7.1</strong> 是本页的中心 — Fubini 定理本身。<strong>命题 7.2</strong> 是它的一个直接应用 — 体积切片公式，把 $\R^n$ 上集合的体积 reduce 到 $\R^{n-1}$ 上切片体积的一维积分。</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 7.1 (Fubini 定理, H&amp;H Thm 4.5.1)</span>
+        <p>设 $f \colon \R^n \times \R^m \to \R$ 在 $\R^n \times \R^m$ 上 Riemann 可积，且对<em>每个</em> $x \in \R^n$, 切片函数 $y \mapsto f(x, y)$ 在 $\R^m$ 上可积。则函数
+        $$x \mapsto \int_{\R^m} f(x, y) \, dy$$
+        在 $\R^n$ 上可积，且
+        $$\int_{\R^n \times \R^m} f(x, y) \, dV = \int_{\R^n}\!\left(\int_{\R^m} f(x, y) \, dy\right) dx.$$
+        对称地，若每个切片 $x \mapsto f(x, y)$ 也都可积，则另一顺序的迭代积分也存在并等于上式。</p>
+      </div>
+
+      <p><strong>Proof sketch.</strong> 完整证明走 dyadic paving + Cauchy 准则的标准路径。基本想法: 把 $\R^n \times \R^m$ 上的 dyadic 立方体写成 $C_n \times C_m$ (一个 $\R^n$ 维立方体 cross $\R^m$ 维立方体) 的乘积，于是上下和拆成
+        $$U_N(f) = \sum_{C_n} \left(\sum_{C_m} M_{C_n \times C_m}(f) \cdot \vol_m(C_m)\right) \vol_n(C_n).$$
+      内层求和对固定 $x \in C_n$ 是 $f(x, \cdot)$ 的上和的"过估计"; 外层求和则对应 $\int_{\R^n} g(x)\, dx$ 的上下和。可积性 + Cauchy 准则让两个方向的估计收敛到同一个数。详见 H&amp;H §4.5。</p>
+
+      <p>这个定理的<strong>核心 takeaway</strong>: 高维积分 = 迭代的一维积分，<em>顺序可以任选</em>。但<strong>务必</strong>记住两个 hypothesis: (i) $f$ 在 product 上可积，(ii) 切片函数也可积。两者缺一不可 (见 §6 陷阱)。</p>
+
+      <details>
+        <summary>展开: Fubini 的实用版本 (computational form)</summary>
+        <div class="details-body">
+          <p>在 calculus 教材里 Fubini 通常以下面的形式出现: 设 $A \subset \R^2$ 是 "type I" 区域，即
+          $$A = \{(x, y) : a \le x \le b, \ c(x) \le y \le d(x)\}$$
+          其中 $c, d \colon [a,b] \to \R$ 连续。则对 $A$ 上可积函数 $f$,
+          $$\int_A f\, dV = \int_a^b \!\left(\int_{c(x)}^{d(x)} f(x, y)\, dy\right) dx.$$</p>
+          <p>这是 Thm 7.1 的特殊化: 把 $f$ 看作 $\mathbf{1}_A \cdot f$ on 大矩形 $[a,b] \times [\min c, \max d]$, 然后切片就只剩下 $y \in [c(x), d(x)]$ 这一段。证明只需要 $\mathbf{1}_A$ 可积 (即 $\partial A$ 测度零)。"Type II" 是 $y$-先 $x$-后, 把角色对调即可。一般 $\R^n$ 也类似。</p>
+        </div>
+      </details>
+
+      <div class="box thm">
+        <span class="box-title">Proposition 7.2 (体积切片公式 / Cavalieri 原理)</span>
+        <p>设 $A \subset \R^n \times \R^m$ 是 pavable, 即 $\mathbf{1}_A \in \IR(\R^n \times \R^m)$。若对<em>每个</em> $x \in \R^n$, 切片 $A_x \subset \R^m$ 也是 pavable, 则
+        $$\vol_{n+m}(A) = \int_{\R^n} \vol_m(A_x) \, dx.$$</p>
+      </div>
+
+      <p><strong>Proof sketch.</strong> 对 $\mathbf{1}_A$ 应用 Fubini: $\int_{\R^m} \mathbf{1}_A(x, y) \, dy = \vol_m(A_x)$ (固定 $x$ 后内层积分就是切片的体积)。再对 $x$ 积分得到 $\vol_{n+m}(A) = \int \vol_m(A_x)\, dx$。</p>
+
+      <p>这是<strong>Cavalieri 原理</strong>的现代严格版: "两个立体在每个高度的截面积都相等 $\Rightarrow$ 体积相等"。本页所有体积计算 (球、Steinmetz) 都是这个命题的应用。</p>
+
+      <!-- §5 Worked Examples -->
+      <h2 id="examples">§5 Worked Examples</h2>
+
+      <p>本节有四个 worked examples: 三个展示 Fubini 怎么<em>用</em>来做实际计算 (二维三角形、三维四面体、$n$-维球)，一个展示 Fubini 的 hypothesis 失败时会发生什么 (顺序敏感的反例)。</p>
+
+      <div class="box example">
+        <span class="box-title">Example 7.1 (三角形 + 选对积分顺序: $e^{-y^2}$)</span>
+        <p>令 $T = \{(x, y) : 0 \le x \le y \le 1\} \subset \R^2$, $f(x, y) = e^{-y^2}$。计算 $\int_T f \, dV$.</p>
+        <p><strong>两种顺序的 setup</strong>:</p>
+        <ul>
+          <li><strong>顺序 (a): outer $y$, inner $x$.</strong> 固定 $y \in [0, 1]$, $x$ 范围是 $[0, y]$。
+          $$\int_T f \, dV = \int_0^1 \!\left(\int_0^y e^{-y^2}\, dx\right) dy.$$</li>
+          <li><strong>顺序 (b): outer $x$, inner $y$.</strong> 固定 $x \in [0, 1]$, $y$ 范围是 $[x, 1]$。
+          $$\int_T f \, dV = \int_0^1 \!\left(\int_x^1 e^{-y^2}\, dy\right) dx.$$</li>
+        </ul>
+        <p>Fubini 保证两个顺序的值相等。但<strong>计算难易度悬殊</strong>:</p>
+        <p><strong>顺序 (a) — 可解</strong>: $e^{-y^2}$ 对 $x$ 是常数, 内层积分 $= y \cdot e^{-y^2}$. 用 $u = y^2$, $du = 2y\, dy$:
+        $$\int_0^1 y\, e^{-y^2}\, dy = \tfrac{1}{2}\int_0^1 e^{-u} \, du = \tfrac{1}{2}(1 - e^{-1}).$$</p>
+        <p><strong>顺序 (b) — 不可解</strong>: 内层积分 $\int_x^1 e^{-y^2}\, dy$ 没有初等闭形式 (它关联到 erf 函数)。</p>
+        <p><strong>Takeaway</strong>: 当一个变量在被积函数里出现得"麻烦" (这里是 $y^2$ 在指数上), 把它放到外层、用切片直接吸收复杂结构。选对顺序常能把不可解变成 routine — 这是 Fubini 给你的<em>自由度</em>。</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 7.2 (Tetrahedron — 三维迭代积分 setup)</span>
+        <p>令 $T = \{(x, y, z) : x, y, z \ge 0, \ x + 2y + 3z \le 6\}$ — 顶点为 $(0,0,0), (6,0,0), (0,3,0), (0,0,2)$ 的四面体。我们 setup $\int_T f\, dV$ 对一般有界连续 $f$ (不真的算).</p>
+        <p><strong>策略</strong>: 选积分顺序 $dx\, dy\, dz$ (从内到外: 先 $x$, 再 $y$, 最后 $z$).</p>
+        <ul>
+          <li><strong>最外 $z$</strong>: 投影 $T$ 到 $z$-轴. 设 $x = y = 0$, 约束 $3z \le 6$ 给 $z \in [0, 2]$.</li>
+          <li><strong>中间 $y$</strong>: 固定 $z$, 切片 $T \cap \{Z = z\}$ 在 $y$-轴上的投影. 设 $x = 0$, 约束 $2y + 3z \le 6$ 给 $y \in [0, 3 - 3z/2]$.</li>
+          <li><strong>最内 $x$</strong>: 固定 $(y, z)$, 约束 $x + 2y + 3z \le 6$ 给 $x \in [0, 6 - 3z - 2y]$.</li>
+        </ul>
+        <p>迭代积分为:
+        $$\int_T f \, dV = \int_0^2 \!\left[\int_0^{3 - 3z/2} \!\left(\int_0^{6 - 3z - 2y} f(x, y, z) \, dx\right) dy\right] dz.$$</p>
+        <p><strong>程序化的方法</strong>: $n$-维迭代积分有 $n!$ 种顺序，每个顺序的 limits 都按"<em>外层限制最少 — 用边界对当前积分变量的约束求出范围</em>"递归地读出来。最外层的 limits 是常数，最内层的 limits 可以依赖所有外层变量。本例展示了三维 setup 的标准流程。</p>
+        <p><strong>体积验证</strong>: 取 $f \equiv 1$, 上述积分给 $\vol_3(T)$. 内层 $\int_0^{6-3z-2y} dx = 6 - 3z - 2y$. 中层 (令 $u = 3 - 3z/2$, 注意 $6 - 3z = 2u$):
+        $$\int_0^{u}(2u - 2y)\, dy = 2u \cdot u - u^2 = u^2 = (3 - 3z/2)^2.$$
+        外层 (令 $w = 3 - 3z/2$, $dw = -\tfrac{3}{2}dz$):
+        $$\int_0^2 (3 - 3z/2)^2\, dz = \tfrac{2}{3}\int_0^3 w^2\, dw = \tfrac{2}{3} \cdot 9 = 6.$$
+        这与四面体体积公式 $\tfrac{1}{6} \cdot 6 \cdot 3 \cdot 2 = 6$ 一致 (顶点 $(a,0,0), (0,b,0), (0,0,c)$ 的四面体体积 = $abc/6$).</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 7.3 (Ball volume $\beta_n$ — Fubini 的最经典应用)</span>
+        <p>令 $B_n = \{x \in \R^n : |x| &lt; 1\}$, $\beta_n := \vol_n(B_n)$. 用 Fubini 切片推出 $\beta_n$ 的递推公式，并算出前几个值。</p>
+        <p><strong>切片设置</strong>: 沿最后一个坐标 $x_n$ 切. 对每个 $x_n \in [-1, 1]$, 切片是
+        $$(B_n)_{x_n} = \{(x_1, \ldots, x_{n-1}) : x_1^2 + \cdots + x_{n-1}^2 &lt; 1 - x_n^2\} = \sqrt{1 - x_n^2}\, B_{n-1}.$$
+        由缩放性质 $\vol_{n-1}(t\, B_{n-1}) = t^{n-1} \beta_{n-1}$, 切片体积为 $(1 - x_n^2)^{(n-1)/2} \beta_{n-1}$.</p>
+        <p>由 Prop 7.2 (Cavalieri):
+        $$\beta_n = \int_{-1}^1 (1 - x_n^2)^{(n-1)/2}\, \beta_{n-1}\, dx_n = \beta_{n-1} \cdot C_n, \quad \text{其中 } C_n := \int_{-1}^1 (1 - x^2)^{(n-1)/2}\, dx.$$</p>
+        <p><strong>IBP 算 $C_n$</strong>: 取 $u = (1-x^2)^{(n-1)/2}$, $dv = dx$ ($v = x$). 则
+        $$du = -(n-1) x (1 - x^2)^{(n-3)/2} \, dx.$$
+        分部积分: 边界项 $[x \cdot (1-x^2)^{(n-1)/2}]_{-1}^1 = 0$ (在 $\pm 1$ 处 $(1-x^2)^{(n-1)/2} = 0$ 对 $n \ge 2$)。剩下:
+        $$C_n = (n-1)\int_{-1}^1 x^2 (1 - x^2)^{(n-3)/2}\, dx.$$
+        用恒等式 $x^2 = 1 - (1 - x^2)$:
+        $$C_n = (n-1) C_{n-2} - (n-1) C_n,$$
+        即 $n C_n = (n-1) C_{n-2}$, 故
+        $$\boxed{C_n = \tfrac{n-1}{n} C_{n-2}.}$$</p>
+        <p><strong>初值 + 计算</strong>: $C_0 = \int_{-1}^1 \tfrac{1}{\sqrt{1-x^2}}\, dx = \pi$, $C_1 = \int_{-1}^1 1\, dx = 2$. $\beta_1 = 2$ (直接算: $\vol_1[-1,1] = 2$).</p>
+        <ul>
+          <li>$\beta_2 = \beta_1 \cdot C_2 = 2 \cdot \tfrac{1}{2} C_0 = 2 \cdot \tfrac{\pi}{2} = \pi$. ✓ (圆面积)</li>
+          <li>$\beta_3 = \beta_2 \cdot C_3 = \pi \cdot \tfrac{2}{3} C_1 = \pi \cdot \tfrac{4}{3} = \tfrac{4\pi}{3}$. ✓ (球体积)</li>
+          <li>$\beta_4 = \beta_3 \cdot C_4 = \tfrac{4\pi}{3} \cdot \tfrac{3}{4} C_2 = \tfrac{\pi^2}{2}$.</li>
+        </ul>
+        <p><strong>闭形式</strong> (作为 reference, 不要求记忆): $\beta_n = \pi^{n/2}/\Gamma(n/2 + 1)$.</p>
+        <p><strong>这个例子展示了 Fubini 的"递归"功能</strong>: 用一次切片把 $n$-维问题降到 $(n-1)$-维, 同时累积一个一维积分因子 $C_n$。整个 $\R^n$ 几何就这样被一维 calc 拼出来。</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 7.4 (Steinmetz solid + 旋转椭圆 + 圆盘 — 几个干净的应用)</span>
+        <p><strong>(a) Steinmetz 立体 = 两个垂直圆柱的交.</strong> 设 $C_{xy} = \{x^2 + y^2 \le 1\}$ 和 $C_{yz} = \{y^2 + z^2 \le 1\}$ 是 $\R^3$ 中的两个无穷圆柱 (沿 $z$-轴和 $x$-轴). 令 $S = C_{xy} \cap C_{yz}$.</p>
+        <p><strong>切片选择</strong>: 沿"共享坐标" $y$ 切. 对 $y \in [-1, 1]$, 切片是
+        $$S_y = \{(x, z) : x^2 \le 1 - y^2, z^2 \le 1 - y^2\} = [-\sqrt{1-y^2}, \sqrt{1-y^2}]^2,$$
+        一个边长 $2\sqrt{1-y^2}$、面积 $4(1-y^2)$ 的正方形。</p>
+        <p>由 Cavalieri:
+        $$\vol_3(S) = \int_{-1}^1 4(1 - y^2)\, dy = 8\left[y - \tfrac{y^3}{3}\right]_0^1 = 8 \cdot \tfrac{2}{3} = \tfrac{16}{3}.$$</p>
+        <p><strong>关键观察</strong>: 如果沿 $x$ 或 $z$ 切, 切片是 "圆 $\cap$ strip" 这种麻烦的形状。沿<em>对称坐标</em> $y$ 切, 两个圆柱给出对称约束 $|x|, |z| \le \sqrt{1-y^2}$, 切片直接简化为正方形。<strong>对称性指导切片选择</strong>是 Fubini 应用最重要的 heuristic 之一。</p>
+        <p><strong>(b) 圆盘面积 $= \pi R^2$.</strong> 令 $R B_2 = \{(x, y) : x^2 + y^2 &lt; R^2\}$. 用 Fubini 沿 $y$ 切:
+        $$\vol_2(R B_2) = \int_{-R}^R 2\sqrt{R^2 - y^2}\, dy.$$
+        代换 $u = y/R$ ($dy = R\, du$):
+        $$= 2R^2 \int_{-1}^1 \sqrt{1 - u^2}\, du = 2R^2 \cdot \tfrac{\pi}{2} = \pi R^2.$$
+        (内层积分 $= $ 半圆面积 $= \pi/2$.) 这是 ball volume 的 $n=2$ 情形, 和 $\beta_2 = \pi$ 一致。</p>
+        <p><strong>(c) 旋转椭圆 $x^2 + xy + y^2 \le 1$ 上的迭代积分 setup.</strong> 对固定 $x$, 解 $y^2 + xy + (x^2 - 1) = 0$ 得
+        $$y = \tfrac{-x \pm \sqrt{4 - 3x^2}}{2}.$$
+        要求判别式 $\ge 0$, 即 $|x| \le 2/\sqrt{3}$. 迭代积分:
+        $$\int_{|x| \le 2/\sqrt{3}} \int_{(-x - \sqrt{4-3x^2})/2}^{(-x + \sqrt{4-3x^2})/2} f(x, y)\, dy\, dx.$$
+        这告诉我们: 即使 boundary 不是"轴对齐"的, Fubini 仍然适用 — 你只需要在 setup 时把 boundary 解成 inner-variable 的函数。这种<strong>非 axis-aligned</strong> 的几何稍后会在 Topic 09-10 (CoV) 里用变量代换"对齐", 使计算更便利。</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 7.5 (奇函数积分 $= 0$ — 用对称 Riemann sum 证)</span>
+        <p>设 $f \colon \R \to \R$ 奇函数 ($f(-x) = -f(x)$), 有界有界支集, 可积. 则 $\int_\R f \, dx = 0$.</p>
+        <p>这个事实看起来"显然" — 但严格证明需要绕过"$\int_\R f = \int_{-\infty}^0 f + \int_0^\infty f = -\int_0^\infty f(-x)\, dx + \int_0^\infty f = 0$"这种依赖换元的论证 (我们还没建立 CoV 工具)。这里用更基础的: <strong>对称 Riemann sum</strong>。</p>
+        <p><strong>证</strong>: 对每个 $j \in \N$, 取 $\R$ 的均匀 paving $D_j = \{[m/j, (m+1)/j) : m \in \Z\}$, 每块长度 $1/j$. 由 $f$ 可积, mesh $\to 0$ 时 Riemann 和 (任意 sample 点选法) 收敛到 $\int_\R f$.</p>
+        <p>选 sample 点的 trick: 对每个 $m \in \Z$, 取 $x_m \in (m/j, (m+1)/j)$ 的内部。其镜像 $-x_m$ 落在镜像 cube $(-(m+1)/j, -m/j)$ 的内部。把每个 cube $[m/j, (m+1)/j)$ ($m \ge 0$) 与其镜像 $[-(m+1)/j, -m/j)$ 配对, 后者的 sample 点取为 $-x_m$.</p>
+        <p>Riemann 和:
+        $$R_j(f) = \sum_{m \ge 0}\left[f(x_m) + f(-x_m)\right] \cdot \tfrac{1}{j} = \sum_{m \ge 0} 0 \cdot \tfrac{1}{j} = 0.$$
+        (用了 $f$ 是奇函数.) 因此 $\int_\R f = \lim_j R_j(f) = 0$.</p>
+        <p><strong>Takeaway</strong>: Riemann 和的 sample-point freedom 加上对称配对是从函数对称性提取积分信息的标准武器。<em>这个 trick 在 CoV 之前是我们唯一的"对称性 $\Rightarrow$ 积分等式"工具。</em></p>
+      </div>
+
+      <!-- §6 常见陷阱 -->
+      <h2 id="pitfalls">§6 常见陷阱</h2>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 7.1 — "两个迭代积分都存在" $\nRightarrow$ "$f$ 在 product 上可积"</span>
+        <p>初学者最容易把 Fubini 倒着用: 看到两个迭代积分都能算, 就以为 $\int_{A \times B} f$ 也等于它们。但 Fubini 的<strong>正确陈述</strong>是: $f$ 在 product 上可积<em>导致</em>迭代积分存在且相等。<strong>不能反过来推</strong>。</p>
+        <p><strong>反例: $f(x, y) = \tfrac{x^2 - y^2}{(x^2 + y^2)^2}$ on $[0,1] \times [0,1]$.</strong> 直接计算 (用分部分式 / 三角换元) 可以验证</p>
+        <p>$$\int_0^1 \!\left(\int_0^1 f(x, y)\, dy\right) dx = -\int_0^1\!\left(\int_0^1 f(x, y)\, dx\right) dy.$$</p>
+        <p>两个迭代积分都存在, 但<em>它们差一个负号</em> — 也就是两个值反号. 如果 Fubini 适用, 它们必相等. 不矛盾的解释是: $f$ 在原点附近无界 (当 $(x, y) \to (0, 0)$, $|f| \to \infty$), 所以 $f \notin \IR([0,1]^2)$, Fubini 的 hypothesis 不满足.</p>
+        <p><strong>记忆要点</strong>: 总是先验证 $f$ 在 product 上的可积性 (有界 + 不连续集测度零). 没验证就直接交换积分顺序, 是 calc III 最常见的错误。</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 7.2 — 切片函数可积性需要单独验证</span>
+        <p>Fubini 的完整 hypothesis 是: (i) $f$ 在 product 上可积, <em>以及</em> (ii) 对<strong>每个</strong> $x$, 切片 $y \mapsto f(x, y)$ 可积。第二个 hypothesis 容易被忽略, 但它真的可以失败。</p>
+        <p><strong>反例</strong>: $f(x, y) = x \cdot \mathbf{1}_{y \in \Q}$ on $[-1, 1] \times [0, 1]$.</p>
+        <ul>
+          <li>对 $x = 0$ 切片: $f(0, y) = 0$, 显然可积.</li>
+          <li>对 $x \ne 0$ 切片: $f_{x_0}(y) = x_0 \cdot \mathbf{1}_{y \in \Q}$ — 一个 scaled Dirichlet, 不可积. (Lebesgue 准则: $\Disc(f_{x_0}) = [0, 1]$ 不测度零)</li>
+        </ul>
+        <p>结果: 顺序 ($x$-先) 的迭代积分$=0$ (内层 $\int_{-1}^1 x\, dx = 0$ 处处, 外层 $\int_0^1 0\, dy = 0$); 但顺序 ($y$-先) 的迭代积分<em>不存在</em>, 因为内层 $\int_0^1 f(x_0, y)\, dy$ 对 $x_0 \ne 0$ 都不存在.</p>
+        <p>更糟糕: $f$ 在 product 上也不可积. 不连续集 $\Disc(f) = ([-1, 1] \setminus \{0\}) \times [0, 1]$ — 几乎整个矩形, 通过 $T \cup A \cup B$ 分解 + "正体积闭盒不测度零"引理可证它不测度零, 故 $f \notin \IR([-1,1] \times [0,1])$. 见 typed notes Lec 4.2 §3 完整论证。</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 7.3 — 把"积分顺序的 limits"误置 / 漏 split</span>
+        <p>这是<em>纯技术</em>但极常见的错: 把外层变量的范围写成 inner-variable 依赖, 或者忘了在 boundary 不光滑处 split。</p>
+        <p><strong>错例</strong>: 对 $T = \{0 \le y \le 1, 0 \le x \le y\}$, 写迭代积分 $\int_0^x \!\int_0^1 f\, dy\, dx$ — <em>outer limits 含 inner 变量</em>, 没意义。<strong>正解</strong>: 外层 limits 必须是常数 (或只依赖更外层的变量).</p>
+        <p><strong>另一错例</strong>: 对 piecewise boundary 区域 (如 typed notes Lec 4.1 的 $y = x^2 / y = -x / y = (x-2)^2 / y = x-2$ 区域) 不 split, 直接写一个迭代积分 — 但 inner limits 在 $x = 1$ 处发生跳变, 必须把 $x$ 积分 split 成 $[0, 1] + [1, 2]$ 两部分.</p>
+        <p><strong>调试 checklist</strong>: 画出区域。最外层变量范围 = 区域在该坐标轴上的投影。固定外层后看切片 — 切片的边界曲线给 inner 的 limits。切片形状跳变时必须 split。</p>
+      </div>
+
+      <!-- §7 练习 -->
+      <h2 id="exercises">§7 练习</h2>
+      <p>展开 <code>&lt;details&gt;</code> 查看答案 (建议先自己想 10 分钟再看).</p>
+
+      <div class="exercise">
+        <p><span class="ex-num">1.</span> 用 Fubini 计算 $\int_T xy \, dV$, 其中 $T = \{(x, y) : 0 \le 2x \le y \le 2\}$ (Lec 4.1 的三角形).</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>选顺序: outer $y$, inner $x$. 固定 $y \in [0, 2]$, $x \in [0, y/2]$:
+            $$\int_T xy\, dV = \int_0^2 \!\left(\int_0^{y/2} xy\, dx\right) dy = \int_0^2 y \cdot \tfrac{(y/2)^2}{2}\, dy = \int_0^2 \tfrac{y^3}{8}\, dy = \tfrac{1}{8} \cdot \tfrac{16}{4} = \tfrac{1}{2}.$$</p>
+            <p>验证另一顺序: outer $x \in [0, 1]$, inner $y \in [2x, 2]$:
+            $$\int_0^1 x \!\left(\int_{2x}^2 y\, dy\right) dx = \int_0^1 x \cdot \tfrac{4 - 4x^2}{2}\, dx = \int_0^1 (2x - 2x^3)\, dx = 1 - \tfrac{1}{2} = \tfrac{1}{2}. \checkmark$$</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">2.</span> 计算 $\beta_5$ 和 $\beta_6$. (用 $\beta_n = \beta_{n-1} C_n$ 和 $C_n = \tfrac{n-1}{n} C_{n-2}$ 递推.)</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>$C_2 = \tfrac{1}{2} C_0 = \tfrac{\pi}{2}$. $C_3 = \tfrac{2}{3} C_1 = \tfrac{4}{3}$. $C_4 = \tfrac{3}{4} C_2 = \tfrac{3\pi}{8}$. $C_5 = \tfrac{4}{5} C_3 = \tfrac{16}{15}$. $C_6 = \tfrac{5}{6} C_4 = \tfrac{5\pi}{16}$.</p>
+            <p>$\beta_5 = \beta_4 \cdot C_5 = \tfrac{\pi^2}{2} \cdot \tfrac{16}{15} = \tfrac{8\pi^2}{15}$.</p>
+            <p>$\beta_6 = \beta_5 \cdot C_6 = \tfrac{8\pi^2}{15} \cdot \tfrac{5\pi}{16} = \tfrac{\pi^3}{6}$.</p>
+            <p>(可验证: 闭形式 $\beta_n = \pi^{n/2}/\Gamma(n/2 + 1)$ 给 $\beta_5 = \pi^{5/2}/\Gamma(7/2) = \pi^{5/2}/(\tfrac{15\sqrt{\pi}}{8}) = \tfrac{8\pi^2}{15}$. ✓)</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">3.</span> 计算<em>三个</em>正圆柱 $x^2 + y^2 \le 1$, $y^2 + z^2 \le 1$, $x^2 + z^2 \le 1$ 在 $\R^3$ 中的交的体积 (tricylinder 三柱体).</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>沿 $z$ 切. 对固定 $z \in [-1, 1]$, 切片要求 $x^2 \le 1 - z^2$, $y^2 \le 1 - z^2$ (从 $x^2+z^2 \le 1$, $y^2 + z^2 \le 1$), 和 $x^2 + y^2 \le 1$ (从第三柱).</p>
+            <p>设 $r = \sqrt{1 - z^2}$. 切片 $= \{|x|, |y| \le r\} \cap \{x^2 + y^2 \le 1\}$ — 边长 $2r$ 的方形 $\cap$ 单位圆.</p>
+            <p>当 $r \ge 1$ (即 $z = 0$): 方形完全包含单位圆, 切片 $= $ 圆, 面积 $\pi$。但 $r \le 1$ 总成立 (因为 $z \in [-1,1] \Rightarrow r = \sqrt{1 - z^2} \le 1$). 所以方形 $\subset$ 单位圆当且仅当方形的最远点 $(r, r)$ 在圆内, 即 $2r^2 \le 1$, 即 $|z| \ge 1/\sqrt{2}$.</p>
+            <ul>
+              <li>当 $|z| \ge 1/\sqrt{2}$: 切片 $= $ 方形, 面积 $4(1 - z^2)$.</li>
+              <li>当 $|z| &lt; 1/\sqrt{2}$: 切片 $= $ 方形 $\cap$ 圆 = 圆 $-$ 4 个 "corner caps". 由对称, 切片面积 $= 4 r^2 - 4 \cdot (\text{角块面积})$ 或者更简单地 = $4(\sqrt{1-z^2} \cdot z' \text{...})$ — 此处用对称积分: 切片面积 $= 8 \int_0^{r} \min(r, \sqrt{1 - x^2})\, dx \cdot$ (镜像)。直接得切片面积 $= 4 \int_0^1 \min(r, \sqrt{1-x^2})\, dx \cdot 2$. 用极坐标更省力, 但记得此 topic 未学 CoV.</li>
+            </ul>
+            <p>(标准答案: $\vol = 8(2 - \sqrt 2)$. 详细推导较繁琐, 留作可选挑战.)</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">4.</span> ("证明或反例") 若 $f \colon [0,1]^2 \to \R$ 满足 (a) 两个迭代积分都存在, (b) 两个迭代积分相等, 那么 $f$ 在 $[0,1]^2$ 上可积吗?</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>否</strong>. 反例: $f(x, y) = x \mathbf{1}_{y \in \Q}$ on $[0, 1] \times [0, 1]$ (与 Pitfall 7.2 类似但限制在 $[0,1]$).</p>
+            <ul>
+              <li>对 $x$-先迭代: 内层 $\int_0^1 x\mathbf{1}_{y \in \Q}\, dx = \tfrac{1}{2} \mathbf{1}_{y \in \Q}$ — 这是 (缩放过的) Dirichlet, 不可积. 此顺序不存在.</li>
+            </ul>
+            <p>这个反例还不够 — 一个迭代积分都不存在。换一个更平衡的反例:</p>
+            <p><strong>更好的反例</strong>: $f(x, y) = 1$ if $x \in \Q$ AND $y \in \Q$, $f(x, y) = 0$ otherwise. 则:</p>
+            <ul>
+              <li>对任意固定 $x$, 切片 $y \mapsto f(x, y)$ 要么恒 $0$ (若 $x \notin \Q$) 要么是 Dirichlet (若 $x \in \Q$). 前者可积值 $0$, 后者不可积. 严格说, 迭代积分中$x$-外层不存在.</li>
+            </ul>
+            <p>更精确的反例需要使迭代积分都"存在但等于 $0$", 同时 $f \notin \IR$. 一种构造: 设 $f$ 在所有 $(x, y) \in \Q^2$ 上 $= 0$, 在其他地方 $= 0$ — 也就是 $f \equiv 0$, 但这样 $f$ 可积, 不是反例.</p>
+            <p>实际上, 在<em>合理</em>的 hypothesis 下 — "两个迭代都存在, 相等" — 加上 $f$ 有界, 可以推出 $f$ 可积 (用 Lebesgue 准则比较). 严格陈述并不平凡。这道题的 takeaway: <strong>迭代积分存在 + 相等 比看上去强, 但不等于 product 可积</strong>; 整本 measure theory 给出更精细的 Tonelli/Fubini 定理来处理这些边界情形.</p>
+            <p>(本课最重要的认知: Fubini 是 "$f \in \IR(\text{product}) \Rightarrow$ 迭代相等", <em>不是</em>逆.)</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">5.</span> 用对称 Riemann sum (Lec 4.2 §2 的方法) 证明: 若 $f \colon \R \to \R$ 偶函数, 有界有界支集, 可积, 则 $\int_\R f\, dx = 2\int_0^\infty f\, dx$ (假设右半边积分存在).</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>用与 Example 7.5 相同的均匀 paving $D_j$ 和镜像配对。差别: 偶函数下 $f(-x_m) = f(x_m)$, 所以配对块的贡献为 $2 f(x_m) \cdot 1/j$ (而不是 $0$).</p>
+            <p>$R_j(f) = \sum_{m \ge 0} 2 f(x_m) \cdot \tfrac{1}{j}$. 注意右半 $\sum_{m \ge 0} f(x_m) \cdot 1/j$ 正好是 $f|_{[0, \infty)}$ 在 paving $D_j|_{[0, \infty)}$ 上的 Riemann 和.</p>
+            <p>取极限: $\int_\R f = \lim R_j(f) = 2 \lim \sum f(x_m) \cdot 1/j = 2 \int_0^\infty f$. (用了 $f$ 在 $[0, \infty)$ 上的 Riemann 和也收敛, 因为 $f$ 在 $\R$ 上可积 $\Rightarrow$ 其限制可积.)</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">6.</span> 计算 $\int_S xyz \, dV$, 其中 $S = \{(x, y, z) : x, y, z \ge 0, x + y + z \le 1\}$ (标准 simplex).</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>顺序 $dx\, dy\, dz$: outer $z \in [0, 1]$, middle $y \in [0, 1 - z]$, inner $x \in [0, 1 - y - z]$.</p>
+            <p>$$\int_S xyz\, dV = \int_0^1 z \!\left[\int_0^{1-z} y \!\left(\int_0^{1-y-z} x\, dx\right) dy\right] dz.$$</p>
+            <p>内层 $= \tfrac{(1-y-z)^2}{2}$. 中层:
+            $$\int_0^{1-z} y \cdot \tfrac{(1-y-z)^2}{2}\, dy.$$
+            令 $s = 1 - z$ 固定, 这是 $\tfrac{1}{2}\int_0^s y(s-y)^2\, dy$. 展开 $(s-y)^2 = s^2 - 2sy + y^2$:
+            $$\tfrac{1}{2}\int_0^s (s^2 y - 2 s y^2 + y^3)\, dy = \tfrac{1}{2}[s^2 \cdot \tfrac{s^2}{2} - 2s \cdot \tfrac{s^3}{3} + \tfrac{s^4}{4}] = \tfrac{1}{2} \cdot \tfrac{s^4}{12} = \tfrac{s^4}{24}.$$</p>
+            <p>外层: $\int_0^1 z \cdot \tfrac{(1-z)^4}{24}\, dz$. 用 $u = 1 - z$: $\int_0^1 (1-u) u^4 / 24 \, du = \tfrac{1}{24}[\tfrac{1}{5} - \tfrac{1}{6}] = \tfrac{1}{24} \cdot \tfrac{1}{30} = \tfrac{1}{720}$.</p>
+            <p>$\boxed{\int_S xyz \, dV = \tfrac{1}{720}}$. (实际上 $\int_S x^a y^b z^c \, dV = \tfrac{a! b! c!}{(a + b + c + 3)!}$ 是 simplex 上的 Dirichlet 积分公式: $a = b = c = 1$, $\tfrac{1!^3}{6!} = \tfrac{1}{720}$. ✓)</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">7.</span> 设 $f(x, y) = \tfrac{y - x}{(x + y)^3}$ on $(0, 1] \times (0, 1]$. 计算两个迭代积分并验证它们不相等。Fubini 为什么不适用？</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>用 partial fractions / 巧妙拆解: 注意 $\tfrac{y - x}{(x+y)^3} = \tfrac{\partial}{\partial x} \tfrac{x}{(x+y)^2}$ 或类似 trick.</p>
+            <p>具体地, $\tfrac{d}{dx}\left[\tfrac{x}{(x+y)^2}\right] = \tfrac{(x+y)^2 - x \cdot 2(x+y)}{(x+y)^4} = \tfrac{y - x}{(x+y)^3}$. 所以
+            $$\int_0^1 \tfrac{y-x}{(x+y)^3}\, dx = \left[\tfrac{x}{(x+y)^2}\right]_0^1 = \tfrac{1}{(1+y)^2}.$$
+            外层: $\int_0^1 \tfrac{1}{(1+y)^2}\, dy = [- \tfrac{1}{1+y}]_0^1 = -\tfrac{1}{2} + 1 = \tfrac{1}{2}$.</p>
+            <p>另一顺序: 由 $f(x, y) = -f(y, x)$ (反对称), 同一计算给 $-\tfrac{1}{2}$.</p>
+            <p>两个迭代积分: $1/2$ vs $-1/2$, <em>不相等</em>! Fubini 不适用因为 $f$ 在 $(0, 0)$ 附近不有界 ($|f| \to \infty$), 不可积. 这是 Pitfall 7.1 的另一个标准反例 (与 $(x^2-y^2)/(x^2+y^2)^2$ 同 spirit).</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">8.</span> 设 $A \subset \R^n$ pavable, $B \subset \R^m$ pavable. 用 Fubini 证 $\vol_{n+m}(A \times B) = \vol_n(A) \cdot \vol_m(B)$. (这是 "baby Fubini", Topic 03.)</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>由 product 性质 (Topic 03), $\mathbf{1}_{A \times B}(x, y) = \mathbf{1}_A(x) \mathbf{1}_B(y) \in \IR(\R^n \times \R^m)$.</p>
+            <p>对固定 $x$, 切片 $y \mapsto \mathbf{1}_A(x) \mathbf{1}_B(y) = \mathbf{1}_A(x) \cdot \mathbf{1}_B(y)$. 此切片可积 (常数 $\times$ $\mathbf{1}_B$), 积分 $= \mathbf{1}_A(x) \cdot \vol_m(B)$.</p>
+            <p>对 $x$ 积分: $\int_{\R^n} \mathbf{1}_A(x) \cdot \vol_m(B) \, dx = \vol_m(B) \cdot \int_{\R^n} \mathbf{1}_A = \vol_m(B) \cdot \vol_n(A)$.</p>
+            <p>由 Fubini, 这就等于 $\int_{\R^n \times \R^m} \mathbf{1}_{A \times B}\, dV = \vol_{n+m}(A \times B)$. 故 $\vol_{n+m}(A \times B) = \vol_n(A) \vol_m(B)$. ✓</p>
+            <p>注意: Topic 03 那里给的是更基本的 "product on $\R^n \times \R^m$" — $\int f_1 f_2 = (\int f_1)(\int f_2)$. 本题用 Fubini 给出该公式在指示函数情形的"几何"证明。</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- §8 速查表 -->
+      <h2 id="cheat">§8 速查表</h2>
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def"><strong>迭代积分</strong>: $\int_{\R^n}(\int_{\R^m} f(x,y)\, dy)\, dx$ — 先固定 $x$ 对 $y$ 积，再对 $x$ 积。两种顺序未必相等也未必都存在。</li>
+          <li class="cs-def"><strong>切片</strong>: $A_{x_0} = \{y : (x_0, y) \in A\}$; $f_{x_0}(y) = f(x_0, y)$. 切片是高维 → 低维的核心机制。</li>
+          <li class="cs-thm"><strong>Fubini (Thm 7.1)</strong>: $f \in \IR(\R^n \times \R^m)$ 且每个切片可积 $\Rightarrow$ 迭代积分 $=$ 高维积分 $=$ 另一顺序迭代积分。</li>
+          <li class="cs-thm"><strong>Cavalieri / 切片体积 (Prop 7.2)</strong>: $\vol_{n+m}(A) = \int_{\R^n} \vol_m(A_x)\, dx$. 截面积积分给体积。</li>
+          <li class="cs-tech"><strong>Ball volume 递推</strong>: $\beta_n = \beta_{n-1} \cdot C_n$, $C_n = \tfrac{n-1}{n} C_{n-2}$, $C_0 = \pi$, $C_1 = 2$. 给出 $\beta_2 = \pi$, $\beta_3 = \tfrac{4\pi}{3}$, $\beta_4 = \tfrac{\pi^2}{2}$, ...</li>
+          <li class="cs-tech"><strong>选积分顺序</strong>: 把"麻烦"变量 (e.g. $e^{-y^2}$ 中的 $y$) 放外层, 让内层吸收复杂结构。Fubini 给你这个 freedom。</li>
+          <li class="cs-tech"><strong>沿对称坐标切</strong>: Steinmetz 沿 $y$ 切, 圆盘沿 $y$ 切。对称性指导切片选择是 Fubini 应用最重要的 heuristic。</li>
+          <li class="cs-tech"><strong>奇函数 $\int_\R f = 0$</strong>: 对称 Riemann sum (均匀 paving + 镜像 sample) 配对相消。是 CoV 之前的对称性工具。</li>
+          <li class="cs-pitfall"><strong>陷阱 #1</strong>: "两个迭代积分都存在" $\nRightarrow$ "$f$ 可积". 反例 $\tfrac{x^2-y^2}{(x^2+y^2)^2}$ — 两个迭代反号, $f$ 不有界故不可积.</li>
+          <li class="cs-pitfall"><strong>陷阱 #2</strong>: 切片可积性需单独验证. $f = x \mathbf{1}_{y\in\Q}$ on $[-1,1]\times[0,1]$ — 切片对 $x \ne 0$ 是 Dirichlet, 不可积; $f$ 在 product 上也不可积.</li>
+          <li class="cs-pitfall"><strong>陷阱 #3</strong>: 迭代积分的 limits 顺序. 外层 limits 必须常数 (或只依赖更外层变量). Piecewise boundary 要 split.</li>
+        </ul>
+      </div>
+
+      <!-- §9 进一步阅读 -->
+      <h2 id="further">§9 进一步阅读</h2>
+      <ul>
+        <li><strong>H&amp;H 教材</strong>: §4.5 是 Fubini 的标准 reference. Thm 4.5.1 (statement + proof). Exercise 4.5.3 推出 $\beta_n$ 闭形式. §4.5 末尾的 Fubini 反例 $(x^2-y^2)/(x^2+y^2)^2$ 也在教材.</li>
+        <li><strong>Typed lecture notes</strong>:
+          <ul>
+            <li><code>../../Notes/Typed/4.1_notes/4.1_notes.pdf</code> — Fubini 定理 statement, 二维三维迭代积分例子, $(x^2-y^2)$ 反例</li>
+            <li><code>../../Notes/Typed/4.2_notes/4.2_notes.pdf</code> — Ball volume $\beta_n$, Steinmetz, 奇函数 $\int = 0$, $x \mathbf{1}_{y\in\Q}$ 反例完整证明</li>
+          </ul>
+        </li>
+        <li><strong>关联 review topics</strong>:
+          <ul>
+            <li><a href="02-nd-riemann.html">Topic 02</a>: Riemann 积分定义 — Fubini 证明依赖 dyadic paving + Cauchy 准则</li>
+            <li><a href="06-lebesgue-criterion.html">Topic 06</a>: Lebesgue 准则 — 用来分析 Fubini 反例 (Disc 测度) 和切片可积性</li>
+            <li><a href="08-linear-cov.html">Topic 08</a>: 线性变量代换 — Fubini + det scales volume 的下一步</li>
+            <li><a href="09-nonlinear-cov.html">Topic 09</a>: 非线性 CoV — Jacobian, polar/spherical/cylindrical; Fubini + CoV 是最重要的两个计算工具</li>
+            <li><a href="10-cov-patterns.html">Topic 10</a>: CoV 实战 — 把 Fubini 用不了的几何"对齐"到坐标轴</li>
+          </ul>
+        </li>
+        <li><strong>同主题外读</strong>: Folland, <em>Real Analysis</em>, §2.5 — Lebesgue 框架下的 Fubini-Tonelli 定理 (更彻底, 不要求每个切片可积, 只要 $f \ge 0$ 或 $|f|$ 可积).</li>
+      </ul>
+
+      <hr style="margin: 60px 0 20px; border: 0; border-top: 1px solid #d8d3c4;">
+      <p style="font-size: 13px; color: #888; text-align: center;">MATH 31CH 复习指南 · Topic 07 · Phase 3</p>
+
+    </main>
+  </div>
+
+</body>
+</html>

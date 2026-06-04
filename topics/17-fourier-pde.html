@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Topic 17: Fourier transform 解常系数 PDE | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\C': '\\mathbb{C}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|',
+        '\\FT': '\\widehat{#1}'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="16-fourier-transform.html">Topic 16</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="18-laplace-transform.html">Topic 18</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#motivation">§1 动机</a></li>
+        <li><a href="#prereq">§2 前置知识</a></li>
+        <li><a href="#definitions">§3 核心定义</a></li>
+        <li><a href="#theorems">§4 主要定理</a></li>
+        <li><a href="#examples">§5 Worked Examples</a></li>
+        <li><a href="#pitfalls">§6 常见陷阱</a></li>
+        <li><a href="#exercises">§7 练习</a></li>
+        <li><a href="#cheat">§8 速查表</a></li>
+        <li><a href="#further">§9 进一步阅读</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>Topic 17: Fourier transform 解常系数 PDE</h1>
+      <p class="subtitle">Source: Lec 9.2 §7 + Lec 10.1 §4-5 · 应用篇第 3 页</p>
+
+      <!-- §1 动机 -->
+      <h2 id="motivation">§1 动机</h2>
+      <p>Topic 16 把 Fourier transform 的工具铺好了, 关键身份是 Thm 16.2:
+      $$ \widehat{\partial_{x_j} f}(\zeta) \;=\; -2\pi i \zeta_j \FT{f}(\zeta), \qquad \widehat{\Delta f}(\zeta) \;=\; -4\pi^2|\zeta|^2 \FT{f}(\zeta). $$
+      这个"<strong>微分 ↔ 乘法</strong>"对偶一旦内化, 就让<em>常系数 linear 微分方程</em>的求解变成<strong>近乎机械化</strong>: 在 frequency space 里, $\partial_x$ 是 multiplication by $-2\pi i \zeta$, 是<em>数</em>而不是 operator, 整个 PDE 退化成 algebraic / ODE 问题, 可以 explicit 解出来, 再 inverse FT 反算原解。</p>
+
+      <p>本页用这个 idea 解三个标志性 PDE:</p>
+      <ol>
+        <li><strong>常系数 ODE</strong> (Example 17.1): warm-up, 把 $\sum a_k u^{(k)} = g$ 变成 algebraic equation $P(-2\pi i \zeta)\FT{u} = \FT{g}$.</li>
+        <li><strong>热方程</strong> (heat equation, Example 17.2): $u_t = \Delta u$, $u(x, 0) = f(x)$ — 时间方向是 ODE, 空间方向是 FT. 解出 explicit Gaussian-kernel formula.</li>
+        <li><strong>Poisson 方程</strong> (Example 17.3): $-\Delta u = f$ — pure algebraic equation in frequency space, 解 $\FT{u} = \FT{f}/(4\pi^2|\zeta|^2)$. 反 FT 给 Newtonian potential.</li>
+      </ol>
+
+      <p>这三例展示了 Fourier 方法的<strong>一致流程</strong>: <em>(i) 对 spatial 变量 FT; (ii) 用 Thm 16.2 把 differential operator 变成 multiplication; (iii) 在 frequency space 解出 $\FT{u}$; (iv) inverse FT 反算 $u$</em>。整个学期 (Lec 1.1 至 7.3) 建立的 Lebesgue framework 在这里收获最美的应用 — DCT 让所有 swap 合法, FT 把 PDE 算法化。</p>
+
+      <p>需要警告: 这个方法<strong>对系数是常数的 differential operator 完美; 对变系数失败</strong>。变系数情形需要更复杂的工具 (eigenfunction expansion, distribution theory 等), 不在本课程范围内.</p>
+
+      <!-- §2 前置知识 -->
+      <h2 id="prereq">§2 前置知识</h2>
+      <div class="box prereq">
+        <span class="box-title">在阅读本页前，你应该已经掌握:</span>
+        <ul>
+          <li><a href="16-fourier-transform.html">Topic 16</a>: <strong>必读</strong>. FT 定义、inversion、Thm 16.2 ("微分 → 乘法") 与 Cor 16.3 (Laplacian → $-4\pi^2|\zeta|^2$)。本页所有推导都基于此.</li>
+          <li><a href="15-dui.html">Topic 15</a>: DUI — 在把 $\partial_t \FT{u}(\zeta, t) = \widehat{u_t}(\zeta, t)$ 时, 把 $\partial_t$ 穿入空间积分号需要 DUI 验证 (实战 default Schwartz 时自动满足).</li>
+          <li>常微分方程基础: 一阶线性 ODE $\partial_t y(t) + a y(t) = 0$ 的解 $y(t) = y(0) e^{-at}$. 二阶可分离 ODE 的解法.</li>
+          <li><strong>Example 16.4 (Gaussian FT)</strong>: 在 Example 17.2 中识别 heat kernel 是 Gaussian 用到.</li>
+        </ul>
+      </div>
+
+      <!-- §3 核心定义 -->
+      <h2 id="definitions">§3 核心定义</h2>
+
+      <div class="box def">
+        <span class="box-title">Definition 17.1 (常系数线性微分算子 + 符号 / symbol)</span>
+        <p>在 $\R^n$ 上, <strong>常系数 (constant-coefficient) linear differential operator</strong> 是
+        $$ L \;=\; \sum_{|\alpha| \le k} a_\alpha\,\partial^\alpha, \qquad a_\alpha \in \R\ \text{(常数, 不依赖 $x$).} $$
+        其中 $\alpha = (\alpha_1, \ldots, \alpha_n)$ 是 multi-index, $|\alpha| = \sum \alpha_j$, $\partial^\alpha = \partial_{x_1}^{\alpha_1}\cdots\partial_{x_n}^{\alpha_n}$.</p>
+        <p>$L$ 的<strong>符号 (symbol)</strong> 是 multi-variate 多项式
+        $$ P(\zeta) \;:=\; \sum_{|\alpha| \le k} a_\alpha (-2\pi i \zeta)^\alpha, $$
+        即把每个 $\partial_{x_j}$ 替换成 $-2\pi i \zeta_j$ (按 Thm 16.2).</p>
+      </div>
+
+      <p><strong>直觉</strong>: Symbol $P(\zeta)$ 是 operator $L$ 的"frequency-space 化身" — 它是 multiplication, 由 Thm 16.2 必然满足 $\widehat{Lu}(\zeta) = P(\zeta)\FT{u}(\zeta)$. 一维例子:
+      <ul>
+        <li>$L = \partial_x^2 + 3\partial_x + 2$: $P(\zeta) = (-2\pi i \zeta)^2 + 3(-2\pi i \zeta) + 2 = -4\pi^2 \zeta^2 - 6\pi i \zeta + 2$.</li>
+        <li>$L = -\Delta$ on $\R^n$: $P(\zeta) = -\sum_j (-2\pi i \zeta_j)^2 = 4\pi^2 \sum_j \zeta_j^2 = 4\pi^2 |\zeta|^2$ (注意是<em>正</em>!).</li>
+      </ul>
+      </p>
+
+      <div class="box def">
+        <span class="box-title">Definition 17.2 (Heat / Laplace / Poisson / Dirichlet — 三个 PDE 与一个 boundary 问题)</span>
+        <p>设 $f, g \colon \R^n \to \R$ 是已知函数.</p>
+        <ul>
+          <li><strong>Heat equation</strong>: 求 $u(x, t)$ on $\R^n \times [0, \infty)$ 使
+          $$ u_t - \Delta u \;=\; 0, \qquad u(x, 0) \;=\; f(x). $$
+          $f$ 称 <strong>initial condition (初始条件)</strong>. $u_t = \partial u/\partial t$, $\Delta = \sum_j \partial_{x_j}^2$.</li>
+          <li><strong>Laplace equation</strong>: $\Delta u = 0$ (时间独立).</li>
+          <li><strong>Dirichlet problem</strong>: 在区域 $\Omega \subset \R^n$ 上解 $\Delta u = 0$ + 边界值 $u|_{\partial\Omega} = g$.</li>
+          <li><strong>Poisson equation</strong>: $-\Delta u = f$ (inhomogeneous Laplace). 在 $\R^n$ 上 + decay condition $u \to 0$ as $|x| \to \infty$ 替代 boundary.</li>
+        </ul>
+      </div>
+
+      <p>本课程在 $\R^n$ (无边界) 上工作, 所以 Dirichlet 问题不直接出现; Poisson 是它的"无边界类比"。Convention: 我们用 $-\Delta$ (负 Laplacian) 在 Poisson 中, 因 $-\Delta$ 的 symbol $P(\zeta) = +4\pi^2|\zeta|^2$ 是<em>非负</em>的, 数学上更干净 (这个 operator "positive-definite" in 适当意义).</p>
+
+      <!-- §4 主要定理 -->
+      <h2 id="theorems">§4 主要定理</h2>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 17.1 (Fourier 方法 — 常系数 PDE 的通用算法)</span>
+        <p>设 $L = \sum a_\alpha \partial^\alpha$ 是 $\R^n$ 上常系数 linear differential operator, symbol $P(\zeta) = \sum a_\alpha (-2\pi i \zeta)^\alpha$. 设 $f, g \in \mathcal{S}(\R^n)$ (Schwartz, 保证所有积分/FT 合法). 考虑 PDE
+        $$ L u(x) \;=\; g(x), \qquad x \in \R^n. $$</p>
+        <p><strong>算法</strong>:</p>
+        <ol>
+          <li>对方程两边 Fourier transform: $P(\zeta) \FT{u}(\zeta) = \FT{g}(\zeta)$.</li>
+          <li>若 $P(\zeta) \ne 0$ 对所有 $\zeta \in \R^n$ (无"实 resonance"): $\FT{u}(\zeta) = \FT{g}(\zeta)/P(\zeta)$.</li>
+          <li>Inverse FT 反算 $u(x) = \int_{\R^n} \dfrac{\FT{g}(\zeta)}{P(\zeta)}\,e^{-2\pi i \zeta \cdot x}\,d\zeta$.</li>
+        </ol>
+        <p>对依赖时间 $t$ 的 PDE (e.g.\ heat equation), 只在<em>空间</em>方向 FT, $t$ 留作 ODE 参数 → 在 frequency space 解 $t$-方向 ODE → inverse FT 反算 $u(x, t)$.</p>
+      </div>
+
+      <p><strong>Proof.</strong> 由 Thm 16.2 重复应用: $\widehat{\partial^\alpha u}(\zeta) = (-2\pi i \zeta)^\alpha \FT{u}(\zeta)$. FT 线性 (Thm 16.1) 把求和拆开: $\widehat{Lu}(\zeta) = \sum_\alpha a_\alpha (-2\pi i \zeta)^\alpha \FT{u}(\zeta) = P(\zeta)\FT{u}(\zeta)$. 等同 $\FT{g}(\zeta)$ 是因 $Lu = g$ 的 FT. 余下的步骤是 invertible algebra + Fourier inversion. $\square$</p>
+
+      <p><strong>核心 idea (口号)</strong>: <em>常系数 differential operator 在 frequency space 对角化成 multiplication by $P(\zeta)$</em>。这是 spectral theory 中"自伴 operator can be diagonalized via spectral measure" 的最简实例 — 而我们已经具体写出了 $P(\zeta)$.</p>
+
+      <div class="box remark">
+        <span class="box-title">Remark: 算法的局限</span>
+        <p>(a) 若 $P(\zeta_0) = 0$ 对某 $\zeta_0 \in \R^n$, division 失败 (这叫 <em>resonance</em> 或 <em>kernel mode</em>). 例: $L = \Delta$, $P(\zeta) = -4\pi^2|\zeta|^2$, $P(0) = 0$ — 这就是为什么 Laplace 方程 $\Delta u = 0$ 在 $\R^n$ 上的唯一 decay 解是 $u \equiv 0$ (constants 是 kernel modes, 但 not in $\IL$).</p>
+        <p>(b) 算法假设 $L$ 系数<strong>常数</strong>。变系数 $a_\alpha(x)$ 时, FT 后 $a_\alpha(x)$ 会变成 convolution operator, 不再是 multiplication, algorithm 立刻崩溃.</p>
+        <p>(c) 严格说, 整个过程的合法性 (FT、求导、inverse FT 的存在性与可交换性) 需要 regularity 与 decay 假设 — 默认 Schwartz 让所有 step rigorous。这是 functional analysis (Sobolev spaces) 的 territory, 本课程不细讲, 知道这是 PDE 教科书统一处理即可.</p>
+      </div>
+
+      <!-- §5 Worked Examples -->
+      <h2 id="examples">§5 Worked Examples</h2>
+
+      <div class="box example">
+        <span class="box-title">Example 17.1 (Warm-up: 常系数 1D ODE)</span>
+        <p><strong>问题</strong>: 解 $-u''(x) + u(x) = g(x)$ on $\R$, $g \in \mathcal{S}(\R)$.</p>
+        <p><strong>步骤 1: 写 symbol</strong>. $L = -\partial_x^2 + 1$, $P(\zeta) = -(-2\pi i \zeta)^2 + 1 = 4\pi^2\zeta^2 + 1$. 注意 $P(\zeta) \ge 1 &gt; 0$ 对所有 $\zeta$, 无 resonance.</p>
+        <p><strong>步骤 2: FT 后</strong>: $(4\pi^2 \zeta^2 + 1)\FT{u}(\zeta) = \FT{g}(\zeta)$, 即
+        $$\FT{u}(\zeta) = \frac{\FT{g}(\zeta)}{4\pi^2\zeta^2 + 1}.$$</p>
+        <p><strong>步骤 3: Inverse FT</strong>:
+        $$u(x) = \int_\R \frac{\FT{g}(\zeta)}{4\pi^2\zeta^2 + 1}\,e^{-2\pi i \zeta x}\,d\zeta.$$
+        这是 $u$ 的 explicit formula.</p>
+        <p><strong>识别为 convolution</strong>. 注意 $\dfrac{1}{4\pi^2\zeta^2 + 1} = \dfrac{1}{2}\cdot\dfrac{2}{1 + 4\pi^2\zeta^2}$ — 这正是 $\widehat{e^{-|x|}}(\zeta)$ 的一半! (Example 16.6 with $a = 1$.) 所以
+        $$\FT{u}(\zeta) = \frac{1}{2}\widehat{e^{-|x|}}(\zeta) \cdot \FT{g}(\zeta).$$
+        由 convolution theorem (本课程没正式证, 但是 FT 的标准事实): $\widehat{f * g} = \FT{f}\cdot\FT{g}$ where $(f * g)(x) = \int f(x - y)g(y)\,dy$. 故
+        $$ \boxed{u(x) \;=\; \frac{1}{2}(e^{-|x|} * g)(x) \;=\; \frac{1}{2}\int_\R e^{-|x - y|} g(y)\,dy.} $$
+        这是 1D Helmholtz / screened Poisson equation 的 fundamental solution: 与 source $g$ 的卷积, kernel 是 $e^{-|x|}/2$. <em>第一次看到 FT 把 PDE 解 explicitly 写成对 source 的 convolution 形式</em>.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 17.2 ★★ (Heat equation — 完整推导, 课程最重要的 PDE example)</span>
+        <p><strong>问题</strong>: 解 $u_t - \Delta u = 0$ on $\R^n \times [0, \infty)$, $u(x, 0) = f(x)$, $f \in \mathcal{S}(\R^n)$.</p>
+
+        <p><strong>步骤 1: 对 $x$ Fourier transform</strong> (留 $t$). 设 $\FT{u}(\zeta, t) := \widehat{u(\cdot, t)}(\zeta)$. 由 Cor 16.3 (3): $\widehat{\Delta u}(\zeta, t) = -4\pi^2 |\zeta|^2 \FT{u}(\zeta, t)$. 由 DUI: $\widehat{u_t}(\zeta, t) = \partial_t \FT{u}(\zeta, t)$. 方程变成
+        $$ \partial_t \FT{u}(\zeta, t) - (-4\pi^2|\zeta|^2)\FT{u}(\zeta, t) \;=\; 0, $$
+        即
+        $$ \partial_t \FT{u}(\zeta, t) + 4\pi^2|\zeta|^2\FT{u}(\zeta, t) \;=\; 0. $$
+        对每个固定 $\zeta$ 这是<strong>关于 $t$ 的一阶线性 ODE</strong>, 系数 $4\pi^2|\zeta|^2$ (依赖 $\zeta$ 但不依赖 $t$).</p>
+
+        <p><strong>步骤 2: 解 ODE</strong>. $y'(t) + \lambda y(t) = 0$ 给 $y(t) = y(0)e^{-\lambda t}$. 这里 $\lambda = 4\pi^2|\zeta|^2$:
+        $$ \FT{u}(\zeta, t) \;=\; \FT{u}(\zeta, 0)\,e^{-4\pi^2|\zeta|^2 t}. $$</p>
+
+        <p><strong>步骤 3: 用 initial condition</strong>. $\FT{u}(\zeta, 0) = \widehat{u(\cdot, 0)}(\zeta) = \FT{f}(\zeta)$. 故
+        $$ \FT{u}(\zeta, t) \;=\; \FT{f}(\zeta)\,e^{-4\pi^2|\zeta|^2 t}. $$</p>
+
+        <p><strong>步骤 4: Inverse FT</strong>:
+        $$ u(x, t) \;=\; \int_{\R^n} \FT{f}(\zeta)\,e^{-4\pi^2|\zeta|^2 t}\,e^{-2\pi i \zeta \cdot x}\,d\zeta. $$
+        这已经是 explicit formula。</p>
+
+        <p><strong>步骤 5 (★ 识别 heat kernel)</strong>. $e^{-4\pi^2|\zeta|^2 t}$ 是 $\zeta$ 的 Gaussian — 我们要把它认作某 $K_t(x)$ 的 FT. 用 Example 16.5: $\widehat{e^{-a|x|^2}}(\zeta) = (\pi/a)^{n/2}e^{-\pi^2|\zeta|^2/a}$. 取 $a$ 使 $\pi^2/a = 4\pi^2 t$, 即 $a = 1/(4t)$. 则 $(\pi/a)^{n/2} = (4\pi t)^{n/2}$, 所以
+        $$ e^{-4\pi^2|\zeta|^2 t} \;=\; \widehat{\frac{1}{(4\pi t)^{n/2}}\,e^{-|x|^2/(4t)}}(\zeta) \;=\; \FT{K_t}(\zeta), $$
+        其中 <strong>heat kernel</strong>
+        $$ \boxed{K_t(x) \;:=\; \frac{1}{(4\pi t)^{n/2}}\,e^{-|x|^2/(4t)}, \qquad t &gt; 0.} $$</p>
+
+        <p><strong>步骤 6 (用 convolution theorem 写最终答)</strong>:
+        $$\FT{u}(\zeta, t) = \FT{f}(\zeta)\FT{K_t}(\zeta) = \widehat{K_t * f}(\zeta).$$
+        故 (取 inverse FT):
+        $$ \boxed{u(x, t) \;=\; (K_t * f)(x) \;=\; \int_{\R^n}\frac{1}{(4\pi t)^{n/2}}\,e^{-|x - y|^2/(4t)}\,f(y)\,dy.} $$</p>
+
+        <p><strong>物理意义</strong>: $u(x, t)$ 是 initial 分布 $f$ 与"宽度 $\sqrt{2t}$ Gaussian"的卷积 — 热量从 $f$ 的每个点"扩散"成不断变宽的 Gaussian, 时刻 $t$ 的温度是所有这些 Gaussian 的叠加。<strong>"热扩散 spread like $\sqrt{t}$"</strong> 的物理事实在 Gaussian 的方差 $\sim 2t$ 里读出。</p>
+
+        <p><strong>验证</strong>: 当 $t \to 0^+$, $K_t \to \delta$ (Dirac), $K_t * f \to f$, 满足 initial condition. 当 $t \to \infty$, $K_t \to 0$ uniformly, $u \to 0$ — 所有热量"扩散到无穷"。两 limit 与物理直觉完美 sync.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 17.3 (Poisson equation — Newtonian potential 的复现)</span>
+        <p><strong>问题</strong>: 解 $-\Delta u = f$ on $\R^n$, $u \to 0$ at $\infty$. $f \in \mathcal{S}(\R^n)$ 已知, 假设 $\int_{\R^n} f = 0$ 以避免常数模 obstruction.</p>
+
+        <p><strong>步骤 1: FT 两边</strong>. Symbol $P(\zeta) = 4\pi^2|\zeta|^2$. 方程变成 algebraic:
+        $$ 4\pi^2|\zeta|^2\FT{u}(\zeta) \;=\; \FT{f}(\zeta). $$</p>
+
+        <p><strong>步骤 2: 解</strong>. 对 $\zeta \ne 0$:
+        $$ \FT{u}(\zeta) \;=\; \frac{\FT{f}(\zeta)}{4\pi^2|\zeta|^2}. $$
+        ($\zeta = 0$ 处 $1/|\zeta|^2$ 奇异, 但 $\FT{f}(0) = \int f = 0$ by hypothesis 让 $\FT{f}/(4\pi^2|\zeta|^2)$ 在 $\zeta = 0$ 仍然 integrable.)</p>
+
+        <p><strong>步骤 3: Inverse FT</strong>:
+        $$ u(x) \;=\; \int_{\R^n}\frac{\FT{f}(\zeta)}{4\pi^2|\zeta|^2}\,e^{-2\pi i \zeta \cdot x}\,d\zeta. $$</p>
+
+        <p><strong>步骤 4 (识别 Newtonian potential)</strong>. 在 $\R^3$ 中可以验证 (复杂的 distribution-theoretic 计算, 我们 cite 而非证):
+        $$ \mathcal{F}^{-1}\left[\frac{1}{4\pi^2|\zeta|^2}\right](x) \;=\; \frac{1}{4\pi|x|}. $$
+        即 $1/(4\pi^2|\zeta|^2)$ 是函数 $1/(4\pi|x|)$ 的 inverse FT. 由 convolution theorem:
+        $$ \boxed{u(x) \;=\; \frac{1}{4\pi}\int_{\R^3}\frac{f(y)}{|x - y|}\,dy.} $$
+        这是大家熟悉的 <strong>Newton 引力势 (gravitational potential)</strong> / Coulomb 静电势 — 它们都满足 $-\Delta u = f$ (与 mass 分布 / charge 分布), 历史上是 Newton/Coulomb explicitly 写下的, FT 方法是它的"现代统一推导".</p>
+
+        <p><strong>一般 $\R^n$ ($n \ne 2$)</strong>: $u(x) \propto |x|^{2-n} * f(x)$ (constant depends on $n$). $\R^2$ 上则是 $\log|x|$ 卷积 — singularity 是 logarithmic 而非 power. 这些是 Poisson 方程的<strong>fundamental solutions</strong>, 与 dimension 相关.</p>
+      </div>
+
+      <!-- §6 常见陷阱 -->
+      <h2 id="pitfalls">§6 常见陷阱</h2>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 17.1 (Laplacian 符号 — $\widehat{\Delta} \ne 4\pi^2|\zeta|^2$, 别忘负号)</span>
+        <p>最常见 sign error: 直接写 $\widehat{\Delta u} = 4\pi^2|\zeta|^2 \FT{u}$ (漏掉负号). 实际上 (Cor 16.3 (3)):
+        $$\widehat{\Delta u}(\zeta) = \sum_j (-2\pi i \zeta_j)^2 \FT{u}(\zeta) = -4\pi^2|\zeta|^2\FT{u}(\zeta).$$
+        负号来自 $i^2 = -1$. 所以 <em>$-\Delta$ 对应 $+4\pi^2|\zeta|^2$, $\Delta$ 对应 $-4\pi^2|\zeta|^2$</em>. 物理学家偏爱写 $-\Delta$ 正是因这样 frequency-symbol 是<em>正</em>的.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 17.2 (变系数 PDE — Fourier 方法无法直接用)</span>
+        <p>方程 $\partial_t u = a(x)\Delta u$ ($a(x)$ 不是常数 — "非均匀扩散") <strong>不能</strong>直接 FT 化为 ODE: $\widehat{a(x)\Delta u}(\zeta) = \FT{a} * \widehat{\Delta u}$ (convolution!), 不是 product. Algorithm 立刻崩溃.</p>
+        <p>变系数情形需要 generalized eigenfunction expansion, semigroup theory, 或纯 PDE 估计方法 (energy estimates 等). Fourier 在变系数前止步是它的 limitation.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 17.3 (Poisson 在 $\R^2$ 上的 logarithmic singularity)</span>
+        <p>$\R^n$ ($n \ge 3$): fundamental solution $|x|^{2-n}$ 在 $\infty$ 衰减 → $u$ 可以 vanish at $\infty$. <strong>$\R^2$ 上</strong>: fundamental solution 是 $\log|x|$, 不衰减! 实际上 $\log|x| \to \infty$ as $|x| \to \infty$. 所以 Poisson 在 $\R^2$ 上的 "decay" boundary 假设需要重新表述 (e.g.\ "growth at most logarithmic"). 这是 Poisson 方程 dimension-dependent 性质的标志.</p>
+      </div>
+
+      <!-- §7 练习 -->
+      <h2 id="exercises">§7 练习</h2>
+
+      <div class="exercise">
+        <span class="ex-num">练习 17.1.</span> 用 Fourier 方法求 $-u'' + 4u = e^{-|x|}$ on $\R$ 的 decay 解. 提示: $P(\zeta) = 4\pi^2\zeta^2 + 4$. 用 Example 16.6.
+        <details><summary>答案</summary><div class="details-body">
+        $\FT{g}(\zeta) = 2/(1 + 4\pi^2\zeta^2)$ (Example 16.6 with $a = 1$). 故 $\FT{u}(\zeta) = \dfrac{2}{(1 + 4\pi^2\zeta^2)(4 + 4\pi^2\zeta^2)}$. 用 partial fractions:
+        $$\frac{2}{(1 + 4\pi^2\zeta^2)(4 + 4\pi^2\zeta^2)} = \frac{A}{1 + 4\pi^2\zeta^2} + \frac{B}{4 + 4\pi^2\zeta^2}.$$
+        解 $A + B = 0$ (零次项: $4A + B = 2/3 \cdot 3 = 2/3$, 实际算: $2 = A(4 + 4\pi^2\zeta^2) + B(1 + 4\pi^2\zeta^2) = 4A + B + (A + B)4\pi^2\zeta^2$). 故 $A + B = 0$ 与 $4A + B = 2$. 解 $A = 2/3$, $B = -2/3$. 所以
+        $$\FT{u}(\zeta) = \frac{2/3}{1 + 4\pi^2\zeta^2} - \frac{2/3}{4 + 4\pi^2\zeta^2}.$$
+        识别: 第一项是 $\dfrac{1}{3}\widehat{e^{-|x|}}(\zeta)$ ($a = 1$, 系数 $2a/3 = 2/3$ matches $A$), 第二项是 $\dfrac{1}{6}\widehat{e^{-2|x|}}(\zeta)$ ($a = 2$, $2a/6 = 2/3$, sign $-$). 故 $u(x) = \dfrac{1}{3}e^{-|x|} - \dfrac{1}{6}e^{-2|x|}$.
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 17.2.</span> 验证 Example 17.2 的 heat kernel $K_t$ 满足: (a) $K_t \ge 0$; (b) $\int_{\R^n} K_t(x)\,dx = 1$ for all $t &gt; 0$ (mass conservation); (c) $K_t$ 满足 $\partial_t K_t = \Delta K_t$ for $t &gt; 0$.
+        <details><summary>答案</summary><div class="details-body">
+        (a) Gaussian everywhere positive. (b) $\int K_t(x)\,dx = \FT{K_t}(0) = e^0 = 1$ (用 $\FT{K_t}(\zeta) = e^{-4\pi^2|\zeta|^2 t}$). (c) 直接 plug in $K_t(x) = (4\pi t)^{-n/2}e^{-|x|^2/(4t)}$: $\partial_t \log K_t = -\dfrac{n}{2t} + \dfrac{|x|^2}{4t^2}$. $\partial_{x_j} \log K_t = -\dfrac{x_j}{2t}$, 所以 $\partial_{x_j}^2 \log K_t = -\dfrac{1}{2t}$. 对 $K_t = e^{\log K_t}$ 反推: $\partial_t K_t = K_t(-\dfrac{n}{2t} + \dfrac{|x|^2}{4t^2})$, $\Delta K_t = K_t\sum_j[(\partial_{x_j}\log K_t)^2 + \partial_{x_j}^2\log K_t] = K_t[\dfrac{|x|^2}{4t^2} - \dfrac{n}{2t}]$. 二者相等. $\checkmark$
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 17.3.</span> 求 1D heat equation $u_t = u_{xx}$ on $\R$, $u(x, 0) = e^{-x^2}$ 的解.
+        <details><summary>答案</summary><div class="details-body">
+        Plug into formula: $u(x, t) = (K_t * f)(x)$ with $K_t(x) = (4\pi t)^{-1/2}e^{-x^2/(4t)}$, $f(x) = e^{-x^2}$.
+        $$u(x, t) = \frac{1}{\sqrt{4\pi t}}\int_\R e^{-(x-y)^2/(4t)}\,e^{-y^2}\,dy.$$
+        合并指数 $-(x-y)^2/(4t) - y^2 = -[(x-y)^2 + 4ty^2]/(4t)$. 把 $(x-y)^2 + 4ty^2 = (1 + 4t)y^2 - 2xy + x^2$ 配方:
+        $= (1+4t)(y - x/(1+4t))^2 + x^2 - x^2/(1+4t) = (1+4t)(y - x/(1+4t))^2 + 4tx^2/(1+4t).$
+        所以
+        $$u(x, t) = \frac{e^{-x^2/(1+4t)}}{\sqrt{4\pi t}}\int_\R e^{-(1+4t)(y - x/(1+4t))^2/(4t)}\,dy = \frac{e^{-x^2/(1+4t)}}{\sqrt{4\pi t}}\cdot\sqrt{4\pi t/(1+4t)} = \frac{e^{-x^2/(1+4t)}}{\sqrt{1+4t}}.$$
+        $\checkmark$ 验证: $t = 0$ 时 $= e^{-x^2}$. 注意 Gaussian 演化下仍是 Gaussian, 宽度 $\sqrt{(1+4t)/2}$ 随时间增大.
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 17.4.</span> 设 $L = -\Delta + m^2$ for $m &gt; 0$ on $\R^3$ (massive Helmholtz). 求 $Lu = f$ 的解的 fundamental solution (即 $\delta$ source 的响应).
+        <details><summary>答案</summary><div class="details-body">
+        $P(\zeta) = 4\pi^2|\zeta|^2 + m^2 &gt; 0$. 解 $\FT{u} = \FT{f}/P$. Fundamental solution = inverse FT of $1/(4\pi^2|\zeta|^2 + m^2)$. 这个 inverse FT 可以算出来是 <strong>Yukawa potential</strong>: $G(x) = \dfrac{e^{-m|x|}}{4\pi |x|}$. 即 $u = G * f$. (验证: $m \to 0$ 时退化为 Newtonian $1/(4\pi|x|)$ from Example 17.3.) 这是 nuclear physics 中介子交换势的数学形式 (Yukawa 1935 Nobel-winning idea).
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 17.5.</span> 解 wave equation $u_{tt} - u_{xx} = 0$ on $\R \times \R$, $u(x, 0) = f(x)$, $u_t(x, 0) = 0$. 用 Fourier 方法导出 d'Alembert 公式 $u(x, t) = [f(x + t) + f(x - t)]/2$.
+        <details><summary>答案</summary><div class="details-body">
+        FT in $x$: $\partial_t^2 \FT{u}(\zeta, t) + 4\pi^2\zeta^2 \FT{u}(\zeta, t) = 0$ (因 $\widehat{u_{xx}} = -4\pi^2\zeta^2 \FT{u}$). 这是 2nd-order ODE in $t$ with frequency $2\pi|\zeta|$, 一般解 $\FT{u}(\zeta, t) = A(\zeta)\cos(2\pi\zeta t) + B(\zeta)\sin(2\pi\zeta t)$. Initial 条件: $\FT{u}(\zeta, 0) = A(\zeta) = \FT{f}(\zeta)$; $\partial_t\FT{u}(\zeta, 0) = 2\pi\zeta B(\zeta) = 0$ 给 $B \equiv 0$. 故 $\FT{u}(\zeta, t) = \FT{f}(\zeta)\cos(2\pi\zeta t) = \FT{f}(\zeta) \cdot \dfrac{e^{2\pi i \zeta t} + e^{-2\pi i \zeta t}}{2}$. 用 modulation (Thm 16.1.3) — $e^{2\pi i \zeta t}\FT{f}(\zeta) = \widehat{f(\cdot - t)}(\zeta)$ (注意符号约定): inverse FT 给 $u(x, t) = [f(x + t) + f(x - t)]/2$. (符号细节按本课程 convention. 这就是著名的 d'Alembert 公式: 解 = 左行波 + 右行波的平均.)
+        </div></details>
+      </div>
+
+      <!-- §8 速查表 -->
+      <h2 id="cheat">§8 速查表</h2>
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def"><strong>常系数 op (Def 17.1)</strong>: $L = \sum_\alpha a_\alpha \partial^\alpha$ 常数系数. <strong>Symbol</strong>: $P(\zeta) = \sum_\alpha a_\alpha(-2\pi i \zeta)^\alpha$.</li>
+          <li class="cs-def"><strong>Heat equation</strong>: $u_t - \Delta u = 0$ + initial cond $u(x, 0) = f(x)$. <strong>Poisson</strong>: $-\Delta u = f$ + decay at $\infty$.</li>
+          <li class="cs-thm"><strong>Fourier 算法 (Thm 17.1)</strong>: (i) FT 两边; (ii) operator 化为 multiplication by $P(\zeta)$; (iii) 解 $\FT{u}$; (iv) inverse FT.</li>
+          <li class="cs-thm"><strong>Laplacian symbol</strong>: $\widehat{\Delta u}(\zeta) = -4\pi^2|\zeta|^2 \FT{u}$. $\widehat{-\Delta u}(\zeta) = +4\pi^2|\zeta|^2\FT{u}$.</li>
+          <li class="cs-tech"><strong>★ Heat kernel (Example 17.2)</strong>: $K_t(x) = (4\pi t)^{-n/2}e^{-|x|^2/(4t)}$. 满足 $\partial_t K_t = \Delta K_t$. Heat equation 解 $u = K_t * f$.</li>
+          <li class="cs-tech"><strong>Frequency-space heat kernel</strong>: $\FT{K_t}(\zeta) = e^{-4\pi^2|\zeta|^2 t}$. Gaussian widens as $\sqrt{t}$ in $x$, narrows in $\zeta$.</li>
+          <li class="cs-tech"><strong>Newtonian potential (Example 17.3)</strong>: $-\Delta u = f$ on $\R^3$ → $u(x) = \dfrac{1}{4\pi}\int \dfrac{f(y)}{|x - y|}\,dy$.</li>
+          <li class="cs-tech"><strong>Yukawa potential (Exercise 17.4)</strong>: $-\Delta u + m^2 u = f$ on $\R^3$ → fundamental solution $G(x) = e^{-m|x|}/(4\pi|x|)$.</li>
+          <li class="cs-tech"><strong>Convolution theorem</strong>: $\widehat{f * g} = \FT{f}\cdot\FT{g}$ where $(f * g)(x) = \int f(x - y)g(y)\,dy$. 让"frequency 上的 product"翻译回"physical 上的 convolution".</li>
+          <li class="cs-pitfall"><strong>Sign of Laplacian (Pitfall 17.1)</strong>: $\widehat{\Delta} = -4\pi^2|\zeta|^2$, 别漏负号. $-\Delta$ 在物理学家心中是 positive-definite operator.</li>
+          <li class="cs-pitfall"><strong>变系数 失败 (Pitfall 17.2)</strong>: $a(x)\Delta u$ 在 FT 后变 convolution, 不是 multiplication. Fourier 算法只对常系数 op 有效.</li>
+          <li class="cs-pitfall"><strong>$\R^2$ Poisson logarithmic (Pitfall 17.3)</strong>: Fundamental solution $\log|x|$ 在 $\infty$ 不衰减, "decay at $\infty$" 假设要改写.</li>
+        </ul>
+      </div>
+
+      <!-- §9 进一步阅读 -->
+      <h2 id="further">§9 进一步阅读</h2>
+      <ul>
+        <li><strong>Typed notes</strong>: <code>9.2_notes.tex</code> §7 (常系数 ODE 算法); <code>10.1_notes.tex</code> §4-5 (热方程 + Poisson 完整推导).</li>
+        <li><strong>Cross-references</strong>:
+          <ul>
+            <li>FT 工具 (Thm 16.2 / Cor 16.3): <a href="16-fourier-transform.html">Topic 16</a>.</li>
+            <li>DUI (用于 $\partial_t \FT{u} = \widehat{u_t}$): <a href="15-dui.html">Topic 15</a>.</li>
+            <li>Lebesgue 收敛工具 (heat kernel 与 $\delta$ approximation): <a href="../midterm2/MT2-C_lebesgue.html">MT2-C</a> 中的 DCT.</li>
+          </ul>
+        </li>
+        <li><strong>下一站</strong>: <a href="18-laplace-transform.html">Topic 18 (Laplace transform)</a> — Fourier 在 $[0, \infty)$ 上的 causal 表亲, 同样的"differential → algebraic" idea 但更适合 initial-value ODE 问题.</li>
+        <li><strong>课程外延伸</strong>:
+          <ul>
+            <li>Evans <em>Partial Differential Equations</em>: 标准 PDE 教材, Chapter 2 整章解 heat / Laplace / wave 三大经典 PDE, 用 Fourier 与其他工具.</li>
+            <li>Stein-Shakarchi <em>Fourier Analysis</em> Chapter 5: 严格的 PDE-via-Fourier 处理, 含 distribution 与 Sobolev space 入门.</li>
+            <li>John <em>Partial Differential Equations</em>: 经典教材, 直接从 Fourier 与 fundamental solution 切入.</li>
+          </ul>
+        </li>
+      </ul>
+
+    </main>
+  </div>
+
+</body>
+</html>

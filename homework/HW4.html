@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HW4 详解 — §4.11 Lebesgue 积分 MCT/DCT 6 题 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\diam': '\\operatorname{diam}',
+        '\\sgn': '\\operatorname{sgn}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="HW3.html">HW3</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <span class="nav-next nav-disabled">无</span>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#sec1">§1 总览</a></li>
+        <li><a href="#sec15">§1.5 Problems 5-7 联合策略</a></li>
+        <li><a href="#sec2">§2 Problem 4.11.5</a></li>
+        <li><a href="#sec3">§3 Problem 4.11.6</a></li>
+        <li><a href="#sec4">§4 Problem 4.11.7</a></li>
+        <li><a href="#sec5">§5 Problem 4.11.8 (IBP 链条)</a></li>
+        <li><a href="#sec6">§6 Problem 4.11.11</a></li>
+        <li><a href="#sec7">§7 Problem 4.11.19</a></li>
+        <li><a href="#sec8">§8 方法论速查</a></li>
+        <li><a href="#sec9">§9 进一步阅读</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>HW4 详解 — §4.11 Lebesgue 积分 MCT/DCT 6 题</h1>
+      <p class="subtitle">本周 HW 的 HTML 讲解 · 6 道题全部来自 H&amp;H §4.11 (Exercises 5, 6, 7, 8, 11, 19) · 与 LaTeX 解答 <code>../../HW/Response/HW4_response.pdf</code> 互补 · 策略段默认展开, 证明段折叠在 <code>&lt;details&gt;</code> 中</p>
+
+      <h2 id="sec1">§1 总览</h2>
+
+      <p>本次 HW (2026 SP 第 4 周, 截止 2026-05-24) 全部 6 题来自 H&amp;H <strong>§4.11 — Lebesgue 积分</strong>, 是整个学期 <strong>MCT/DCT 应用密度最高</strong>的一份作业. 每道题都遵循同一个心智模型: <em>选合适的 truncation 序列 → 验证每个 truncation 在 $\IR$ → 应用 MCT (非负情形) 或 DCT (有 dominator)</em>. 因此本页在 §1.5 单开一节集中讲透 "p-参数 truncation 模板", 之后 §2/§3/§4 (Problems 5/6/7) 只讲各自的特殊差异, 避免重复.</p>
+
+      <p>§5 (Problem 4.11.8) 是本次 HW 的"大题": 4 个小问 (a/b/c/d) 串起来给出 <strong>Lebesgue 版 IBP 定理</strong>. §6 (Problem 4.11.11) 用 <strong>MCT-DCT 二段法</strong>处理变号被积函数 (Gaussian 矩). §7 (Problem 4.11.19) 是"工具题": 它证明了我们之前默认调用的"对非负函数, Lebesgue 可积 ⟺ 改进 Riemann 绝对收敛"等价表述.</p>
+
+      <h3>题型分布表</h3>
+
+      <table class="textbook-index">
+        <thead>
+          <tr><th>题号</th><th>核心方法</th><th>truncation 类型</th><th>主要看点</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>4.11.5</td><td>MCT + 球坐标</td><td>径向 annulus $\{1 \le |\mathbf{x}| \le R\}$</td><td>$p &lt; -n$ 的几何意义 (球壳 $r^{n-1}$ 抵消)</td></tr>
+          <tr><td>4.11.6</td><td>MCT + Riemann Fubini + 渐近分析</td><td>δ-shell $\{x \ge \delta\}$ 避开原点</td><td>cusp/wedge 几何与阈值 $\max\{1, (m+1)/2\}$</td></tr>
+          <tr><td>4.11.7</td><td>同 4.11.6 (对偶, 无界域)</td><td>$\{x \le R\}$ 切掉无穷尾</td><td>阈值 $\min\{1, (m+1)/2\}$, 与 4.11.6 镜像</td></tr>
+          <tr><td>4.11.8(a-d)</td><td>DCT + Lebesgue Fubini + 反证</td><td>$\{|x| \le n\}$ 双侧 + 三角域</td><td>Lebesgue 版 IBP 完整链条 (4 part 串成定理)</td></tr>
+          <tr><td>4.11.11</td><td>MCT + DCT (二段法)</td><td>径向 ball, 再 DCT 处理变号</td><td>多项式 × Gaussian 的 Γ-函数估计</td></tr>
+          <tr><td>4.11.19</td><td>MCT 主链 + DCT 收尾</td><td>half-open $[a, c_k]$</td><td>improper Riemann → Lebesgue 桥定理</td></tr>
+        </tbody>
+      </table>
+
+      <h3>通用工具箱</h3>
+
+      <div class="box prereq">
+        <span class="box-title">📦 本次 HW 反复用的 5 条定理 + 1 条等价表述 (不再每题重列)</span>
+        <ul>
+          <li><strong>MCT (Thm 4.11.18)</strong>: $0 \le f_k \uparrow f$ a.e., $f_k \in \IL$ ⟹ $f \in \IL$ ⟺ $\sup_k \int f_k\,dV &lt; \infty$, 此时 $\int f\,dV = \lim_k \int f_k\,dV$.</li>
+          <li><strong>DCT (Thm 4.11.19)</strong>: $f_k \to f$ a.e., $|f_k| \le g$ 某 $g \in \IL$ ⟹ $f \in \IL$ 且 $\int f_k\,dV \to \int f\,dV$.</li>
+          <li><strong>Lebesgue Fubini (Thm 4.11.10)</strong>: $h \in \IL(\R^n \times \R^m)$ ⟹ 迭代积分 a.e. 存在并等于 $\int h\,dV$.</li>
+          <li><strong>Product rule (Lec 7.3)</strong>: $f \in \IL$, $g \in \IR$ bounded ⟹ $fg \in \IL$.</li>
+          <li><strong>Absolute value closure (Prop 4.11.13)</strong>: $f \in \IL$ ⟹ $|f| \in \IL$ 且 $\left|\int f\right| \le \int |f|$.</li>
+          <li><strong>等价表述 (Problem 4.11.19 证明的, 但我们提前借用)</strong>: 对<em>非负</em> $f$, $f \in \IL(\R^n)$ ⟺ 改进 Riemann 积分 (按任意 truncation 取极限) 有限. §2-§4 反复用此等价跳过 MCT 的形式化书写.</li>
+        </ul>
+      </div>
+
+      <h2 id="sec15">§1.5 Problems 5-7 联合策略 — p-参数 truncation 模板</h2>
+
+      <p>Problems 5, 6, 7 在表面上是三个不同积分的可积性问题, 但本质上是<strong>同一个模板的三次应用</strong>. 把这个模板提到这里集中讲, 后面三节就可以聚焦"各自的几何特征"而不是重复机械步骤.</p>
+
+      <p><strong>共同设置</strong>: 给定区域 $\Omega \subset \R^n$ 与非负函数 $f \ge 0$, 问 $\int_\Omega f\,dV$ 是否作为 Lebesgue 积分存在. 由 §1 工具箱最后一行的等价表述, 只需检查"沿任意 truncation 取的改进 Riemann 积分"是否有限.</p>
+
+      <div class="box thm">
+        <span class="box-title">🔧 p-参数 truncation 4 步模板</span>
+        <p><strong>Step ❶ 选 truncation.</strong> 找一个递增序列 $\Omega_k \uparrow \Omega$ (作为 $\R^n$ 的子集, $\mathbf{1}_{\Omega_k} \uparrow \mathbf{1}_\Omega$ a.e.), 使得 $f \cdot \mathbf{1}_{\Omega_k}$ 是 $\R^n$ 上的<em>有界连续紧支撑函数</em>—— 即 $f \cdot \mathbf{1}_{\Omega_k} \in \IR(\R^n)$ (由 Lebesgue 准则 Thm 4.1.13, 不连续点仅在 $\partial \Omega_k$ 上, 测度零).</p>
+        <p><strong>Step ❷ 化为 1-D 积分.</strong> 在 truncation 上, $f$ 通常是径向或与某一坐标方向"半对称"的. 用 (a) 球坐标 (Problem 5; 也是 Problem 11 dominator 步骤的工具) 或 (b) Riemann Fubini + 内积分换元 $y = xu$ (Problems 6, 7) 把 $n$-维积分化为单变量积分形如 $\int_? r^a \cdot I(\cdot)\,dr$, 其中 $I$ 是某辅助函数.</p>
+        <p><strong>Step ❸ 渐近分析.</strong> 看 1-D 积分的被积函数在边界 (奇异点附近 / 无穷远处) 的<em>渐近形态</em>. 用比较准则 $\int_0^1 x^a\,dx &lt; \infty \iff a &gt; -1$ 和 $\int_1^\infty x^a\,dx &lt; \infty \iff a &lt; -1$ 推出 $p$ 的阈值.</p>
+        <p><strong>Step ❹ MCT 收尾.</strong> 若 1-D 积分的 $\sup_k$ 有限 ⟹ 由 MCT, 原积分 ∈ $\IL$ 且等于 $\sup_k$; 若发散 ⟹ ∉ $\IL$ (因为 truncation 单调上升, 一旦极限发散 sup 也发散).</p>
+      </div>
+
+      <p>三道题对应模板的具体选项:</p>
+      <ul>
+        <li><strong>Problem 5</strong>: $\Omega_R = \{1 \le |\mathbf{x}| \le R\}$ (径向 annulus), Step ❷ 用球坐标降到 $\sigma_n \int_1^R r^{p+n-1}\,dr$, Step ❸ 关心 $r \to \infty$ 处的衰减.</li>
+        <li><strong>Problem 6</strong>: $\Omega_\delta = A_m \cap \{x \ge \delta\}$ (δ-shell 远离原点), Step ❷ 用 Fubini + 换元 $y = xu$ 得 $\int_\delta^1 x^{1-2p}\,I(x^{m-1})\,dx$, Step ❸ 关心 $x \to 0^+$ 处的奇异性.</li>
+        <li><strong>Problem 7</strong>: $\Omega_R = A_m \cap \{x \le R\}$ (R-bounded 切尾), Step ❷ 同 6, Step ❸ 关心 $x \to \infty$ 处的衰减.</li>
+      </ul>
+
+      <div class="box remark">
+        <span class="box-title">💡 对偶性观察</span>
+        <p>Problem 6 (有界域) 与 Problem 7 (无界域) 是<strong>对偶</strong>的: 一个 truncation 是 "切掉原点附近的小邻域", 另一个 truncation 是 "切掉无穷远处的尾". 阈值的不等号方向也对偶: 6 要求 $p &lt; $ 某阈值 (控制奇异性), 7 要求 $p &gt; $ 某阈值 (控制衰减). $m$ 对阈值的影响也对偶 — cusp 在 6 里助益, 在 7 里损害. 见 §3 §4 反思.</p>
+      </div>
+
+      <h2 id="sec2">§2 Problem 4.11.5 — $|\mathbf{x}|^p$ on $\R^n \setminus B_1(0)$</h2>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 4.11.5</span>
+        <p>For what values of $p \in \R$ does $\displaystyle\int_{\R^n \setminus B_1(0)} |\mathbf{x}|^p\,|d^n\mathbf{x}|$ exist as a Lebesgue integral? (The answer depends on $n$.)</p>
+        <p><strong>Claim.</strong> 积分存在 ⟺ $p &lt; -n$.</p>
+      </div>
+
+      <h3>策略</h3>
+      <p>这是 §1.5 模板的<strong>最直接 instance</strong>. 区域 $\Omega = \R^n \setminus B_1(0)$ 在 $\infty$ 处无界, 但在原点附近平凡 (积分下界离开原点至少 1 个单位, 没有奇异性问题). truncation 自然选径向 $\Omega_R = \{1 \le |\mathbf{x}| \le R\}$. 球坐标把 $n$-维积分化为 $\sigma_n \int_1^R r^{p+n-1}\,dr$ —— 关键洞察是<strong>球壳因子 $r^{n-1}$ 把指数从 $p$ 抬到 $p + n - 1$</strong>. 因此可积阈值不是 1-D 直觉的 $p &lt; -1$, 而是 $p + n - 1 &lt; -1 \iff p &lt; -n$.</p>
+
+      <p>这一题<strong>不需要 DCT</strong>, 因为被积函数 $|\mathbf{x}|^p \ge 0$, 单边 MCT 就够. (一旦出现变号函数 — 比如 Problem 11 的 $\mathbf{x}^\alpha e^{-|\mathbf{x}|^2}$ 含奇次幂 — 就要走 MCT-DCT 二段法.)</p>
+
+      <details>
+        <summary><strong>展开严格证明</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">证明 (按 §1.5 模板 4 步)</span>
+
+            <p><strong>Step ❶ Truncation.</strong> 令 $f(\mathbf{x}) := |\mathbf{x}|^p\,\mathbf{1}_{|\mathbf{x}| &gt; 1}$. 对 $R &gt; 1$ 定义
+            $$f_R(\mathbf{x}) := |\mathbf{x}|^p\,\mathbf{1}_{1 \le |\mathbf{x}| \le R}.$$
+            集合 $\{1 \le |\mathbf{x}| \le R\}$ 是紧致集 (两球面边界, 测度零, 见 Lec 3.1-3.2), 而 $\mathbf{x} \mapsto |\mathbf{x}|^p$ 在其上连续有界. 由 Lebesgue 准则 (Thm 4.1.13), $f_R \in \IR$. 显然 $f_R \uparrow f$ 当 $R \to \infty$.</p>
+
+            <p><strong>Step ❷ 球坐标降维.</strong> $n = 1$ 时直接得 $\int_\R f_R\,dx = 2\int_1^R r^p\,dr$. $n \ge 2$ 时应用球坐标 (Thm 4.10.12, 雅可比 $r^{n-1}$ 配合单位球 $S^{n-1}$ 上的标量测度 $d\sigma$):
+            $$\int_{\R^n} f_R\,dV = \int_{S^{n-1}}\!d\sigma \int_1^R r^p \cdot r^{n-1}\,dr = \sigma_n \int_1^R r^{p+n-1}\,dr,$$
+            其中 $\sigma_n := \sigma(S^{n-1})$. 约定 $\sigma_1 := 2$, 两种情形可统一写为
+            $$\int_{\R^n} f_R\,dV = \sigma_n \int_1^R r^{p+n-1}\,dr.$$
+            </p>
+
+            <p><strong>Step ❸ 渐近分析.</strong> 1-D 积分 $\int_1^R r^{p+n-1}\,dr$ 在 $R \to \infty$ 有有限极限 ⟺ $p + n - 1 &lt; -1$, 即 $p &lt; -n$. 此时极限为 $\dfrac{1}{-(p+n)}$; 否则发散到 $+\infty$.</p>
+
+            <p><strong>Step ❹ MCT 收尾.</strong> 应用 MCT 于 $0 \le f_R \uparrow f$:
+            <ul>
+              <li>若 $p &lt; -n$: $\sup_R \int f_R\,dV = \dfrac{\sigma_n}{-(p+n)} &lt; \infty$, 由 MCT, $f \in \IL$ 且
+              $$\boxed{\int_{\R^n \setminus B_1(0)} |\mathbf{x}|^p\,dV = \frac{\sigma_n}{|p| - n}.}$$</li>
+              <li>若 $p \ge -n$: $\int f_R\,dV \to \infty$, 由 MCT 的"sup 不有限"分支, $f \notin \IL$.</li>
+            </ul>
+            综上, 积分存在 ⟺ $\boxed{p &lt; -n}$. $\blacksquare$</p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — 维度对阈值的影响</span>
+        <p>特例: $n = 1$ 时 $p &lt; -1$; $n = 2$ 时 $p &lt; -2$; $n = 3$ 时 $p &lt; -3$. <strong>环境维度越高, 衰减要求越严</strong> —— 这是球壳 $r^{n-1}$ 因子的体现, 几何意义是"半径 $r$ 处的体积元随 $r^{n-1}$ 增长". 在物理学里这对应 inverse-square 力场: 在 $n = 3$ 时 $|\mathbf{x}|^{-2}$ 处于不可积阈值 $p = -2 \ge -n = -3$ 之上, 故引力/库仑势 (而非力本身) 才是 well-defined 的 conserved quantity.</p>
+        <p>同样的"$r^{n-1}$ 加成"会再次出现在 Problem 11 (Gaussian 矩) 的 Step 1 — 但那里 Gaussian 衰减压倒一切多项式, 所以任意 $p$ (即任意多项式次数) 都可积.</p>
+      </div>
+
+      <h2 id="sec3">§3 Problem 4.11.6 — $(x^2+y^2)^{-p}$ on cusp 区域 (bounded)</h2>
+
+<div class="box def">
+  <span class="box-title">📋 Problem 4.11.6</span>
+  <p>Set $A_m = \{0 \le y \le x^m,\ 0 \le x \le 1\}$ for $m \in \R,\ m \ge 0$. For what values of $p \in \R$ does
+  $$\int_{A_m} \frac{1}{(x^2+y^2)^p}\,|dx\,dy|$$
+  exist as a Lebesgue integral?</p>
+  <p><strong>Claim.</strong> 积分存在 ⟺
+  $$p < \max\!\left\{1,\,\tfrac{m+1}{2}\right\},$$
+  等价的 piecewise 表述:
+  $$\begin{cases} p < 1 & \text{if } 0 \le m \le 1, \\ p < \tfrac{m+1}{2} & \text{if } m \ge 1. \end{cases}$$
+  两段在 $m = 1$ 处吻合 (都给出 $p < 1$).</p>
+</div>
+
+<h3>策略</h3>
+<p>被积函数 $\ge 0$, 由 §1 工具箱等价表述, 只需检查改进 Riemann 积分是否绝对收敛. 先<strong>剥掉平凡情形</strong> $p \le 0$: 此时 $(x^2+y^2)^{|p|}$ 在闭有界集 $A_m \subset [0,1]^2$ 上连续 (边界 $\{y = x^m\} \cup \{x = 0\} \cup \{x = 1\}$ 测度零, 见 Lec 3.1-3.2), 故 Riemann 可积 ⟹ Lebesgue 可积. 且 $p \le 0 < 1 \le \max\{1,(m+1)/2\}$, 与 Claim 相容.</p>
+
+<p>主战场是 $p > 0$. 此时<strong>唯一可能的奇异点是原点</strong> (区域有界, 无穷远不是问题). 自然 truncation 是 δ-shell $A_m^\delta := A_m \cap \{x \ge \delta\}$: 在它上面被积函数连续紧支撑, Riemann 可积; $\delta \to 0^+$ 时 truncation 单调上升到 $A_m$, MCT 把"Lebesgue 可积性"问题转换为"$J := \int_0^1 x^{1-2p}\,I(x^{m-1})\,dx$ 是否有限"的 1-D 渐近问题.</p>
+
+<p>关键技巧是<strong>内积分尺度换元 $y = xu$</strong>: 在 $\int_0^{x^m}(x^2+y^2)^{-p}\,dy$ 上把 $y/x$ 换成新变量, 得到 $x^{1-2p} \cdot I(x^{m-1})$, 其中 $I(L) := \int_0^L (1+u^2)^{-p}\,du$. 这一步把对 $x$ 的尺度依赖与对 $u$ 的形状依赖<strong>干净地分离</strong> —— $x$ 的幂次提到外面, 剩下的 $I$ 只通过端点 $x^{m-1}$ 感受 $x$.</p>
+
+<p>阈值之所以呈两段, 来自<strong>cusp ($m > 1$) vs wedge ($m < 1$) 的几何对比</strong>: $m > 1$ 时曲线 $y = x^m$ 在原点切线水平, 区域捏成尖角, "瘦"的形状容许更强的奇异性 $p < (m+1)/2 > 1$; $m < 1$ 时切线竖直, 区域"填满"楔形 $\{y \le x \le 1\}$, 退化到 $[0,1]^2$ 的标准阈值 $p < 1$; $m = 1$ 是过渡点, 两表达式都给 $p < 1$.</p>
+
+<details>
+  <summary><strong>展开严格证明 (含 3 个 case 子折叠)</strong></summary>
+  <div class="details-body">
+    <div class="box thm">
+      <span class="box-title">证明</span>
+
+      <p><strong>Reduction.</strong> 平凡情形 $p \le 0$ 已在策略段处理. 设 $p > 0$. 对 $\delta \in (0,1)$ 定义 $A_m^\delta := A_m \cap \{x \ge \delta\}$ — 一个远离原点的紧致集, 在其上 $(x^2+y^2)^{-p}$ 连续, 故 Riemann 可积. 当 $\delta \downarrow 0$ 时 $\mathbf{1}_{A_m^\delta} \uparrow \mathbf{1}_{A_m}$ a.e., MCT 给出
+      $$J := \lim_{\delta \to 0^+}\int_{A_m^\delta}\frac{dV}{(x^2+y^2)^p}$$
+      之有限性等价于原 Lebesgue 积分的存在性. 对固定 $\delta$, Riemann Fubini 给出
+      $$\int_{A_m^\delta}\frac{dV}{(x^2+y^2)^p} = \int_\delta^1\!\int_0^{x^m}(x^2+y^2)^{-p}\,dy\,dx.$$
+      内积分用换元 $y = xu$ (则 $dy = x\,du$, $u \in [0, x^{m-1}]$, 且 $x^2 + y^2 = x^2(1+u^2)$):
+      $$\int_0^{x^m}(x^2+y^2)^{-p}\,dy = \int_0^{x^{m-1}}x^{-2p}(1+u^2)^{-p}\cdot x\,du = x^{1-2p}\,I(x^{m-1}),$$
+      其中
+      $$I(L) := \int_0^L (1+u^2)^{-p}\,du, \qquad L \ge 0.$$
+      再用一次 1-D MCT (非负被积函数, $\delta \downarrow 0$):
+      $$J = \int_0^1 x^{1-2p}\,I(x^{m-1})\,dx.$$
+      整个可积性问题归约为 $x^{1-2p}\,I(x^{m-1})$ 在 $x \to 0^+$ 的渐近行为.</p>
+
+      <p><strong>$I(L)$ 的渐近 (asymptotics).</strong> 由于 $p > 0$, 被积函数 $(1+u^2)^{-p}$ 在 $[0,\infty)$ 连续, $u = 0$ 处等于 $1$, $u \to \infty$ 时 $\sim u^{-2p}$. 直接积分比较得到 4 种渐近 (其中 $\sim$ 指比值趋于 $1$):
+      $$I(L) \sim \begin{cases}
+        L & \text{as } L \to 0^+, \\
+        C(p) := \int_0^\infty (1+u^2)^{-p}\,du < \infty & \text{as } L \to \infty,\ \text{if } p > \tfrac12, \\
+        \ln L & \text{as } L \to \infty,\ \text{if } p = \tfrac12, \\
+        \dfrac{L^{1-2p}}{1-2p} & \text{as } L \to \infty,\ \text{if } 0 < p < \tfrac12.
+      \end{cases}$$
+      ($p > 1/2$ 时 $\int_0^\infty(1+u^2)^{-p}\,du$ 由 $\int_1^\infty u^{-2p}\,du$ 比较收敛; $p \le 1/2$ 时 $\int^\infty u^{-2p}\,du$ 发散, 主要贡献来自 $u$ 大处, 渐近用反导直接读.)</p>
+
+      <p>下面按 $m$ 的位置分 3 个 case 讨论 $x^{1-2p}\,I(x^{m-1})$ 在 $x \to 0^+$ 的渐近.</p>
+
+      <details>
+        <summary>Case 1: $m = 1$</summary>
+        <div class="details-body">
+          <p>$x^{m-1} = x^0 = 1$ 是常数, 所以 $I(x^{m-1}) = I(1)$ 是与 $x$ 无关的有限正常数 ($p > 0$ 时被积函数在 $[0,1]$ 上连续有界, 故 $I(1) \in (0, \infty)$). 于是
+          $$x^{1-2p}\,I(x^{m-1}) = I(1)\,x^{1-2p} \sim x^{1-2p} \quad (x \to 0^+).$$
+          由 $\int_0^1 x^a\,dx < \infty \iff a > -1$, 可积当且仅当 $1 - 2p > -1$, 即 $\boxed{p < 1}$.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Case 2: $m > 1$</summary>
+        <div class="details-body">
+          <p>此时 $m - 1 > 0$, 故 $x^{m-1} \to 0^+$ 当 $x \to 0^+$. 应用 $I(L) \sim L$ as $L \to 0^+$:
+          $$I(x^{m-1}) \sim x^{m-1},$$
+          从而
+          $$x^{1-2p}\,I(x^{m-1}) \sim x^{1-2p}\cdot x^{m-1} = x^{m - 2p}.$$
+          由 $\int_0^1 x^a\,dx < \infty \iff a > -1$, 可积当且仅当 $m - 2p > -1$, 即 $\boxed{p < \tfrac{m+1}{2}}$.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Case 3: $0 \le m < 1$ (3 个 sub-case)</summary>
+        <div class="details-body">
+          <p>此时 $m - 1 < 0$, 故 $x^{m-1} \to +\infty$ 当 $x \to 0^+$. 因此 $I(x^{m-1})$ 走的是 $L \to \infty$ 那三条渐近, 按 $p$ 与 $1/2$ 的关系分 3 个 sub-case.</p>
+
+          <p><strong>Sub-case 3a: $p > 1/2$.</strong> $I(x^{m-1}) \to C(p) \in (0, \infty)$. 故
+          $$x^{1-2p}\,I(x^{m-1}) \sim C(p)\,x^{1-2p}.$$
+          可积当且仅当 $1 - 2p > -1$, 即 $p < 1$. 结合 sub-case 前提 $p > 1/2$, 得 $1/2 < p < 1$.</p>
+
+          <p><strong>Sub-case 3b: $p = 1/2$.</strong> $I(x^{m-1}) \sim \ln(x^{m-1}) = (m-1)\ln x$. 由 $1 - 2p = 0$:
+          $$x^{1-2p}\,I(x^{m-1}) = 1 \cdot (m-1)\ln x = (1-m)\,(-\ln x)$$
+          (注意 $m < 1$ 与 $\ln x < 0$ 各贡献一个负号, 整体非负). 而 $\int_0^1 (-\ln x)\,dx = [x - x\ln x]_0^1 = 1 < \infty$, 故被积函数在 $(0,1]$ 上可积. 此 sub-case 直接产出可积性, 且 $p = 1/2 < 1$, 与 sub-case 3a 阈值一致.</p>
+
+          <p><strong>Sub-case 3c: $0 < p < 1/2$.</strong> $I(x^{m-1}) \sim \dfrac{(x^{m-1})^{1-2p}}{1-2p} = \dfrac{x^{(m-1)(1-2p)}}{1-2p}$. 故
+          $$x^{1-2p}\,I(x^{m-1}) \sim \frac{x^{1-2p} \cdot x^{(m-1)(1-2p)}}{1-2p} = \frac{x^{(1+m-1)(1-2p)}}{1-2p} = \frac{x^{m(1-2p)}}{1-2p}.$$
+          由 $0 < p < 1/2$ 推 $1 - 2p > 0$, 又 $m \ge 0$, 故指数 $m(1-2p) \ge 0$. 被积函数在 $(0,1]$ 有界, 必可积. 此 sub-case 自动可积, 且 $0 < p < 1/2 < 1$, 仍然吻合 $p < 1$.</p>
+
+          <p>三 sub-case 的"瓶颈"在 sub-case 3a (其它两个自动可积): 整个 Case 3 的可积阈值为 $\boxed{p < 1}$.</p>
+        </div>
+      </details>
+
+      <p><strong>Synthesis.</strong> 综合三 case:
+      $$\begin{cases}
+        m = 1: & p < 1, \\
+        m > 1: & p < \tfrac{m+1}{2}, \\
+        0 \le m < 1: & p < 1.
+      \end{cases}$$
+      对 $0 \le m \le 1$ 阈值统一为 $p < 1$; 对 $m \ge 1$ 阈值为 $p < (m+1)/2$ (在 $m = 1$ 处与 $p < 1$ 一致). 两段可合写为
+      $$p < \max\!\left\{1,\,\tfrac{m+1}{2}\right\}. \qquad \blacksquare$$
+      </p>
+    </div>
+  </div>
+</details>
+
+<div class="box remark">
+  <span class="box-title">💡 反思 — cusp vs wedge 几何</span>
+  <p>$m = 1$ 的过渡有明确的几何解释. 区域 $A_m$ 在原点附近由曲线 $y = x^m$ 限制:</p>
+  <ul>
+    <li><strong>$m < 1$ (wedge 区域)</strong>: 曲线在原点处切线<em>竖直</em> ($dy/dx = m x^{m-1} \to \infty$), $A_m$ "鼓"出去把整个楔形 $\{y \le x \le 1\}$ 都填进来 (近 $0$ 处). 几何上 $A_m$ 与 $[0,1]^2$ 看到的原点奇异性一样, 阈值退化为 $p < 1$ — 即 $\int_{[0,1]^2}(x^2+y^2)^{-p}\,dV$ 的阈值.</li>
+    <li><strong>$m > 1$ (cusp 区域)</strong>: 曲线在原点处切线<em>水平</em> ($dy/dx = m x^{m-1} \to 0$), $A_m$ 捏成尖角 cusp, 沿 $y = x^m$ 趋近原点的"宽度"按 $x^m$ 缩窄 (而非线性). <strong>区域变薄等于给奇异性留出更多容差</strong>, 阈值放宽到 $p < (m+1)/2 > 1$ — $m$ 越大, cusp 越尖, 允许的 $p$ 越大.</li>
+  </ul>
+  <p>为什么 Case 3 sub-case 里 $1/2$ 这个数字出现却没影响最终阈值 $p < 1$? 因为 $1/2$ 是 $I(L)$ 在 $L \to \infty$ 的渐近转换点 (Case 3 里 $x^{m-1} \to \infty$, 所以确实进入这套渐近), 但 sub-case bottleneck 在 $p > 1/2$ 那一支 (即 sub-case 3a), 不是 $p \le 1/2$ 的两支. 后两支由于 $1-2p \ge 0$ 让 $x^{1-2p}$ 不出现奇异性, 反而<em>自动可积</em>, 不构成阈值约束. 所以 $1/2$ 只是渐近分类的内部界, 最终阈值由"$p < 1$ 的奇异性限制"封顶.</p>
+  <p>与 §4 Problem 4.11.7 对照: 那里区域换成无界版本 $\{1 \le x < \infty\}$, $m$ 的角色与 cusp/wedge 的几何意义会<strong>反转</strong>, 阈值变为 $p > \min\{1, (m+1)/2\}$ (符号反转, $\min$ 而非 $\max$).</p>
+</div>
+
+      <h2 id="sec4">§4 Problem 4.11.7 — $(x^2+y^2)^{-p}$ on cusp 区域 (unbounded)</h2>
+
+<div class="box def">
+  <span class="box-title">📋 Problem 4.11.7 (= 4.11.6 的无界域版本)</span>
+  <p>Repeat Exercise 4.11.6, setting $A_m = \{0 \le y \le x^m,\ 1 \le x \le \infty\}$. 即问: 对什么 $p \in \R$, $\displaystyle\int_{A_m} (x^2+y^2)^{-p}\,dV$ 作为 Lebesgue 积分存在? ($m \ge 0$ 固定.)</p>
+  <p><strong>Claim.</strong> 积分存在 ⟺
+  $$\boxed{\;p \;>\; \min\!\left\{1,\;\tfrac{m+1}{2}\right\}\;}$$
+  等价地, piecewise:
+  $$p > \tfrac{m+1}{2}\ \text{若}\ 0 \le m \le 1, \qquad p > 1\ \text{若}\ m \ge 1.$$
+  </p>
+</div>
+
+<h3>策略</h3>
+
+<p>本题与 §3 Problem 4.11.6 是<strong>一对对偶</strong>: 同一个被积函数 $(x^2+y^2)^{-p}$, 同一族区域 $A_m = \{0 \le y \le x^m\}$, 只把 $x$ 的范围从 $[0,1]$ 换到 $[1, \infty)$. 几何上等价于"换一面看世界": 4.11.6 关心 cusp/wedge 在原点附近的<em>奇异性</em>, 4.11.7 关心同一条 cusp/wedge 在无穷远处的<em>尾巴衰减</em>.</p>
+
+<p>这种对偶在阈值上有<strong>三处反转</strong>:</p>
+<ul>
+  <li><strong>不等号方向反转</strong>: 4.11.6 要求 $p &lt;$ 某阈值 (因为大 $p$ 会让原点处的奇异性爆炸); 4.11.7 要求 $p &gt;$ 某阈值 (因为小 $p$ 让 $\infty$ 处的衰减不够).</li>
+  <li><strong>$\max$ 变 $\min$</strong>: 4.11.6 的阈值是 $\max\{1, (m+1)/2\}$, 4.11.7 是 $\min\{1, (m+1)/2\}$.</li>
+  <li><strong>$m$-effect 反转</strong>: 在 4.11.6 里 cusp ($m &gt; 1$) <em>帮</em>可积性 (区域捏细稀释奇异); 在 4.11.7 里 cusp <em>害</em>可积性 (尾巴铺得更宽, 难衰减).</li>
+</ul>
+
+<p><strong>Truncation</strong>: 与 4.11.6 镜像选 $A_m^R := A_m \cap \{x \le R\}$ (紧致, 远离 $\infty$, 边界测度零). 由 Lebesgue 准则, $(x^2+y^2)^{-p}\,\mathbf{1}_{A_m^R} \in \IR$; MCT 把 $R \to \infty$ 极限桥到 $\int_{A_m}$. 注意 $p \le 0$ 不再像 4.11.6 那样平凡: 在无穷远处 $(x^2+y^2)^{|p|} \to \infty$ 反而炸开, 所以只能指望大 $p$ 来压制.</p>
+
+<p><strong>1-D 化简</strong>: 内积分用同一个换元 $y = xu$ (区间 $y \in [0, x^m]$ 变到 $u \in [0, x^{m-1}]$, $dy = x\,du$, 而 $(x^2+y^2)^{-p} = x^{-2p}(1+u^2)^{-p}$, 提出 $x^{1-2p}$ 因子) 把 $n$-维积分化为
+$$\int_{A_m} (x^2+y^2)^{-p}\,dV \;=\; \int_1^\infty x^{1-2p}\,I(x^{m-1})\,dx,\qquad I(L) := \int_0^L (1+u^2)^{-p}\,du.$$
+$I(L)$ 的渐近见 §3 同名 lemma —— 这里我们关心 $x \to \infty$, 因此根据 $m$ 的不同, $x^{m-1}$ 趋于 $0$ (若 $m &lt; 1$), $1$ (若 $m = 1$), 或 $\infty$ (若 $m &gt; 1$). 三种极限引出三个 case.</p>
+
+<details>
+  <summary><strong>展开严格证明 (含 3 个 case 子折叠)</strong></summary>
+  <div class="details-body">
+    <div class="box thm">
+      <span class="box-title">证明</span>
+
+      <p><strong>Reduction.</strong> 被积函数 $(x^2+y^2)^{-p} \ge 0$ 在 $A_m$ 上, 但 $A_m$ 在 $x$ 方向无界 (若 $m &gt; 0$ 在 $y$ 方向也无界, 因为 $x^m \to \infty$). 对 $R &gt; 1$ 设
+      $$A_m^R \;:=\; A_m \cap \{x \le R\} \;=\; \{0 \le y \le x^m,\ 1 \le x \le R\}.$$
+      这是紧集, $(x^2+y^2)^{-p}$ 在其上连续 (注意 $x \ge 1 &gt; 0$, 不会碰原点), 而 $\partial A_m^R$ 由有限段曲线组成, 测度零. 由 Lebesgue 准则 (Thm 4.1.13), $(x^2+y^2)^{-p}\,\mathbf{1}_{A_m^R} \in \IR(\R^2)$. 显然 $\mathbf{1}_{A_m^R} \uparrow \mathbf{1}_{A_m}$ 当 $R \to \infty$.</p>
+
+      <p>对每个 $R$, Riemann Fubini (Thm 4.5.1) 把二维积分写成
+      $$\int_{A_m^R}(x^2+y^2)^{-p}\,dV \;=\; \int_1^R \!\left[\int_0^{x^m} (x^2+y^2)^{-p}\,dy\right] dx.$$
+      内积分换元 $y = xu$ ($x &gt; 0$, 故 $dy = x\,du$), 当 $y$ 从 $0$ 走到 $x^m$, $u$ 从 $0$ 走到 $x^{m-1}$:
+      $$\int_0^{x^m}(x^2+y^2)^{-p}\,dy \;=\; \int_0^{x^{m-1}} x^{-2p}(1+u^2)^{-p}\,x\,du \;=\; x^{1-2p}\,I(x^{m-1}),$$
+      其中 $I(L) := \int_0^L (1+u^2)^{-p}\,du$. 故
+      $$\int_{A_m^R}(x^2+y^2)^{-p}\,dV \;=\; \int_1^R x^{1-2p}\,I(x^{m-1})\,dx.$$
+      被积量非负, MCT (Thm 4.11.18) 给出: Lebesgue 积分 $\int_{A_m}(x^2+y^2)^{-p}\,dV$ 存在 ⟺ $R$-极限有限, 此时
+      $$\int_{A_m}(x^2+y^2)^{-p}\,dV \;=\; \lim_{R \to \infty}\int_1^R x^{1-2p}\,I(x^{m-1})\,dx \;=\; \int_1^\infty x^{1-2p}\,I(x^{m-1})\,dx,$$
+      最右边记号意味着改进 Riemann 积分.</p>
+
+      <p><strong>$I(L)$ 的渐近 (复用 §3).</strong> 与 4.11.6 同款:
+      $$I(L) \sim L\ \text{as}\ L \to 0^+;\qquad I(L) \to C(p) \in (0,\infty]\ \text{as}\ L \to \infty,$$
+      其中 $C(p) &lt; \infty$ ⟺ $p &gt; 1/2$. 当 $C(p) = \infty$, $L \to \infty$ 处的增长率为 $L^{1-2p}/(1-2p)$ (若 $0 &lt; p &lt; 1/2$) 或 $\ln L$ (若 $p = 1/2$); $p \le 0$ 时 $I(L)$ 像 $L^{1-2p}/(1-2p)$ (更严重). 详细推导见 §3 证明里同名 lemma.</p>
+
+      <p>下面按 $m$ 与 $1$ 的关系分三个 case 分析 $\int_1^\infty x^{1-2p}\,I(x^{m-1})\,dx$ 的有限性. 每个 case 都用比较准则 $\int_1^\infty x^a\,dx &lt; \infty \iff a &lt; -1$ 收尾.</p>
+
+      <details>
+        <summary><strong>Case 1: $m = 1$</strong> (退化到正方形条带 $\{0 \le y \le x,\ x \ge 1\}$)</summary>
+        <div class="details-body">
+          <p>$x^{m-1} = x^0 = 1$ 是常数, 故 $I(x^{m-1}) = I(1)$ 是与 $x$ 无关的有限正数 (注意 $I(1) = \int_0^1 (1+u^2)^{-p}\,du$ 对任何 $p \in \R$ 都是 $[0,1]$ 上连续函数的积分, 有限). 于是
+          $$\int_1^\infty x^{1-2p}\,I(x^{m-1})\,dx \;=\; I(1)\,\int_1^\infty x^{1-2p}\,dx,$$
+          有限 ⟺ $1 - 2p &lt; -1 \iff p &gt; 1$. 故 Case 1 阈值为 $p &gt; 1$.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary><strong>Case 2: $m &gt; 1$</strong> (cusp 向 $\infty$ 方向铺得很宽, $y$ 上限 $x^m$ 增长比 $x$ 快)</summary>
+        <div class="details-body">
+          <p>$x^{m-1} \to \infty$ as $x \to \infty$, 所以我们需要 $I(x^{m-1})$ 在 $L = x^{m-1} \to \infty$ 时<em>本身</em>不爆开 —— 这要求 $C(p) &lt; \infty$, 即 $p &gt; 1/2$. 拆三个子情况:</p>
+          <ul>
+            <li><strong>$p &gt; 1/2$</strong> (内积分极限 $C(p)$ 有限): $I(x^{m-1}) \to C(p)$ 当 $x \to \infty$, 故外积分被积量 $\sim C(p)\,x^{1-2p}$ 在 $\infty$ 处. 由比较准则, 有限 ⟺ $1 - 2p &lt; -1 \iff p &gt; 1$. 此子情况下阈值 $p &gt; 1$.</li>
+            <li><strong>$p = 1/2$</strong>: $I(x^{m-1}) \sim \ln(x^{m-1}) = (m-1)\ln x$, 故外被积量 $\sim x^{1-2p}\cdot(m-1)\ln x = (m-1)\ln x$ (注意 $1 - 2p = 0$). 而 $\int_1^\infty \ln x\,dx = \infty$, 故 $p = 1/2$ 不可积.</li>
+            <li><strong>$0 &lt; p &lt; 1/2$</strong>: $I(x^{m-1}) \sim x^{(m-1)(1-2p)}/(1-2p)$, 故外被积量 $\sim x^{1-2p}\cdot x^{(m-1)(1-2p)}/(1-2p) = x^{m(1-2p)}/(1-2p)$. 指数 $m(1-2p) &gt; 0$ (因为 $m &gt; 1 &gt; 0$ 且 $1 - 2p &gt; 0$), 故 $\int_1^\infty x^{m(1-2p)}\,dx = \infty$, 不可积.</li>
+            <li><strong>$p \le 0$</strong>: $(x^2+y^2)^{-p} = (x^2+y^2)^{|p|}$ 在 $\infty$ 处增长, 外被积量也增长, $\int_1^\infty$ 发散 a fortiori.</li>
+          </ul>
+          <p>所有失败子情况合并: $p \le 1$ 不可积. Case 2 阈值仍为 $p &gt; 1$.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary><strong>Case 3: $0 \le m &lt; 1$</strong> (wedge 在 $\infty$ 方向变窄, $y$ 上限 $x^m$ 增长比 $x$ 慢; $m = 0$ 时 $y$ 上限恒为 $1$ 的横带)</summary>
+        <div class="details-body">
+          <p>$x^{m-1} \to 0$ as $x \to \infty$ (因为 $m - 1 &lt; 0$). 由 $I(L) \sim L$ as $L \to 0^+$:
+          $$I(x^{m-1}) \;\sim\; x^{m-1}\quad\text{as}\ x \to \infty.$$
+          故外被积量 $\sim x^{1-2p}\cdot x^{m-1} = x^{m-2p}$ 在 $\infty$ 处. 由比较准则, 有限 ⟺ $m - 2p &lt; -1 \iff p &gt; \tfrac{m+1}{2}$. 故 Case 3 阈值为 $p &gt; (m+1)/2$.</p>
+          <p>(检验边界: $m = 0$ 给 $p &gt; 1/2$, $m \to 1^-$ 给 $p &gt; 1$, 与 Case 1 在 $m = 1$ 处衔接.)</p>
+        </div>
+      </details>
+
+      <p><strong>Synthesis.</strong> 汇总三个 case:
+      $$\text{阈值} \;=\; \begin{cases} p &gt; \tfrac{m+1}{2} & 0 \le m &lt; 1 \quad (\text{Case 3}), \\ p &gt; 1 & m = 1 \quad (\text{Case 1}), \\ p &gt; 1 & m &gt; 1 \quad (\text{Case 2}). \end{cases}$$
+      Case 1 与 Case 3 在 $m = 1$ 处衔接 (两者都给 $p &gt; 1$, 与 $(m+1)/2|_{m=1} = 1$ 一致), 所以可合并为 "$m \ge 1$ 时 $p &gt; 1$, $0 \le m \le 1$ 时 $p &gt; (m+1)/2$". 注意到当 $m \ge 1$ 时 $(m+1)/2 \ge 1$, 故 $\min\{1, (m+1)/2\} = 1$; 当 $0 \le m \le 1$ 时 $(m+1)/2 \le 1$, 故 $\min\{1, (m+1)/2\} = (m+1)/2$. 两段统一为
+      $$\boxed{\;p \;>\; \min\!\left\{1,\,\tfrac{m+1}{2}\right\}.\;}$$
+      $\blacksquare$</p>
+    </div>
+  </div>
+</details>
+
+<div class="box remark">
+  <span class="box-title">💡 反思 — 与 Problem 4.11.6 的对偶性</span>
+  <p>把 §3 (Problem 4.11.6) 与本题并排:</p>
+  <table class="textbook-index">
+    <thead>
+      <tr><th>方面</th><th>4.11.6 (bounded, $0 \le x \le 1$)</th><th>4.11.7 (unbounded, $x \ge 1$)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>关心的边界</td><td>原点 $\mathbf{0}$ 处的 corner 奇异性</td><td>$\infty$ 处的衰减不够</td></tr>
+      <tr><td>$p$ 不等号方向</td><td>$p &lt;$ 阈值 (小 $p$ 才不让奇异性炸开)</td><td>$p &gt;$ 阈值 (大 $p$ 才衰减得动)</td></tr>
+      <tr><td>统一阈值</td><td>$p &lt; \max\{1, (m+1)/2\}$</td><td>$p &gt; \min\{1, (m+1)/2\}$</td></tr>
+      <tr><td>$m \to 0$ ($y$ 区间退化到 $[0,1]$ 横带)</td><td>退化到正方形 $[0,1]^2$, 阈值 $p &lt; 1$</td><td>退化到横带 $\{0\le y\le 1, x\ge 1\}$, 阈值 $p &gt; 1/2$</td></tr>
+      <tr><td>$m = 1$ (对角条带 $y = x$)</td><td>$p &lt; 1$</td><td>$p &gt; 1$</td></tr>
+      <tr><td>$m \to \infty$ (极尖 cusp / 极宽 tail)</td><td>$p &lt; (m+1)/2 \to \infty$ (放任奇异)</td><td>$p &gt; 1$ (与 $m$ 无关 plateau)</td></tr>
+      <tr><td>cusp ($m &gt; 1$) 的效应</td><td><strong>帮</strong>可积性 (区域捏细稀释奇异)</td><td><strong>害</strong>可积性 (尾巴铺得更宽)</td></tr>
+      <tr><td>wedge ($m &lt; 1$) 的效应</td><td><strong>害</strong>可积性 (区域填满楔形)</td><td><strong>帮</strong>可积性 (尾巴收窄)</td></tr>
+    </tbody>
+  </table>
+  <p>几何上, cusp ($m &gt; 1$) 在 4.11.6 里因 region 变细而"稀释"了奇异性 (好事); 但在 4.11.7 里 cusp 的尖端伸到无穷远反而带来更多 mass 需要衰减 (坏事). 楔形 ($m &lt; 1$) 反之.</p>
+  <p>从计算结构看: 同样的 1-D 化简 $\int x^{1-2p} I(x^{m-1})\,dx$, 同样的 $I(L)$ 渐近表, 同样的 case-on-$m$ 分类 —— <em>但激活的渐近分支恰好对偶</em>: 4.11.6 关心 $x \to 0^+$ (激活 $L \to 0^+$ 分支当 $m &gt; 1$, $L \to \infty$ 分支当 $m &lt; 1$); 4.11.7 关心 $x \to \infty$ (激活 $L \to \infty$ 分支当 $m &gt; 1$, $L \to 0^+$ 分支当 $m &lt; 1$). 这就是为什么"$m$-effect 反转"在公式层面是自动的: 同一个 $I(L)$ 表被两道题镜像读取.</p>
+</div>
+
+      <h2 id="sec5">§5 Problem 4.11.8 — Lebesgue 版 IBP 完整链条 (a/b/c/d 串联)</h2>
+
+<h3>串联: Lebesgue 版 IBP 的完整链条</h3>
+
+<p>这 4 个 part 不是 4 道独立小题, 而是构造 <strong>Lebesgue 版 IBP 定理</strong>的<strong>4 块拼图</strong>:</p>
+<ul>
+  <li><strong>(a) 基础正则性</strong> — $F(x) := \int_0^x f$ 在 $\R$ 上连续 (DCT 应用于"扫过去一段薄区域"的特征函数 $\chi_h$).</li>
+  <li><strong>(b) 有限区间 IBP</strong> — $\int_a^b f G = F(b)G(b) - F(a)G(a) - \int_a^b F g$, 通过 <strong>Lebesgue Fubini 在三角域 $T = \{(s,t) : a \le s \le t \le b\}$</strong> 上的两种 slicing 给出.</li>
+  <li><strong>(c) 边界项消失的前提</strong> — 若额外假设 $F \in \IL(\R)$, 则 $F(\pm\infty) = 0$ (反证: 若极限非零, $|F|$ 会贡献线性增长面积, 与 $F \in \IL$ 矛盾).</li>
+  <li><strong>(d) 整条实线 IBP</strong> — 综合 (a)(b)(c), 在 "$F \in \IL$ + $G$ bounded" 假设下, 整条线 IBP 公式 $\int_\R f G = -\int_\R F g$ 成立 (双侧 $[-n, n]$ truncation + DCT, 边界项由 (c) 消失).</li>
+</ul>
+
+<p>主要工具横跨 4 个 part: <strong>DCT</strong> 在 (a) 与 (d) 充当"极限交换"的引擎; <strong>Lebesgue Fubini</strong> 在 (b) 把"二维等式"翻成"两种迭代积分相等"; <strong>反证 + 线性增长</strong> 在 (c) 把 $\IL$ 假设转化为渐近行为. 4 个工具在不同 part 各自登场, 但只有当 4 块拼好才得到完整定理.</p>
+
+<p>这是 §4.11 抽象框架下的<strong>第一个"应用定理"</strong> —— 在此之前, §4.11 的题目 (HW 的 Problems 5, 6, 7, 11, 19) 都是单点验证某个特定积分是否 $\in \IL$. 而 4.11.8 第一次构造了一个<strong>跨设置的工具</strong> (条件: $f, g \in \IL$, $F \in \IL$, $G$ bounded; 结论: IBP 在整条实线上成立), 可以未来在 Fourier 分析、分布理论等场景中直接调用. 这正是 §4.11 从 "Riemann 框架的修补" 升级为 "现代积分论入口" 的一个标志.</p>
+
+<h3 id="sec5a">Part (a) — $F(x) = \int_0^x f$ 在 $\R$ 上连续</h3>
+
+<div class="box def">
+  <span class="box-title">📋 Problem 4.11.8(a)</span>
+  <p>设 $f \in \IL(\R)$, $F(x) := \int_0^x f(t)\,dt$ (即 $F(x) = \int_\R f \cdot \mathbf{1}_{[\min(0,x), \max(0,x)]}\,dt$, 配以正负号). 证明 $F$ 在 $\R$ 上连续.</p>
+</div>
+
+<details>
+  <summary><strong>展开严格证明 (DCT on 特征函数 $\chi_h$)</strong></summary>
+  <div class="details-body">
+    <div class="box thm">
+      <span class="box-title">证明</span>
+
+      <p><strong>Step 1 — 差分的积分表达.</strong> 固定 $x \in \R$ 与 $h \in \R$. 差分 $F(x + h) - F(x)$ 就是 $f$ 在 $x$ 与 $x + h$ 之间那段区间上的 L-积分. 具体地, 令
+      $$\chi_h(t) := \mathbf{1}_{[\min(x, x+h),\,\max(x, x+h)]}(t),$$
+      则
+      $$F(x + h) - F(x) = \sgn(h) \int_\R f(t)\,\chi_h(t)\,dt$$
+      ($\sgn(h)$ 处理 $h &lt; 0$ 的方向问题). 取绝对值得
+      $$\abs{F(x+h) - F(x)} \le \int_\R \abs{f(t)}\,\chi_h(t)\,dt.$$
+      </p>
+
+      <p><strong>Step 2 — DCT 应用.</strong> 取任意序列 $h_k \to 0$, 检验 DCT 的三个条件应用于族 $\bigl(\abs{f}\chi_{h_k}\bigr)$:</p>
+      <ul>
+        <li><strong>每项 $\in \IL$.</strong> $\abs{f} \in \IL$ (绝对值闭性, Prop 4.11.13); $\chi_{h_k} \in \IR$ 是有界紧支撑的特征函数 (区间长度 $|h_k|$ 有限, 边界两点测度零, Lebesgue 准则). 由乘积规则 (Lec 7.3, $\IL \times \IR$-bounded $\to \IL$), $\abs{f}\chi_{h_k} \in \IL$.</li>
+        <li><strong>a.e. 收敛到 0.</strong> 对每个 $t \ne x$: 当 $k$ 足够大, $|h_k|$ 小于 $|t - x|$, 故 $t \notin [\min(x, x+h_k), \max(x, x+h_k)]$, 即 $\chi_{h_k}(t) = 0$ 最终生效. 单独的点 $\{x\}$ 是测度零集, 所以 $\abs{f}\chi_{h_k} \to 0$ a.e.</li>
+        <li><strong>Dominator.</strong> $\abs{f}\chi_{h_k}(t) \le \abs{f(t)}$ 对所有 $t$ 成立, 而 $\abs{f} \in \IL$ 是合法 dominator.</li>
+      </ul>
+      <p>由 DCT (Thm 4.11.19),
+      $$\int_\R \abs{f}\,\chi_{h_k}\,dt \;\longrightarrow\; \int_\R 0\,dt = 0.$$
+      因此 $\abs{F(x + h_k) - F(x)} \to 0$, 即 $F(x + h_k) \to F(x)$.</p>
+
+      <p><strong>Step 3 — 收口.</strong> 因为 $h_k \to 0$ 是任意取的序列, 由"序列连续性 ⟺ 连续性"(标准 $\R$ 上的连续性等价表述), $F$ 在 $x$ 处连续. $x$ 任意, 故 $F$ 在整个 $\R$ 上连续. $\blacksquare$</p>
+    </div>
+  </div>
+</details>
+
+<h3 id="sec5b">Part (b) — IBP on 有限区间 $[a, b]$</h3>
+
+<div class="box def">
+  <span class="box-title">📋 Problem 4.11.8(b)</span>
+  <p>设 $f, g \in \IL(\R)$, $F, G$ 如 (a) 所定义. 证明: 对任意 $a &lt; b$,
+  $$\int_a^b f(t)\,G(t)\,dt \;=\; F(b)\,G(b) - F(a)\,G(a) - \int_a^b F(t)\,g(t)\,dt.$$
+  </p>
+</div>
+
+<details>
+  <summary><strong>展开严格证明 (Lebesgue Fubini on 三角域 $T$)</strong></summary>
+  <div class="details-body">
+    <div class="box thm">
+      <span class="box-title">证明</span>
+
+      <p><strong>积分良定性预备.</strong> 由 part (a), $F, G$ 在 $\R$ 上连续, 故在紧集 $[a, b]$ 上有界. 因此 $G \cdot \mathbf{1}_{[a,b]} \in \IR$ 有界, 由乘积规则 $f \cdot G \cdot \mathbf{1}_{[a,b]} \in \IL$; 同理 $F \cdot g \cdot \mathbf{1}_{[a,b]} \in \IL$. 右端两个积分都有意义.</p>
+
+      <p><strong>Step 1 — Lebesgue Fubini 给出核心等式.</strong> 声明:
+      $$\int_a^b f(s)\bigl(G(b) - G(s)\bigr)\,ds \;=\; \int_a^b g(t)\bigl(F(t) - F(a)\bigr)\,dt. \tag{$\star$}$$
+      两端都是 $f(s)\,g(t)$ 在闭三角域
+      $$T := \{(s, t) \in [a, b]^2 : s \le t\}$$
+      上的二维积分, 只是沿不同方向 slicing:
+      $$G(b) - G(s) = \int_s^b g(t)\,dt, \qquad F(t) - F(a) = \int_a^t f(s)\,ds.$$
+      要应用 Lebesgue Fubini (Thm 4.11.10), 需先验证 $h(s, t) := f(s)\,g(t)\,\mathbf{1}_T(s, t) \in \IL(\R^2)$:</p>
+      <ul>
+        <li>$f \cdot \mathbf{1}_{[a,b]} \in \IL(\R)$ (乘积规则: $f \in \IL$, $\mathbf{1}_{[a,b]} \in \IR$ 有界); 同理 $g \cdot \mathbf{1}_{[a,b]} \in \IL(\R)$.</li>
+        <li><strong>张量积 (baby Fubini for $\IL$, Lec 2.2 的 $\IL$ 类比)</strong>: 取 $f \cdot \mathbf{1}_{[a,b]}$ 的砖块分解 $f \mathbf{1}_{[a,b]} = \sum_k f_k$ 与 $g \mathbf{1}_{[a,b]} = \sum_l g_l$ (两者都绝对可和, 各自 $\sum_k \int |f_k| &lt; \infty$, $\sum_l \int |g_l| &lt; \infty$). 那么双指标族 $\{f_k \otimes g_l\}_{k, l}$ 构成
+        $$(f \mathbf{1}_{[a,b]}) \otimes (g \mathbf{1}_{[a,b]})(s, t) := f(s)\,g(t)\,\mathbf{1}_{[a,b]^2}(s, t)$$
+        的砖块分解, 且 $\sum_{k, l} \int |f_k \otimes g_l|\,dV = (\sum_k \int |f_k|)(\sum_l \int |g_l|) &lt; \infty$ (Fubini-Tonelli on Riemann $f_k \otimes g_l$). 故 $(f \mathbf{1}_{[a,b]}) \otimes (g \mathbf{1}_{[a,b]}) \in \IL(\R^2)$.</li>
+        <li>三角域指示函数 $\mathbf{1}_T \in \IR(\R^2)$: $T$ 是有界闭集, 其边界由两条坐标轴对齐线段 ($\{s = a\}, \{t = b\}$ 的部分) 加一条对角线段 $\{s = t\}$ 组成, 总测度零, 故 $\partial T$ 测度零, $\mathbf{1}_T$ 由 Lebesgue 准则可 Riemann 积分; $\mathbf{1}_T$ 显然有界 (取值 $\in \{0, 1\}$).</li>
+        <li>最后再次乘积规则: $h = \bigl((f \mathbf{1}_{[a,b]}) \otimes (g \mathbf{1}_{[a,b]})\bigr) \cdot \mathbf{1}_T \in \IL(\R^2)$ ($\IL \times \IR$-bounded).</li>
+      </ul>
+
+      <p>Lebesgue Fubini 现在给出:
+      $$\int_T f(s)\,g(t)\,dV \;=\; \int_a^b\!\int_s^b f(s)\,g(t)\,dt\,ds \;=\; \int_a^b\!\int_a^t f(s)\,g(t)\,ds\,dt.$$
+      内层积分分别等于 $f(s)(G(b) - G(s))$ 与 $g(t)(F(t) - F(a))$ (将 $f(s), g(t)$ 作为相应的常数提出, 用 $F, G$ 的定义), 即得 $(\star)$.</p>
+
+      <p><strong>Step 2 — 代数重排.</strong> 展开 $(\star)$ 左端, 利用 $\int_a^b f(s)\,ds = F(b) - F(a)$:
+      $$G(b)\bigl(F(b) - F(a)\bigr) - \int_a^b f(s)\,G(s)\,ds \;=\; \int_a^b F(t)\,g(t)\,dt - F(a)\bigl(G(b) - G(a)\bigr).$$
+      把含 $F(a) G(b)$ 的两项放到一起 (左端有 $-G(b) F(a)$, 右端有 $-F(a) G(b)$, 两者抵消):
+      $$F(b)\,G(b) - F(a)\,G(a) \;=\; \int_a^b f(s)\,G(s)\,ds + \int_a^b F(t)\,g(t)\,dt.$$
+      移项即得目标公式:
+      $$\int_a^b f(t)\,G(t)\,dt \;=\; F(b)\,G(b) - F(a)\,G(a) - \int_a^b F(t)\,g(t)\,dt. \qquad \blacksquare$$
+      </p>
+    </div>
+  </div>
+</details>
+
+<h3 id="sec5c">Part (c) — $\lim_{x \to \pm\infty} F(x) = 0$ when $F \in \IL$</h3>
+
+<div class="box def">
+  <span class="box-title">📋 Problem 4.11.8(c)</span>
+  <p>设 $f, F$ 如 (a) 所定义 (即 $f \in \IL(\R)$, $F(x) = \int_0^x f$), <strong>并额外假设 $F \in \IL(\R)$</strong>. 证明 $\displaystyle \lim_{x \to \pm\infty} F(x) = 0$.</p>
+</div>
+
+<details>
+  <summary><strong>展开严格证明 (反证 + 线性增长矛盾)</strong></summary>
+  <div class="details-body">
+    <div class="box thm">
+      <span class="box-title">证明</span>
+
+      <p><strong>Step 1 — 极限存在.</strong> 我们证 $F$ 在 $+\infty$ 处是 Cauchy 的 ($-\infty$ 情形对称, 不重证). 对 $x &gt; y &gt; 0$, 由 $F$ 的定义与三角不等式 (Prop 4.11.13 的 $\left|\int\right| \le \int |\cdot|$):
+      $$\abs{F(x) - F(y)} \;=\; \abs[\bigg]{\int_y^x f(t)\,dt} \;\le\; \int_y^x \abs{f(t)}\,dt \;=\; \int_\R \abs{f}\,\mathbf{1}_{[y, x]}\,dt.$$
+      </p>
+      <p>声明: $\int_N^\infty \abs{f}\,dt \to 0$ 当 $N \to \infty$. 这是 DCT 应用于族 $\abs{f}\,\mathbf{1}_{[N, \infty)}$ 当 $N \to \infty$ 时的极限:</p>
+      <ul>
+        <li>$\abs{f}\,\mathbf{1}_{[N, \infty)} \to 0$ a.e. (任意固定的 $t \in \R$, 一旦 $N &gt; t$ 后 $\mathbf{1}_{[N, \infty)}(t) = 0$).</li>
+        <li>Dominator: $\abs{f}\,\mathbf{1}_{[N, \infty)} \le \abs{f} \in \IL$.</li>
+      </ul>
+      <p>故 $\int \abs{f}\,\mathbf{1}_{[N, \infty)}\,dt \to 0$, 即 $\int_N^\infty \abs{f}\,dt \to 0$.</p>
+
+      <p>因此当 $y \to \infty$ 时, $\int_y^x \abs{f} \le \int_y^\infty \abs{f} \to 0$ 一致于 $x &gt; y$, 故 $\abs{F(x) - F(y)} \to 0$. 由实数 Cauchy 完备性, $L_+ := \lim_{x \to \infty} F(x)$ 存在且 $\in \R$.</p>
+
+      <p><strong>Step 2 — $L_+ = 0$ 反证.</strong> 假设 $L_+ \ne 0$. 不失一般性 $L_+ &gt; 0$ ($L_+ &lt; 0$ 情形对 $-F$ 重复论证).</p>
+      <p>由 $\lim_{x \to \infty} F(x) = L_+$, 存在 $N \in \R$ 使得对所有 $x \ge N$ 有 $F(x) \ge L_+ / 2 &gt; 0$, 即 $\abs{F(x)} \ge L_+ / 2$. 于是对每个 $k \in \N$:
+      $$\abs{F} \cdot \mathbf{1}_{[N, N+k]} \;\ge\; \frac{L_+}{2}\,\mathbf{1}_{[N, N+k]} \qquad \text{a.e. (其实处处).}$$
+      </p>
+      <p>由假设 $F \in \IL$, 故 $\abs{F} \in \IL$ (绝对值闭性). 由单调性 (Prop 4.11.14, $\IL$ 上的单调性) 与乘积规则:
+      $$\int_\R \abs{F}\,\mathbf{1}_{[N, N+k]}\,dt \;\le\; \int_\R \abs{F}\,dt \;&lt; \;\infty \qquad \text{对每个 } k. \tag{$\dagger$}$$
+      但另一方面, 同样的单调性给出
+      $$\int_\R \abs{F}\,\mathbf{1}_{[N, N+k]}\,dt \;\ge\; \frac{L_+}{2} \int_\R \mathbf{1}_{[N, N+k]}\,dt \;=\; \frac{L_+}{2} \cdot k \;\xrightarrow[k \to \infty]{}\; +\infty. \tag{$\ddagger$}$$
+      $(\dagger)$ 与 $(\ddagger)$ 矛盾 (一个有界, 一个发散到 $\infty$). 故假设错误, $L_+ = 0$.</p>
+
+      <p>对称地 ($x \to -\infty$, 同样的 Cauchy 论证 + 线性增长反证), $\lim_{x \to -\infty} F(x) = 0$. $\blacksquare$</p>
+    </div>
+  </div>
+</details>
+
+<h3 id="sec5d">Part (d) — IBP on $\R$: $\int_\R f G = -\int_\R F g$</h3>
+
+<div class="box def">
+  <span class="box-title">📋 Problem 4.11.8(d)</span>
+  <p>设 $f, g \in \IL(\R)$, $F(x) := \int_0^x f$, $G(x) := \int_0^x g$ 如 (b) 所定义. <strong>额外假设</strong> $F \in \IL(\R)$ 且 $G$ 在 $\R$ 上有界. 证明
+  $$\int_{-\infty}^{\infty} f(t)\,G(t)\,dt \;=\; -\int_{-\infty}^{\infty} F(t)\,g(t)\,dt.$$
+  </p>
+</div>
+
+<details>
+  <summary><strong>展开严格证明 (双侧 $[-n, n]$ truncation + DCT)</strong></summary>
+  <div class="details-body">
+    <div class="box thm">
+      <span class="box-title">证明</span>
+
+      <p><strong>Step 1 — 两端积分都 $\in \IL$ 且可由 truncation 取极限.</strong></p>
+      <p><em>左端 ($\int_\R fG$)</em>. 令 $M := \sup_\R \abs{G} &lt; \infty$ (假设之一). 定义 truncation
+      $$h_n := f \cdot G \cdot \mathbf{1}_{[-n, n]}, \qquad n \in \N.$$
+      验证 DCT 三条件:</p>
+      <ul>
+        <li><strong>每项 $\in \IL$.</strong> $G \cdot \mathbf{1}_{[-n, n]} \in \IR$ 因为由 (a) $G$ 在 $\R$ 连续, 在紧集 $[-n, n]$ 上有界 (由 $M$, 或直接由连续性 + EVT), 边界两点测度零. 由乘积规则 ($f \in \IL$, $G \mathbf{1}_{[-n,n]} \in \IR$ 有界), $h_n \in \IL$.</li>
+        <li><strong>a.e. 收敛.</strong> $h_n(t) \to f(t)\,G(t)$ 对每个 $t \in \R$ (一旦 $n &gt; |t|$, $\mathbf{1}_{[-n,n]}(t) = 1$).</li>
+        <li><strong>Dominator.</strong> $\abs{h_n(t)} = \abs{f(t)}\abs{G(t)}\mathbf{1}_{[-n,n]}(t) \le M\,\abs{f(t)}$, 而 $M \abs{f} \in \IL$ (常数乘 $\IL$ 函数).</li>
+      </ul>
+      <p>DCT 给出 $f G \in \IL$ 且
+      $$\int_{-n}^n f(t)\,G(t)\,dt \;=\; \int_\R h_n\,dt \;\longrightarrow\; \int_\R f\,G\,dt. \tag{I}$$
+      </p>
+      <p><em>右端 ($\int_\R F g$)</em>. 由 (c), $F$ 在 $\R$ 连续且 $F(\pm\infty) = 0$. 因此 $F$ 是连续函数且在 $\pm\infty$ 处趋于 $0$ —— 结合连续性, $F$ 在 $\R$ 上<strong>有界</strong> (考虑足够大的 $R$ 使 $|x| &gt; R$ 时 $|F(x)| &lt; 1$, 而在紧集 $[-R, R]$ 上 $F$ 由 EVT 有界). 令 $M' := \sup_\R \abs{F} &lt; \infty$. 定义
+      $$H_n := F \cdot g \cdot \mathbf{1}_{[-n, n]}.$$
+      重复 DCT 论证 (此次以 $M' \abs{g} \in \IL$ 为 dominator), 得 $F g \in \IL$ 且
+      $$\int_{-n}^n F(t)\,g(t)\,dt \;\longrightarrow\; \int_\R F\,g\,dt. \tag{II}$$
+      </p>
+
+      <p><strong>Step 2 — 在 (b) 中令 $n \to \infty$.</strong> 由 part (b), 取 $a = -n, b = n$ ($n &gt; 0$):
+      $$\int_{-n}^n f(t)\,G(t)\,dt \;=\; F(n)\,G(n) - F(-n)\,G(-n) - \int_{-n}^n F(t)\,g(t)\,dt. \tag{III}$$
+      在 (III) 中令 $n \to \infty$ 取极限.</p>
+      <ul>
+        <li>左端: 由 (I), $\int_{-n}^n fG \to \int_\R fG$.</li>
+        <li>右端边界项: 由 (c), $F(n) \to 0$ 且 $F(-n) \to 0$. 又 $\abs{G} \le M$, 故
+        $$\abs{F(n)\,G(n)} \le M\,\abs{F(n)} \to 0, \qquad \abs{F(-n)\,G(-n)} \le M\,\abs{F(-n)} \to 0.$$
+        </li>
+        <li>右端积分项: 由 (II), $\int_{-n}^n Fg \to \int_\R Fg$.</li>
+      </ul>
+      <p>因此 (III) 在 $n \to \infty$ 极限下化为
+      $$\int_\R f\,G\,dt \;=\; 0 - 0 - \int_\R F\,g\,dt \;=\; -\int_\R F\,g\,dt. \qquad \blacksquare$$
+      </p>
+    </div>
+  </div>
+</details>
+
+<h3>整体反思</h3>
+
+<div class="box remark">
+  <span class="box-title">💡 4 part 串起来证了什么</span>
+  <p>4 个 part 合在一起, 证明了如下<strong>定理</strong> ("Lebesgue 版分部积分"):
+  <blockquote style="border-left: 3px solid #888; margin: 0.5em 1em; padding: 0.3em 1em;">
+  设 $f, g \in \IL(\R)$, 定义 $F(x) := \int_0^x f$ 与 $G(x) := \int_0^x g$. 假设额外条件 $F \in \IL(\R)$ 与 $G$ 在 $\R$ 上有界. 则
+  $$\int_\R f(t)\,G(t)\,dt \;=\; -\int_\R F(t)\,g(t)\,dt.$$
+  </blockquote>
+  </p>
+  <p>这个定理是经典 Riemann 版 IBP $\int_a^b u\,dv = uv\big|_a^b - \int_a^b v\,du$ (要求 $u, v \in C^1[a, b]$) 的<strong>显著推广</strong>: <em>正则性</em>上的要求从 "$C^1$" 削弱到 "只需 $f, g \in \IL$, 无需可导"; 区间从 "有界 $[a, b]$" 扩展到 "整条实线". 代价是引入两个非平凡的额外假设:</p>
+  <ul>
+    <li>$F \in \IL$ — 保证 $F(\pm\infty) = 0$ (由 part (c)), 边界项 $F(b)G(b) - F(a)G(a) \to 0$ 当 $a, b \to \pm\infty$;</li>
+    <li>$G$ bounded — 提供 part (d) Step 1 的 dominator $M\abs{f}$, 即把 $G$ 在 truncation 上的影响压成 "$\IL$ 函数乘有界数".</li>
+  </ul>
+  <p>这两条额外假设并不互相对偶 ($F \in \IL$ vs $G$ bounded), 因为它们扮演不同角色: 一个让边界项消失, 一个让 DCT 适用. 在 Fourier 分析中, "tail decay + bounded" 这种成对出现的假设极为典型 —— Schwartz 函数 $\mathcal{S}(\R)$ 就同时具备这两类性质 (任意阶导数衰减快于多项式 + 全部有界), 因此 Lebesgue IBP 在 Schwartz 函数空间上无条件成立, 进而 distribution 理论中 $\partial$ 算子的定义 $\langle \partial T, \varphi \rangle := -\langle T, \partial \varphi \rangle$ 才合法.</p>
+  <p>从证明<strong>策略</strong>角度回顾, 4 个 part 体现了 §4.11 一个反复出现的<strong>"通过 truncation 接力"</strong> pattern: (a) 用 truncation $\chi_h$ 处理"差分"; (b) 用 truncation $\mathbf{1}_T$ 把二维积分限制到三角域 + 张量积砖块分解; (c) 用 truncation $\mathbf{1}_{[N, \infty)}$ 处理无穷尾; (d) 用 truncation $\mathbf{1}_{[-n, n]}$ 双侧逼近. 每个 truncation 都把 Lebesgue 问题降到 Riemann (或可控的 $\IL$ 子族) 上, DCT 负责把极限拿回来. 这正是 §4.11 工具箱的核心使用模式.</p>
+</div>
+
+      <h2 id="sec6">§6 Problem 4.11.11 — 多项式 × Gaussian (MCT-DCT 二段法)</h2>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 4.11.11</span>
+        <p>Show that for all polynomials $p$, the Lebesgue integral
+        $$\int_{\R^n} p(\mathbf{x})\,e^{-|\mathbf{x}|^2}\,|d^n\mathbf{x}|$$
+        exists.</p>
+      </div>
+
+      <h3>策略</h3>
+
+      <p>这是本次 HW 唯一<strong>必须走 MCT-DCT 二段法</strong>的题. 多项式 $p(\mathbf{x}) = \sum_\alpha c_\alpha \mathbf{x}^\alpha$ (多重指标 $\alpha = (\alpha_1, \dots, \alpha_n) \in \N_0^n$, $\mathbf{x}^\alpha := x_1^{\alpha_1}\cdots x_n^{\alpha_n}$) 在奇次幂项处<strong>变号</strong>, 所以纯 MCT 不能直接用 (MCT 只对非负单调上升序列工作).</p>
+
+      <p>策略分三步:</p>
+      <ol>
+        <li><strong>Step 1 (MCT)</strong>: 证明非负 dominator $|\mathbf{x}|^{|\alpha|} e^{-|\mathbf{x}|^2} \in \IL$. 这一步用径向 truncation + 球坐标 + Γ 函数估计.</li>
+        <li><strong>Step 2 (DCT)</strong>: 用 Step 1 的 dominator, 把变号的 $\mathbf{x}^\alpha e^{-|\mathbf{x}|^2}$ 通过 DCT 拉到 $\IL$.</li>
+        <li><strong>Step 3 (线性)</strong>: 任意多项式是单项式的有限线性组合, 由 $\IL$ 线性性收尾.</li>
+      </ol>
+
+      <p>关键的<strong>放缩</strong>是 $|\mathbf{x}^\alpha| = |x_1|^{\alpha_1}\cdots|x_n|^{\alpha_n} \le (\max_i |x_i|)^{|\alpha|} \le |\mathbf{x}|^{|\alpha|}$ (其中 $|\alpha| := \alpha_1 + \cdots + \alpha_n$). 它把 anisotropic 的单项式 $\mathbf{x}^\alpha$ 控制为 isotropic 的 $|\mathbf{x}|^{|\alpha|}$, 后者经球坐标降到 1-D 后能用 Γ 函数显式估计.</p>
+
+      <details>
+        <summary><strong>展开严格证明 (MCT-DCT 二段法 + 线性求和)</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">证明</span>
+
+            <p><strong>Step 1 — Dominator $|\mathbf{x}|^{|\alpha|} e^{-|\mathbf{x}|^2} \in \IL$ via MCT.</strong> 固定多重指标 $\alpha$, 令 $|\alpha| := \alpha_1 + \cdots + \alpha_n$. 定义
+            $$g_R(\mathbf{x}) := |\mathbf{x}|^{|\alpha|}\,e^{-|\mathbf{x}|^2}\,\mathbf{1}_{|\mathbf{x}| \le R}.$$
+            每个 $g_R$ 在闭球 $\overline{B_R(0)}$ 上连续, 边界 $\{|\mathbf{x}| = R\}$ 测度零, 故由 Lebesgue 准则 $g_R \in \IR$. 序列非负且 $g_R \uparrow g$ 当 $R \to \infty$, 其中 $g(\mathbf{x}) := |\mathbf{x}|^{|\alpha|}\,e^{-|\mathbf{x}|^2}$.</p>
+
+            <p>球坐标 (Thm 4.10.12; $n = 1$ 时取 $\sigma_1 := 2$):
+            $$\int_{\R^n} g_R\,dV = \sigma_n \int_0^R r^{|\alpha| + n - 1}\,e^{-r^2}\,dr.$$
+            换元 $s = r^2$, $ds = 2r\,dr$ (即 $dr = ds/(2\sqrt{s})$):
+            $$\int_0^R r^{|\alpha|+n-1}\,e^{-r^2}\,dr = \frac{1}{2}\int_0^{R^2} s^{(|\alpha|+n-2)/2}\,e^{-s}\,ds.$$
+            由 $\Gamma$ 函数定义 $\Gamma(k) := \int_0^\infty s^{k-1}\,e^{-s}\,ds &lt; \infty$ for $k &gt; 0$, 这里取 $k = (|\alpha| + n)/2 &gt; 0$ (因为 $|\alpha| \ge 0$, $n \ge 1$):
+            $$\int_0^R r^{|\alpha|+n-1}\,e^{-r^2}\,dr \le \frac{1}{2}\,\Gamma\!\left(\tfrac{|\alpha| + n}{2}\right) &lt; \infty,$$
+            上界与 $R$ 无关. 故
+            $$\sup_{R &gt; 0} \int_{\R^n} g_R\,dV \le \frac{\sigma_n}{2}\,\Gamma\!\left(\tfrac{|\alpha| + n}{2}\right) &lt; \infty.$$
+            由 MCT (Thm 4.11.18), $g \in \IL(\R^n)$.</p>
+
+            <p><strong>Step 2 — $\mathbf{x}^\alpha\,e^{-|\mathbf{x}|^2} \in \IL$ via DCT.</strong> 定义
+            $$f_R(\mathbf{x}) := \mathbf{x}^\alpha\,e^{-|\mathbf{x}|^2}\,\mathbf{1}_{|\mathbf{x}| \le R}.$$
+            每个 $f_R \in \IR$ (闭球上连续, 边界测度零). 显然 $f_R \to f := \mathbf{x}^\alpha\,e^{-|\mathbf{x}|^2}$ 处处, 而由 Step 1 的放缩:
+            $$|f_R(\mathbf{x})| \le |\mathbf{x}^\alpha|\,e^{-|\mathbf{x}|^2} \le |\mathbf{x}|^{|\alpha|}\,e^{-|\mathbf{x}|^2} = g(\mathbf{x}) \in \IL.$$
+            故 $g$ 是 DCT 的合法 dominator. 由 DCT (Thm 4.11.19), $f \in \IL$ (且 $\int f_R\,dV \to \int f\,dV$, 虽然这个等式在本题不被要求).</p>
+
+            <p><strong>Step 3 — 线性求和.</strong> 任意多项式 $p(\mathbf{x}) = \sum_\alpha c_\alpha\,\mathbf{x}^\alpha$ (有限和, 比如总指数 $\le N$). 由 $\IL$ 线性性 (Lec 7.3):
+            $$p(\mathbf{x})\,e^{-|\mathbf{x}|^2} = \sum_\alpha c_\alpha\,\mathbf{x}^\alpha\,e^{-|\mathbf{x}|^2} \in \IL(\R^n),$$
+            积分等于 $\sum_\alpha c_\alpha \int \mathbf{x}^\alpha\,e^{-|\mathbf{x}|^2}\,dV$. $\blacksquare$</p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — Gaussian moments 与 Schwartz 函数</span>
+        <p>本题等价于说: 高斯函数 $e^{-|\mathbf{x}|^2}$ 的<strong>所有矩 (moments)</strong>
+        $$M_\alpha := \int_{\R^n} \mathbf{x}^\alpha\,e^{-|\mathbf{x}|^2}\,dV$$
+        都是有限实数 — 与多项式次数 $|\alpha|$ 无关. 直觉是 "Gaussian 衰减<strong>压倒任何多项式增长</strong>": 不管多项式以 $|\mathbf{x}|^N$ 速度增长, $e^{-|\mathbf{x}|^2}$ 总是以更快速度衰减, 故乘积可积. 证明里 Γ 函数估计 $\Gamma((|\alpha|+n)/2) &lt; \infty$ 把这个直觉数学化.</p>
+        <p>更深一层: $p(\mathbf{x})\,e^{-|\mathbf{x}|^2}$ 属于 <strong>Schwartz 函数空间</strong> $\mathcal{S}(\R^n)$ —— 即"快速衰减"的光滑函数空间, 定义为 "任意阶导数 × 任意多项式 都有界". 本题的结论是 Schwartz 函数总 L-可积. 在物理学中, 这类积分是<strong>量子谐振子的能级矩元</strong>; 在概率论中, 这是<strong>标准正态分布的矩</strong>; 在调和分析中, Schwartz 空间是 Fourier 变换的"舒适地带" (其上 Fourier 变换是 $\mathcal{S} \to \mathcal{S}$ 的同胚).</p>
+        <p>注意我们<strong>没</strong>计算积分的<em>值</em>, 只证了它存在. 实际计算 $M_\alpha$ 时, 奇次幂矩为 $0$ (对称性), 偶次幂矩用积分换元 $s = r^2$ 化为 Γ 函数表达式; $n = 1$ 时 $\int_\R x^{2k}\,e^{-x^2}\,dx = \Gamma(k+1/2) = \frac{(2k)!}{4^k k!}\,\sqrt\pi$.</p>
+      </div>
+
+      <h2 id="sec7">§7 Problem 4.11.19 — improper Riemann → Lebesgue 桥定理</h2>
+
+      <div class="box def">
+        <span class="box-title">📋 Problem 4.11.19</span>
+        <p>设 $f$ 的支撑在 $[a, b)$ 内 ($b$ 可以 $= \infty$). 假设 $f$ 在 $[a, c]$ 上 L-可积 (即 $f \cdot \mathbf{1}_{[a,c]} \in \IL$) 对每个 $a &lt; c &lt; b$ 都成立. 证明: 若极限 $\displaystyle\lim_{c \to b}\int_a^c \abs{f(x)}\,dx$ 存在 (有限), 则 $f \in \IL$, 并且
+        $$\lim_{c \to b}\int_a^c f(x)\,dx = \int_a^b f(x)\,dx.$$
+        </p>
+      </div>
+
+      <h3>策略</h3>
+
+      <p>这是<strong>本次 HW 的"工具题"</strong>: 它正式证明了我们在 §1 工具箱与 §1.5 模板里"借用"的那条等价表述 — 对非负函数, "Lebesgue 可积 ⟺ 改进 Riemann 积分绝对收敛". §2-§6 反复用此等价跳过 MCT 的形式化书写, 现在终于把这把"工具"自己造出来.</p>
+
+      <p>关键陷阱: 题目假设的是 "$\lim \int_a^c \abs{f}\,dx$ 存在" —— 这<strong>比 "$\lim \int_a^c f\,dx$ 存在" 强很多</strong>. 经典反例: $f(x) = \sin(x)/x$ 在 $[1, \infty)$ 上, 改进 Riemann 积分 $\int_1^\infty \sin(x)/x\,dx$ 由 Dirichlet 准则收敛, 但 $\int_1^\infty |\sin(x)/x|\,dx = \infty$ (因为 $\sum_{n} \int_{n\pi}^{(n+1)\pi}|\sin x|/x\,dx \sim \sum 1/n$ 发散). Lebesgue 可积性需要的恰是绝对收敛, 这就是为什么题目假设"$|f|$ 的极限存在"才合理.</p>
+
+      <p>证明走 <strong>MCT 主链 + DCT 收尾</strong> 的 4 步:</p>
+      <ol>
+        <li>取离散化 $c_k \uparrow b$, 化连续极限为序列极限.</li>
+        <li>MCT 应用于非负序列 $\phi_k := |f|\,\mathbf{1}_{[a, c_k]}$, 拿到 $|f| \in \IL$.</li>
+        <li>DCT 应用于变号序列 $f_k := f \cdot \mathbf{1}_{[a, c_k]}$, 以 Step 2 的 $|f|$ 为 dominator, 拿到 $f \in \IL$ 与积分极限交换.</li>
+        <li>把序列极限升级为函数极限 (标准 ε-δ).</li>
+      </ol>
+
+      <details>
+        <summary><strong>展开严格证明 (MCT + DCT 二段法)</strong></summary>
+        <div class="details-body">
+          <div class="box thm">
+            <span class="box-title">证明</span>
+
+            <p>记 $M := \displaystyle\lim_{c \to b}\int_a^c \abs{f(x)}\,dx \in [0, \infty)$ (由题设有限).</p>
+
+            <p><strong>Step 1 — 离散化.</strong> 取任意序列 $c_k \in (a, b)$ 满足 $c_k \uparrow b$. 定义
+            $$\phi_k(x) := \abs{f(x)}\,\mathbf{1}_{[a, c_k]}(x), \qquad f_k(x) := f(x)\,\mathbf{1}_{[a, c_k]}(x).$$
+            由题设 $f \cdot \mathbf{1}_{[a, c_k]} \in \IL$, 故 $f_k \in \IL$. 由绝对值闭性 (Prop 4.11.13), $\phi_k = |f_k| \in \IL$.</p>
+
+            <p>因为 $\supp(f) \subset [a, b)$, 对每个 $x \in \R$ 检验:
+            <ul>
+              <li>$x \in [a, b)$: 一旦 $c_k &gt; x$ (最终成立, 因为 $c_k \uparrow b$), $\mathbf{1}_{[a, c_k]}(x) = 1$.</li>
+              <li>$x \notin [a, b)$: $f(x) = 0$, 两侧都是 $0$.</li>
+            </ul>
+            所以 $\phi_k \uparrow \abs{f}$ 处处, 且 $f_k \to f$ 处处.</p>
+
+            <p><strong>Step 2 — MCT 给出 $\abs{f} \in \IL$.</strong> 序列 $(\phi_k)$ 非负、单调上升、$\phi_k \in \IL$. 由题设
+            $$\sup_k \int \phi_k\,dx = \sup_k \int_a^{c_k} \abs{f}\,dx = M &lt; \infty$$
+            (单调上升序列的 sup 即极限). 由 MCT (Thm 4.11.18), $\abs{f} \in \IL$ 且 $\int_\R \abs{f}\,dx = M$.</p>
+
+            <p><strong>Step 3 — DCT 给出 $f \in \IL$ 与积分极限交换.</strong> 序列 $(f_k)$ 满足 $f_k \in \IL$, $f_k \to f$ 处处, dominator $\abs{f_k} \le \abs{f} \in \IL$ (Step 2). 由 DCT (Thm 4.11.19), $f \in \IL$ 且
+            $$\int_a^{c_k} f\,dx = \int f_k\,dx \;\longrightarrow\; \int f\,dx = \int_a^b f\,dx \quad (k \to \infty).$$
+            (最右等号: $\int_a^b f\,dx$ 是 $f$ 在 $\supp(f) \subset [a, b)$ 上的 L-积分, 由支撑约束等于 $\int_\R f\,dx$.)</p>
+
+            <p><strong>Step 4 — 序列极限 ⟹ 函数极限.</strong> 我们证明了: 对每个序列 $c_k \uparrow b$, $\int_a^{c_k} f\,dx \to \int_a^b f\,dx$. 由实分析标准事实 (单侧函数极限的序列刻画), 这等价于
+            $$\lim_{c \to b^-}\int_a^c f(x)\,dx = \int_a^b f(x)\,dx. \qquad \blacksquare$$
+            </p>
+          </div>
+        </div>
+      </details>
+
+      <div class="box remark">
+        <span class="box-title">💡 反思 — 与 §1 工具箱的关系 + sin(x)/x 反例</span>
+        <p>本题证的是<strong>"改进 Riemann 绝对收敛 ⟹ Lebesgue 可积 + 积分相同"</strong>. 这个结论在 §1 工具箱里被作为等价表述<em>预先借用</em>, 让我们在 Problems 5/6/7 里直接说 "MCT 把可积性归约到改进 Riemann 积分有限"; 现在 §7 正式给出证明, 闭环完成.</p>
+        <p>关键的"反向" — Lebesgue 可积是否反过来蕴含改进 Riemann 绝对收敛? 答案: <strong>是的</strong> (单调收敛). 但更值得记住的是<strong>非</strong>等价的情形: "改进 Riemann 条件收敛" 与 "Lebesgue 可积" 互不蕴含 — 经典反例 $\sin(x)/x$ 改进收敛但 $\not\in \IL$. 这条划分体现了 Riemann 与 Lebesgue 的本质差异: Riemann 容许"正负相消"型积分 (积分顺序很重要, 比如 Cauchy principal value), Lebesgue 则坚持"先分别考虑正负部分都可积才算可积"的严格立场.</p>
+        <p>本题的另一价值: 它把<strong>所有"truncation + MCT"型推理</strong>的形式化书写一次性完成. §2 (径向 ball $\{|x| \le R\}$), §3 (δ-shell $\{x \ge \delta\}$), §4 (R-bounded $\{x \le R\}$), §6 (径向 ball) 的 MCT 步骤本质上都是本题的<em>特例</em>, 区别只在 truncation 的几何形状; 一旦掌握 §7 的 4-step 模式, 那些题里"由 MCT 转化为改进 Riemann"的一句话证明都有底气.</p>
+      </div>
+
+      <h2 id="sec8">§8 方法论速查</h2>
+
+      <p>本次 HW 的核心工具集合, 按用途分四类. <strong>🟦 def</strong> = 用的 truncation 类型; <strong>🟨 thm</strong> = 反复调用的定理; <strong>🟢 tech</strong> = 通用技巧; <strong>🟥 pitfall</strong> = 常见错误.</p>
+
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def"><strong>径向 truncation</strong> $f \cdot \mathbf{1}_{|\mathbf{x}| \le R}$ — 用于无界域 + 径向被积函数 (§2 Problem 5, §6 Problem 11). 配球坐标转 1-D 积分.</li>
+          <li class="cs-def"><strong>δ-shell truncation</strong> $f \cdot \mathbf{1}_{x \ge \delta}$ — 用于原点 (或其它点) 处奇异性 (§3 Problem 6). $\delta \to 0$ 时 MCT.</li>
+          <li class="cs-def"><strong>R-bounded truncation</strong> $f \cdot \mathbf{1}_{x \le R}$ 切 ∞ 尾 — 用于无界域非径向函数 (§4 Problem 7).</li>
+          <li class="cs-def"><strong>Half-open $[a, c_k]$ truncation</strong> — 用于改进 Riemann 端点 (§7 Problem 19). $c_k \uparrow b$ 时 MCT.</li>
+          <li class="cs-def"><strong>双侧 $[-n, n]$ truncation</strong> — 用于 $\pm \infty$ 同时取极限 (§5 Problem 8(d)). 配 DCT.</li>
+
+          <li class="cs-thm"><strong>MCT (Thm 4.11.18)</strong>: $0 \le f_k \uparrow f$ a.e., $f_k \in \IL$ ⟹ $f \in \IL$ ⟺ $\sup_k \int f_k &lt; \infty$, 此时 $\int f = \lim \int f_k$.</li>
+          <li class="cs-thm"><strong>DCT (Thm 4.11.19)</strong>: $f_k \to f$ a.e., $|f_k| \le g \in \IL$ ⟹ $f \in \IL$ 且 $\int f_k \to \int f$.</li>
+          <li class="cs-thm"><strong>Lebesgue Fubini (Thm 4.11.10)</strong>: $h \in \IL(\R^n \times \R^m)$ ⟹ 迭代积分 a.e. 存在并等于 $\int h\,dV$.</li>
+          <li class="cs-thm"><strong>Product rule (Lec 7.3)</strong>: $f \in \IL$, $g \in \IR$ bounded ⟹ $fg \in \IL$. 注意 $g$ 必须 $\in \IR$ (即 Riemann 可积) 且 bounded; 仅 bounded 不够.</li>
+          <li class="cs-thm"><strong>Absolute value closure (Prop 4.11.13)</strong>: $f \in \IL$ ⟹ $|f| \in \IL$ 且 $\left|\int f\right| \le \int |f|$.</li>
+          <li class="cs-thm"><strong>Linearity of $\IL$ (Lec 7.3)</strong>: $a, b \in \R$, $f, g \in \IL$ ⟹ $a f + b g \in \IL$ 且 $\int(af+bg) = a\int f + b \int g$. 推到多项式 = 单项式有限和 (§6 Step 3).</li>
+
+          <li class="cs-tech"><strong>球坐标降维</strong>: $\displaystyle\int_{\R^n} f(|\mathbf{x}|)\,dV = \sigma_n \int_0^\infty f(r)\,r^{n-1}\,dr$ where $\sigma_n = \sigma(S^{n-1})$, $\sigma_1 = 2$. 把 $n$-维径向积分变 1-D, "$r^{n-1}$ 球壳因子"是阈值偏移的来源 (§2, §6).</li>
+          <li class="cs-tech"><strong>内积分尺度换元</strong> $y = xu$: 在 $\int_0^{x^m}(x^2 + y^2)^{-p}\,dy$ 上提出 $x^{1-2p}$ 因子, 剩余积分 $I(x^{m-1})$ 只依赖端点. 用于 §3, §4 把二维问题化为 1-D 渐近分析.</li>
+          <li class="cs-tech"><strong>渐近比较准则</strong>: $\int_0^1 x^a\,dx &lt; \infty \iff a &gt; -1$; $\int_1^\infty x^a\,dx &lt; \infty \iff a &lt; -1$. 配合 "$f \sim g$ ⟹ 同时可积或同时发散" 即可判定 1-D 改进积分收敛性.</li>
+          <li class="cs-tech"><strong>MCT-DCT 二段法</strong>: 对变号 $f$, 先用 MCT 拿到 $|f| \in \IL$ (or某非负 dominator $\in \IL$), 再用 DCT 以这个 dominator 拿到 $f \in \IL$ + 积分极限交换. §6 Problem 11 与 §7 Problem 19 都用此模式.</li>
+
+          <li class="cs-pitfall"><strong>忘了非负</strong>: MCT 要求 $f_k \ge 0$ 且单调上升, 对变号 $f_k$ 不能直接套. 想用 MCT 先取 $|f_k|$ (但极限交换需要 DCT, 不是 MCT).</li>
+          <li class="cs-pitfall"><strong>"bounded" ≠ "dominator"</strong>: DCT 要求 dominator $g \in \IL$, 不是 "$|f_k| \le M$ 常数". 在 $\R^n$ 上常数 $M$ 不可积 (无界域上 $\int M\,dV = \infty$), 故 $M$ 不是合法 dominator.</li>
+          <li class="cs-pitfall"><strong>improper Riemann ≠ Lebesgue</strong>: $\int_1^\infty \sin(x)/x\,dx$ 改进 Riemann 条件收敛 (Dirichlet test), 但 $\sin(x)/x \notin \IL(\R)$ 因为 $|\sin(x)/x|$ 不可积. 检验 $\IL$ 必须取<em>绝对值</em>积分有限 (§7 题设里 "$\lim \int |f|$ 存在" 就是为了避开这种 pathology).</li>
+        </ul>
+      </div>
+
+      <h2 id="sec9">§9 进一步阅读</h2>
+
+      <ul>
+        <li><strong>原题与提交解答</strong>: 题目 <code>../../HW/Pset/HW4.pdf</code>; LaTeX 完整证明 <code>../../HW/Response/HW4_response.pdf</code> (本页数学内容的 single source of truth).</li>
+        <li><strong>H&amp;H §4.11 — Lebesgue 积分构造与性质</strong>: 本次 HW 全 6 题来自此节. 配套定理: Thm 4.11.10 (Fubini), Thm 4.11.13 (绝对值闭性), Thm 4.11.18 (MCT), Thm 4.11.19 (DCT). 见教材 PDF <code>../../Vector Calculus, ... .pdf</code>.</li>
+        <li><strong>对应 typed notes</strong>:
+          <ul>
+            <li><code>Notes/Typed/7.1_notes/7.1_notes.tex</code> — Daniell-Stone 砖块分解构造 $\IL$.</li>
+            <li><code>Notes/Typed/7.2_notes/7.2_notes.tex</code> — 良定性证明的 setup (truncation + Cauchy tail).</li>
+            <li><code>Notes/Typed/7.3_notes/7.3_notes.tex</code> — 良定性完成 + $\IL$ 的初等性质 (线性、乘积、单调). 本次 HW §1 工具箱内除 MCT/DCT 外的所有定理都在此节.</li>
+          </ul>
+        </li>
+        <li><strong>相关 topic 页 (概念教学层)</strong>:
+          <ul>
+            <li><a href="../topics/12-lebesgue-construction.html">Topic 12 — Lebesgue 积分的构造</a>: 砖块分解原理.</li>
+            <li><a href="../topics/13-well-definedness.html">Topic 13 — 良定性证明</a>: truncation 与 Markov-style 估计技术.</li>
+            <li><a href="../topics/14-lebesgue-properties.html">Topic 14 — Lebesgue 积分的初等性质</a>: 本页 §1 工具箱中 MCT/DCT 之外的所有定理.</li>
+          </ul>
+        </li>
+        <li><strong>MT2 复习 (考前主题整理层)</strong>:
+          <ul>
+            <li><a href="../midterm2/MT2-C_lebesgue.html">MT2-C — Lebesgue 积分构造与性质</a>: 与本页同主题但按 topic 而非按 HW 组织.</li>
+            <li><a href="../midterm2/MT2-practice.html">MT2 Practice — 真题与详解</a>: 第 4-5 题与本页 §5 (Problem 8) 同类型; 第 8-9 题 (Generalized DCT / Scheffé) 与本页 §6 (Problem 11) 用同款 MCT-DCT 二段法.</li>
+          </ul>
+        </li>
+        <li><strong>下一步学什么</strong>: §4.11 之后是 Ch 5 (微分形式与 wedge 积) 与 Ch 6 (Stokes 定理). MCT/DCT 工具会在 Stokes 定理的极限论证里继续被用 (尤其在 forms 的逐点收敛 vs 积分收敛的衔接处).</li>
+      </ul>
+
+    </main>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Topic 16: Fourier transform — 定义与计算库 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\C': '\\mathbb{C}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|',
+        '\\FT': '\\widehat{#1}'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="15-dui.html">Topic 15</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="17-fourier-pde.html">Topic 17</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#motivation">§1 动机</a></li>
+        <li><a href="#prereq">§2 前置知识</a></li>
+        <li><a href="#definitions">§3 核心定义</a></li>
+        <li><a href="#theorems">§4 主要定理</a></li>
+        <li><a href="#examples">§5 Worked Examples</a></li>
+        <li><a href="#pitfalls">§6 常见陷阱</a></li>
+        <li><a href="#exercises">§7 练习</a></li>
+        <li><a href="#cheat">§8 速查表</a></li>
+        <li><a href="#further">§9 进一步阅读</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>Topic 16: Fourier transform — 定义与计算库</h1>
+      <p class="subtitle">Source: Lec 9.2 §4-6 + Lec 10.1 §1-3 · H&amp;H Ch 4 (无对应章节, 内容超出 H&amp;H) · 应用篇第 2 页</p>
+
+      <!-- §1 动机 -->
+      <h2 id="motivation">§1 动机</h2>
+      <p>Fourier transform (傅里叶变换) 是 modern analysis 最强大的工具之一: 它把"复杂函数"分解成"基本波 $e^{2\pi i \zeta x}$ 的叠加", 从而把函数空间与<strong>频率空间</strong> (frequency space) 对偶起来。它的应用横跨信号处理、PDE、量子力学、概率论 — 几乎所有定量学科都用得到它。这一 topic 把它的定义、性质、和最常见的 6 个具体 transform 一次性建立。</p>
+
+      <p>对本课程而言, FT 还有一个特殊意义: <em>它是把整学期讲的 Lebesgue 收敛理论 (DCT, MCT) "兑现"成可用方法的最优雅例子</em>。看似抽象的 Lebesgue 积分通过 FT 立刻给出 (a) 一组干净的 explicit formula (本页的六大 worked example), (b) 一个深刻的对偶原理 ("growth ↔ smoothness"), (c) 在 Topic 17 中变成解 PDE 的统一方法。本页主要打下基础, 在 Topic 17 看到它收割成果。</p>
+
+      <p>本页的中心叙事是一句口号:
+      <div style="text-align:center;margin:18px 0;">
+        <strong style="font-size:1.1em;color:#7d5b04;border:2px solid #b08412;padding:8px 16px;border-radius:6px;background:#fcf6e3;">函数的 growth ↔ Fourier transform 的 smoothness</strong>
+      </div>
+      即: $f(x)$ 在 $|x| \to \infty$ 时<em>衰减得多快</em>, 控制 $\FT{f}(\zeta)$ <em>有多 smooth</em>; 反之, $f$ <em>有多 smooth</em>, 控制 $\FT{f}$ 在 $|\zeta| \to \infty$ 时<em>衰减得多快</em>。我们会通过几个关键恒等式精确化这个对偶 (Thm 16.2 & Corollary 16.3)。</p>
+
+      <p>注意一个 convention 警告: <strong>本课程用的 FT 约定与大多数教科书相反</strong> (我们用 $e^{+2\pi i \zeta x}$ 在 forward 中). 这是 Def 16.1 中的 remark, 也是 Pitfall 16.1 中重点提醒的事。convention 不同会差<em>符号</em>, 学完一种后再读别的书需要做翻译。</p>
+
+      <!-- §2 前置知识 -->
+      <h2 id="prereq">§2 前置知识</h2>
+      <div class="box prereq">
+        <span class="box-title">在阅读本页前，你应该已经掌握:</span>
+        <ul>
+          <li>复指数: $e^{i\theta} = \cos\theta + i\sin\theta$ (Euler identity), $e^{i\theta} - e^{-i\theta} = 2i\sin\theta$.</li>
+          <li><a href="07-fubini.html">Topic 07</a>: <strong>Fubini 定理</strong> — 用来把 $\R^n$ 上的可分离 FT 积分拆成 $n$ 个一维 FT 的乘积. 本页几乎所有 worked example 都用到.</li>
+          <li><a href="15-dui.html">Topic 15</a>: <strong>DUI 定理</strong> — Gaussian Fourier transform 的标准推导 (Example 16.4 的 ODE 方法) 完全依赖 DUI; "差商 $\le \IL$" hypothesis 是反复用到的工具.</li>
+          <li><a href="14-lebesgue-properties.html">Topic 14</a>: Lebesgue 积分的线性性质 (Linearity is what makes FT linear).</li>
+          <li>1D 改良 Gaussian 积分: $\int_\R e^{-ax^2}\,dx = \sqrt{\pi/a}$ for $a &gt; 0$ (Lec 9.2 Example 15.1 的代换 form).</li>
+        </ul>
+      </div>
+
+      <!-- §3 核心定义 -->
+      <h2 id="definitions">§3 核心定义</h2>
+
+      <div class="box def">
+        <span class="box-title">Definition 16.1 (Fourier transform 与逆变换)</span>
+        <p>设 $f \colon \R^n \to \R$ (或 $\C$) Lebesgue 可积, 即 $f \in \IL(\R^n)$. 定义 $f$ 的 <strong>Fourier transform (傅里叶变换)</strong> 为 $\FT{f} \colon \R^n \to \C$:
+        $$ \FT{f}(\zeta) \;:=\; \int_{\R^n} f(x)\,e^{2\pi i \zeta \cdot x}\,dx, \qquad \zeta \in \R^n, $$
+        其中 $\zeta \cdot x = \zeta_1 x_1 + \cdots + \zeta_n x_n$ 是标准内积. 变量 $\zeta$ (有时写作 $\xi$) 是<strong>频率变量 (frequency variable)</strong>.</p>
+        <p>当 $f$ 与 $\FT{f}$ 都属于 $\IL$ 且 $f$ 在 $x$ 处连续时, <strong>Fourier inversion (傅里叶逆变换)</strong> 公式成立:
+        $$ f(x) \;=\; \int_{\R^n} \FT{f}(\zeta)\,e^{-2\pi i \zeta \cdot x}\,d\zeta. $$</p>
+      </div>
+
+      <p><strong>直觉</strong>: $\FT{f}(\zeta)$ 是"$f$ 在频率 $\zeta$ 处的 amplitude"。inversion 公式说: $f$ 等于不同频率波 $e^{-2\pi i \zeta \cdot x}$ 的"加权叠加", 其权重就是 $\FT{f}(\zeta)$。这是傅里叶级数 ($f$ 在圆上的展开) 在 $\R^n$ 上的连续化。</p>
+
+      <p><strong>重要约定警告</strong>: 我们采用</p>
+      <ul>
+        <li><strong>forward 用 $e^{+2\pi i \zeta \cdot x}$</strong> (正号),</li>
+        <li><strong>inverse 用 $e^{-2\pi i \zeta \cdot x}$</strong> (负号),</li>
+        <li>两边都<strong>没有 $1/(2\pi)$ 或 $1/\sqrt{2\pi}$ 这样的额外因子</strong> ($2\pi$ 已吸收进指数里),</li>
+        <li>这是<strong>Hubbard 与本课程使用的约定</strong>. 大多数标准教科书 (Stein-Shakarchi, Folland, Rudin) 用<em>负号</em>在 forward, 正号在 inverse — 与本页相反.</li>
+      </ul>
+      <p>不同约定下的公式会差一个 $\zeta \mapsto -\zeta$ 的替换或一个 $2\pi$ 因子. 不影响数学本质, 但<strong>跨教材读论文时务必先核对约定</strong>。</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 16.2 (Schwartz space 与 frequency 的"对偶"位置)</span>
+        <p><strong>Schwartz space $\mathcal{S}(\R^n)$</strong> 是 $C^\infty$ 且其本身与所有偏导数衰减<em>快于任何多项式</em>的函数集合:
+        $$ \mathcal{S}(\R^n) \;=\; \{f \in C^\infty(\R^n) : \forall \alpha, \beta \in \N^n,\ \sup_x |x^\alpha\,\partial^\beta f(x)| &lt; \infty\}. $$
+        其中 $x^\alpha = x_1^{\alpha_1}\cdots x_n^{\alpha_n}$, $\partial^\beta = \partial_{x_1}^{\beta_1}\cdots \partial_{x_n}^{\beta_n}$.</p>
+      </div>
+
+      <p><strong>直觉</strong>: Schwartz 函数同时具备"非常 smooth"+"非常 fast decay"两个性质. Gaussian $e^{-|x|^2}$ 是 prototypical 例子 (Example 16.4). Schwartz space 是 Fourier transform <em>从自身到自身</em>的双射 — 这是 §4 中 growth-smoothness 对偶的极致体现.</p>
+
+      <p>本页主要在 $\IL(\R^n)$ 上工作 (而非 $\mathcal{S}$), 但 Schwartz 是判断 FT "良好工作的 sweet spot" 的概念框架。Topic 17 中 PDE 应用的所有 initial data 我们都默认是 Schwartz, 不再单独 verify regularity.</p>
+
+      <!-- §4 主要定理 -->
+      <h2 id="theorems">§4 主要定理</h2>
+
+      <p>本节有三个关键性质 — 加上 Fubini 提供的<strong>可分离性</strong> (separable functions transform separably), 它们组成所有具体计算的工具箱。</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 16.1 (线性 + 平移 + 调制 + 可分离, FT 基础性质)</span>
+        <p>设 $f, g \in \IL(\R^n)$, $a, b \in \C$, $h \in \R^n$, $c \in \R^n$. 则
+        <ol>
+          <li><strong>线性 (Linearity)</strong>: $\widehat{af + bg}(\zeta) = a\FT{f}(\zeta) + b\FT{g}(\zeta)$.</li>
+          <li><strong>平移 (Translation)</strong>: 设 $f_h(x) := f(x - h)$. 则 $\FT{f_h}(\zeta) = e^{2\pi i \zeta \cdot h}\FT{f}(\zeta)$. <em>x-平移变 $\zeta$-modulation</em>.</li>
+          <li><strong>调制 (Modulation)</strong>: $\widehat{e^{2\pi i c \cdot x}\,f(x)}(\zeta) = \FT{f}(\zeta + c)$ (在我们的约定下; 或 $\FT{f}(\zeta - c)$ 在 $-2\pi i$ 约定下). <em>x-modulation 变 $\zeta$-shift</em>.</li>
+          <li><strong>可分离 (Tensor / Fubini)</strong>: 若 $f(x_1, \ldots, x_n) = f_1(x_1)\cdots f_n(x_n)$ (分离形式), 则
+          $$ \FT{f}(\zeta_1, \ldots, \zeta_n) \;=\; \prod_{j=1}^n \FT{f_j}(\zeta_j). $$</li>
+        </ol>
+        </p>
+      </div>
+
+      <p><strong>Proof sketch.</strong> 线性来自积分的线性. 平移用 $x \to x + h$ 代换: $\int f(x - h)e^{2\pi i \zeta x}\,dx = \int f(u) e^{2\pi i \zeta(u + h)}\,du = e^{2\pi i \zeta h}\FT{f}(\zeta)$. 调制就是把 $e^{2\pi i c x}$ 与 $e^{2\pi i \zeta x}$ 合并指数. Tensor 来自 Fubini: $\int_{\R^n} \prod f_j(x_j) e^{2\pi i \zeta_j x_j}\,dx = \prod \int f_j(x_j) e^{2\pi i \zeta_j x_j}\,dx_j$. $\square$</p>
+
+      <p>性质 (4) 是<strong>本页所有具体计算的 backbone</strong>: indicator 在 $[-A_1, A_1] \times \cdots$ 上 (Example 16.3), Gaussian 在 $\R^n$ 上 (Example 16.5), 以及 double-exp 二维形式 (Example 16.6), 全部归约成一维 FT 的乘积.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 16.2 ("微分 → 乘法" — FT 最关键的恒等式)</span>
+        <p>设 $f \in \IL(\R^n) \cap C^1$, $|f(x)| \to 0$ as $|x| \to \infty$. 则对每个 $j$,
+        $$ \widehat{\partial_{x_j} f}(\zeta) \;=\; -2\pi i\,\zeta_j\,\FT{f}(\zeta). $$
+        即: <em>$x$ 方向求导 在 frequency 中变成乘以 $-2\pi i \zeta_j$</em>。</p>
+      </div>
+
+      <p><strong>Proof.</strong> 分部积分 (沿 $x_j$ 方向):
+      $$ \widehat{\partial_{x_j}f}(\zeta) \;=\; \int_{\R^n}\partial_{x_j}f(x)\,e^{2\pi i \zeta \cdot x}\,dx. $$
+      把 $\partial_{x_j}$ 从 $f$ "搬到" $e^{2\pi i \zeta x}$ 上: 因 $\partial_{x_j}(e^{2\pi i \zeta x}) = 2\pi i \zeta_j\,e^{2\pi i \zeta x}$,
+      $$ = \bigl[f(x)\,e^{2\pi i \zeta \cdot x}\bigr]_{x_j = -\infty}^{x_j = \infty} - \int_{\R^n} f(x)\cdot 2\pi i \zeta_j\,e^{2\pi i \zeta \cdot x}\,dx. $$
+      边界项 vanish 因 $f \to 0$ at $\infty$ (而 $|e^{2\pi i \zeta x}| = 1$ bounded). 故得到 $-2\pi i \zeta_j \FT{f}(\zeta)$. $\square$</p>
+
+      <p><strong>口号</strong>: 在 frequency 空间, <em>"derivative" 就是 "multiplication by $-2\pi i \zeta$"</em>。这是后续 PDE 应用 (Topic 17) 的核心: 它把<strong>differential operator 对角化</strong>成 frequency 空间的 multiplication.</p>
+
+      <div class="box thm">
+        <span class="box-title">Corollary 16.3 (高阶导数 + 对偶: $\partial_\zeta \FT{f} = 2\pi i \widehat{xf}$)</span>
+        <p>设条件足够强 (适当 decay + smoothness, 实战在 Schwartz 类即可). 则:
+        <ol>
+          <li><strong>高阶 $x$-导数</strong>: $\widehat{\partial_{x_j}^k f}(\zeta) = (-2\pi i \zeta_j)^k \FT{f}(\zeta)$.</li>
+          <li><strong>$\zeta$-导数对应 $x$-乘 (对偶)</strong>: $\dfrac{\partial}{\partial \zeta_j}\FT{f}(\zeta) = 2\pi i\,\widehat{x_j f}(\zeta)$. 高阶: $\partial_{\zeta_j}^k \FT{f} = (2\pi i)^k \widehat{x_j^k f}$.</li>
+          <li><strong>Laplacian</strong>: $\widehat{\Delta f}(\zeta) = -4\pi^2 |\zeta|^2 \FT{f}(\zeta)$ where $\Delta = \sum_j \partial_{x_j}^2$.</li>
+        </ol>
+        </p>
+      </div>
+
+      <p><strong>Proof.</strong> (1) 是 Thm 16.2 的 $k$ 次迭代. (2) 是 DUI (<a href="15-dui.html">Topic 15</a>) 应用在 $\FT{f}(\zeta) = \int f(x) e^{2\pi i \zeta x}\,dx$ 上, $\partial_\zeta$ 穿入积分号给出额外因子 $2\pi i x$. (3) 是 (1) 取 $k = 2$ 再对 $j$ 求和. $\square$</p>
+
+      <p><strong>对偶原理</strong>: (1) 与 (2) 是<em>镜像</em>:
+      <ul>
+        <li>"$f$ 的 $x$-导数" $\leftrightarrow$ "乘以 $-2\pi i \zeta$ 后取 FT" (FT 把 differentiation 翻译成 multiplication),</li>
+        <li>"$\FT{f}$ 的 $\zeta$-导数" $\leftrightarrow$ "$f$ 先乘以 $2\pi i x$ 后取 FT" (反之亦然 — 但有正号 vs 负号区别).</li>
+      </ul>
+      这是 §1 中那句口号 "<em>growth ↔ smoothness</em>" 的精确化。具体: $\FT{f}$ 可微 $k$ 次 $\Leftrightarrow$ $x^k f(x) \in \IL$ — 后者要求 $f$ 在 $|x| \to \infty$ 时衰减至少 $|x|^{-k-\eps}$。</p>
+
+      <div class="box remark">
+        <span class="box-title">Slogan: Schwartz space 是 FT 的"自然主场"</span>
+        <p>因为 Schwartz $\mathcal{S}$ 中函数 + 所有偏导 + 所有"乘 $x^\alpha$"都仍在 $\mathcal{S}$, Corollary 16.3 (1) (2) 让 $\FT$ <em>映 $\mathcal{S}$ 到 $\mathcal{S}$</em>。事实上 $\FT \colon \mathcal{S} \to \mathcal{S}$ 是 bijection (with inverse = inverse FT). 所以 Schwartz space 是<em>FT-self-dual</em>。这就是为什么 distribution 理论默认用 Schwartz 作 test function 空间.</p>
+      </div>
+
+      <!-- §5 Worked Examples -->
+      <h2 id="examples">§5 Worked Examples</h2>
+
+      <p>下面六个计算覆盖了课程对 FT 的全部"explicit menu"。记忆它们 (尤其 Example 16.1 与 16.4) 是<strong>必修</strong>; 它们组合 + Fubini 可以拼出几乎所有考试题。</p>
+
+      <div class="box example">
+        <span class="box-title">Example 16.1 (一维 indicator: $\mathbf{1}_{[-A, A]}$)</span>
+        <p><strong>问题</strong>: 计算 $\FT{f}(\zeta)$ 其中 $f(x) = \mathbf{1}_{[-A, A]}(x)$, $A &gt; 0$.</p>
+        <p>对 $\zeta \ne 0$:
+        $$ \FT{f}(\zeta) \;=\; \int_{-A}^A e^{2\pi i \zeta x}\,dx \;=\; \frac{e^{2\pi i \zeta A} - e^{-2\pi i \zeta A}}{2\pi i \zeta}. $$
+        用 Euler: $e^{i\theta} - e^{-i\theta} = 2i\sin\theta$:
+        $$ \boxed{\FT{f}(\zeta) \;=\; \frac{2i\sin(2\pi\zeta A)}{2\pi i \zeta} \;=\; \frac{\sin(2\pi\zeta A)}{\pi\zeta}, \qquad \zeta \ne 0.} $$
+        对 $\zeta = 0$: $\FT{f}(0) = \int_{-A}^A 1\,dx = 2A$. (这也是 $\lim_{\zeta \to 0} \sin(2\pi\zeta A)/(\pi\zeta) = 2A$ 由 Taylor.)</p>
+        <p><strong>注</strong>: 函数 $\sin(\pi x)/(\pi x)$ (取值 1 at 0) 称 <strong>sinc 函数</strong> (unnormalized). 它的 $1/|\zeta|$ 衰减比预期慢 — 因为 $\mathbf{1}_{[-A,A]}$ 在 $\pm A$ 处跳跃不连续, "一阶不可导", 对偶原理 (Cor 16.3) 告诉我们 FT 衰减只到 $|\zeta|^{-1}$.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 16.2 (二维 rectangle indicator)</span>
+        <p><strong>问题</strong>: $f(x, y) = \mathbf{1}_{[-A, A] \times [-B, B]}(x, y)$.</p>
+        <p>用 Thm 16.1 (4) 可分离: $f(x, y) = \mathbf{1}_{[-A, A]}(x)\mathbf{1}_{[-B, B]}(y)$. 故
+        $$ \FT{f}(\zeta, \eta) \;=\; \widehat{\mathbf{1}_{[-A,A]}}(\zeta) \cdot \widehat{\mathbf{1}_{[-B,B]}}(\eta). $$
+        分四种情形 (依 $\zeta, \eta$ 是否为零):</p>
+        $$
+        \FT{f}(\zeta, \eta) = \begin{cases}
+        \dfrac{\sin(2\pi A\zeta)}{\pi\zeta} \cdot \dfrac{\sin(2\pi B\eta)}{\pi\eta}, & \zeta, \eta \ne 0, \\[1ex]
+        \dfrac{\sin(2\pi A\zeta)}{\pi\zeta} \cdot 2B, & \zeta \ne 0, \eta = 0, \\[1ex]
+        2A \cdot \dfrac{\sin(2\pi B\eta)}{\pi\eta}, & \zeta = 0, \eta \ne 0, \\[1ex]
+        4AB, & \zeta = \eta = 0.
+        \end{cases}
+        $$
+        <p><strong>口诀</strong>: 哪个 $\zeta_j = 0$, 哪个 sinc 因子换成 $2A_j$ (区间长度).</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 16.3 ($n$-维 box indicator — 完全推广)</span>
+        <p><strong>问题</strong>: $f(x) = \mathbf{1}_{[-A_1, A_1] \times \cdots \times [-A_n, A_n]}(x)$, $A_j &gt; 0$.</p>
+        <p>反复用 Fubini:
+        $$ \FT{f}(\zeta_1, \ldots, \zeta_n) \;=\; \prod_{j=1}^n \int_{-A_j}^{A_j} e^{2\pi i \zeta_j x_j}\,dx_j \;=\; \prod_{j=1}^n \begin{cases} \dfrac{\sin(2\pi A_j \zeta_j)}{\pi\zeta_j}, & \zeta_j \ne 0, \\[1ex] 2A_j, & \zeta_j = 0. \end{cases} $$
+        这是 Example 16.2 的直接推广。也可以写成形式上一致的式子: 用 $\mathrm{sinc}(z) := \sin(\pi z)/(\pi z)$ (定义为 1 at 0), 则 $\FT{f}(\zeta) = \prod_j 2A_j\,\mathrm{sinc}(2A_j \zeta_j)$.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 16.4 ★ (1D Gaussian — 两种方法, 自我对偶的明星例子)</span>
+        <p><strong>问题</strong>: $f(x) = e^{-ax^2}$, $a &gt; 0$. 求 $\FT{f}(\zeta)$.</p>
+
+        <p><strong>方法 A (DUI, Lec 9.2 原法)</strong>. 用 Cor 16.3 (2): $\dfrac{d}{d\zeta}\FT{f}(\zeta) = 2\pi i \widehat{x e^{-ax^2}}(\zeta)$. 用 $x e^{-ax^2} = -\dfrac{1}{2a}\dfrac{d}{dx}e^{-ax^2}$, 然后用 Thm 16.2:
+        $$ \widehat{x e^{-ax^2}}(\zeta) \;=\; -\frac{1}{2a}\widehat{\partial_x e^{-ax^2}}(\zeta) \;=\; -\frac{1}{2a}(-2\pi i \zeta)\FT{f}(\zeta) \;=\; \frac{\pi i \zeta}{a}\FT{f}(\zeta). $$
+        组合:
+        $$ \frac{d}{d\zeta}\FT{f}(\zeta) \;=\; 2\pi i \cdot \frac{\pi i \zeta}{a}\FT{f}(\zeta) \;=\; -\frac{2\pi^2 \zeta}{a}\FT{f}(\zeta). $$
+        这是关于 $\zeta$ 的可分离 ODE: $\ln \FT{f}(\zeta) = -\pi^2\zeta^2/a + C$, 故 $\FT{f}(\zeta) = K\,e^{-\pi^2\zeta^2/a}$. 用 $\FT{f}(0) = \int e^{-ax^2}\,dx = \sqrt{\pi/a}$ 给 $K = \sqrt{\pi/a}$.</p>
+
+        <p><strong>方法 B (完成平方, Lec 10.1 法)</strong>. 把指数中的 $-ax^2 + 2\pi i \zeta x$ 完成平方:
+        $$ -ax^2 + 2\pi i \zeta x \;=\; -a\left(x - \frac{i\pi\zeta}{a}\right)^2 - \frac{\pi^2 \zeta^2}{a}. $$
+        所以
+        $$ \FT{f}(\zeta) \;=\; e^{-\pi^2\zeta^2/a}\int_\R e^{-a(x - i\pi\zeta/a)^2}\,dx \;=\; e^{-\pi^2\zeta^2/a} \cdot \sqrt{\pi/a}, $$
+        其中复 contour shift (complex analysis) 给出 $\int_\R e^{-a(x - i\pi\zeta/a)^2}\,dx = \int_\R e^{-au^2}\,du = \sqrt{\pi/a}$ (位移不影响 entire fast-decay 函数的积分 — Cauchy 定理).</p>
+
+        <p><strong>结论 (两种方法同答)</strong>:
+        $$ \boxed{\widehat{e^{-ax^2}}(\zeta) \;=\; \sqrt{\frac{\pi}{a}}\,e^{-\pi^2\zeta^2/a}.} $$</p>
+
+        <p><strong>美感</strong>: 取 $a = \pi$ 时 $\widehat{e^{-\pi x^2}}(\zeta) = e^{-\pi\zeta^2}$ — Gaussian 在 $a = \pi$ 是 FT 的<strong>不动点</strong> (fixed point). 这是 §1 口号"对偶"的极致体现.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 16.5 ($n$-维 Gaussian)</span>
+        <p><strong>问题</strong>: $f(x) = e^{-a|x|^2}$ on $\R^n$, $a &gt; 0$.</p>
+        <p>因 $|x|^2 = x_1^2 + \cdots + x_n^2$, $f(x) = \prod_j e^{-ax_j^2}$ — 可分离! 用 Example 16.4:
+        $$ \FT{f}(\zeta) \;=\; \prod_{j=1}^n \sqrt{\pi/a}\,e^{-\pi^2\zeta_j^2/a} \;=\; \left(\frac{\pi}{a}\right)^{n/2}\!\!e^{-\pi^2|\zeta|^2/a}. $$
+        $$ \boxed{\widehat{e^{-a|x|^2}}(\zeta) \;=\; \left(\frac{\pi}{a}\right)^{n/2}\!e^{-\pi^2|\zeta|^2/a}.} $$
+        同样, $a = \pi$ 时 $\widehat{e^{-\pi|x|^2}}(\zeta) = e^{-\pi|\zeta|^2}$ — $n$-D Gaussian 也是 fixed point.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 16.6 (Double-sided exponential $e^{-a|x|}$ — Cauchy / Lorentz 核)</span>
+        <p><strong>问题</strong>: $g(x) = e^{-a|x|}$, $a &gt; 0$. 然后用 tensor 推 $f(x, y) = e^{-a|x|}e^{-b|y|}$ on $\R^2$.</p>
+        <p><strong>1D 计算</strong>. 因 $|x|$ 在 $x = 0$ 处有 kink, 把积分拆成 $\int_0^\infty + \int_{-\infty}^0$:
+        $$ \widehat{e^{-a|x|}}(\zeta) \;=\; \int_0^\infty e^{(-a + 2\pi i\zeta)x}\,dx + \int_{-\infty}^0 e^{(a + 2\pi i\zeta)x}\,dx. $$
+        每个 elementary:
+        $$ = \frac{1}{a - 2\pi i\zeta} + \frac{1}{a + 2\pi i\zeta} \;=\; \frac{2a}{a^2 + 4\pi^2\zeta^2}. $$
+        (合并分母用 $(a - 2\pi i\zeta)(a + 2\pi i\zeta) = a^2 + 4\pi^2\zeta^2$, 分子 sum 给 $2a$.)</p>
+        $$ \boxed{\widehat{e^{-a|x|}}(\zeta) \;=\; \frac{2a}{a^2 + 4\pi^2\zeta^2}.} $$
+        <p>这是 <strong>Cauchy 核 / Lorentzian kernel</strong>, 对应概率上 Cauchy 分布的 characteristic function.</p>
+        <p><strong>2D 张量</strong>. $f(x, y) = e^{-a|x|}e^{-b|y|}$, 用 Thm 16.1 (4):
+        $$ \FT{f}(\zeta, \eta) \;=\; \frac{2a}{a^2 + 4\pi^2\zeta^2} \cdot \frac{2b}{b^2 + 4\pi^2\eta^2}. $$</p>
+        <p><strong>对偶验证</strong>: $e^{-a|x|}$ 在 $x = 0$ 处<strong>连续但不可导</strong>(left-deriv $= a$, right-deriv $= -a$). "一次可导 worth of regularity" 应让 $\FT$ 衰减 $\sim 1/|\zeta|^2$ — 确实, $2a/(a^2 + 4\pi^2\zeta^2) \sim 1/(2\pi^2\zeta^2)$ as $|\zeta| \to \infty$. 比 indicator (Example 16.1) 的 $1/|\zeta|$ 慢一阶, 比 Gaussian (Example 16.4) 的 $e^{-\zeta^2}$ 快一切多项式. 完美匹配 §1 对偶口号.</p>
+      </div>
+
+      <!-- §6 常见陷阱 -->
+      <h2 id="pitfalls">§6 常见陷阱</h2>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 16.1 (Convention confusion — symbol 一定不能错用)</span>
+        <p>本课程: $\FT{f}(\zeta) = \int f(x)\,e^{+2\pi i \zeta x}\,dx$ (正号). Stein-Shakarchi: $\hat f(\xi) = \int f(x)\,e^{-2\pi i \xi x}\,dx$ (负号). Folland 的 $L^2$ Fourier: 有时用 $e^{-i\xi x}/\sqrt{2\pi}$. 量子力学: $e^{ipx/\hbar}/\sqrt{2\pi\hbar}$.</p>
+        <p>所有公式在不同约定下符号会变, 比如 Thm 16.2 在 Stein 的约定下变成 $\widehat{\partial f}(\xi) = 2\pi i\xi\, \hat f(\xi)$ (没有负号). <strong>跨教材抄公式前先核对约定</strong>。</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 16.2 (用 Thm 16.2 时忘记验证 $f \to 0$ 边界条件)</span>
+        <p>Thm 16.2 的证明用了分部积分, 边界项 $[f(x) e^{2\pi i \zeta x}]_{-\infty}^\infty$ vanish 是<strong>关键</strong>。这要求 $f(x) \to 0$ as $|x| \to \infty$ (而非仅 $f \in \IL$ — $\IL$ 不保证 pointwise decay!).</p>
+        <p><strong>例子</strong>: $f(x) = \sin(x^2)/x$ 是 $\IL$ 的 (条件收敛), 但 $f(x) \not\to 0$. 这种 $f$ Thm 16.2 不适用. 实战中默认 $f$ "decay nicely" — 严格起见可以要求 $f \in \mathcal{S}$.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 16.3 (sinc 函数<em>不</em>是 $\IL$)</span>
+        <p>Example 16.1 给出 $\widehat{\mathbf{1}_{[-A,A]}}(\zeta) = \sin(2\pi\zeta A)/(\pi\zeta)$. 这个函数<em>不</em>是 $\IL(\R)$ 的 (它<em>是</em>条件 Riemann 可积的, $\int_\R = 2A$, 但 $\int_\R |\cdot| = +\infty$). 故 Fourier inversion 在这里需小心 — 严格地说 inversion 在 $\IL$ 双射意义下要求 $\FT{f}$ 也 $\IL$, 这里失败.</p>
+        <p><strong>怎么办</strong>: 把 inversion 解释为<em>主值</em> (principal value, $\lim_{R \to \infty}\int_{-R}^R$); 或者把 indicator 平滑化 (用 $C_c^\infty$ bump 替代 sharp 指示函数), 然后取极限. 这是 distribution 理论的入门。本课程不深入, 但<strong>记住 $\IL$ 与 inversion 之间不总能闭环</strong>.</p>
+      </div>
+
+      <!-- §7 练习 -->
+      <h2 id="exercises">§7 练习</h2>
+
+      <div class="exercise">
+        <span class="ex-num">练习 16.1.</span> 计算 $\widehat{e^{-ax^2}\cos(bx)}(\zeta)$ for $a &gt; 0$, $b \in \R$. 提示: 用 $\cos(bx) = (e^{ibx} + e^{-ibx})/2$ + 调制 (Thm 16.1.3).
+        <details><summary>答案</summary><div class="details-body">
+        $e^{-ax^2}\cos(bx) = (e^{-ax^2}e^{ibx} + e^{-ax^2}e^{-ibx})/2$. 注意 $e^{ibx} = e^{2\pi i (b/2\pi) x}$, 所以这是 modulation by $c = b/(2\pi)$. 用 Thm 16.1 (3) (本约定): $\widehat{e^{2\pi i c x}f}(\zeta) = \FT{f}(\zeta + c)$. 故
+        $$\widehat{e^{-ax^2}\cos(bx)}(\zeta) = \frac{1}{2}\left[\widehat{e^{-ax^2}}(\zeta + b/2\pi) + \widehat{e^{-ax^2}}(\zeta - b/2\pi)\right].$$
+        代 Example 16.4:
+        $$= \frac{1}{2}\sqrt{\pi/a}\left[e^{-\pi^2(\zeta + b/2\pi)^2/a} + e^{-\pi^2(\zeta - b/2\pi)^2/a}\right].$$
+        即两个偏移 Gaussian 的平均.
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 16.2.</span> 设 $f(x) = e^{-x^2/2}$. 用 Example 16.4 验证 $\FT{f}(\zeta)$ 与 inversion 公式给回 $f$ (即 inversion 是 left-inverse).
+        <details><summary>答案</summary><div class="details-body">
+        $a = 1/2$ 代入 Example 16.4: $\FT{f}(\zeta) = \sqrt{2\pi}\,e^{-2\pi^2\zeta^2}$. 应用 inversion:
+        $$f(x) \stackrel{?}{=} \int_\R \sqrt{2\pi}\,e^{-2\pi^2\zeta^2}\,e^{-2\pi i \zeta x}\,d\zeta.$$
+        把内部积分看成 $\widehat{e^{-2\pi^2 \zeta^2}}(-x)$ — 即对 $g(\zeta) = e^{-2\pi^2\zeta^2}$ 算 FT 在 $-x$. 用 Example 16.4 with $a = 2\pi^2$: $\widehat{g}(\eta) = \sqrt{\pi/(2\pi^2)}\,e^{-\pi^2\eta^2/(2\pi^2)} = \sqrt{1/(2\pi)}\,e^{-\eta^2/2}$. 代 $\eta = -x$ (因 Gaussian 偶函数, 取负不变), 再乘前面的 $\sqrt{2\pi}$:
+        $$f(x) = \sqrt{2\pi} \cdot \sqrt{1/(2\pi)}\,e^{-x^2/2} = e^{-x^2/2}.$$ $\checkmark$
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 16.3.</span> 计算 $\widehat{x e^{-a|x|}}(\zeta)$ 直接用 Cor 16.3 (2).
+        <details><summary>答案</summary><div class="details-body">
+        Cor 16.3 (2): $\widehat{x g(x)}(\zeta) = \dfrac{1}{2\pi i}\dfrac{d}{d\zeta}\FT{g}(\zeta)$. 对 $g(x) = e^{-a|x|}$, $\FT{g}(\zeta) = 2a/(a^2 + 4\pi^2\zeta^2)$ (Example 16.6). 求导:
+        $$\frac{d}{d\zeta}\frac{2a}{a^2 + 4\pi^2\zeta^2} = \frac{-2a \cdot 8\pi^2 \zeta}{(a^2 + 4\pi^2\zeta^2)^2} = \frac{-16\pi^2 a\zeta}{(a^2 + 4\pi^2\zeta^2)^2}.$$
+        除以 $2\pi i$: $\widehat{xe^{-a|x|}}(\zeta) = \dfrac{-8\pi a\zeta}{i(a^2 + 4\pi^2\zeta^2)^2} = \dfrac{8\pi a i\zeta}{(a^2 + 4\pi^2\zeta^2)^2}$.
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 16.4.</span> 在 $\R^3$ 中, 计算 $\widehat{\mathbf{1}_{B_R(0)}}(\zeta)$ 其中 $B_R(0)$ 是半径 $R$ 的 closed ball. 提示: 用 spherical coords 把积分写成 1D 形式.
+        <details><summary>答案</summary><div class="details-body">
+        WLOG $\zeta$ 指向 $z$-轴 ($\zeta = (0, 0, |\zeta|)$, 因 indicator 旋转对称). 用 spherical, $\zeta \cdot x = |\zeta| r \cos\theta$:
+        $$\FT{f}(\zeta) = \int_0^R \int_0^\pi \int_0^{2\pi} e^{2\pi i |\zeta| r\cos\theta}\,r^2 \sin\theta\,d\varphi\,d\theta\,dr.$$
+        内 $\varphi$ 给 $2\pi$. 代 $u = \cos\theta$, $du = -\sin\theta\,d\theta$:
+        $$= 2\pi \int_0^R r^2 \int_{-1}^1 e^{2\pi i |\zeta| r u}\,du\,dr = 2\pi \int_0^R r^2 \cdot \frac{e^{2\pi i |\zeta| r} - e^{-2\pi i|\zeta| r}}{2\pi i|\zeta| r}\,dr = \frac{2}{|\zeta|}\int_0^R r \sin(2\pi |\zeta| r)\,dr.$$
+        最后这个用分部 $u = r$, $dv = \sin(\ldots)\,dr$:
+        $$= \frac{2}{|\zeta|}\left[\frac{-r\cos(2\pi|\zeta| r)}{2\pi|\zeta|}\Big|_0^R + \frac{1}{2\pi|\zeta|}\int_0^R \cos(2\pi|\zeta| r)\,dr\right]
+        = \frac{\sin(2\pi|\zeta| R)}{2\pi^2 |\zeta|^3} - \frac{R\cos(2\pi|\zeta| R)}{2\pi^2|\zeta|^2}.$$
+        即 ball 的 FT 涉及球 Bessel 函数 $j_0, j_1$. 注意衰减 $\sim 1/|\zeta|^2$ — indicator 在 $\partial B_R$ 跳跃, $C^0$ regular only, 故衰减一阶 (与 sinc 慢一阶).
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 16.5.</span> 设 $f \in \IL(\R)$ 实值 且 $f(-x) = f(x)$ (偶函数). 证明 $\FT{f}(\zeta)$ 也是<em>实</em>偶函数.
+        <details><summary>答案</summary><div class="details-body">
+        $\FT{f}(\zeta) = \int f(x)(\cos(2\pi\zeta x) + i\sin(2\pi\zeta x))\,dx$. 因 $f$ 偶, $f(x)\sin(2\pi\zeta x)$ 是奇 (奇 × 偶 = 奇), 积分 $= 0$. 故 $\FT{f}(\zeta) = \int f(x)\cos(2\pi\zeta x)\,dx \in \R$. 且 $\cos$ 偶 $\Rightarrow$ $\FT{f}(-\zeta) = \FT{f}(\zeta)$.
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 16.6.</span> 验证: 对 Example 16.4 中的 Gaussian, growth-smoothness duality 一致 — $e^{-ax^2}$ Schwartz, $\FT{e^{-ax^2}}$ 也 Schwartz.
+        <details><summary>答案</summary><div class="details-body">
+        $f(x) = e^{-ax^2}$: smooth (analytic) + 衰减比任何多项式快 (Gaussian decay). 故 $f \in \mathcal{S}$. $\FT{f}(\zeta) = \sqrt{\pi/a}\,e^{-\pi^2\zeta^2/a}$: 同样是 Gaussian (smaller width), smooth + 比任何多项式衰减快. 故 $\FT{f} \in \mathcal{S}$. 二者同属 Schwartz space — 这是 §4 末尾 remark 的具体实例.
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 16.7.</span> (Parseval 不在本课程, 但启发题) 假设 $\int_\R |f|^2 = \int_\R |\FT{f}|^2$ (Plancherel). 用此 + Example 16.4 计算 $\int_\R \dfrac{d\zeta}{(a^2 + 4\pi^2\zeta^2)^2}$ for $a &gt; 0$.
+        <details><summary>答案</summary><div class="details-body">
+        取 $f(x) = e^{-a|x|}$, $\FT{f}(\zeta) = 2a/(a^2 + 4\pi^2\zeta^2)$ (Example 16.6). LHS: $\int_\R e^{-2a|x|}\,dx = 2\int_0^\infty e^{-2ax}\,dx = 1/a$. RHS: $\int_\R \dfrac{4a^2}{(a^2 + 4\pi^2\zeta^2)^2}\,d\zeta = 4a^2 \cdot I$ 其中 $I$ 是所求积分. 由 Plancherel $1/a = 4a^2 I$, 所以 $I = \dfrac{1}{4a^3}$.
+        </div></details>
+      </div>
+
+      <!-- §8 速查表 -->
+      <h2 id="cheat">§8 速查表</h2>
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def"><strong>FT 定义 (Def 16.1)</strong>: $\FT{f}(\zeta) = \int_{\R^n} f(x)\,e^{+2\pi i \zeta \cdot x}\,dx$. <strong>本课程正号约定</strong>, 与 Stein/Folland 相反.</li>
+          <li class="cs-def"><strong>Inversion</strong>: $f(x) = \int_{\R^n} \FT{f}(\zeta)\,e^{-2\pi i \zeta \cdot x}\,d\zeta$, 无 $1/(2\pi)$ factor.</li>
+          <li class="cs-thm"><strong>线性 + Tensor (Thm 16.1)</strong>: $\FT$ linear; 可分离函数 transform separably. <em>本页所有 example 的工作主力</em>.</li>
+          <li class="cs-thm"><strong>微分 → 乘法 (Thm 16.2)</strong>: $\widehat{\partial_{x_j}f}(\zeta) = -2\pi i \zeta_j \FT{f}(\zeta)$. 多次: $\widehat{\partial_{x_j}^k f} = (-2\pi i \zeta_j)^k \FT{f}$.</li>
+          <li class="cs-thm"><strong>$\zeta$-导数 ↔ $x$-乘 (Cor 16.3)</strong>: $\partial_{\zeta_j}\FT{f}(\zeta) = 2\pi i \widehat{x_j f}(\zeta)$. Laplacian: $\widehat{\Delta f}(\zeta) = -4\pi^2|\zeta|^2 \FT{f}(\zeta)$.</li>
+          <li class="cs-tech"><strong>★ Indicator (Example 16.1)</strong>: $\widehat{\mathbf{1}_{[-A,A]}}(\zeta) = \sin(2\pi\zeta A)/(\pi\zeta)$ (= $2A$ at $\zeta = 0$). 衰减 $1/|\zeta|$ — 不连续 $\Rightarrow$ 慢衰减.</li>
+          <li class="cs-tech"><strong>★★ Gaussian (Example 16.4)</strong>: $\widehat{e^{-ax^2}}(\zeta) = \sqrt{\pi/a}\,e^{-\pi^2\zeta^2/a}$. $a = \pi$ 时是 FT 不动点.</li>
+          <li class="cs-tech"><strong>$n$-D Gaussian (Example 16.5)</strong>: $\widehat{e^{-a|x|^2}}(\zeta) = (\pi/a)^{n/2}\,e^{-\pi^2|\zeta|^2/a}$.</li>
+          <li class="cs-tech"><strong>★ Double-exp / Cauchy (Example 16.6)</strong>: $\widehat{e^{-a|x|}}(\zeta) = 2a/(a^2 + 4\pi^2\zeta^2)$. 衰减 $1/|\zeta|^2$ — $C^0$ but not $C^1$ at $x=0$.</li>
+          <li class="cs-tech"><strong>Box-indicator 口诀</strong>: $\widehat{\mathbf{1}_{\prod[-A_j, A_j]}}(\zeta)$: 每分量取 sinc, $\zeta_j = 0$ 时换成 $2A_j$.</li>
+          <li class="cs-tech"><strong>Growth ↔ Smoothness</strong>: $f$ decay rate $\sim 1/|x|^k$ $\leftrightarrow$ $\FT{f}$ has $k$ derivatives. Schwartz $\leftrightarrow$ Schwartz (bijection).</li>
+          <li class="cs-pitfall"><strong>Convention 警告 (Pitfall 16.1)</strong>: 跨教材抄公式前先核对符号约定与 $2\pi$ 位置, 否则差正负号.</li>
+          <li class="cs-pitfall"><strong>分部积分前提 (Pitfall 16.2)</strong>: Thm 16.2 要求 $f \to 0$ at $\infty$, 不仅 $f \in \IL$. 实战默认 Schwartz.</li>
+          <li class="cs-pitfall"><strong>sinc $\notin \IL$ (Pitfall 16.3)</strong>: Indicator FT 是 sinc, 不 $\IL$, inversion 需用 PV 或平滑化.</li>
+        </ul>
+      </div>
+
+      <!-- §9 进一步阅读 -->
+      <h2 id="further">§9 进一步阅读</h2>
+      <ul>
+        <li><strong>Typed notes</strong>: <code>Notes/Typed/9.2_notes/9.2_notes.tex</code> §4-6 (定义 + Gaussian via DUI + 对偶原理), <code>10.1_notes.tex</code> §1-3 (六大 worked examples + 完成平方法 Gaussian).</li>
+        <li><strong>下一站</strong>: <a href="17-fourier-pde.html">Topic 17 (Fourier transform 解 PDE)</a> — Thm 16.2 的 PDE 收获. 热方程与 Poisson 方程在 frequency space 化为 ODE / algebraic equation.</li>
+        <li><strong>Cross-references</strong>:
+          <ul>
+            <li>DUI (Gaussian FT 推导): <a href="15-dui.html">Topic 15</a>.</li>
+            <li>Fubini (tensor 性质的基础): <a href="07-fubini.html">Topic 07</a>.</li>
+            <li>DCT (FT inversion 严格化的工具, 但本课程未细讲): <a href="../midterm2/MT2-C_lebesgue.html">MT2-C</a>.</li>
+          </ul>
+        </li>
+        <li><strong>课程外延伸 (推荐难度递增)</strong>:
+          <ul>
+            <li>Stein-Shakarchi <em>Fourier Analysis</em>: 标准 introductory text, 用 $-2\pi i$ 约定. Chapters 1-5 全面覆盖本页内容.</li>
+            <li>Folland <em>Real Analysis</em> Chapter 8: 严格的 $L^2$ Fourier 理论 (Plancherel) 与 Schwartz space.</li>
+            <li>Stein-Shakarchi <em>Real Analysis</em> Chapter 5: distribution 理论入门 — 让 sinc 这类"不属于 $\IL$"的 FT 有严格意义.</li>
+          </ul>
+        </li>
+      </ul>
+
+    </main>
+  </div>
+
+</body>
+</html>

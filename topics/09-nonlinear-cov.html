@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Topic 09: 非线性 CoV 定理与标准坐标 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\Lip': '\\operatorname{Lip}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="08-linear-cov.html">Topic 08</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="10-cov-patterns.html">Topic 10</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#motivation">§1 动机</a></li>
+        <li><a href="#prereq">§2 前置知识</a></li>
+        <li><a href="#definitions">§3 核心定义</a></li>
+        <li><a href="#theorems">§4 主要定理</a></li>
+        <li><a href="#examples">§5 Worked Examples</a></li>
+        <li><a href="#pitfalls">§6 常见陷阱</a></li>
+        <li><a href="#exercises">§7 练习</a></li>
+        <li><a href="#cheat">§8 速查表</a></li>
+        <li><a href="#further">§9 进一步阅读</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>Topic 09: 非线性 CoV 定理与标准坐标</h1>
+      <p class="subtitle">Source: Lec 5.3 (后半) · H&amp;H §4.10 · 14 topics 中第 9 个</p>
+
+      <!-- §1 动机 -->
+      <h2 id="motivation">§1 动机</h2>
+      <p>在 <a href="08-linear-cov.html">Topic 08</a> 我们建立了"线性变量代换" — 对可逆线性映射 $T \colon \R^n \to \R^n$ 和 $f \in \IR(\R^n)$，有 $\int_{\R^n} f\, dV = \abs{\det T} \int_{\R^n} f(Tx)\, dV$。这个公式的核心结构是: <em>体积被一个 constant scaling factor $\abs{\det T}$ 缩放</em>，而该常数恰好等于线性映射的 Jacobian 行列式。</p>
+
+      <p>但现实中的代换很少是线性的。常见的极坐标 $(r,\theta) \mapsto (r\cos\theta, r\sin\theta)$、球坐标、柱坐标都<strong>不是</strong>线性映射 — 它们在不同点处对 $\R^n$ 的局部"拉伸"程度<em>不同</em>。我们不能再期望一个全局的 $\abs{\det T}$，而要让 scaling factor 随点 $x$ 变化。把"线性映射的常数 $\abs{\det T}$"换成"光滑映射的点态 $\abs{\det[D\Phi(x)]}$"，就得到 <strong>非线性变量代换定理 (Nonlinear Change of Variables, H&amp;H Thm 4.10.12)</strong>。</p>
+
+      <p>这个定理在本课程的地位类似于一元微积分的 $u$-substitution: 它本身在 PDE、概率论、微分几何乃至 Stokes 定理 (Ch 6) 中都是日常工具。本页两个目标: (1) <strong>定理的精确陈述</strong>，理解每条 hypothesis 为什么需要、各自起什么作用; (2) <strong>三大经典坐标系 (极坐标 / 球坐标 / 柱坐标) 的 Jacobian 计算与典型应用</strong>。具体的"如何挑 $\Phi$"的策略 (symmetry / boundary / slice three patterns) 留给 <a href="10-cov-patterns.html">Topic 10</a>。</p>
+
+      <!-- §2 前置知识 -->
+      <h2 id="prereq">§2 前置知识</h2>
+      <div class="box prereq">
+        <span class="box-title">在阅读本页前，你应该已经掌握:</span>
+        <ul>
+          <li><a href="08-linear-cov.html">Topic 08</a>: <strong>线性 CoV 定理</strong>、Determinant Scales Volume (DSV)、$\abs{\det T}$ 作为体积 scaling factor 的角色</li>
+          <li><a href="07-fubini.html">Topic 07</a>: Fubini 定理 — 多重积分化为迭代积分 (本页 examples 都用 Fubini 收尾)</li>
+          <li><a href="04-volume-pavable.html">Topic 04</a>: pavable 集与 $\partial X$ 测度零的概念</li>
+          <li><strong>31BH 的基础</strong>: 导数作为最佳线性逼近 $[Df(a)]$、Jacobian 矩阵、$C^1$ 函数定义、紧集上 $C^1 \Rightarrow$ Lipschitz (via MVT)</li>
+          <li>3 x 3 行列式 cofactor 展开 — 球坐标 Jacobian 计算的必备工具</li>
+        </ul>
+      </div>
+
+      <!-- §3 核心定义 -->
+      <h2 id="definitions">§3 核心定义</h2>
+      <p>非线性 CoV 定理的陈述需要两个关键概念: <strong>Lipschitz 映射</strong> (作为 $\Phi$ 的 derivative 的 regularity 假设)，以及"导数 $[D\Phi(x)]$ 作为 best linear approximation"的语言。前者是本节的重点; 后者来自 31BH，这里只做简短回顾。</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 9.1 (Lipschitz 映射)</span>
+        <p>设 $X \subset \R^n$，$Y \subset \R^m$。映射 $f \colon X \to Y$ 称为 <strong>Lipschitz</strong> (常数 $C \ge 0$)，若
+        $$\abs{f(x) - f(y)} \le C\,\abs{x - y} \qquad \forall x, y \in X.$$
+        最小的这样的 $C$ 称为 $f$ 的 <strong>Lipschitz 常数</strong>，记 $\Lip(f)$。</p>
+      </div>
+
+      <p><strong>直觉</strong>: Lipschitz 是"全局一致的有界变化率"。它比连续 (no quantitative control) 强、比 $C^1$ 弱 (Lipschitz 不要求处处可导)。比如 $f(x) = \abs{x}$ 是 Lipschitz (常数 $1$) 但在 $0$ 处不可导; $f(x) = \sqrt{x}$ on $[0,1]$ 在 $0$ 处导数 blows up，故<strong>不</strong> Lipschitz (但仍 uniformly continuous)。</p>
+
+      <p><strong>与 $C^1$ 的关系 (考试要点)</strong>: 紧集上的 $C^1$ 函数<em>一定</em> Lipschitz，常数 $C = \sup_K \norm{[Df(x)]}_{\text{op}}$。这用 mean value inequality 证: 对 $x, y \in K$ (假设 $K$ convex 或在直线段上)，
+      $$f(x) - f(y) = \int_0^1 [Df(y + t(x-y))](x-y)\, dt,$$
+      取模即得。所以在紧集上 "$\Phi \in C^1$" 自动保证 $\Phi$ Lipschitz，而本页定理只需 $[D\Phi]$ Lipschitz — 一个比 $\Phi$ 多导一阶的条件，弱于 $\Phi \in C^2$。</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 9.2 (导数作为最佳线性逼近，回顾)</span>
+        <p>$\Phi \colon U \subseteq \R^n \to \R^n$ 在 $a \in U$ 处<strong>可微</strong>，若存在线性映射 $[D\Phi(a)] \in \R^{n \times n}$ 使得
+        $$\lim_{h \to 0} \frac{\abs{\Phi(a+h) - \Phi(a) - [D\Phi(a)]\, h}}{\abs{h}} = 0.$$
+        此时 $[D\Phi(a)]$ 称为 $\Phi$ 在 $a$ 处的<strong>导数</strong>或 <strong>Jacobian 矩阵</strong>，$\det[D\Phi(a)]$ 称为 <strong>Jacobian 行列式</strong>。</p>
+      </div>
+
+      <p>核心 takeaway: <em>在 $a$ 的极小邻域上，$\Phi$ 看起来就是仿射映射 $h \mapsto \Phi(a) + [D\Phi(a)]\, h$</em>。把 Topic 08 的线性 CoV 套用到这个仿射逼近上，就得到"局部缩放因子 $\abs{\det[D\Phi(a)]}$"。非线性 CoV 定理本质上就是把这个 pointwise 局部缩放<strong>积分起来</strong>。</p>
+
+      <p>记号约定: 本页用 $\Phi$ 表示一般非线性 $C^1$ 映射，$T$ 保留给线性映射，$P / S / C$ 分别表示极坐标 / 球坐标 / 柱坐标。</p>
+
+      <!-- §4 主要定理 -->
+      <h2 id="theorems">§4 主要定理</h2>
+
+      <p>本节包含一个 main theorem (非线性 CoV) 和三个 corollaries (极/球/柱坐标公式)。三个公式都是同一个定理的特化，但因为太常用，每个都单独命名。</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 9.1 (非线性 Change of Variables, H&amp;H Thm 4.10.12)</span>
+        <p>设
+        <ul>
+          <li>$X \subset \R^n$ 紧集，$\vol_n(\partial X) = 0$，</li>
+          <li>$U \subset \R^n$ 开集，$X \subset U$，</li>
+          <li>$\Phi \colon U \to \R^n$ 满足: (i) $\Phi \in C^1(U)$; (ii) $\Phi$ 在 $X \setminus \partial X$ 上单射; (iii) $[D\Phi(x)]$ 在 $X \setminus \partial X$ 上处处可逆; (iv) $[D\Phi]$ 在 $X$ 上 Lipschitz.</li>
+        </ul>
+        设 $Y := \Phi(X)$. 则 $f \colon Y \to \R$ 在 $Y$ 上可积当且仅当 $(f \circ \Phi) \cdot \abs{\det[D\Phi]}$ 在 $X$ 上可积，且此时
+        $$\int_Y f(y)\, dV_Y \;=\; \int_X f\bigl(\Phi(x)\bigr)\,\bigl|\det[D\Phi(x)]\bigr|\, dV_X.$$</p>
+      </div>
+
+      <p><strong>每条 hypothesis 的作用 (这是考试和作业的高频考点):</strong></p>
+      <ul>
+        <li><em>紧 $+\ \vol_n(\partial X) = 0$</em>: 保证 $X$ pavable，"$\int_X$"有意义。</li>
+        <li><em>$X \setminus \partial X$ 上单射</em>: 公式按"每点算一次"计数 $Y$ 中的体积。$\partial X$ 上允许 collision (e.g. 极坐标里 $\theta = 0$ 与 $\theta = 2\pi$ 映到同一射线)，因为 $\partial X$ 测度零，不贡献积分。</li>
+        <li><em>$[D\Phi]$ 在内部可逆</em>: 由 inverse function theorem (来自 31BH)，$\Phi$ 在内部局部是 diffeomorphism，这是把局部线性 CoV 套用的前提。注意定理<strong>允许</strong> Jacobian 在 $\partial X$ 上退化 (e.g. 极坐标在 $r = 0$ 处 $\det = 0$) — 因为边界测度零。</li>
+        <li><em>$[D\Phi]$ Lipschitz</em>: 量化的"二阶光滑性"，保证 $\Phi$ 的一阶 Taylor 近似 $\Phi(x+h) \approx \Phi(x) + [D\Phi(x)]\,h$ 的误差在 $X$ 上一致 (uniformly) 控制。证明里要把局部线性 CoV 拼装成全局公式，正是靠这个一致性。</li>
+      </ul>
+
+      <p><strong>定理的几何意义</strong>: 把 $X$ 用很细的小方块剖分。每个小方块 $C$ 被 $\Phi$ 映成一个"几乎是平行四边形"的 $\Phi(C)$，体积 $\approx \abs{\det[D\Phi(x)]} \cdot \vol(C)$ ($x \in C$ 任意一点)。整体加起来:
+      $$\int_Y f\,dV \approx \sum_C f(\Phi(x_C))\,\abs{\det[D\Phi(x_C)]}\,\vol(C) \approx \int_X (f\circ\Phi)\,\abs{\det[D\Phi]}\,dV.$$
+      这正是定理的 Riemann 和直觉。线性情况 (Topic 08) 是 $\abs{\det[D\Phi(x)]} = \abs{\det T}$ 常数的特殊 case。</p>
+
+      <details>
+        <summary>证明思路 (sketch, 完整证明非本页核心)</summary>
+        <div class="details-body">
+          <p>主证明思路 (将在后续课程或 H&amp;H §4.10 中给出):</p>
+          <ul>
+            <li><strong>局部化</strong>: 对每个内点 $x_0 \in X \setminus \partial X$，用 $\Phi$ 在 $x_0$ 的最佳线性逼近 $[D\Phi(x_0)]$ 替代 $\Phi$，套用<a href="08-linear-cov.html">线性 CoV 定理 (Topic 08)</a>。</li>
+            <li><strong>一致控制误差</strong>: $\Phi(x_0 + h) - \Phi(x_0) - [D\Phi(x_0)]h$ 的 size 由 $[D\Phi]$ 的 Lipschitz 常数控制 (因 $[D\Phi]$ Lipschitz $\Rightarrow$ $\Phi$ 是 $C^{1,1}$，二阶 Taylor 误差 $O(\abs{h}^2)$)。</li>
+            <li><strong>dyadic 剖分 + partition of unity</strong>: 把 $X$ 剖成小 dyadic cubes，每块上用上一步的局部 CoV，再用一致控制把误差总和压下去。</li>
+            <li><strong>边界处理</strong>: $\partial X$ 测度零 + Jacobian 在那里允许退化，所以边界对积分无贡献。</li>
+          </ul>
+          <p>这个证明在本课程后续 (或自学时) 才会铺开; 现阶段重点是熟练<em>应用</em>定理。</p>
+        </div>
+      </details>
+
+      <p>接下来三个 propositions 把定理特化到三大经典坐标系。每个的核心都是<strong>计算 Jacobian 行列式</strong>，这是本页的"硬技术"内容。</p>
+
+      <div class="box thm">
+        <span class="box-title">Proposition 9.2 (极坐标公式)</span>
+        <p>定义 $P \colon (0, \infty) \times [0, 2\pi) \to \R^2 \setminus \{0\}$ by $P(r, \theta) = (r\cos\theta, r\sin\theta)$. 则 $\det[DP(r,\theta)] = r$. 对 pavable $B \subset (0,\infty) \times [0, 2\pi)$ 和 $A := P(B)$, $f \in \IR(\R^2)$:
+        $$\int_A f(x,y)\,dx\,dy \;=\; \int_B f(r\cos\theta, r\sin\theta)\,r\,dr\,d\theta.$$</p>
+      </div>
+
+      <p><strong>Jacobian 计算</strong>:
+      $$[DP] = \begin{pmatrix} \partial_r(r\cos\theta) & \partial_\theta(r\cos\theta) \\ \partial_r(r\sin\theta) & \partial_\theta(r\sin\theta) \end{pmatrix} = \begin{pmatrix} \cos\theta & -r\sin\theta \\ \sin\theta & r\cos\theta \end{pmatrix},$$
+      $$\det[DP] = r\cos^2\theta + r\sin^2\theta = r \ge 0.$$
+      所以 $\abs{\det[DP]} = r$ (无需绝对值符号，因 $r > 0$ 在内部)。</p>
+
+      <p><strong>为什么边界处的退化无害</strong>: 在 $r = 0$ (即原点) 处 $\det[DP] = 0$，违反定理 hypothesis (iii)。但 $r = 0$ 对应 $B$ 中的<em>边界</em> $\{r = 0\}$ — 一个 line，$\vol_2 = 0$，故 $\Phi$ 在内部仍是 diffeomorphism。同样 $\theta = 0$ 和 $\theta = 2\pi$ 都在边界上，重合也无害。</p>
+
+      <div class="box thm">
+        <span class="box-title">Proposition 9.3 (球坐标公式, latitude 约定)</span>
+        <p>使用<strong>纬度 (latitude)</strong> $\varphi \in (-\pi/2, \pi/2)$ — 从赤道平面而非北极测量。定义
+        $$S \colon (0,\infty) \times [0, 2\pi) \times (-\tfrac{\pi}{2}, \tfrac{\pi}{2}) \to \R^3,$$
+        $$S(r, \theta, \varphi) = (r\cos\theta\cos\varphi,\ r\sin\theta\cos\varphi,\ r\sin\varphi).$$
+        则 $\det[DS(r,\theta,\varphi)] = r^2 \cos\varphi \ge 0$. 故
+        $$\int_A f(x,y,z)\, dV = \int_B f(S(r,\theta,\varphi))\,r^2\cos\varphi\, dr\, d\theta\, d\varphi.$$</p>
+      </div>
+
+      <p><strong>Jacobian 计算 (cofactor 展开)</strong>: 三个变量按 $(r, \theta, \varphi)$ 列展开:
+      $$[DS] = \begin{pmatrix}
+        \cos\theta\cos\varphi & -r\sin\theta\cos\varphi & -r\cos\theta\sin\varphi \\
+        \sin\theta\cos\varphi & r\cos\theta\cos\varphi & -r\sin\theta\sin\varphi \\
+        \sin\varphi & 0 & r\cos\varphi
+      \end{pmatrix}.$$
+      第三行有一个零 (中间位置)，所以沿第三行 cofactor 展开最简单:</p>
+
+      <p>$$\det[DS] = \sin\varphi \cdot M_{31} + r\cos\varphi \cdot M_{33},$$
+      其中</p>
+
+      <p>$M_{31} = \det\begin{pmatrix} -r\sin\theta\cos\varphi & -r\cos\theta\sin\varphi \\ r\cos\theta\cos\varphi & -r\sin\theta\sin\varphi \end{pmatrix}$ — 展开得 $r^2 \sin^2\theta\sin\varphi\cos\varphi + r^2 \cos^2\theta\sin\varphi\cos\varphi = r^2 \sin\varphi\cos\varphi$.</p>
+
+      <p>$M_{33} = \det\begin{pmatrix} \cos\theta\cos\varphi & -r\sin\theta\cos\varphi \\ \sin\theta\cos\varphi & r\cos\theta\cos\varphi \end{pmatrix} = r\cos^2\theta\cos^2\varphi + r\sin^2\theta\cos^2\varphi = r\cos^2\varphi$.</p>
+
+      <p>所以
+      $$\det[DS] = \sin\varphi \cdot r^2\sin\varphi\cos\varphi + r\cos\varphi \cdot r\cos^2\varphi = r^2\cos\varphi(\sin^2\varphi + \cos^2\varphi) = r^2\cos\varphi.$$
+      对 $\varphi \in (-\pi/2, \pi/2)$ 有 $\cos\varphi > 0$，所以 $\abs{\det[DS]} = r^2\cos\varphi$，无需另写绝对值。</p>
+
+      <p><strong>纬度 vs 余纬度约定 (一定要记清楚)</strong>: 物理书常用 colatitude $\phi \in [0, \pi]$ — 从北极算起，$z = r\cos\phi$，Jacobian = $r^2\sin\phi$。本课程 (Hubbard) 用 latitude $\varphi \in (-\pi/2, \pi/2)$ — 从赤道算起，$z = r\sin\varphi$，Jacobian = $r^2\cos\varphi$。两者由 $\phi = \pi/2 - \varphi$ 互换，且 $\sin\phi = \cos\varphi$ 让 Jacobian 一致。<em>关键是看到 Jacobian 长什么样就能判断作者用的哪种约定</em>。</p>
+
+      <div class="box thm">
+        <span class="box-title">Proposition 9.4 (柱坐标公式)</span>
+        <p>定义 $C \colon (0,\infty) \times [0, 2\pi) \times \R \to \R^3$ by $C(r, \theta, z) = (r\cos\theta, r\sin\theta, z)$. 则 $\det[DC] = r$, 故
+        $$\int_A f(x,y,z)\,dV = \int_B f(r\cos\theta, r\sin\theta, z)\,r\, dr\, d\theta\, dz.$$</p>
+      </div>
+
+      <p><strong>Jacobian 计算</strong>: 矩阵是
+      $$[DC] = \begin{pmatrix} \cos\theta & -r\sin\theta & 0 \\ \sin\theta & r\cos\theta & 0 \\ 0 & 0 & 1 \end{pmatrix},$$
+      block diagonal，于是 $\det[DC] = \det\begin{pmatrix}\cos\theta & -r\sin\theta \\ \sin\theta & r\cos\theta\end{pmatrix} \cdot 1 = r$。简而言之: <em>柱坐标 = $xy$-平面极坐标 ⊗ 恒等 $z$，Jacobian 完全继承极坐标</em>。</p>
+
+      <p><strong>三个公式怎么选 (短预览，深入留给 Topic 10)</strong>:</p>
+      <ul>
+        <li><em>极坐标</em> ($\R^2$): 圆盘、扇形、对原点旋转对称的 region。</li>
+        <li><em>球坐标</em> ($\R^3$): 球、球壳、球冠 — 对原点的 full $O(3)$ 对称。</li>
+        <li><em>柱坐标</em> ($\R^3$): 圆柱、圆锥、旋转曲面 (paraboloid 等) — 对某个轴 (通常 $z$ 轴) 旋转对称。</li>
+      </ul>
+
+      <!-- §5 Worked Examples -->
+      <h2 id="examples">§5 Worked Examples</h2>
+
+      <div class="box example">
+        <span class="box-title">Example 9.1 (椭圆面积 $\pi ab$ via 对角线性映射)</span>
+        <p>设 $D := \{(u,v) : u^2 + v^2 \le 1\}$ 为单位圆盘，定义 $T = \begin{pmatrix} a & 0 \\ 0 & b\end{pmatrix}$ 其中 $a, b > 0$。则
+        $$T(D) = \left\{(x,y) : \frac{x^2}{a^2} + \frac{y^2}{b^2} \le 1\right\}$$
+        是半轴为 $a, b$ 的实心椭圆。$\det T = ab$，套用<a href="08-linear-cov.html">线性 CoV</a> (或直接 Determinant Scales Volume):
+        $$\vol_2(T(D)) = \abs{\det T} \cdot \vol_2(D) = ab \cdot \pi = \pi ab.$$</p>
+        <p>这是 $\pi ab$ 公式的最干净推导。它技术上属于线性 CoV，但放在这里因为它<strong>是非线性 CoV 的"零阶"特例</strong>: $\Phi = T$ 线性 $\Rightarrow$ $[D\Phi]$ 处处等于 $T$ $\Rightarrow$ Jacobian 是常数 $\abs{\det T}$ 提到积分号外，恢复 Topic 08 的结果。</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 9.2 (圆盘面积 $\pi R^2$ via 极坐标)</span>
+        <p>设 $D_R := \{(x,y) : x^2 + y^2 \le R^2\}$，求 $\vol_2(D_R)$。在极坐标下 $D_R$ 对应 $B = \{(r, \theta) : 0 < r \le R,\ 0 \le \theta < 2\pi\}$. 由 Proposition 9.2:
+        $$\vol_2(D_R) = \int_{D_R} 1\, dV = \int_0^{2\pi}\!\!\int_0^R r\, dr\, d\theta = 2\pi \cdot \frac{R^2}{2} = \pi R^2.$$
+        这是 $\pi R^2$ 的两步推导 (积 $r$ 给 $R^2/2$，乘 $2\pi$)，全程没用 Fubini 在 $(x, y)$ 上 — 极坐标的力量。</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 9.3 (paraboloid 下方体积 $\pi R^4/2$)</span>
+        <p>求 paraboloid $z = x^2 + y^2$ 与 $z = 0$、$x^2 + y^2 \le R^2$ 围成的立体体积。这等于
+        $$V = \int_{D_R} (x^2 + y^2)\, dx\, dy.$$
+        极坐标下 $x^2 + y^2 = r^2$，$D_R \to B = \{(r,\theta): 0 < r \le R, 0 \le \theta < 2\pi\}$:
+        $$V = \int_0^{2\pi}\!\!\int_0^R r^2 \cdot r\, dr\, d\theta = 2\pi \cdot \frac{R^4}{4} = \frac{\pi R^4}{2}.$$
+        <strong>关键</strong>: integrand 已经"对原点旋转对称"，所以极坐标把它变成 $r^2$ — 加上 Jacobian $r$ 总共是 $r^3$，干净易积。直角坐标 $\iint (x^2 + y^2) dx\, dy$ 也能算 (用 Fubini)，但要拆成 $x^2$ 和 $y^2$ 两次积分，明显费劲。</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 9.4 (球体积 $4\pi R^3/3$ via 球坐标)</span>
+        <p>求半径 $R$ 球 $B_R := \{(x,y,z) : x^2+y^2+z^2 \le R^2\}$ 的体积。球坐标下 $B_R$ 对应
+        $$B = \{(r,\theta,\varphi) : 0 < r \le R,\ 0 \le \theta < 2\pi,\ -\pi/2 < \varphi < \pi/2\}.$$
+        由 Proposition 9.3:
+        $$\vol_3(B_R) = \int_B r^2\cos\varphi\, dr\, d\theta\, d\varphi = \int_0^{2\pi}d\theta \int_{-\pi/2}^{\pi/2}\cos\varphi\, d\varphi \int_0^R r^2\, dr.$$
+        三个积分分别等于 $2\pi$、$[\sin\varphi]_{-\pi/2}^{\pi/2} = 2$、$R^3/3$，相乘:
+        $$\vol_3(B_R) = 2\pi \cdot 2 \cdot \frac{R^3}{3} = \frac{4\pi R^3}{3}.$$
+        三个积分乘积形式 ("baby Fubini") 出现是因为 $r^2 \cos\varphi = r^2 \cdot 1 \cdot \cos\varphi$ 在三个变量上完全分离。</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 9.5 (上半球 $z$-moment $= \pi/4$ via 球坐标)</span>
+        <p>设 $A := \{(x,y,z) : x^2+y^2+z^2 \le 1,\ z \ge 0\}$ 为上半单位球，求 $\int_A z\, dV$。这是计算半球质心 $z$-坐标 (除以体积) 的标准积分。</p>
+        <p>球坐标下 $z = r\sin\varphi$，约束 $z \ge 0$ 化为 $\sin\varphi \ge 0$，即 $\varphi \in [0, \pi/2]$。所以
+        $$B = \{(r,\theta,\varphi): 0 < r \le 1, 0 \le \theta < 2\pi, 0 \le \varphi \le \pi/2\}.$$
+        由 Proposition 9.3 (integrand $f \circ S = r\sin\varphi$，乘 Jacobian $r^2\cos\varphi$ 得 $r^3\sin\varphi\cos\varphi$):
+        $$\int_A z\, dV = \int_0^{2\pi}d\theta \int_0^{\pi/2}\sin\varphi\cos\varphi\, d\varphi \int_0^1 r^3\, dr = 2\pi \cdot \frac{1}{2} \cdot \frac{1}{4} = \frac{\pi}{4}.$$
+        (中间用 $\int_0^{\pi/2}\sin\varphi\cos\varphi\, d\varphi = [\sin^2\varphi/2]_0^{\pi/2} = 1/2$。)</p>
+        <p><strong>Sanity check</strong>: 上半球质心高度是 $3R/8$ (经典公式)，体积是 $\tfrac{1}{2}\cdot\tfrac{4\pi}{3} = \tfrac{2\pi}{3}$. 乘积 $\tfrac{3}{8} \cdot \tfrac{2\pi}{3} = \tfrac{\pi}{4}$ — 匹配。 (反过来: 知道 $\int z dV = \pi/4$ 也能反推质心。)</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 9.6 (圆锥上 $\int (x^2+y^2)z\, dV = \pi/12$ via 柱坐标)</span>
+        <p>设 $A := \{(x,y,z) : x^2 + y^2 \le z^2,\ 0 \le z \le 1\}$ 为顶点在原点、高度 $1$ 的实心圆锥 (注意约束: 给定 $z$，$x^2 + y^2 \le z^2$，截面是半径 $z$ 的圆盘)。求
+        $$I = \int_A (x^2+y^2)\,z\, dV.$$</p>
+        <p>柱坐标下 $x^2+y^2 = r^2$，约束 $x^2 + y^2 \le z^2$ 化为 $r \le z$。所以
+        $$B = \{(r,\theta,z) : 0 < r \le z,\ 0 \le \theta < 2\pi,\ 0 < z \le 1\}.$$
+        由 Proposition 9.4 (integrand $r^2 z$，乘 Jacobian $r$ 得 $r^3 z$):
+        $$\begin{aligned}
+        I &= \int_0^{2\pi}\!\!\int_0^1\!\!\int_0^z r^3 z\, dr\, dz\, d\theta \\
+        &= 2\pi \int_0^1 z \cdot \frac{z^4}{4}\, dz \\
+        &= \frac{\pi}{2}\int_0^1 z^5\, dz \\
+        &= \frac{\pi}{2} \cdot \frac{1}{6} \;=\; \frac{\pi}{12}.
+        \end{aligned}$$
+        关键: 锥的约束 $r \le z$ 让 $r$-上界依赖 $z$，所以 $r$ 必须<strong>最内层</strong>积，然后 $z$ 中层，$\theta$ 最外层 (因 $\theta$ 与 $r, z$ 无交互)。</p>
+      </div>
+
+      <div class="box example" id="example-9-7">
+        <span class="box-title">Example 9.7 (Lebesgue 可积性判定 via CoV + 幂参数, H&amp;H Ex 4.11.12)</span>
+        <p>问: $a, b \in \R$ 取何值时, $f(x,y) := x^a y^b$ 在 $A := \{(x,y) : 0 \le x \le y,\ xy \le 1\}$ 上<strong>Lebesgue 可积</strong>?</p>
+        <p>(注: 本例与 Examples 9.1-9.6 不同 — 不是<em>求</em>具体积分值, 而是<em>判定可积性</em>. 这是 CoV 的另一种 use case: 把"奇异 region + 奇异 integrand"通过代换<strong>解耦</strong>成两个 1D 积分, 然后利用幂函数发散判据.)</p>
+
+        <p><strong>提示</strong>: 用 $u = xy,\ v = y/x$. </p>
+
+        <p><strong>解.</strong> 在内部 $\mathring A = \{0 < x < y,\ xy < 1\}$ 上, 取
+        $$\Psi(x,y) := (xy,\, y/x) = (u, v).$$
+        像区域 $B = \Psi(\mathring A) = \{(u, v) : 0 < u < 1,\, v > 1\}$ (验证: $0 < x < y$ ⟺ $v = y/x > 1$; $xy < 1$ ⟺ $u < 1$; $x > 0$ ⟺ $u > 0$).</p>
+
+        <p>$\Psi$ 在 $\mathring A$ 上 $C^\infty$ (没有 $x = 0$ 问题). Jacobian:
+        $$[D\Psi] = \begin{pmatrix} y &amp; x \\ -y/x^2 &amp; 1/x \end{pmatrix}, \qquad \det[D\Psi] = \frac{y}{x} + \frac{y}{x} = \frac{2y}{x} = 2v > 0.$$
+        因 $\det[D\Psi] \ne 0$ 处处, 由反函数定理 $\Psi$ 在内部局部双射. 显式逆: 由 $xy = u, y/x = v$ 相乘除得 $y^2 = uv,\ x^2 = u/v$, 故
+        $$\Phi(u, v) := \Psi^{-1}(u, v) = \bigl(\sqrt{u/v},\ \sqrt{uv}\bigr).$$
+        在 $B$ 上 $u, v > 0$ 故 $\Phi$ 良定 $C^\infty$, 单射 (与 $\Psi$ 互逆).</p>
+
+        <p><strong>关键技巧: IFT shortcut 算 $\abs{\det[D\Phi]}$</strong>. 直接对 $\Phi$ 微分要处理分数次幂, error-prone; 用 inverse function theorem 关系
+        $$[D\Phi(u, v)] = [D\Psi(\Phi(u, v))]^{-1} \quad\Longrightarrow\quad \det[D\Phi(u, v)] = \frac{1}{\det[D\Psi(\Phi(u, v))]} = \frac{1}{2v}.$$
+        故 $\abs{\det[D\Phi]} = \dfrac{1}{2v}$.</p>
+
+        <p>被积函数沿 $\Phi$ 拉回:
+        $$f(\Phi(u, v)) = (\sqrt{u/v})^a \, (\sqrt{uv})^b = u^{(a+b)/2} \cdot v^{(b-a)/2}.$$</p>
+
+        <p><strong>套 Thm 9.1 (CoV)</strong>. 因 $f \ge 0$ on $\mathring A$ (设 $x, y > 0$), 可积性等价于 $\int_A \abs{f}\,dV < \infty$:
+        $$\int_A \abs{f}\,dV \;=\; \int_B u^{(a+b)/2}\, v^{(b-a)/2} \cdot \frac{1}{2v}\,du\,dv \;=\; \frac{1}{2}\int_0^1 u^{(a+b)/2}\,du \cdot \int_1^\infty v^{(b-a)/2 - 1}\,dv. \qquad (\dagger)$$
+        (Fubini-分离成功! integrand $= F(u) \cdot G(v)$ 是 product, region $B = (0,1)\times(1,\infty)$ 也是 product set.)</p>
+
+        <p><strong>两个 1D 积分各自收敛条件</strong>:</p>
+        <ul>
+          <li>$\int_0^1 u^p\,du < \infty$ ⟺ $p > -1$ (在 $u = 0$ 附近 $u^p$ 的可积性). 这里 $p = (a+b)/2$, 条件 $(a+b)/2 > -1$ ⟺ $\boxed{a + b > -2}$.</li>
+          <li>$\int_1^\infty v^q\,dv < \infty$ ⟺ $q < -1$ (在 $v \to \infty$ 处). 这里 $q = (b-a)/2 - 1$, 条件 $(b-a)/2 - 1 < -1$ ⟺ $\boxed{b < a}$.</li>
+        </ul>
+
+        <p><strong>结论</strong>: $f(x, y) = x^a y^b \in \IL(A)$ 当且仅当
+        $$a + b > -2 \quad\text{且}\quad a > b.$$
+        当两条件均满足时, $\int_A x^a y^b\,dV = \dfrac{1}{2}\cdot\dfrac{2}{a + b + 2}\cdot\dfrac{2}{a - b} = \dfrac{2}{(a+b+2)(a-b)}$.</p>
+
+        <div class="box remark">
+          <span class="box-title">为什么这一例如此有教学价值?</span>
+          <p>这是 CoV 的<strong>第三种 use case</strong> (前两种: 求体积 / 算积分值), 即"把奇异区域上的<em>可积性判定</em>转化为代换后区域上 1D 积分的<em>收敛判据</em>". 三个反复出现的技术点:</p>
+          <ol>
+            <li><strong>CoV 解耦 region</strong>: 原 region $A$ 是被双曲线 $xy = 1$ 和对角线 $y = x$ 围成的复杂区域; $\Psi$ 把它映成 product set $(0, 1) \times (1, \infty)$, integrand 也变成 $u^p \cdot v^q$ 形式 — Fubini 直接分离.</li>
+            <li><strong>IFT shortcut 算 Jacobian</strong>: 当 $\Phi$ 含分数次幂 / 复杂代数式时, $\det[D\Phi] = 1/\det[D\Psi]$ 比直接微分省力 + 减少出错. 见 <a href="10-cov-patterns.html">Topic 10</a> 的"boundary-driven pattern".</li>
+            <li><strong>幂函数发散判据</strong>: $\int_0^1 u^p\,du$ 在 $p > -1$ 收敛 (奇点端); $\int_1^\infty v^q\,dv$ 在 $q < -1$ 收敛 (尾部端). 这两条是 Lebesgue 框架下判定可积性的标准 toolkit.</li>
+          </ol>
+          <p><strong>对照 Example 4.10.18 (boundary-driven CoV)</strong>: 用相同 idea ($u = xy, v = y/x^2$), 但 region 是封闭的 $\{1 \le xy \le 2, x^2 \le y \le 2x^2\}$, 没有"奇点 / 尾部"问题, 只是把曲线边界映成轴线边界. 本例 (Ex 4.11.12) 是它的"无界版"姊妹.</p>
+          <p>(此即 Practice MT2 Problem 5, 见 <a href="../midterm2/MT2-practice.html#p5">MT2-practice §P5</a>.)</p>
+        </div>
+      </div>
+
+      <!-- §6 常见陷阱 -->
+      <h2 id="pitfalls">§6 常见陷阱</h2>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 9.1 — 忘记取绝对值</span>
+        <p>定理写的是 $\abs{\det[D\Phi(x)]}$，<strong>不是</strong> $\det[D\Phi(x)]$. 体积是无方向量 (unsigned)，所以 scaling factor 必须非负。极坐标里 $\det[DP] = r > 0$ 在内部，所以绝对值不写也没错; 但若 $\Phi$ 反向 (e.g. $\Phi(r,\theta) = (r\cos(-\theta), r\sin(-\theta)) = (r\cos\theta, -r\sin\theta)$)，$\det = -r$，公式里必须用 $\abs{-r} = r$。</p>
+        <p><strong>记忆要点</strong>: 公式总是 $\int (f\circ\Phi)\,\abs{\det[D\Phi]}\,dV$，绝对值不可省。这与 Ch 6 differential forms 的代换不同 — 那里<em>不</em>取绝对值，符号正好反映 orientation 信息。本页是 unsigned theory。</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 9.2 — 球坐标约定混乱 (latitude vs colatitude)</span>
+        <p>球坐标有两种主流约定:</p>
+        <ul>
+          <li><strong>纬度 latitude</strong> $\varphi \in (-\pi/2, \pi/2)$, 从赤道算: $z = r\sin\varphi$, Jacobian $= r^2\cos\varphi$. (本课程 / Hubbard 用)</li>
+          <li><strong>余纬度 colatitude</strong> $\phi \in (0, \pi)$, 从北极算: $z = r\cos\phi$, Jacobian $= r^2\sin\phi$. (物理书常用)</li>
+        </ul>
+        <p>两个 Jacobian 看起来很像 ($r^2$ 乘三角函数)，但内层三角函数<strong>恰好相反</strong>。如果搞混约定但用对了 Jacobian，几何上会把球积"翻"过来。例如上半球积分 (Ex 9.5): 用 latitude 是 $\varphi \in [0, \pi/2]$ (赤道到北极)，用 colatitude 是 $\phi \in [0, \pi/2]$ (北极到赤道) — 区间巧合相同，但 $\int \sin\varphi\cos\varphi\, d\varphi$ 与 $\int \cos\phi\sin\phi\, d\phi$ 是同一个积分! 所以这道题两种约定都对。但 <strong>下半球</strong>不行: latitude 用 $\varphi \in [-\pi/2, 0]$，colatitude 用 $\phi \in [\pi/2, \pi]$，区间不同，必须看清你用的是哪一种。</p>
+        <p><strong>判断准则</strong>: 看 Jacobian 是 $\cos$ 还是 $\sin$ — $\cos\varphi$ 就是 latitude，$\sin\phi$ 就是 colatitude。</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 9.3 — 跳过单射性检查</span>
+        <p>定理要求 $\Phi$ 在 $X \setminus \partial X$ 上单射。常见错误: 写一个看起来很自然的 $\Phi$ 但它在 region 内部 "wraps around" — 同一个 $y$ 被覆盖多次，公式过度计数。</p>
+        <p>例如想用极坐标算环形区域 $\{1 \le x^2+y^2 \le 4\}$，正确的 $B$ 是 $\{1 \le r \le 2,\ 0 \le \theta < 2\pi\}$ — 注意 $\theta$ 的<strong>半开</strong>区间 $[0, 2\pi)$。如果误写 $\theta \in [0, 4\pi]$，就把环算了两遍。一般而言，极坐标 $\theta$-区间长度<strong>不能超过</strong> $2\pi$。</p>
+        <p>另一个例子: 想用 $\Phi(u, v) = (u^2, v)$ 这种含偶次幂的代换，$\Phi$ 在 $u < 0$ 和 $u > 0$ 都把点映到 $x > 0$，所以不单射。要么限制 $u \ge 0$，要么用别的代换。</p>
+        <p><strong>检查方法</strong>: 写出 $\Phi^{-1}$ (或至少在脑子里跑一遍)。如果不能显式反解，往往说明单射性有问题。</p>
+      </div>
+
+      <!-- §7 练习 -->
+      <h2 id="exercises">§7 练习</h2>
+      <p>展开 <code>&lt;details&gt;</code> 查看答案 (建议先自己想 10 分钟再看)。</p>
+
+      <div class="exercise">
+        <p><span class="ex-num">1.</span> 直接计算 $\det[DC]$ 对柱坐标 $C(r,\theta,z) = (r\cos\theta, r\sin\theta, z)$，验证它等于 $r$。指出哪个性质让此计算可以"借用"极坐标的 Jacobian。</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>$$[DC] = \begin{pmatrix} \cos\theta & -r\sin\theta & 0 \\ \sin\theta & r\cos\theta & 0 \\ 0 & 0 & 1 \end{pmatrix}.$$</p>
+            <p>这是<strong>分块对角矩阵</strong> (upper-left $2 \times 2$ 是极坐标 Jacobian，lower-right $1 \times 1$ 是 $1$，左下/右上的 $2 \times 1$ 和 $1 \times 2$ 都是零)。对分块对角矩阵 $\det = \det(\text{block 1}) \cdot \det(\text{block 2}) = r \cdot 1 = r$。</p>
+            <p>关键性质: <strong>柱坐标 = 极坐标 ⊗ 恒等</strong>，所以 Jacobian 的 block 结构直接继承。这个观察可推广: 任意"在某个 sub-coordinate 上做坐标变换，其余恒等"的映射，Jacobian 等于子坐标变换的 Jacobian。</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">2.</span> 用极坐标计算 $\int_{\R^2} e^{-(x^2+y^2)}\, dV$。从而推导经典的 Gaussian 积分 $\int_{-\infty}^\infty e^{-t^2}\, dt = \sqrt{\pi}$。</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>极坐标下 $x^2+y^2 = r^2$，所以
+            $$I_2 := \int_{\R^2} e^{-(x^2+y^2)}\, dV = \int_0^{2\pi}\!\!\int_0^\infty e^{-r^2}\,r\, dr\, d\theta = 2\pi \cdot \left[-\frac{1}{2}e^{-r^2}\right]_0^\infty = 2\pi \cdot \frac{1}{2} = \pi.$$
+            (这里用了 improper integral，技术上要做 truncation，但答案不变。)</p>
+            <p>另一方面，Fubini 给出 $I_2 = \left(\int_{-\infty}^\infty e^{-t^2}\, dt\right)^2$. 令 $I_1 := \int_{-\infty}^\infty e^{-t^2}\, dt$，则 $I_1^2 = \pi$，故 $I_1 = \sqrt{\pi}$。</p>
+            <p>这是极坐标的经典应用 — 一元 $\int e^{-t^2}\, dt$ 没有初等原函数，但二维"对原点旋转对称"的版本却轻松算出。</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">3.</span> 求圆锥 $A := \{(x,y,z) : x^2+y^2 \le z^2,\ 0 \le z \le 1\}$ 的体积。验证答案 $= \pi/3$。</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>柱坐标下 $A$ 对应 $B = \{(r,\theta,z): 0 < r \le z, 0 \le \theta < 2\pi, 0 < z \le 1\}$. Jacobian = $r$.
+            $$\vol(A) = \int_B r\, dr\, d\theta\, dz = \int_0^{2\pi}d\theta \int_0^1\int_0^z r\, dr\, dz = 2\pi \int_0^1 \frac{z^2}{2}\, dz = 2\pi \cdot \frac{1}{6} = \frac{\pi}{3}.$$
+            匹配几何公式 $V = \tfrac{1}{3}\pi r^2 h = \tfrac{1}{3}\pi \cdot 1^2 \cdot 1 = \tfrac{\pi}{3}$.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">4.</span> 计算 $\int_B \abs{x}\, dV$ 其中 $B = \{(x,y,z) : x^2+y^2+z^2 \le 1\}$ 是单位球。</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>球坐标下 $x = r\cos\theta\cos\varphi$. integrand $\abs{x} = r\cos\varphi\,\abs{\cos\theta}$ (因 $\cos\varphi > 0$ 在 $\varphi \in (-\pi/2, \pi/2)$)。乘 Jacobian $r^2\cos\varphi$ 得 $r^3\cos^2\varphi\abs{\cos\theta}$。
+            $$\int_B \abs{x}\, dV = \int_0^{2\pi}\abs{\cos\theta}\,d\theta \int_{-\pi/2}^{\pi/2}\cos^2\varphi\, d\varphi \int_0^1 r^3\, dr.$$
+            分别算: $\int_0^{2\pi}\abs{\cos\theta}\,d\theta = 4$ (按 $\theta \in [0,\pi/2] \cup [3\pi/2, 2\pi]$ 正，其余负，加起来 $4 \cdot \int_0^{\pi/2}\cos\theta\, d\theta = 4$)；$\int_{-\pi/2}^{\pi/2}\cos^2\varphi\, d\varphi = \pi/2$ (用 $\cos^2 = (1+\cos 2\varphi)/2$)；$\int_0^1 r^3\, dr = 1/4$.
+            乘积: $4 \cdot \pi/2 \cdot 1/4 = \pi/2$.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">5.</span> ("证明或反例") 若 $\Phi \colon U \to \R^n$ 是 $C^1$ 单射，但 $[D\Phi(x_0)] = 0$ 在某个 $x_0 \in U$ 处退化，定理 Thm 9.1 还成立吗?</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>看 $x_0$ 在哪里</strong>。如果 $x_0 \in X \setminus \partial X$ (内部)，hypothesis (iii) "$[D\Phi]$ 在内部可逆"被违反，定理 statement 不直接适用。但如果 $x_0 \in \partial X$，定理仍然 holds — 边界 Jacobian 退化是<em>允许的</em>，因为 $\partial X$ 测度零，不贡献积分 (e.g. 极坐标 $r = 0$ 处 $\det[DP] = 0$，但 $r = 0$ 在 $B$ 的边界上)。</p>
+            <p><strong>实际反例</strong> (内部退化):  $\Phi(u, v) = (u^3, v)$, $X = [-1,1]^2$. $\Phi$ 处处单射，但 $\det[D\Phi(0, v)] = \det\begin{pmatrix}3u^2 & 0 \\ 0 & 1\end{pmatrix}\Big|_{u=0} = 0$ 在整条线 $u = 0$ 上。这条线在 $X$ 的<em>内部</em>。这种情况下定理标准证明不直接 work，但通过 limiting argument 仍可以恢复结论 (实际上 $\Phi$ 把 $X$ 单射到 $[-1,1]^2$，公式 $\int_Y f = \int_X (f \circ \Phi)\,\abs{\det[D\Phi]}\,dV = \int (f(u^3, v)) \cdot 3u^2\, du\, dv$ 仍然正确)。</p>
+            <p>本课程主流情形里，内部退化是个 red flag，应该通过限制定义域避免。</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">6.</span> 给出一个紧集上 Lipschitz 但<strong>不</strong> $C^1$ 的具体例子。再给一个 $C^1$ 但其导数<strong>不</strong> Lipschitz 的例子 (即 $f \in C^1 \setminus C^{1,1}$)。</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p><strong>Lipschitz 不 $C^1$</strong>: $f(x) = \abs{x}$ on $[-1, 1]$. Lipschitz 常数 $1$ (反三角形不等式)，但在 $x = 0$ 处不可导 — 左导数 $-1$ 右导数 $1$。</p>
+            <p><strong>$C^1$ 但 $f'$ 不 Lipschitz</strong>: $f(x) = x^{4/3}$ on $[-1, 1]$. $f'(x) = \tfrac{4}{3}x^{1/3}$，处处连续故 $f \in C^1$。但 $f'$ 在 $0$ 附近以"$x^{1/3}$"的速率变化，$x^{1/3}$ 在 $0$ 处的差商 $(x^{1/3} - 0)/(x - 0) = x^{-2/3} \to \infty$，所以 $f'$ 不 Lipschitz。</p>
+            <p>本页定理要 $[D\Phi]$ Lipschitz (强于 $C^1$、弱于 $C^2$) — 这个 hypothesis 等价于 $\Phi \in C^{1,1}$，足够保证二阶 Taylor 残差 $O(\abs{h}^2)$。</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">7.</span> 在 $\R^3$ 中，计算 $\int_S z^2\, dV$ 其中 $S$ 是单位球。</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>球坐标 $z = r\sin\varphi$, integrand $z^2 = r^2\sin^2\varphi$. 乘 Jacobian $r^2\cos\varphi$ 得 $r^4 \sin^2\varphi\cos\varphi$.
+            $$\int_S z^2\, dV = \int_0^{2\pi}d\theta \int_{-\pi/2}^{\pi/2}\sin^2\varphi\cos\varphi\, d\varphi \int_0^1 r^4\, dr.$$
+            分别: $\int_0^{2\pi}d\theta = 2\pi$; $\int_{-\pi/2}^{\pi/2}\sin^2\varphi\cos\varphi\, d\varphi$ 用 $u = \sin\varphi$ 代换 $= \int_{-1}^1 u^2\, du = 2/3$; $\int_0^1 r^4\, dr = 1/5$.
+            乘积: $2\pi \cdot 2/3 \cdot 1/5 = 4\pi/15$.</p>
+            <p>Cross-check by symmetry: 球上 $\int x^2 dV = \int y^2 dV = \int z^2 dV$ 且 $\int (x^2+y^2+z^2) dV = \int r^2 dV = \int_0^{2\pi}\int_{-\pi/2}^{\pi/2}\int_0^1 r^4 \cos\varphi\, dr\, d\varphi\, d\theta = 2\pi \cdot 2 \cdot 1/5 = 4\pi/5$. 除以 $3$ 得 $4\pi/15$ — 匹配!</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="exercise">
+        <p><span class="ex-num">8.</span> 设 $\Phi(u,v) = (u + v, u - v)$ 是 $\R^2 \to \R^2$ 线性映射。用 Thm 9.1 (或退化为 Topic 08 的 linear CoV) 计算 $\int_R (x^2 - y^2)\, dx\, dy$ 其中 $R = \{(x,y) : \abs{x+y} \le 1, \abs{x-y} \le 1\}$. (即 $R$ 是边长 $\sqrt{2}$ 的旋转正方形。)</p>
+        <details>
+          <summary>答案</summary>
+          <div class="details-body">
+            <p>$\Phi$ 把 $X = [-1,1]^2$ (在 $(u,v)$ 平面上) 映到 $R$ — 因为 $x = u+v$, $y = u-v$，所以 $\abs{x+y} = \abs{2u} \le 2 \iff \abs{u} \le 1$，同理 $\abs{y - x} = \abs{2v} \le 2 \iff \abs{v} \le 1$... 等等，这给的是 $\abs{x+y} \le 2$ 不是 $\le 1$. 让我重算: $\abs{x+y} \le 1 \iff \abs{2u} \le 1 \iff \abs{u} \le 1/2$. 所以 $X = [-1/2, 1/2]^2$。OK 继续。</p>
+            <p>$\det[D\Phi] = \det\begin{pmatrix}1 & 1 \\ 1 & -1\end{pmatrix} = -2$. $\abs{\det[D\Phi]} = 2$。</p>
+            <p>integrand 在 $(u,v)$ 下: $x^2 - y^2 = (u+v)^2 - (u-v)^2 = 4uv$. 所以
+            $$\int_R (x^2-y^2)\, dV = \int_X 4uv \cdot 2\, du\, dv = 8 \int_{-1/2}^{1/2}u\, du \int_{-1/2}^{1/2}v\, dv = 8 \cdot 0 \cdot 0 = 0.$$
+            (奇函数在对称区间积分为 $0$.) takeaway: 选对代换让 $R$ 变成 axis-aligned $[-1/2, 1/2]^2$，积分变成 $\iint uv$ 这种最干净的形式 — 这正是<a href="10-cov-patterns.html">Topic 10</a> "boundary-driven" pattern 的预告。</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- §8 速查表 -->
+      <h2 id="cheat">§8 速查表</h2>
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def"><strong>Lipschitz (Def 9.1)</strong>: $\abs{f(x) - f(y)} \le C\abs{x-y}$ 全局一致。紧集上 $C^1 \Rightarrow$ Lipschitz; Lipschitz $\Rightarrow$ uniform continuous。</li>
+          <li class="cs-def"><strong>导数 $[D\Phi(x)]$</strong>: $\Phi$ 在 $x$ 的最佳线性逼近; Jacobian = $\det[D\Phi(x)]$。</li>
+          <li class="cs-thm"><strong>非线性 CoV (Thm 9.1, H&amp;H 4.10.12)</strong>: $X$ compact, $\partial X$ 测度零, $\Phi \in C^1$ 内部单射 + 内部 Jacobian 可逆 + $[D\Phi]$ Lipschitz $\Rightarrow$ $\int_{\Phi(X)} f\, dV = \int_X (f \circ \Phi)\,\abs{\det[D\Phi]}\, dV$。</li>
+          <li class="cs-tech"><strong>极坐标 (Prop 9.2)</strong>: $P(r,\theta) = (r\cos\theta, r\sin\theta)$, $\boxed{\det[DP] = r}$. $dx\,dy = r\,dr\,d\theta$.</li>
+          <li class="cs-tech"><strong>球坐标 latitude (Prop 9.3)</strong>: $S(r,\theta,\varphi) = (r\cos\theta\cos\varphi, r\sin\theta\cos\varphi, r\sin\varphi)$, $\boxed{\det[DS] = r^2\cos\varphi}$. $dV = r^2\cos\varphi\,dr\,d\theta\,d\varphi$, $\varphi \in (-\pi/2, \pi/2)$.</li>
+          <li class="cs-tech"><strong>柱坐标 (Prop 9.4)</strong>: $C(r,\theta,z) = (r\cos\theta, r\sin\theta, z)$, $\boxed{\det[DC] = r}$. $dV = r\,dr\,d\theta\,dz$.</li>
+          <li class="cs-tech"><strong>三个对称性 ↔ 三个坐标系</strong>: 平面 rotation $\Rightarrow$ 极; 球对称 $\Rightarrow$ 球; 轴对称 $\Rightarrow$ 柱。</li>
+          <li class="cs-tech"><strong>标准积分 with 球坐标</strong>: 球体积 = $4\pi R^3/3$; 圆盘面积 = $\pi R^2$; 圆锥体积 = $\tfrac{1}{3}\pi r^2 h$; 上半球 $\int z\, dV = \pi/4$.</li>
+          <li class="cs-pitfall"><strong>必取绝对值</strong>: $\abs{\det[D\Phi]}$，否则 unsigned volume 计算出错。Ch 6 forms 不取绝对值，那是另一套理论。</li>
+          <li class="cs-pitfall"><strong>球坐标约定</strong>: latitude ($\cos\varphi$) vs colatitude ($\sin\phi$); 永远检查 Jacobian 长成 $\cos$ 还是 $\sin$ 来定型。</li>
+          <li class="cs-pitfall"><strong>单射性</strong>: 极坐标 $\theta$ 必须 $[0, 2\pi)$ (半开)，不能超 $2\pi$ 否则 over-counts。</li>
+          <li class="cs-pitfall"><strong>边界 Jacobian 退化 OK</strong>: $r = 0$ in 极坐标，$\varphi = \pm \pi/2$ in 球坐标 — 都在边界上 (测度零)，定理允许。</li>
+        </ul>
+      </div>
+
+      <!-- §9 进一步阅读 -->
+      <h2 id="further">§9 进一步阅读</h2>
+      <ul>
+        <li><strong>H&amp;H 教材</strong>: §4.10 (主定理 Thm 4.10.12)，§4.11 (improper integrals 中也常用极/球坐标)。</li>
+        <li><strong>Typed lecture notes</strong>:
+          <ul>
+            <li><code>../../Notes/Typed/5.3_notes/5.3_notes.pdf</code> — 主定理陈述 + 三大坐标系 Jacobian 推导 + 例子</li>
+            <li><code>../../Notes/Typed/6.1_notes/6.1_notes.pdf</code> — 非线性 CoV 的应用 / 设计模式 (本页 §6 的练习题预告 Topic 10 内容)</li>
+          </ul>
+        </li>
+        <li><strong>关联 review topics</strong>:
+          <ul>
+            <li><a href="08-linear-cov.html">Topic 08</a>: <strong>线性 CoV + DSV 证明</strong> — 本页定理的 zero-order 特例和 logical prerequisite</li>
+            <li><a href="10-cov-patterns.html">Topic 10</a>: <strong>CoV 实战三大设计模式</strong> (symmetry / boundary / slice-driven) — 本页定理的"用法手册"</li>
+            <li><a href="07-fubini.html">Topic 07</a>: Fubini 定理 — 把变量代换后的多重积分实际算出来都靠 Fubini</li>
+          </ul>
+        </li>
+        <li><strong>同主题外读</strong>:
+          <ul>
+            <li>Spivak, <em>Calculus on Manifolds</em>, §3 — 变量代换的精简紧凑处理</li>
+            <li>Rudin, <em>Principles of Mathematical Analysis</em>, Ch 10 — 测度论视角下的非线性代换</li>
+            <li>Munkres, <em>Analysis on Manifolds</em>, §19-20 — 与本课程最接近的 textbook</li>
+          </ul>
+        </li>
+      </ul>
+
+      <hr style="margin: 60px 0 20px; border: 0; border-top: 1px solid #d8d3c4;">
+      <p style="font-size: 13px; color: #888; text-align: center;">MATH 31CH 复习指南 · Topic 09</p>
+
+    </main>
+  </div>
+
+</body>
+</html>
