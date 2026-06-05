@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Topic 22: 第二基本形式、形状算子与 Gauss 曲率 | MATH 31CH 复习</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\C': '\\mathbb{C}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\diam': '\\operatorname{diam}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|',
+        '\\Span': '\\operatorname{span}',
+        '\\T': '\\mathbf{T}',
+        '\\NN': '\\mathbf{N}',
+        '\\B': '\\mathbf{B}',
+        '\\I': '\\mathrm{I}',
+        '\\II': '\\mathrm{II}',
+        '\\tr': '\\operatorname{tr}'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="21-surfaces-first-form.html">Topic 21</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next nav-disabled" href="#">下一页 (待补)</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#motivation">§1 动机</a></li>
+        <li><a href="#prereq">§2 前置知识</a></li>
+        <li><a href="#definitions">§3 核心定义</a></li>
+        <li><a href="#theorems">§4 主要定理</a></li>
+        <li><a href="#examples">§5 Worked Examples</a></li>
+        <li><a href="#pitfalls">§6 常见陷阱</a></li>
+        <li><a href="#exercises">§7 练习</a></li>
+        <li><a href="#cheat">§8 速查表</a></li>
+        <li><a href="#further">§9 进一步阅读</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>Topic 22: 第二基本形式、形状算子与 Gauss 曲率</h1>
+      <p class="subtitle">Source: Lec 10.2 (末段) · Klingenberg <em>A Course in Differential Geometry</em> §§3.4–3.5 · 微分几何入门第 4 页</p>
+
+      <!-- §1 动机 -->
+      <h2 id="motivation">§1 动机</h2>
+      <p><a href="21-surfaces-first-form.html">Topic 21</a> 给了我们第一基本形式 $\I = \bigl[\begin{smallmatrix}E & F\\ F & G\end{smallmatrix}\bigr]$, 它编码了曲面的<strong>内蕴 (intrinsic)</strong> 度量数据 — 弧长、角度、面积. 但它有一个出名的<em>缺陷</em>: <strong>看不见曲面在 $\R^3$ 里如何弯曲</strong>.</p>
+
+      <p>最干净的例子: 把一张<em>平面</em>纸卷成<em>圆柱</em>. 两者作为 $\R^3$ 子集形状完全不同 (一个平、一个圆), 但它们的第一基本形式都是 $\I = I_2$ — 完全相同! (见 Topic 21 Ex 21.3.) 这是因为"卷"这个操作不改变内在的距离与角度: 沿任何方向走的弧长不变.</p>
+
+      <p>所以"曲面如何弯"这个<em>extrinsic (外蕴)</em> 信息<em>不在 $\I$ 里</em>. 我们需要新的工具. 关键 idea (Gauss 1827):</p>
+
+      <blockquote style="border-left:3px solid #888; padding-left:14px; color:#333;">
+        让 $c(t) = X(u(t), v(t))$ 是曲面上的一条曲线. 把它的<strong>加速度 $c''(t)$</strong> 分解成<em>切平面分量</em> $+$ <em>法向分量</em>. 切向那一截只反映"我自己怎么转弯" (可以靠在曲面上"刹车"控制); 法向那一截才是<strong>曲面把自己强加给我的弯曲</strong> — 我无法控制. 把法向分量 $c''(t) \cdot \nu$ 写成关于 $(\dot u, \dot v)$ 的二次型, 就得到<strong>第二基本形式 $\II$</strong>.
+      </blockquote>
+
+      <p>从 $\I$ 与 $\II$ 出发, 我们继续往上叠四件事:</p>
+      <ol>
+        <li><strong>Shape operator</strong> $S = \I^{-1}\II$ — 一个切平面上的线性算子, 编码"曲面在每个方向弯多少".</li>
+        <li><strong>主曲率 $k_1, k_2$</strong> = $S$ 的两个特征值 = 曲面在该点"弯得最厉害的方向"与"最不厉害的方向"的法曲率.</li>
+        <li><strong>Gauss 曲率 $K = k_1 k_2 = \det S$</strong> — 单标量分类局部几何形态 (椭圆点 $K>0$ / 抛物点 $K=0$ / 双曲点 $K<0$).</li>
+        <li><strong>平均曲率 $H = (k_1+k_2)/2 = \tfrac12 \tr S$</strong> — 物理上控制肥皂膜 (minimal surface 当 $H \equiv 0$).</li>
+      </ol>
+
+      <p><strong>本页的明星定理 / 高潮</strong>: 把整套机器套到半径 $R$ 的球面上, 算出 $K = 1/R^2$. 这是 differential geometry 中最经典的<em>非平凡</em> 计算结果 — 球面有<em>常正</em> Gauss 曲率, 反比于半径平方.</p>
+
+      <p>而最深的<em>conceptual</em> 高潮是 Gauss 的<strong>Theorema Egregium ("驚人定理")</strong>: 尽管 $K$ 的定义同时用了 $\I$ 和 $\II$, Gauss 证明了 $K$ <em>实际上只依赖 $\I$</em> — 它是曲面的<strong>内蕴不变量</strong>! 蚂蚁在球面上爬行, 不需要"跳到外面看", 仅靠测量曲面上的距离和角度, 就能算出 $K$. (本页只陈述, 证明留给后续.)</p>
+
+      <!-- §2 前置知识 -->
+      <h2 id="prereq">§2 前置知识</h2>
+      <div class="box prereq">
+        <span class="box-title">在阅读本页前，你应该已经掌握:</span>
+        <ul>
+          <li><strong><a href="21-surfaces-first-form.html">Topic 21</a></strong> ★★★: 参数化曲面 $X$, regularity, unit normal $\nu = X_u \times X_v / |X_u \times X_v|$, 第一基本形式 $\I = \bigl[\begin{smallmatrix}E & F\\ F & G\end{smallmatrix}\bigr]$.</li>
+          <li><strong>Linear algebra</strong>: $2 \times 2$ 矩阵<em>逆</em>公式 $\bigl[\begin{smallmatrix}a & b\\ c & d\end{smallmatrix}\bigr]^{-1} = \frac{1}{ad-bc}\bigl[\begin{smallmatrix}d & -b\\ -c & a\end{smallmatrix}\bigr]$; <em>trace</em> 与 <em>determinant</em>; 对称矩阵的<em>特征值/特征向量</em> + spectral theorem.</li>
+          <li><strong>Vector calculus</strong>: 偏导, chain rule, 高阶偏导 $X_{uu}, X_{uv}, X_{vv}$ (二阶导 $\partial^2 X / \partial u^2$ 等).</li>
+          <li><strong><a href="20-frenet-curvature.html">Topic 20</a> (有帮助但非必须)</strong>: 平面曲线的 signed 曲率 $\kappa$ — 法曲率 $k_n$ 就是"曲面上曲线在法截面里的 $\kappa$".</li>
+          <li><strong>无 H&amp;H 章节前置</strong>; 参考 Klingenberg §§3.4–3.5.</li>
+        </ul>
+      </div>
+
+      <!-- §3 核心定义 -->
+      <h2 id="definitions">§3 核心定义</h2>
+
+      <p>本节六个定义, 一路串成 surface curvature 理论的 vocabulary chain: 第二基本形式 → 法曲率 → 形状算子 → 主曲率 → Gauss 曲率 → 平均曲率.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 22.1 ★★★ (第二基本形式 $\II$ — Klingenberg 3.2.4)</span>
+        <p>对 regular surface $X \colon U \to \R^3$ 配单位法向 $\nu$, 在点 $(u, v) \in U$ 的<strong>第二基本形式 (second fundamental form)</strong> 是 $2 \times 2$ 对称矩阵
+        $$ \boxed{\;\II(u, v) \;:=\; \begin{pmatrix} L(u, v) & M(u, v) \\ M(u, v) & N(u, v) \end{pmatrix},\;} $$
+        三个分量定义为<em>二阶偏导与法向的内积</em>:
+        $$ \boxed{\;L \;:=\; X_{uu} \cdot \nu, \qquad M \;:=\; X_{uv} \cdot \nu, \qquad N \;:=\; X_{vv} \cdot \nu.\;} $$
+        作为二次型, $\II$ 在切向量 $(\xi_1, \xi_2)$ 上取值
+        $$ \II\bigl((\xi_1, \xi_2), (\xi_1, \xi_2)\bigr) \;=\; L \xi_1^2 + 2 M \xi_1 \xi_2 + N \xi_2^2. $$
+        </p>
+      </div>
+
+      <p><strong>直觉</strong>: 第二基本形式跟第一基本形式形式上"对偶" — 都是 $2 \times 2$ 对称, 都由三个分量 $\{L, M, N\}$ vs $\{E, F, G\}$ 描述. 但语义完全不同: $\I$ 由 $\{X_u, X_v\}$ 之间的<em>内积</em>构成 (intrinsic, 反映"切平面长什么样"); $\II$ 由 $\{X_{uu}, X_{uv}, X_{vv}\}$ 在<em>法向 $\nu$ 上的投影</em>构成 (extrinsic, 反映"曲面如何离开切平面").</p>
+
+      <p><strong>记忆口诀</strong>: "<em>$E F G$ from $u_1$ to $u_2$ (一阶); $L M N$ from $u_2$ to $u_2$ (二阶) dot $\nu$</em>". $L$ 用 $X_{uu}$ (双 $u$), $M$ 用 $X_{uv}$ (混合), $N$ 用 $X_{vv}$ (双 $v$) — 对应 $E, F, G$ 的位置.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 22.2 (法曲率 $k_n$)</span>
+        <p>设 $c(t) = X(u(t), v(t))$ 是曲面 $X$ 上的 regular 曲线. 它在 $t$ 处的<strong>法曲率 (normal curvature)</strong> 是
+        $$ \boxed{\;k_n \;:=\; \frac{\II\bigl((\dot u, \dot v),\,(\dot u, \dot v)\bigr)}{\I\bigl((\dot u, \dot v),\,(\dot u, \dot v)\bigr)} \;=\; \frac{L \dot u^2 + 2 M \dot u \dot v + N \dot v^2}{E \dot u^2 + 2 F \dot u \dot v + G \dot v^2}.\;} $$
+        当 $c$ 是 unit-speed 时 (即 $\I(\dot c, \dot c) = 1$), 分母 $\equiv 1$, $k_n = c'' \cdot \nu$ 是"加速度的法向分量".</p>
+      </div>
+
+      <p><strong>为什么是<em>比值</em>?</strong> 分子分母都是二阶齐次于 $(\dot u, \dot v)$ — 若把 $(\dot u, \dot v)$ 乘 $\lambda$ (即 $c$ 重参数化的速度变 $\lambda$ 倍), 二者同时乘 $\lambda^2$, ratio 不变. 故 $k_n$ <em>只依赖切方向</em>, 不依赖通过该方向的具体曲线或速度. 它是切方向的<em>几何不变量</em>.</p>
+
+      <p><strong>几何解释 (Meusnier 定理的简化版)</strong>: $k_n$ 在切方向 $\xi$ = 曲面与"切方向+法向"张成的平面的交线 (一条 $\R^3$ 平面曲线) 在该点的<em>signed 曲率</em> (用 Topic 20 的 signed $\kappa$). 即<strong>$k_n$ = 法截面 (normal section) 曲线的 $\kappa$</strong>.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 22.3 ★★ (形状算子 $S$ / Weingarten map — Klingenberg 3.4.3)</span>
+        <p>对 regular surface $X$, 在 $(u, v) \in U$ 的<strong>形状算子 (shape operator)</strong> (亦称 <strong>Weingarten 映射</strong>) 是切平面 $\Span\{X_u, X_v\}$ 上的线性算子 $S \colon \R^2 \to \R^2$, 在基 $\{X_u, X_v\}$ 下的矩阵
+        $$ \boxed{\;S \;:=\; \I^{-1} \II.\;} $$
+        显式 ($\I^{-1} = \frac{1}{EG-F^2}\bigl[\begin{smallmatrix}G & -F\\ -F & E\end{smallmatrix}\bigr]$):
+        $$ S \;=\; \frac{1}{EG - F^2}\begin{pmatrix}G & -F\\ -F & E\end{pmatrix}\begin{pmatrix}L & M\\ M & N\end{pmatrix} \;=\; \frac{1}{EG - F^2}\begin{pmatrix}GL - FM & GM - FN \\ -FL + EM & -FM + EN\end{pmatrix}. $$
+        </p>
+      </div>
+
+      <p><strong>为什么是 $\I^{-1}\II$ 而不直接用 $\II$?</strong> 因为 $\II$ 是<em>二次型</em> (吃两个切向量, 出一个数), 而我们想要<em>算子</em> (吃一个切向量, 出一个切向量) — "曲面如何把切方向 $\xi$ 弯成"$S\xi$". 把双线性形 $\mathrm{II}$ 转算子, 需要内积来"提升一个 index", 内积就是 $\I$. 严格地, $S$ 由 $\langle S\xi, \eta\rangle_\I = \II(\xi, \eta)$ 唯一确定, 矩阵形式即 $\I \cdot S = \II$, $S = \I^{-1}\II$.</p>
+
+      <p><strong>另一等价定义</strong>: $S = -[D\nu]$ 限制到切平面 (Klingenberg 3.4.2). 几何: $S$ 测量"<em>Gauss 映射 $\nu \colon U \to S^2$ 如何拉伸切向量</em>". 这是 Gauss 自己的原始定义.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 22.4 ★★ (主曲率 $k_1, k_2$ 与主方向 — Klingenberg 3.4.4)</span>
+        <p>$S$ 的两个实特征值
+        $$ k_1(u, v) \;\ge\; k_2(u, v) $$
+        称为 $X$ 在 $(u, v)$ 的<strong>主曲率 (principal curvatures)</strong>. 对应的特征向量 $\xi_1, \xi_2 \in T_{(u,v)} \subset \R^2$ (在 $\{X_u, X_v\}$ 基下) 称<strong>主方向 (principal directions)</strong>.</p>
+      </div>
+
+      <p>(实特征值与 $\I$-orthogonal 特征向量的存在性: 见 Thm 22.2 spectral theorem 部分.)</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 22.5 ★★★ (Gauss 曲率 $K$ — Klingenberg 3.4.5)</span>
+        <p>$X$ 在 $(u, v)$ 的 <strong>Gauss 曲率 (Gaussian curvature)</strong>:
+        $$ \boxed{\;K(u, v) \;:=\; k_1 \cdot k_2 \;=\; \det S \;=\; \frac{\det \II}{\det \I} \;=\; \frac{LN - M^2}{EG - F^2}.\;} $$
+        </p>
+      </div>
+
+      <p>三种等价定义都常用. 实战<em>必背</em>: $K = (LN - M^2)/(EG - F^2)$.</p>
+
+      <div class="box def">
+        <span class="box-title">Definition 22.6 ★★ (平均曲率 $H$)</span>
+        <p>$X$ 在 $(u, v)$ 的<strong>平均曲率 (mean curvature)</strong>:
+        $$ \boxed{\;H(u, v) \;:=\; \frac{k_1 + k_2}{2} \;=\; \frac{1}{2}\tr S \;=\; \frac{EN - 2FM + GL}{2(EG - F^2)}.\;} $$
+        </p>
+      </div>
+
+      <p><strong>记忆</strong>: $H$ 公式的<em>分子</em>是 "$E$ 配 $N$, $G$ 配 $L$, 中间减两倍 $FM$" — 即 $\II$ 的对角元交叉与 $\I$ 对角元搭配. 因为 $\tr(I^{-1}II) = (G L - 2 F M + E N)/(EG - F^2)$ (展开 $S$ 的对角和).</p>
+
+      <!-- §4 主要定理 -->
+      <h2 id="theorems">§4 主要定理</h2>
+
+      <p>本节四条定理: II 的几何意义 (Thm 22.1), Euler 法截面定理与谱性质 (22.2), $K$ 的符号分类局部形态 (22.3), Theorema Egregium (22.4).</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 22.1 ($\II$ 测量曲面上曲线的法向加速度)</span>
+        <p>设 $c(t) = X(u(t), v(t))$ 是曲面上一条 $C^2$ 曲线. 则
+        $$ \boxed{\;c''(t) \cdot \nu \;=\; L \dot u^2 + 2 M \dot u \dot v + N \dot v^2 \;=\; \II\bigl((\dot u, \dot v), (\dot u, \dot v)\bigr).\;} $$
+        即"曲线加速度在法向上的投影" $=$ 第二基本形式在切方向上的二次型.</p>
+      </div>
+
+      <details><summary><strong>证明</strong> (chain rule 计算)</summary>
+      <div class="details-body">
+      <p>用链法则计算 $c''(t)$:
+      $$ c'(t) \;=\; X_u(u(t),v(t))\,\dot u\;+\;X_v(u(t),v(t))\,\dot v. $$
+      $$ c''(t) \;=\; \underbrace{X_u \ddot u + X_v \ddot v}_{\text{tangent terms}}\;+\;\underbrace{X_{uu}\dot u^2 + 2 X_{uv}\dot u \dot v + X_{vv}\dot v^2}_{\text{second-order terms}}. $$
+      第一组 (含 $\ddot u, \ddot v$) 是 $\Span\{X_u, X_v\}$ 中, 与 $\nu$ 正交, dot $\nu$ 给 0. 第二组 dot $\nu$:
+      $$ (X_{uu}\dot u^2 + 2 X_{uv}\dot u \dot v + X_{vv}\dot v^2) \cdot \nu \;=\; L \dot u^2 + 2 M \dot u \dot v + N \dot v^2. \quad\square $$
+      </p>
+      </div>
+      </details>
+
+      <p><strong>geometric content</strong>: $\II$ <em>只</em> 看曲线<em>必然</em>有的"被曲面强加的"弯曲. 我们对曲线 $c$ 在曲面上的具体走法 (是直线还是曲线、是 unit speed 还是 weird) 只<em>能</em>改变 $c''$ 的<em>切向</em>部分, 法向分量是"无可避免"的, 只依赖切方向 $(\dot u, \dot v)$ 而非具体 $c$. 这是 $k_n = \II/\I$ 不依赖具体曲线的本质原因.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 22.2 ★ (Euler 法截面定理 — $k_1, k_2$ 是 $k_n$ 的 max/min)</span>
+        <p>(I) $S = \I^{-1}\II$ 作为切平面上的算子是<strong>$\I$-自伴 ($\I$-self-adjoint)</strong>: $\langle S\xi, \eta\rangle_\I = \langle \xi, S\eta\rangle_\I$ for all $\xi, \eta$.</p>
+        <p>(II) 由谱定理, $S$ 有<em>两个实特征值</em> $k_1 \ge k_2$ 与对应的<em>$\I$-正交</em>特征向量 $\xi_1, \xi_2$.</p>
+        <p>(III) 这两个特征值恰是法曲率 $k_n(\xi)$ over $\xi$ 单位长 (按 $\I$) 取的 max 与 min:
+        $$ k_1 \;=\; \max_{\substack{\xi \in T \\ |\xi|_\I = 1}} k_n(\xi), \qquad k_2 \;=\; \min_{\substack{\xi \in T \\ |\xi|_\I = 1}} k_n(\xi). $$
+        即<em>曲面在主方向 $\xi_1$ 上弯得最厉害 ($k_1$), 在主方向 $\xi_2$ 上弯得最不厉害 ($k_2$)</em>.</p>
+      </div>
+
+      <details><summary><strong>证明思路</strong></summary>
+      <div class="details-body">
+      <p>(I) $\langle S\xi, \eta\rangle_\I = \xi^T S^T \I \eta = \xi^T (\I^{-1}\II)^T \I \eta = \xi^T \II^T \I^{-1} \I \eta = \xi^T \II \eta = \II(\xi, \eta)$. 对称: $\II(\xi, \eta) = \II(\eta, \xi)$ (因为 $\II$ 对称), 故 $\langle S\xi, \eta\rangle_\I = \langle S\eta, \xi\rangle_\I = \langle \xi, S\eta\rangle_\I$.</p>
+      <p>(II) 在 $\I$-内积下做 Gram-Schmidt 得到 $\I$-orthonormal 基 $\{e_1, e_2\}$. $S$ 在此基下的矩阵是对称的 (由 self-adjointness), 故按经典谱定理有实特征值与正交特征向量.</p>
+      <p>(III) 在 $\I$-orthonormal 基 $\{e_1, e_2\}$ 下, $S = \mathrm{diag}(k_1, k_2)$. 对单位向量 $\xi = (\cos\theta) e_1 + (\sin\theta) e_2$:
+      $$ k_n(\xi) = \II(\xi, \xi) = \langle S\xi, \xi\rangle_\I = k_1 \cos^2\theta + k_2 \sin^2\theta. $$
+      在 $\theta \in [0, 2\pi)$ 上的 max/min 即 $k_1$ (at $\theta = 0$) 与 $k_2$ (at $\theta = \pi/2$). $\square$</p>
+      <p>(上面 $k_1 \cos^2\theta + k_2 \sin^2\theta$ 公式称<em>Euler 法截面公式</em>, 1760 年.)</p>
+      </div>
+      </details>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 22.3 ★★ ($K$ 的符号分类局部几何形态)</span>
+        <p>设 $(u, v)$ 是曲面上一点. 根据 $K(u, v)$ 的符号:</p>
+        <ul>
+          <li><strong>$K(u, v) > 0$ (椭圆点 elliptic)</strong>: $k_1, k_2$ 同号, 曲面在<em>每个</em>切方向都向<em>同一侧</em>弯. 局部形如球面或杯子内部.</li>
+          <li><strong>$K(u, v) = 0$ (抛物点 parabolic)</strong>: 至少一个 $k_i = 0$, 曲面在该方向"局部平直". 局部形如平面 (两个都 0) 或圆柱面 (一个 0 一个非 0).</li>
+          <li><strong>$K(u, v) < 0$ (双曲点 / 鞍点 hyperbolic)</strong>: $k_1 > 0 > k_2$, 曲面在一个主方向向上弯, 在另一个主方向向下弯. 局部形如鞍面 / Pringles 薯片 / 圆环 (torus) 内侧.</li>
+        </ul>
+      </div>
+
+      <p>这条没有"证明" — 它是 $\det S = k_1 k_2$ 加上"两个数同号/异号/有零"的初等观察. 重点是把它<em>记住为<strong>几何分类器</strong></em>: <strong>看 $K$ 的符号就知道曲面在该点长什么样</strong>.</p>
+
+      <div class="box thm">
+        <span class="box-title">Theorem 22.4 ★★★ (Gauss Theorema Egregium "驚人定理")</span>
+        <p>对 regular surface $X \colon U \to \R^3$, Gauss 曲率 $K(u, v)$ <em>仅</em>依赖第一基本形式 $\I$ — 即只依赖 $E, F, G$ 与它们对 $u, v$ 的一阶、二阶偏导. <em>不</em>依赖第二基本形式 $\II$.</p>
+        <p>等价形式: 若 $X, \tilde X \colon U \to \R^3$ 是<em>局部等距 (local isometry)</em> 的两个曲面 (即两者的 $\I$ 相同), 则在每点 $K(X) = K(\tilde X)$.</p>
+      </div>
+
+      <p><em>(本页只陈述. 证明在 Klingenberg §3.6 / do Carmo §4-3; 用到 Christoffel 符号 + Brioschi 显式公式. 我们后续 lectures 会回来证明.)</em></p>
+
+      <p><strong>为什么"驚人"?</strong> 我们<em>定义</em> $K = \det\II/\det\I$ — 一眼看上去与 $\II$ 紧密相关, $\II$ 又显然 extrinsic (要算 $\nu$ 与 $X_{**}$, 都是看 $\R^3$ 嵌入). 但 Gauss 证明这个比值<em>奇迹般 (egregium = "remarkable, surprising")</em>地<em>不</em>含任何 extrinsic 信息. 这是 Gauss 1827 论文的<em>headline</em>结果, 也是<em>整个内蕴微分几何 (intrinsic differential geometry) 学科的起点</em> — 它使得"曲率"成为<em>仅靠测量曲面上距离和角度</em>就能算出的内蕴量, 通往 Riemann 几何, 通往 Einstein 广义相对论.</p>
+
+      <p><strong>蚂蚁视角</strong>: 在球面 / 鞍面 / 圆柱面上爬行的蚂蚁, 没有"跳到 $\R^3$ 外面看"的能力. 但它只要会用一根带刻度的绳子量距离、用量角器量角度, 就能从这些<em>内在</em>测量数据算出 $K$. 蚂蚁不需要知道自己在<em>哪种</em>曲面上 — 它能用 $K$ 区分:
+      $K > 0$ → 球面型, $K = 0$ → 平面型 (含圆柱), $K < 0$ → 鞍型.</p>
+
+      <p><strong>对照: $H$ <em>不是</em>内蕴的</strong>! 把平面卷成圆柱: $\I$ 不变 (都 $= I_2$), 但 $H$ 从 $0$ 变到 $1/(2r)$ (圆柱半径 $r$). 第二基本形式 / Weingarten map / 平均曲率<em>都<em>能</em>"感知"</em>嵌入差异; 只有 $K$ 神奇地不能.</p>
+
+      <!-- §5 Worked Examples -->
+      <h2 id="examples">§5 Worked Examples</h2>
+
+      <div class="box example">
+        <span class="box-title">Example 22.1 (平面 — $K = H = 0$)</span>
+        <p>$X(u, v) = (u, v, 0)$, $U = \R^2$.</p>
+        <p>偏导: $X_u = (1, 0, 0), X_v = (0, 1, 0)$. 法向 $\nu = (0, 0, 1)$. $\I = I_2$.</p>
+        <p>所有二阶偏导 $X_{uu} = X_{uv} = X_{vv} = 0$, 故 $L = M = N = 0$, $\II = 0$.</p>
+        <p>形状算子 $S = \I^{-1}\II = 0$. 两主曲率 $k_1 = k_2 = 0$.</p>
+        <p>$$\boxed{\;K \;=\; 0, \qquad H \;=\; 0.\;}$$</p>
+        <p>这两个 $0$ 反映:"平面不弯". 每点都是"退化抛物点" (每个方向都"平直"); 因为 $K = H = 0$ 同时, 平面是"flat + minimal"两者兼有.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 22.2 ★★★ (半径 $R$ 球面 — 必考, $K = 1/R^2$)</span>
+        <p>$S^2_R = \{x \in \R^3 : |x| = R\}$, 用<em>板书约定</em>参数化 ($\theta$ = 经度, $\varphi$ = 北极角):
+        $$ X(\theta, \varphi) \;=\; (R\cos\theta\sin\varphi,\;R\sin\theta\sin\varphi,\;R\cos\varphi), \quad \theta \in (0, 2\pi),\;\varphi \in (0, \pi). $$</p>
+
+        <p><strong>Step 1 — $\I$.</strong> 一阶偏导:
+        $$ X_\theta = (-R\sin\theta\sin\varphi,\;R\cos\theta\sin\varphi,\;0), $$
+        $$ X_\varphi = (R\cos\theta\cos\varphi,\;R\sin\theta\cos\varphi,\;-R\sin\varphi). $$
+        $E = R^2 \sin^2\varphi$, $F = 0$, $G = R^2$. 故
+        $$ \I = \begin{pmatrix} R^2 \sin^2\varphi & 0 \\ 0 & R^2\end{pmatrix}, \qquad EG - F^2 = R^4 \sin^2\varphi. $$
+        </p>
+
+        <p><strong>Step 2 — $\nu$.</strong> 算 cross product:
+        $$ X_\theta \times X_\varphi = (-R^2\cos\theta\sin^2\varphi,\;-R^2\sin\theta\sin^2\varphi,\;-R^2\sin\varphi\cos\varphi) = -R\sin\varphi \cdot X. $$
+        故 $|X_\theta \times X_\varphi| = R^2 \sin\varphi$ ($\varphi \in (0, \pi)$ ⟹ $\sin\varphi > 0$), 与
+        $$ \boxed{\;\nu = \frac{X_\theta \times X_\varphi}{|X_\theta \times X_\varphi|} = -\frac{X}{R} = -(\cos\theta\sin\varphi,\;\sin\theta\sin\varphi,\;\cos\varphi).\;} $$
+        <em>注</em>: 这是<strong>内法向</strong> (指向球心). 这是<em>本约定下</em>cross product 的自然方向. 想要外法向就 swap $\theta \leftrightarrow \varphi$ 或加负号.</p>
+
+        <p><strong>Step 3 — $\II$.</strong> 二阶偏导:
+        $$ X_{\theta\theta} = (-R\cos\theta\sin\varphi,\;-R\sin\theta\sin\varphi,\;0), $$
+        $$ X_{\theta\varphi} = (-R\sin\theta\cos\varphi,\;R\cos\theta\cos\varphi,\;0), $$
+        $$ X_{\varphi\varphi} = (-R\cos\theta\sin\varphi,\;-R\sin\theta\sin\varphi,\;-R\cos\varphi) = -X. $$
+        与 $\nu = -X/R$ 点乘:
+        $$ L = X_{\theta\theta} \cdot \nu = -\frac{X_{\theta\theta} \cdot X}{R} = -\frac{-R^2 \sin^2\varphi}{R} = R\sin^2\varphi. $$
+        $$ M = X_{\theta\varphi} \cdot \nu = -\frac{X_{\theta\varphi} \cdot X}{R} = 0. $$
+        $$ N = X_{\varphi\varphi} \cdot \nu = (-X) \cdot (-X/R) = |X|^2/R = R^2/R = R. $$
+        故
+        $$ \II = \begin{pmatrix}R\sin^2\varphi & 0 \\ 0 & R\end{pmatrix}. $$
+        (注意 $\I$ 与 $\II$ <em>都对角</em> — 因为 $(\theta, \varphi)$ 已经是<em>主方向坐标</em>: 经线圈与纬线圈是球面上的两族正交主曲率曲线.)</p>
+
+        <p><strong>Step 4 — $K, H$.</strong>
+        $$ K = \frac{LN - M^2}{EG - F^2} = \frac{R\sin^2\varphi \cdot R - 0}{R^4 \sin^2\varphi} = \frac{R^2 \sin^2\varphi}{R^4 \sin^2\varphi} = \boxed{\;\frac{1}{R^2}.\;} $$
+        $$ H = \frac{EN - 2FM + GL}{2(EG - F^2)} = \frac{R^2 \sin^2\varphi \cdot R + R^2 \cdot R\sin^2\varphi}{2 R^4 \sin^2\varphi} = \frac{2 R^3 \sin^2\varphi}{2 R^4 \sin^2\varphi} = \boxed{\;\frac{1}{R}.\;} $$
+        </p>
+
+        <p><strong>解读</strong>:</p>
+        <ul>
+          <li><em>常曲率</em>: $K \equiv 1/R^2$ 处处<em>相同</em>. 这反映球面在 $SO(3)$ 旋转下完全 homogeneous — 没有"特殊点".</li>
+          <li><em>反比平方</em>: 小球 ($R$ 小) curved more ($K$ 大); 大球 ($R$ 大) 越来越平 ($K \to 0$ as $R \to \infty$). 把 $R = \infty$ 想成平面: 与 Ex 22.1 的 $K = 0$ 连续.</li>
+          <li><em>球面是 CMC (constant mean curvature)</em>: $|H| \equiv 1/R$ 也是常数. 这是肥皂泡 (有内部气压, 是 CMC) 是球形的几何理由 — Alexandrov 定理: $\R^3$ 中闭 (compact, no boundary) CMC 曲面<em>只能</em>是球面.</li>
+          <li><em>主曲率</em>: 因为 $\I, \II$ 同时对角且 $K = 1/R^2, H = 1/R$, 我们有 $k_1 k_2 = 1/R^2$ 与 $(k_1+k_2)/2 = 1/R$, 解出 $k_1 = k_2 = 1/R$. <strong>球面每个方向法曲率都是 $1/R$</strong> — 这正是 "球面 normal section 都是大圆, 大圆曲率 $1/R$" 的代数化身.</li>
+          <li><em>$H$ 符号取决法向选择</em>: 用我们的 $\nu = -X/R$ (内向), $H = +1/R$. 若改用外向 $\nu = +X/R$, 则 $L, N$ 都翻负号, $\II \to -\II$, $S \to -S$, $H \to -1/R$. 但 $K$ 含 $LN - M^2$, 翻号 cancel, 不变. <em>$K$ 是 unoriented invariant, $H$ 是 oriented invariant</em>.</li>
+        </ul>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 22.3 (圆柱面 — flat 但 $H \ne 0$, $K = 0$)</span>
+        <p>$X(u, v) = (R\cos u, R\sin u, v)$ ($u \in [0, 2\pi), v \in \R$). 圆柱面 $x^2 + y^2 = R^2$.</p>
+        <p>偏导: $X_u = (-R\sin u, R\cos u, 0), X_v = (0, 0, 1)$.</p>
+        <p>$\I$: $E = R^2, F = 0, G = 1$, $\I = \mathrm{diag}(R^2, 1)$, $EG - F^2 = R^2$.</p>
+        <p>法向: $X_u \times X_v = (R\cos u, R\sin u, 0)$, $|X_u \times X_v| = R$, $\nu = (\cos u, \sin u, 0)$ (外法向, 径向方向).</p>
+        <p>二阶偏导: $X_{uu} = (-R\cos u, -R\sin u, 0) = -R\nu$. $X_{uv} = (0, 0, 0)$. $X_{vv} = (0, 0, 0)$.</p>
+        <p>$L = X_{uu} \cdot \nu = -R \nu \cdot \nu = -R$. $M = 0$. $N = 0$. $\II = \mathrm{diag}(-R, 0)$.</p>
+        <p>$K = (LN - M^2)/(EG - F^2) = (-R \cdot 0 - 0)/R^2 = \boxed{\;0.\;}$</p>
+        <p>$H = (EN - 2FM + GL)/(2(EG - F^2)) = (R^2 \cdot 0 + 1 \cdot (-R))/(2 R^2) = \boxed{\;-1/(2R).\;}$</p>
+        <p>主曲率: $S = \I^{-1}\II = \mathrm{diag}(L/E, N/G) = \mathrm{diag}(-1/R, 0)$. $k_1 = 0$ (沿轴向 $v$ 直线方向, 不弯), $k_2 = -1/R$ (沿圆方向, 半径 $R$ 圆的曲率 $\pm 1/R$, 符号由法向选择决定).</p>
+        <p><strong>解读</strong>: $K = 0$ 反映"圆柱面 intrinsically flat" — 可以展开成平面 (把圆柱"剪开"后铺平). 但 $H \ne 0$: 圆柱面在 $\R^3$ 中<em>真的</em>弯曲, $\II \ne 0$, 平均曲率非零. 这是 Theorema Egregium (Thm 22.4) 的<em>正面例子</em>: $K$ 不变 (平面 $K = 0$ = 圆柱 $K = 0$) 反映"卷动是 isometry"; $H$ 变 (平面 $H = 0$ 变圆柱 $H = -1/(2R)$) 反映平均曲率<em>不是</em> intrinsic.</p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Example 22.4 (鞍面 $z = uv$ 在原点 — $K &lt; 0$)</span>
+        <p>$X(u, v) = (u, v, uv)$ (函数图象 with $f(u, v) = uv$).</p>
+        <p>偏导: $X_u = (1, 0, v), X_v = (0, 1, u)$.</p>
+        <p>$\I$: $E = 1 + v^2, F = uv, G = 1 + u^2$. 在原点 $(u, v) = (0, 0)$: $E = G = 1, F = 0$, $\I = I_2$.</p>
+        <p>$X_u \times X_v = (-v, -u, 1)$, $|X_u \times X_v| = \sqrt{1 + u^2 + v^2}$. 在原点 $= 1$. $\nu = (-v, -u, 1)/\sqrt{1 + u^2 + v^2}$, 原点 $\nu = (0, 0, 1)$.</p>
+        <p>二阶偏导: $X_{uu} = (0, 0, 0)$. $X_{vv} = (0, 0, 0)$. $X_{uv} = (0, 0, 1)$.</p>
+        <p>原点: $L = X_{uu} \cdot \nu = 0, N = X_{vv} \cdot \nu = 0, M = X_{uv} \cdot \nu = (0, 0, 1) \cdot (0, 0, 1) = 1$.</p>
+        <p>$\II|_{(0,0)} = \begin{pmatrix}0 & 1\\ 1 & 0\end{pmatrix}$.</p>
+        <p>$K(0, 0) = (LN - M^2)/(EG - F^2) = (0 - 1)/(1 - 0) = \boxed{\;-1.\;}$</p>
+        <p>$H(0, 0) = (EN - 2FM + GL)/(2(EG - F^2)) = (0 - 0 + 0)/2 = 0$.</p>
+        <p>$S|_{(0,0)} = \I^{-1}\II = I_2 \cdot \bigl[\begin{smallmatrix}0 & 1\\ 1 & 0\end{smallmatrix}\bigr] = \bigl[\begin{smallmatrix}0 & 1\\ 1 & 0\end{smallmatrix}\bigr]$. 特征值 $k_1 = +1, k_2 = -1$ (一正一负, 对应"沿 $(1,1)$ 方向往上弯, 沿 $(1,-1)$ 方向往下弯"). 这就是<em>鞍面</em>的特征 — $K < 0$ 双曲点.</p>
+        <p><strong>校验</strong>: $K = k_1 k_2 = -1$, $H = (k_1 + k_2)/2 = 0$. $\checkmark$ ($z = uv$ 在原点是 minimal surface 的点, 也是 hyperbolic 点 — 两个性质并存.)</p>
+      </div>
+
+      <!-- §6 常见陷阱 -->
+      <h2 id="pitfalls">§6 常见陷阱</h2>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 22.1 ★ ($K$ 符号 vs $H$ 符号: 不同的 invariance 性质)</span>
+        <p>选 inward 法向 vs outward 法向:
+        $\II \to -\II$, $S \to -S$, $k_i \to -k_i$.</p>
+        <p><strong>$K = k_1 k_2$</strong>: 两个翻号 cancel, $K$ <em>不变</em>. 故 $K$ 是<em>unoriented</em> invariant — 即使曲面没有 orientation (如 Möbius 带局部上)仍有意义.</p>
+        <p><strong>$H = (k_1 + k_2)/2$</strong>: 两个同时翻号 ⟹ $H \to -H$. 故 $H$ 是<em>oriented</em> invariant — <em>$|H|$ 才是 unoriented</em> 量.</p>
+        <p>实战: 写 "$H = 1/R$ for sphere" 与 "$H = -1/R$" 都不算错, 要看对应哪个 normal. <em>$|H|$ 才是无歧义</em>.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 22.2 ($S$ 的矩阵<em>不</em>对称, 但 $S$ 作为<em>算子</em>是 $\I$-自伴)</span>
+        <p>$S = \I^{-1}\II$ 在 $(X_u, X_v)$ 基下的矩阵<em>一般</em>非对称 (两个对称矩阵的乘积<em>不</em>一定对称 — 只有当它们 commute 时才对称).</p>
+        <p>但 $S$ 作为切平面上算子<em>是</em>自伴<em>关于 $\I$ 内积</em>:
+        $$ \langle S\xi, \eta\rangle_\I \;=\; \xi^T \I S \eta \;=\; \xi^T \II \eta \;=\; \II(\xi, \eta). $$
+        因此<em>谱定理仍适用</em> (在 $\I$-orthonormal 基下 $S$ 对称, 有实特征值与正交特征向量).</p>
+        <p>实战: 不要看 $S$ 的<em>原始矩阵</em>非对称就以为它"没特征值"或"特征值复数". 写 char poly $\det(S - \lambda I) = 0$ 直接解, 一定得两实根 = $k_1, k_2$.</p>
+        <p>校验 (Ex 22.3 圆柱面): $S = \mathrm{diag}(-1/R, 0)$ 恰好对角, 也对称. 但 generic case (球面已是 diagonal because $\I, \II$ 都 diagonal); generic 例子: 函数图象 $z = f(u, v)$ with $f_u f_v \ne 0$ 处, $S$ 矩阵会 off-diagonal 非对称.</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 22.3 ★★ ($K = 0$ 不<em>等于</em>"平面"; $K$ 是<em>内蕴</em>但 $H$ 不是)</span>
+        <p><em>$K = 0$ 处处</em>意味着 "intrinsically flat" — 曲面在该区域有局部 isometry 到平面. 但<em>不</em>意味在 $\R^3$ 中真的平直! 经典反例:</p>
+        <ul>
+          <li>圆柱面: $K \equiv 0$ (Ex 22.3), 但在 $\R^3$ 里弯曲. 可以"展开"成平面 (剪开顺一条母线就是).</li>
+          <li>圆锥面 (除顶点): 同样 $K \equiv 0$, 可展开.</li>
+          <li>切线 developable surfaces (一族切线生成的曲面): 全部 $K \equiv 0$.</li>
+        </ul>
+        <p>这些都叫 <em>developable surfaces (可展曲面)</em> — Theorema Egregium 角度看, 全是与平面 locally isometric 的.</p>
+        <p>反过来, 球面 $K = 1/R^2 \ne 0$ 故<em>不可</em>能与平面 locally isometric. 这就是地图制作家的<em>头疼问题</em>: 把球面"摊平"到平面必然<em>有变形</em> (距离 / 面积扭曲, 因 $K$ 不一致).</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">Pitfall 22.4 (二阶偏导 vs 一阶偏导的<em>混淆</em>)</span>
+        <p>计算 $\I$ 用一阶偏导 $X_u, X_v$ 与<em>它们之间的内积</em>.<br>
+        计算 $\II$ 用<em>二阶</em>偏导 $X_{uu}, X_{uv}, X_{vv}$ 与<em>它们与 $\nu$ 的内积</em>.</p>
+        <p>不要混: $E \ne X_{uu} \cdot X_u$, $L \ne X_u \cdot \nu$ (这个永远是 0!). 都是 surface theory 入门的<em>低级错误</em>.</p>
+        <p>实战流程的<em>正确</em>顺序: 先算 $X_u, X_v$ → $E, F, G$, $\nu$, $|X_u \times X_v|$; 再算 $X_{uu}, X_{uv}, X_{vv}$ → $L, M, N$; 最后套 $K, H$ 公式.</p>
+      </div>
+
+      <!-- §7 练习 -->
+      <h2 id="exercises">§7 练习</h2>
+
+      <div class="exercise">
+        <span class="ex-num">练习 22.1.</span> 计算<em>圆锥面</em> $X(u, v) = (u\cos v, u\sin v, u)$ ($u > 0, v \in [0, 2\pi)$) 的 $\I, \II, K, H$.
+        <details><summary>答案</summary><div class="details-body">
+        从 Topic 21 Ex 21.2 (锥面)/练习 21.2 知 $\I = \mathrm{diag}(2, u^2)$, $EG-F^2 = 2u^2$.<br>
+        $X_u = (\cos v, \sin v, 1)$, $X_v = (-u\sin v, u\cos v, 0)$.<br>
+        $X_u \times X_v = (-u\cos v, -u\sin v, u)$, $|X_u \times X_v| = u\sqrt 2$. $\nu = (-\cos v, -\sin v, 1)/\sqrt 2$.<br>
+        二阶偏导: $X_{uu} = (0, 0, 0)$, $X_{uv} = (-\sin v, \cos v, 0)$, $X_{vv} = (-u\cos v, -u\sin v, 0)$.<br>
+        $L = X_{uu} \cdot \nu = 0$. $M = X_{uv} \cdot \nu = (\sin v \cdot \cos v - \cos v \cdot \sin v + 0)/\sqrt 2 = 0$. $N = X_{vv} \cdot \nu = (u\cos^2 v + u\sin^2 v + 0)/\sqrt 2 = u/\sqrt 2$.<br>
+        $\II = \mathrm{diag}(0, u/\sqrt 2)$.<br>
+        $K = (0 \cdot u/\sqrt 2 - 0)/(2u^2) = \boxed{0}$. 圆锥<em>flat</em>! (与圆柱、平面同类 — developable.)<br>
+        $H = (2 \cdot u/\sqrt 2 + u^2 \cdot 0)/(2 \cdot 2 u^2) = (2u/\sqrt 2)/(4u^2) = 1/(2u\sqrt 2)$. 与 $u$ 反相关, 越靠顶点越大.
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 22.2 ★.</span> 用 Thm 22.2 (Euler 法截面公式) $k_n(\theta) = k_1 \cos^2\theta + k_2 \sin^2\theta$ 证明 $H = \tfrac{1}{2\pi}\int_0^{2\pi} k_n(\theta)\,d\theta$ (即平均曲率 = 法曲率在所有切方向上的 average).
+        <details><summary>答案</summary><div class="details-body">
+        $\int_0^{2\pi} \cos^2\theta\,d\theta = \pi$, $\int_0^{2\pi} \sin^2\theta\,d\theta = \pi$.<br>
+        $\int_0^{2\pi} k_n(\theta)\,d\theta = k_1 \pi + k_2 \pi = (k_1 + k_2)\pi$.<br>
+        $\frac{1}{2\pi}\int_0^{2\pi} k_n(\theta)\,d\theta = (k_1 + k_2)/2 = H$. $\checkmark$<br>
+        这是"为什么叫<em>mean</em> curvature"的精确根据 — $H$ 真的是 $k_n$ 在切方向上的<em>算术均值</em>.
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 22.3.</span> 把<em>函数图象</em> $X(u, v) = (u, v, f(u, v))$ 的 $K$ 与 $H$ 用 $f$ 的偏导表达 (generic 公式).
+        <details><summary>答案</summary><div class="details-body">
+        从 Topic 21 Ex 21.1: $\I = \begin{pmatrix}1+f_u^2 & f_u f_v\\ f_u f_v & 1+f_v^2\end{pmatrix}$, $EG-F^2 = 1 + f_u^2 + f_v^2$, $\nu = (-f_u, -f_v, 1)/\sqrt{1+f_u^2+f_v^2}$.<br>
+        二阶偏导: $X_{uu} = (0, 0, f_{uu})$, $X_{uv} = (0, 0, f_{uv})$, $X_{vv} = (0, 0, f_{vv})$.<br>
+        $L = X_{uu}\cdot\nu = f_{uu}/\sqrt{1+f_u^2+f_v^2}$. 类似 $M = f_{uv}/\sqrt{\cdot}$, $N = f_{vv}/\sqrt{\cdot}$.<br>
+        $\det \II = (f_{uu} f_{vv} - f_{uv}^2)/(1+f_u^2+f_v^2)$.<br>
+        $\boxed{K = \frac{f_{uu}f_{vv} - f_{uv}^2}{(1+f_u^2+f_v^2)^2}}$.<br>
+        $H = \frac{(1+f_u^2)f_{vv} - 2 f_u f_v f_{uv} + (1+f_v^2)f_{uu}}{2(1+f_u^2+f_v^2)^{3/2}}$ (注意分母是 $2(EG-F^2)$ × 来自 $\nu$ 的 $\sqrt{\cdot}$ 因子).<br>
+        校验 (Ex 22.4 鞍面 $f = uv$ at 原点): $f_u = f_v = 0$, $f_{uu} = f_{vv} = 0$, $f_{uv} = 1$. $K = (0 \cdot 0 - 1)/1^2 = -1$. $H = 0$. $\checkmark$
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 22.4.</span> 椭球面 $X(u, v) = (a \sin u \cos v, b \sin u \sin v, c \cos u)$ (with $a, b, c > 0$). 在两极 $u = 0, \pi$ 与赤道 $u = \pi/2, v = 0$ 处, $K$ 哪个大?
+        <details><summary>答案</summary><div class="details-body">
+        球面 ($a = b = c = R$) 处处 $K = 1/R^2$. 椭球<em>不</em>是常曲率, 但仍处处 $K > 0$ (椭圆点).<br>
+        直觉: $K$ 衡量"曲面在两个方向同时弯" — "尖" 处 (大半径方向相对较小) $K$ 大. 在椭球上, "极点" (沿短轴的方向) 是较尖的, $K$ 大; "赤道远端" 是更钝的, $K$ 小.<br>
+        定量 (用练习 22.3 公式或直接套 generic surface revolution): 北极 $K = 1/a^2 b^2 c^2$ × 复杂因子, 一般北极 ($u = 0$, $z = c$) 处 $K = c^2/(a^2 b^2)$ (用<em>显式椭球公式</em>). 赤道处 $K = c/(\ldots)$ 较小.<br>
+        Punchline: $K$ 在椭球上变化, max 在最"尖" 的极点 (沿短轴), min 在最"钝" 的赤道 (沿长轴所在平面). 椭球总 Gauss-Bonnet: $\iint K\,dA = 4\pi$ (Euler char 为 2), 与球面一致 — 这是 Gauss-Bonnet 定理的<em>topological</em> 力量.
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 22.5 ★.</span> 设 $X$ 是 surface, 在某点主曲率 $k_1 > 0 > k_2$, $k_1 + k_2 = 0$. 解出 $K, H$. 这样的点叫什么?
+        <details><summary>答案</summary><div class="details-body">
+        $H = (k_1 + k_2)/2 = 0$. $K = k_1 k_2 = k_1 \cdot (-k_1) = -k_1^2 < 0$.<br>
+        这种 $H = 0$ 的点 ($k_1 = -k_2$) 称<strong>minimal surface 点</strong> (sometimes "umbilic 反例" since $k_1 \ne k_2$).<br>
+        在 $\R^3$ 全 minimal 曲面 ($H \equiv 0$) 的例子: 平面 (trivial, $k_1 = k_2 = 0$), catenoid (悬链面), helicoid (螺旋面), Scherk 曲面 等. 这些曲面都<em>处处</em> $K \le 0$ (因为 $k_1 = -k_2$ ⟹ $K = -k_1^2 \le 0$). 物理: 肥皂膜<em>张</em>在金属线框上 (无内压) 平衡时形成 minimal surface — minimum surface area variational principle.<br>
+        Ex 22.4 (鞍面 $z = uv$) 在原点正是这种情况: $k_1 = 1, k_2 = -1, K = -1, H = 0$.
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 22.6 ★★.</span> 给定一个曲面在某点 $\I = \begin{pmatrix}2 & 1\\ 1 & 1\end{pmatrix}$, $\II = \begin{pmatrix}3 & 0\\ 0 & 1\end{pmatrix}$. 求 $S, k_1, k_2, K, H$.
+        <details><summary>答案</summary><div class="details-body">
+        $\det \I = 2 \cdot 1 - 1 \cdot 1 = 1$. $\I^{-1} = \begin{pmatrix}1 & -1\\ -1 & 2\end{pmatrix}$ (用 $\frac{1}{\det}\begin{pmatrix}d & -b\\ -c & a\end{pmatrix}$ 公式).<br>
+        $S = \I^{-1}\II = \begin{pmatrix}1 & -1\\ -1 & 2\end{pmatrix}\begin{pmatrix}3 & 0\\ 0 & 1\end{pmatrix} = \begin{pmatrix}3 & -1\\ -3 & 2\end{pmatrix}$. (注意 $S$ <em>不对称</em>, 但是 $\I$-自伴.)<br>
+        Char poly: $\det(S - \lambda I) = (3 - \lambda)(2 - \lambda) - (-1)(-3) = \lambda^2 - 5\lambda + 6 - 3 = \lambda^2 - 5\lambda + 3$.<br>
+        $\lambda = (5 \pm \sqrt{25 - 12})/2 = (5 \pm \sqrt{13})/2$. 两个实根 (与谱定理预期一致). $k_1 = (5 + \sqrt{13})/2 \approx 4.30$, $k_2 = (5 - \sqrt{13})/2 \approx 0.70$.<br>
+        $K = k_1 k_2 = \det S = 3 \cdot 2 - (-1)(-3) = 3$. 也 = $\det \II / \det \I = 3 / 1 = 3$. $\checkmark$<br>
+        $H = (k_1 + k_2)/2 = (1/2)\tr S = (3 + 2)/2 = 5/2$.<br>
+        校验: 用 $K, H$ 公式: $K = (LN - M^2)/(EG - F^2) = (3 - 0)/1 = 3$. $H = (EN - 2FM + GL)/(2(EG - F^2)) = (2 \cdot 1 - 2 \cdot 1 \cdot 0 + 1 \cdot 3)/(2 \cdot 1) = 5/2$. $\checkmark$
+        </div></details>
+      </div>
+
+      <div class="exercise">
+        <span class="ex-num">练习 22.7.</span> 证明 $H^2 \ge K$ (with equality iff $k_1 = k_2$, 即 "umbilic 点", 法曲率所有方向相同).
+        <details><summary>答案</summary><div class="details-body">
+        $H^2 - K = ((k_1+k_2)/2)^2 - k_1 k_2 = (k_1^2 + 2 k_1 k_2 + k_2^2)/4 - k_1 k_2 = (k_1^2 - 2 k_1 k_2 + k_2^2)/4 = ((k_1 - k_2)/2)^2 \ge 0$. $\checkmark$<br>
+        Equality ⟺ $k_1 = k_2$. 这种点叫<strong>umbilic point (脐点)</strong> — 主曲率重根, 每个切方向都是主方向. 球面是 totally umbilic surface (处处 $k_1 = k_2 = 1/R$); 这是 totally umbilic <em>且</em> $K > 0$ 的<em>唯一</em>例子 (in $\R^3$, up to congruence).
+        </div></details>
+      </div>
+
+      <!-- §8 速查表 -->
+      <h2 id="cheat">§8 速查表</h2>
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def"><strong>★★★ 第二基本形式 (Def 22.1)</strong>: $\II = \begin{pmatrix}L & M\\ M & N\end{pmatrix}$, $L = X_{uu}\cdot\nu$, $M = X_{uv}\cdot\nu$, $N = X_{vv}\cdot\nu$.</li>
+          <li class="cs-def"><strong>法曲率 $k_n$ (Def 22.2)</strong>: $k_n(\dot u, \dot v) = \II/\I$ ratio. 几何 = 曲面与法截面的交曲线 signed 曲率.</li>
+          <li class="cs-def"><strong>★★ Shape operator (Def 22.3)</strong>: $S = \I^{-1}\II$. 等价: $S = -[D\nu]$.</li>
+          <li class="cs-def"><strong>主曲率 $k_1, k_2$ (Def 22.4)</strong>: $S$ 的两个实特征值. 对应特征向量 = 主方向 ($\I$-正交).</li>
+          <li class="cs-def"><strong>★★★ Gauss 曲率 (Def 22.5)</strong>: $K = k_1 k_2 = \det S = (LN - M^2)/(EG - F^2)$. 必背.</li>
+          <li class="cs-def"><strong>★ 平均曲率 (Def 22.6)</strong>: $H = (k_1+k_2)/2 = \tfrac12 \tr S = (EN - 2FM + GL)/(2(EG - F^2))$.</li>
+          <li class="cs-thm"><strong>★ $\II$ 测法向加速度 (Thm 22.1)</strong>: $c''\cdot\nu = L\dot u^2 + 2M\dot u\dot v + N\dot v^2$.</li>
+          <li class="cs-thm"><strong>★ Euler 法截面定理 (Thm 22.2)</strong>: $k_1, k_2$ 是 $k_n$ over 单位切向的 max/min; $k_n(\theta) = k_1\cos^2\theta + k_2\sin^2\theta$.</li>
+          <li class="cs-thm"><strong>★★ $K$ 符号分类 (Thm 22.3)</strong>: $K > 0$ 椭圆 (球面型); $K = 0$ 抛物 (平面/圆柱); $K < 0$ 双曲 (鞍面).</li>
+          <li class="cs-thm"><strong>★★★ Theorema Egregium (Thm 22.4)</strong>: $K$ 只依赖 $\I$ — 内蕴! 局部等距保持 $K$. (证留后续.)</li>
+          <li class="cs-tech"><strong>★★★ 球面 $K = 1/R^2$ (Ex 22.2)</strong>: 实战流程模板. $\I = \mathrm{diag}(R^2\sin^2\varphi, R^2)$, $\II = \mathrm{diag}(R\sin^2\varphi, R)$, $K = 1/R^2$, $|H| = 1/R$.</li>
+          <li class="cs-tech"><strong>圆柱面 $K = 0, H \ne 0$ (Ex 22.3)</strong>: 经典"flat 但 extrinsically bent"; 与平面 isometric.</li>
+          <li class="cs-tech"><strong>鞍面 $z = uv$ in 原点 (Ex 22.4)</strong>: $K = -1$, $H = 0$, $k_1 = 1, k_2 = -1$. minimal + hyperbolic.</li>
+          <li class="cs-tech"><strong>计算流程</strong>: (1) $X_u, X_v$ → $E, F, G$, $X_u \times X_v$, $\nu$. (2) $X_{uu}, X_{uv}, X_{vv}$ → $L, M, N$. (3) $K = (LN-M^2)/(EG-F^2)$, $H = (EN-2FM+GL)/(2(EG-F^2))$.</li>
+          <li class="cs-tech"><strong>函数图象 $z = f(u, v)$</strong>: $K = (f_{uu}f_{vv} - f_{uv}^2)/(1+f_u^2+f_v^2)^2$ (练习 22.3).</li>
+          <li class="cs-pitfall"><strong>★ Pitfall 22.1</strong>: $K$ 不依赖法向选择 (unoriented), $H$ 依赖 (oriented). 写"$H = 1/R$"或"$-1/R$"都对, $|H|$ 才无歧义.</li>
+          <li class="cs-pitfall"><strong>★ Pitfall 22.2</strong>: $S$ 矩阵<em>非</em>对称但<em>算子</em> $\I$-自伴; 谱定理仍适用, 特征值实.</li>
+          <li class="cs-pitfall"><strong>★★ Pitfall 22.3</strong>: $K = 0$ <em>不</em>等于"平面" — 圆柱、圆锥都 $K = 0$ (developable surfaces). $K = 0$ 仅表示"<em>内</em>蕴 flat".</li>
+          <li class="cs-pitfall"><strong>Pitfall 22.4</strong>: 别混淆一阶 vs 二阶偏导; $\I$ 用 $X_u, X_v$ 互内积, $\II$ 用 $X_{uu/uv/vv}$ 与 $\nu$ 内积.</li>
+        </ul>
+      </div>
+
+      <!-- §9 进一步阅读 -->
+      <h2 id="further">§9 进一步阅读</h2>
+      <ul>
+        <li><strong>Typed notes</strong>: <code>Notes/Typed/10.2_notes/10.2_notes.tex</code> §§7–10 — 完整的第二基本形式 + shape operator + $K, H$ + 球面 worked example, 与本页内容平行 (英文 formal 版).</li>
+        <li><strong>Klingenberg 教材</strong>: <code>A Course in Differential Geometry.pdf</code>:
+          <ul>
+            <li>§3.4 (Weingarten map / shape operator, principal curvatures, normal curvature)</li>
+            <li>§3.5 (Gauss + mean curvature, sign classification of points)</li>
+            <li>§3.6 (Theorema Egregium proof — 留待后续 review topic)</li>
+          </ul>
+        </li>
+        <li><strong>关联 review 页</strong>:
+          <ul>
+            <li><a href="21-surfaces-first-form.html">Topic 21</a> ← 前一页 ($\I$, $\nu$, parametrized surfaces). 本页延伸到 $\II$.</li>
+            <li><a href="20-frenet-curvature.html">Topic 20</a> (Frenet–Serret) — 1D 曲线 signed 曲率; 本页的法曲率 $k_n$ 就是"曲面上曲线的法截面"那条平面曲线的 $\kappa$.</li>
+            <li>下一页 (待 Lec 10.3+ 完成): Theorema Egregium 证明, Christoffel 符号, Gauss-Bonnet 定理 (Euler char ↔ $\iint K$).</li>
+          </ul>
+        </li>
+        <li><strong>外延伸阅读</strong>:
+          <ul>
+            <li><strong>do Carmo</strong> <em>Differential Geometry of Curves and Surfaces</em> §3-2, §3-3, §3-4, §3-5 — 经典 treatment, 含<em>大量</em> Example (椭球、双曲面、Enneper、catenoid、helicoid) 与 $K, H$ 具体计算.</li>
+            <li><strong>O'Neill</strong> <em>Elementary Differential Geometry</em> Ch 5: shape operator 视角更突出.</li>
+            <li><strong>Spivak</strong> <em>A Comprehensive Introduction to Differential Geometry</em> Vol 2 Ch 5-7: 历史视角 + Theorema Egregium 三种不同证明 + 与 Riemann 几何的联系.</li>
+            <li><strong>Wikipedia "Theorema Egregium" / "Gaussian curvature"</strong>: 形象的 geometric interpretation, 含"地图扭曲"实例 (Mercator 投影 vs 球面真实距离).</li>
+            <li><strong>Pizza 折叠 trick</strong>: 拿一片 pizza, 一头略弯 (Gauss curvature 守恒为 0 by Theorema Egregium), 另一头自动平 — 物理 demo. 见 Numberphile 等视频.</li>
+          </ul>
+        </li>
+      </ul>
+
+    </main>
+  </div>
+
+</body>
+</html>
