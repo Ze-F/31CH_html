@@ -310,3 +310,200 @@ body.index main { max-width: none; }
 .textbook-index tbody tr:hover {
   background: #faf7ec;
 }
+
+/* ============================================
+   13. Theme toggle button (always present, fixed top-right)
+   ============================================ */
+.theme-toggle {
+  position: fixed;
+  top: 11px;
+  right: 16px;
+  z-index: 200;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid #d8d3c4;
+  background: #fffefa;
+  color: #555;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, transform 0.1s;
+}
+.theme-toggle:hover { background: #f0ebda; }
+.theme-toggle:active { transform: scale(0.92); }
+
+/* ============================================
+   14. Dark mode — semantic colors preserved as muted dark variants
+   Triggered by [data-theme="dark"] on <html>, set by inline script
+   in <head> (system preference + localStorage manual override).
+   ============================================ */
+
+[data-theme="dark"] body {
+  background-color: #1a1d23;
+  color: #e4e4e7;
+}
+
+/* Top nav */
+[data-theme="dark"] .top-nav {
+  background: #21262e;
+  border-bottom-color: #2e333d;
+}
+[data-theme="dark"] .top-nav a { color: #6ea8e8; }
+[data-theme="dark"] .top-nav .nav-center { color: #c9c9d1; }
+[data-theme="dark"] .top-nav .nav-disabled { color: #555; }
+
+/* Theme toggle button */
+[data-theme="dark"] .theme-toggle {
+  background: #2a2f38;
+  border-color: #3d434f;
+  color: #e4e4e7;
+}
+[data-theme="dark"] .theme-toggle:hover { background: #353a45; }
+
+/* Sidebar TOC */
+[data-theme="dark"] .sidebar-toc { border-right-color: #2e333d; }
+[data-theme="dark"] .sidebar-toc h3 { color: #888; }
+[data-theme="dark"] .sidebar-toc a { color: #a8a8b3; }
+[data-theme="dark"] .sidebar-toc a:hover {
+  color: #93c5fd;
+  background: #25334a;
+}
+[data-theme="dark"] .sidebar-toc a.active {
+  color: #93c5fd;
+  background: #25334a;
+  border-left-color: #4a76c8;
+}
+
+/* Headings & body text */
+[data-theme="dark"] main .subtitle { color: #9b9ba8; }
+[data-theme="dark"] main h2 { border-bottom-color: #2e333d; }
+[data-theme="dark"] main a { color: #6ea8e8; }
+
+/* Boxed cards — semantic colors as dark muted variants */
+[data-theme="dark"] .box.def {
+  background: #1a2a44;
+  border-color: #4a76c8;
+}
+[data-theme="dark"] .box.def .box-title { color: #93c5fd; }
+
+[data-theme="dark"] .box.thm {
+  background: #322710;
+  border-color: #c4983e;
+}
+[data-theme="dark"] .box.thm .box-title { color: #f5cd66; }
+
+[data-theme="dark"] .box.example {
+  background: #1a2e1a;
+  border-color: #5fa85f;
+}
+[data-theme="dark"] .box.example .box-title { color: #98d098; }
+
+[data-theme="dark"] .box.pitfall {
+  background: #341818;
+  border-color: #c45050;
+}
+[data-theme="dark"] .box.pitfall .box-title { color: #f08080; }
+
+[data-theme="dark"] .box.remark {
+  background: #2a1e3a;
+  border-color: #a385d6;
+}
+[data-theme="dark"] .box.remark .box-title { color: #c3a8e8; }
+
+[data-theme="dark"] .box.prereq {
+  background: #1e2738;
+  border-color: #6b8db5;
+}
+[data-theme="dark"] .box.prereq .box-title { color: #a8c4e8; }
+
+/* Details / collapsible proofs */
+[data-theme="dark"] details {
+  background: #20242c;
+  border-color: #2e333d;
+}
+[data-theme="dark"] details > summary { color: #c9c9d1; }
+[data-theme="dark"] details > summary:hover { background: #262b34; }
+[data-theme="dark"] details[open] > summary { border-bottom-color: #2e333d; }
+
+/* Exercises */
+[data-theme="dark"] .exercise { border-left-color: #4a4f5a; }
+[data-theme="dark"] .exercise .ex-num { color: #b8b8c4; }
+
+/* Cheat sheet */
+[data-theme="dark"] .cheat-sheet li { border-bottom-color: #2e333d; }
+
+/* Inline / block code */
+[data-theme="dark"] code, [data-theme="dark"] kbd, [data-theme="dark"] .mono {
+  color: #e4e4e7;
+}
+[data-theme="dark"] main code {
+  background: #2a2e36;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+/* Mobile TOC toggle button */
+[data-theme="dark"] .toc-toggle {
+  background: #2a2f38;
+  border-color: #3d434f;
+  color: #c9c9d1;
+}
+
+/* Mobile sidebar overlay (< 900px) */
+@media (max-width: 900px) {
+  [data-theme="dark"] .sidebar-toc {
+    background: #21262e;
+    border-bottom-color: #2e333d;
+  }
+}
+
+/* Index page topic cards */
+[data-theme="dark"] .part-section h2 {
+  color: #c9c9d1;
+  border-bottom-color: #2e333d;
+}
+[data-theme="dark"] .topic-list li {
+  background: #20242c;
+  border-color: #2e333d;
+}
+[data-theme="dark"] .topic-list .topic-num { color: #f5cd66; }
+[data-theme="dark"] .topic-list .topic-title { color: #6ea8e8; }
+[data-theme="dark"] .topic-list .topic-meta { color: #8b8b95; }
+[data-theme="dark"] .topic-list .topic-desc { color: #c9c9d1; }
+[data-theme="dark"] .topic-list li.unavailable .topic-title { color: #6b6b76; }
+
+/* MT2 textbook-index table */
+[data-theme="dark"] .textbook-index th,
+[data-theme="dark"] .textbook-index td {
+  border-color: #2e333d;
+}
+[data-theme="dark"] .textbook-index thead th {
+  background: #2a2f38;
+  color: #d0d0d8;
+}
+[data-theme="dark"] .textbook-index tbody tr:hover {
+  background: #262b34;
+}
+
+/* Blockquote (used occasionally in motivation sections) */
+[data-theme="dark"] blockquote {
+  color: #c0c0cc;
+  border-left-color: #4a4f5a !important;
+}
+
+/* KaTeX: text color is inherited via 'color' property, so it follows
+   the body color automatically. Just ensure background-coloured boxes
+   (e.g. \boxed{...}) remain visible — KaTeX uses border-color: black
+   by default, which is fine on light bg but invisible on dark bg.
+   Override to follow current color. */
+[data-theme="dark"] .katex .boxpad,
+[data-theme="dark"] .katex .fbox,
+[data-theme="dark"] .katex .boxed { border-color: currentColor !important; }
+[data-theme="dark"] .katex .rule { background-color: currentColor; }
+[data-theme="dark"] .katex .frac-line,
+[data-theme="dark"] .katex .overline-line,
+[data-theme="dark"] .katex .underline-line { border-color: currentColor !important; }

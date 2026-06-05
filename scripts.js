@@ -2,9 +2,42 @@
 // MATH 31CH Review — Global Scripts
 // 1. TOC scroll-spy: 根据 viewport 中的 section 高亮 sidebar 链接
 // 2. Mobile TOC toggle: 移动端展开/收起 sidebar
+// 3. Theme toggle (dark mode): inject 🌙/☀ button, persist to localStorage
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
+  // ---- 3. Theme toggle button ----
+  // Pre-paint inline script in each <head> sets data-theme on <html>.
+  // Here we inject the toggle button and wire click/system-change handlers.
+  const docEl = document.documentElement;
+  const toggleBtn = document.createElement('button');
+  toggleBtn.className = 'theme-toggle';
+  toggleBtn.setAttribute('aria-label', '切换深浅色模式');
+  toggleBtn.setAttribute('title', '切换深浅色模式');
+  const setBtnIcon = () => {
+    toggleBtn.textContent = docEl.dataset.theme === 'dark' ? '☀' : '🌙';
+  };
+  setBtnIcon();
+  toggleBtn.addEventListener('click', () => {
+    const next = docEl.dataset.theme === 'dark' ? 'light' : 'dark';
+    docEl.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch (e) {}
+    setBtnIcon();
+  });
+  document.body.appendChild(toggleBtn);
+
+  // Follow OS theme changes if user hasn't manually overridden
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      let manualOverride = null;
+      try { manualOverride = localStorage.getItem('theme'); } catch (err) {}
+      if (manualOverride === null) {
+        docEl.dataset.theme = e.matches ? 'dark' : 'light';
+        setBtnIcon();
+      }
+    });
+  }
+
   // ---- 1. TOC Scroll-Spy ----
   const tocLinks = document.querySelectorAll('.sidebar-toc a');
   if (tocLinks.length > 0) {
