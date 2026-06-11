@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Practice Final 详解 — Fourier/Laplace/曲率/曲面 25 题 | MATH 31CH 复习</title>
+  <script>try{document.documentElement.dataset.theme=localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light")}catch(e){}</script>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\C': '\\mathbb{C}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\diam': '\\operatorname{diam}',
+        '\\sgn': '\\operatorname{sgn}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|',
+        '\\1': '\\mathbf{1}',
+        '\\LT': '\\mathcal{L}',
+        '\\sinc': '\\operatorname{sinc}'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="HW4.html">HW4</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <span class="nav-next nav-disabled">无</span>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#sec1">§1 总览 (考点 & 工具箱)</a></li>
+        <li><a href="#sec2">§2 Part I — Fourier 变换 (4 题)</a></li>
+        <li><a href="#sec3">§3 Part II — Laplace 变换 (4 题)</a></li>
+        <li><a href="#sec4">§4 Part III — PDE/ODE 应用 (4 题)</a></li>
+        <li><a href="#sec5">§5 Part IV — 平面曲线曲率 (4 题)</a></li>
+        <li><a href="#sec6">§6 Part V — 空间曲线 κ, τ (4 题)</a></li>
+        <li><a href="#sec7">§7 Part VII — 曲面四例 (4 题)</a></li>
+        <li><a href="#sec8">§8 Part VIII — 环面 Gauss 曲率符号</a></li>
+        <li><a href="#sec9">§9 方法论速查</a></li>
+        <li><a href="#sec10">§10 进一步阅读 & 考试策略</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>Practice Final 详解 — Fourier / Laplace / 曲率 / 曲面 25 题</h1>
+      <p class="subtitle">本次 HW V 同时是 Practice Final · 25 题分布在 8 个 Part, 全部为 MT2 之后内容 · 与 LaTeX 解答 <code>../../HW/Response/PracticeFinal_response.pdf</code> 互补 · 策略段默认展开, 计算段折叠</p>
+
+      <!-- ==================== §1 总览 ==================== -->
+      <h2 id="sec1">§1 总览 (考点 & 工具箱)</h2>
+
+      <p>这是 MATH 31CH 学期最后一份 HW, 同时是 Practice Final. 题目覆盖 MT2 之后讲授的<strong>所有计算性内容</strong>: Fourier 变换、Laplace 变换、用变换解 PDE/ODE、曲线的 κ 与 τ、曲面的 $E,F,G,L,M,N$ 与主/平均/Gauss 曲率. 教授原话: "All computations in the final will be from after midterm II ... This may take up 40% of the final." 因此<strong>把这 25 题练透就是把 final 的计算部分练透了</strong>.</p>
+
+      <p>本页设计目标: 与 LaTeX response (<code>PracticeFinal_response.pdf</code>) 互补. LaTeX 走严格证明; HTML 走<strong>策略 + 反思 + cheat sheet</strong>, 让你 3 个月后再回来还能立刻想起来"哦, 这种题套这个模板". 每道题的页面结构是:</p>
+      <ul>
+        <li><strong>题面</strong> (蓝色 box): 直接抄 Practice Final 的题</li>
+        <li><strong>策略</strong> (Chinese prose): 为什么选这个套路、关键技巧</li>
+        <li><strong>计算</strong> (折叠 details): 完整计算, 与 LaTeX 一致</li>
+        <li><strong>反思</strong> (紫色 box, 可选): take-away、几何直觉、与其他题的联系</li>
+      </ul>
+
+      <h3>8 个 Part 的题型分布</h3>
+
+      <table class="textbook-index">
+        <thead>
+          <tr><th>Part</th><th>主题</th><th>核心方法</th><th>题数</th><th>本页节</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>I</td><td>Fourier 变换</td><td>直接积分 / Fubini 张量积 / DUI ODE 法 (Gauss)</td><td>4</td><td>§2</td></tr>
+          <tr><td>II</td><td>Laplace 变换</td><td>直接积分 / 分部 / 复指数拆 sin</td><td>4</td><td>§3</td></tr>
+          <tr><td>III</td><td>变换解 PDE/ODE</td><td>转代数 → 解参数 ODE → 反变换 (识别 convolution)</td><td>4</td><td>§4</td></tr>
+          <tr><td>IV</td><td>平面曲线 κ</td><td>$\kappa = |x'y'' - y'x''|/((x')^2 + (y')^2)^{3/2}$</td><td>4</td><td>§5</td></tr>
+          <tr><td>V</td><td>空间曲线 κ, τ</td><td>$|c'\times c''|/|c'|^3$ + $\det(c',c'',c''')/|c'\times c''|^2$</td><td>4</td><td>§6</td></tr>
+          <tr><td>VI</td><td>(曲面框架, 无题)</td><td>$E,F,G,L,M,N$ + 主/平均/Gauss 曲率公式</td><td>0</td><td>§7 引言</td></tr>
+          <tr><td>VII</td><td>4 个曲面计算</td><td>对每个曲面跑一遍框架</td><td>4</td><td>§7</td></tr>
+          <tr><td>VIII</td><td>环面 + $K$ 符号分析</td><td>套框架 + 几何分类</td><td>1</td><td>§8</td></tr>
+        </tbody>
+      </table>
+
+      <h3>通用工具箱 (反复用到)</h3>
+
+      <div class="box prereq">
+        <strong>📐 Hubbard 的 Fourier 约定:</strong> $\widehat{f}(\xi) = \int_{\R^n} f(x) e^{2\pi i x\cdot\xi}\,dx$. 注意是 $+2\pi i$ 不是 $-2\pi i$. 这影响:
+        <ul>
+          <li><strong>微分律:</strong> $\widehat{f'}(\xi) = -2\pi i\xi\,\widehat{f}(\xi)$, $\widehat{f''}(\xi) = -4\pi^2\xi^2\,\widehat{f}(\xi)$.</li>
+          <li><strong>张量积律:</strong> 矩形 indicator 的 FT = 1D indicator FT 的乘积 (Fubini).</li>
+          <li><strong>卷积定理:</strong> $\widehat{f * g} = \widehat{f}\cdot\widehat{g}$.</li>
+        </ul>
+        <strong>⚡ Laplace 的导数律:</strong> $\LT(y')(s) = sY(s) - y(0)$, $\LT(y'')(s) = s^2 Y - sy(0) - y'(0)$.<br>
+        <strong>反 Laplace 利器:</strong> 部分分式 + 卷积定理 $\LT(f * g) = \LT(f)\LT(g)$.<br>
+        <strong>📊 标准变换表 (背下来):</strong>
+        <table style="width:100%; margin-top:6px; font-size:0.9em;">
+          <tr><th>$f(x)$</th><th>$\widehat{f}(\xi)$</th><th>$f(t)$</th><th>$\LT(f)(s)$</th></tr>
+          <tr><td>$\1_{[-a,a]}$</td><td>$\sin(2\pi a\xi)/(\pi\xi)$</td><td>$1$</td><td>$1/s$</td></tr>
+          <tr><td>$e^{-a|x|}$ ($a&gt;0$)</td><td>$2a/(a^2 + 4\pi^2\xi^2)$</td><td>$t^n$</td><td>$n!/s^{n+1}$</td></tr>
+          <tr><td>$e^{-\pi x^2}$</td><td>$e^{-\pi\xi^2}$ (self-dual)</td><td>$e^{at}$</td><td>$1/(s-a)$</td></tr>
+          <tr><td>heat kernel $G_t$</td><td>$e^{-4\pi^2 t\xi^2}$</td><td>$\sin bt$ / $\cos bt$</td><td>$b/(s^2+b^2)$ / $s/(s^2+b^2)$</td></tr>
+        </table>
+        <strong>📏 曲率公式 (背下来):</strong>
+        <ul>
+          <li>平面: $\kappa = |x'y'' - y'x''|/((x')^2+(y')^2)^{3/2}$</li>
+          <li>空间: $\kappa = |c'\times c''|/|c'|^3$, $\tau = \det(c',c'',c''')/|c'\times c''|^2$</li>
+          <li>曲面 (orthogonal case, $F=M=0$): $k_1 = L/E$, $k_2 = N/G$, $H = (k_1+k_2)/2$, $K = LN/(EG)$</li>
+          <li>曲面 (general): $K = (LN-M^2)/(EG-F^2)$, $H = (EN + GL - 2FM)/(2(EG-F^2))$, $k_{1,2} = H \pm \sqrt{H^2 - K}$</li>
+        </ul>
+      </div>
+
+      <!-- ==================== §2 Part I ==================== -->
+      <h2 id="sec2">§2 Part I — Fourier 变换 (4 题)</h2>
+
+      <p>Part I 四道题<strong>互不相同</strong>, 各自训练一个 FT 的核心技巧. 顺序由易到难:</p>
+      <ol>
+        <li>I.1 — <strong>对称区间 indicator → sinc</strong>: 用 $e^{ia} - e^{-ia} = 2i\sin a$.</li>
+        <li>I.2 — <strong>矩形 indicator → 张量积</strong>: Fubini 把 2D 拆成两个 1D.</li>
+        <li>I.3 — <strong>双侧指数 → Lorentzian</strong>: 在 0 处切, 改变量.</li>
+        <li>I.4 — <strong>Gaussian self-dual</strong>: 用 differentiation under integral (DUI) + IBP 得到一阶 ODE in $\xi$.</li>
+      </ol>
+
+      <!-- ===== Problem I.1 ===== -->
+      <h3>§2.1 Problem I.1 — 对称区间 indicator → sinc</h3>
+
+      <div class="box def"><strong>Problem I.1.</strong> 计算 $f(x) = \1_{[-a,a]}(x)$ 的 Fourier 变换 ($a&gt;0$).</div>
+
+      <p><strong>策略.</strong> 直接代入定义, 在 $\xi=0$ 与 $\xi\ne 0$ 分情况处理. 关键技巧是把 $e^{2\pi i a\xi} - e^{-2\pi i a\xi}$ 识别为 $2i\sin(2\pi a\xi)$ — 这是<strong>所有"对称区间"问题的核心代数动作</strong>.</p>
+
+      <details>
+        <summary>展开计算</summary>
+        <div class="box thm">
+          $\widehat{f}(\xi) = \int_{-a}^{a} e^{2\pi i x\xi}\,dx$. 当 $\xi\ne 0$:
+          $$
+          \widehat{f}(\xi)
+          = \left[\frac{e^{2\pi i x\xi}}{2\pi i\xi}\right]_{-a}^{a}
+          = \frac{e^{2\pi i a\xi} - e^{-2\pi i a\xi}}{2\pi i\xi}
+          = \frac{2i\sin(2\pi a\xi)}{2\pi i\xi}
+          = \frac{\sin(2\pi a\xi)}{\pi\xi}.
+          $$
+          $\xi=0$ 处 $\widehat{f}(0) = 2a$, 与 $\lim_{\xi\to 0}\sin(2\pi a\xi)/(\pi\xi) = 2a$ 一致. 写成统一形式:
+          $$\boxed{\,\widehat{f}(\xi) = \frac{\sin(2\pi a\xi)}{\pi\xi} = 2a\,\sinc(2a\xi)\,}$$
+          其中 $\sinc(x) = \sin(\pi x)/(\pi x)$.
+        </div>
+      </details>
+
+      <div class="box remark"><strong>反思.</strong> 这是"<strong>不光滑 → 慢衰减</strong>"的范例: $f$ 在 $\pm a$ 处只有跳跃间断, 所以 $\widehat{f}$ 只衰减如 $1/|\xi|$. 如果 $f$ 是 $C^k$ 光滑, $\widehat{f}$ 会衰减到 $1/|\xi|^{k+1}$ 阶. 这是 FT 的"光滑性 ↔ 衰减性"对偶, 后面 I.4 的 Gauss 是极致 (无穷光滑 ↔ 指数衰减).</div>
+
+      <!-- ===== Problem I.2 ===== -->
+      <h3>§2.2 Problem I.2 — 矩形 indicator → 张量积 (用 Fubini)</h3>
+
+      <div class="box def"><strong>Problem I.2.</strong> 计算 $f(x,y) = \1_{[-a,a]\times[-b,b]}(x,y)$ 的 FT.</div>
+
+      <p><strong>策略.</strong> <strong>不要再做一遍 2D 积分</strong>! 矩形 indicator 张量积分解 $\1_{[-a,a]\times[-b,b]}(x,y) = \1_{[-a,a]}(x)\cdot\1_{[-b,b]}(y)$, 而 $e^{2\pi i(x\xi_1 + y\xi_2)} = e^{2\pi i x\xi_1}\cdot e^{2\pi i y\xi_2}$. Fubini 直接把积分劈成两个 I.1 的副本.</p>
+
+      <details>
+        <summary>展开计算</summary>
+        <div class="box thm">
+          $$
+          \widehat{f}(\xi_1,\xi_2)
+          = \int_{\R^2} \1_{[-a,a]}(x)\1_{[-b,b]}(y) e^{2\pi i(x\xi_1 + y\xi_2)}\,dx\,dy
+          = \left(\int_{-a}^a e^{2\pi i x\xi_1}dx\right)\left(\int_{-b}^b e^{2\pi i y\xi_2}dy\right).
+          $$
+          每个因子用 I.1:
+          $$\boxed{\,\widehat{f}(\xi_1, \xi_2) = \frac{\sin(2\pi a\xi_1)}{\pi\xi_1}\cdot\frac{\sin(2\pi b\xi_2)}{\pi\xi_2}\,}$$
+        </div>
+      </details>
+
+      <div class="box remark"><strong>反思.</strong> 这是 FT 的<strong>张量积律</strong>: 若 $h(x,y) = f(x)g(y)$, 则 $\widehat{h}(\xi_1,\xi_2) = \widehat{f}(\xi_1)\widehat{g}(\xi_2)$. 推广到 $n$ 维 box 一样: $\widehat{\1_{[-a_1,a_1]\times\cdots\times[-a_n,a_n]}}(\xi) = \prod_{j=1}^n \frac{\sin(2\pi a_j\xi_j)}{\pi\xi_j}$. 这是<strong>多维 FT 经常用 Fubini 拆成 1D</strong>的根本.</div>
+
+      <!-- ===== Problem I.3 ===== -->
+      <h3>§2.3 Problem I.3 — 双侧指数 → Lorentzian</h3>
+
+      <div class="box def"><strong>Problem I.3.</strong> 计算 $f(x) = e^{-a|x|}$ 的 FT ($a&gt;0$).</div>
+
+      <p><strong>策略.</strong> 绝对值不可微, 但有<strong>分段</strong>处理: 在 $x=0$ 切开, $x&lt;0$ 时 $|x|=-x$, $x&gt;0$ 时 $|x|=x$. 在负半段做<strong>变量代换 $y=-x$</strong> 把积分翻到正半段 (但带个 $e^{-2\pi i y\xi}$ 而不是 $e^{2\pi i y\xi}$). 两个积分加起来用公分母, 实部相加, 虚部相消, 得到 Lorentzian.</p>
+
+      <details>
+        <summary>展开计算</summary>
+        <div class="box thm">
+          $$
+          \widehat{f}(\xi) = \int_{-\infty}^0 e^{ax}e^{2\pi i x\xi}\,dx + \int_0^{\infty} e^{-ax}e^{2\pi i x\xi}\,dx.
+          $$
+          第一项做 $y = -x$:
+          $$\int_{-\infty}^0 e^{ax}e^{2\pi i x\xi}\,dx = \int_0^{\infty} e^{-ay}e^{-2\pi i y\xi}\,dy = \frac{1}{a + 2\pi i\xi}.$$
+          第二项直接积:
+          $$\int_0^{\infty} e^{-(a - 2\pi i\xi)x}\,dx = \frac{1}{a - 2\pi i\xi}.$$
+          相加:
+          $$\widehat{f}(\xi) = \frac{1}{a + 2\pi i\xi} + \frac{1}{a - 2\pi i\xi} = \frac{2a}{a^2 + 4\pi^2\xi^2}.$$
+          $$\boxed{\,\widehat{e^{-a|x|}}(\xi) = \frac{2a}{a^2 + 4\pi^2\xi^2}\,}$$
+          特别地, $a=1$ 给 $\widehat{e^{-|x|}}(\xi) = 2/(1+4\pi^2\xi^2)$, 正是 III.2 题用到的提示.
+        </div>
+      </details>
+
+      <div class="box remark"><strong>反思.</strong> "<strong>指数衰减 → 代数衰减</strong>" 的对偶: 空间侧指数衰减 ($e^{-a|x|}$), 频率侧只代数衰减 ($1/(1+\xi^2)$). 反过来 (FT 是自伴的, 取反向变换得 $\widehat{1/(a^2+4\pi^2\xi^2)} \propto e^{-a|x|}$) 也成立: 代数衰减 → 指数衰减. 而 Gauss 是<strong>双侧指数</strong>, 极端对偶 (I.4).</div>
+
+      <!-- ===== Problem I.4 ===== -->
+      <h3>§2.4 Problem I.4 — Gaussian 自对偶 (DUI + ODE 法)</h3>
+
+      <div class="box def"><strong>Problem I.4.</strong> 证明 $f(x) = e^{-\pi x^2}$ 是其自身的 Fourier 变换.</div>
+
+      <p><strong>策略.</strong> 这是<strong>有名的题</strong>, 也是 Hubbard 课本的代表. 有三种证明:</p>
+      <ul>
+        <li><strong>(推荐) DUI + IBP + ODE 法:</strong> 把 $\widehat{f}(\xi)$ 看作 $\xi$ 的函数 $F(\xi)$, differentiate under the integral 得 $F'(\xi)$, IBP 把 $xe^{-\pi x^2}$ 变成 $-\frac{d}{dx}\frac{e^{-\pi x^2}}{2\pi}$, 得到 $F' = -2\pi\xi F$. 这是一阶线性 ODE, 解出 $F = F(0)\cdot e^{-\pi\xi^2}$. 用 Gauss 积分公式 $\int e^{-\pi x^2} dx = 1$ 给 $F(0)=1$.</li>
+
+        <li><strong>(快但需 contour) 配方法:</strong> $-\pi x^2 + 2\pi i x\xi = -\pi(x - i\xi)^2 - \pi\xi^2$, 积分 $\int e^{-\pi(x-i\xi)^2}\,dx$ 用 contour shift 等于 $\int e^{-\pi x^2}\,dx = 1$. 严格性需要复分析的回路定理.</li>
+
+        <li><strong>(理论方法) Hermite 函数论:</strong> $e^{-\pi x^2/2}$ 是 FT 算子的本征函数, 本征值 $+1$ 是因为它是 0 阶 Hermite. 太重武器, 考试不写.</li>
+      </ul>
+      <p>考试推荐 <strong>DUI + IBP + ODE 法</strong>: 最 rigorous, 最容易记, 一气呵成. <strong>关键技巧</strong>: 看见 $xe^{-\pi x^2}$ 立刻想到它是 $-\frac{1}{2\pi}(e^{-\pi x^2})'$, 这样就能做 IBP.</p>
+
+      <details>
+        <summary>展开计算 (DUI 法)</summary>
+        <div class="box thm">
+          令 $F(\xi) = \widehat{f}(\xi) = \int_{\R} e^{-\pi x^2} e^{2\pi i x\xi}\,dx$. 用 DCT (积分核与 $\xi$ 偏导都被 $|x|e^{-\pi x^2}$ 控制) 把 $\partial_\xi$ 与积分交换:
+          $$F'(\xi) = \int_{\R} 2\pi i x e^{-\pi x^2} e^{2\pi i x\xi}\,dx.$$
+          关键观察: $\frac{d}{dx} e^{-\pi x^2} = -2\pi x e^{-\pi x^2}$, 所以 $2\pi i x e^{-\pi x^2} = -i\frac{d}{dx}e^{-\pi x^2}$. IBP:
+          $$F'(\xi) = -i\left[e^{-\pi x^2} e^{2\pi i x\xi}\right]_{-\infty}^{\infty} + i\int_{\R} e^{-\pi x^2}\cdot 2\pi i\xi\cdot e^{2\pi i x\xi}\,dx = 0 - 2\pi\xi F(\xi).$$
+          这是一阶线性 ODE: $\frac{d}{d\xi}\log F = -2\pi\xi$, 积分得
+          $$F(\xi) = F(0) e^{-\pi\xi^2}.$$
+          $F(0) = \int_\R e^{-\pi x^2}\,dx = 1$ (经典 Gauss 积分, 用极坐标计算 $\left(\int_\R e^{-\pi x^2}dx\right)^2 = \int_{\R^2} e^{-\pi r^2}\,r\,dr\,d\theta\cdot 2\pi$ 得到). 因此
+          $$\boxed{\,\widehat{e^{-\pi x^2}}(\xi) = e^{-\pi\xi^2}\,}$$
+        </div>
+      </details>
+
+      <div class="box remark"><strong>反思.</strong> $e^{-\pi x^2}$ 的<strong>归一化</strong>是 Hubbard 约定下"自然"的: 指数里是 $-\pi x^2$ 而不是 $-x^2/2$. 这恰好让 FT self-dual. 如果你换约定为 $e^{-x^2/2}$, 那它在 Hubbard 约定下 FT 是 $\sqrt{2\pi}\cdot e^{-2\pi^2\xi^2}$, 不是自对偶. <strong>记忆口诀</strong>: "Hubbard 约定下, $e^{-\pi x^2}$ 是 FT 的<strong>不动点</strong>, 也是 Hermite 函数序列的零阶元."</div>
+
+      <!-- ==================== §3 Part II ==================== -->
+      <h2 id="sec3">§3 Part II — Laplace 变换 (4 题)</h2>
+
+      <p>Part II 四题<strong>都是机械计算</strong>, 但要会用. 这四个变换是 Part III.3 和 III.4 解 ODE 时的<strong>查表用变换表</strong>, 必须能默写.</p>
+
+      <h3>§3.1 标准变换表 (背)</h3>
+
+      <table class="textbook-index">
+        <thead>
+          <tr><th>$f(t)$</th><th>$\LT(f)(s)$</th><th>收敛域</th><th>推导关键</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>$1$</td><td>$1/s$</td><td>$s &gt; 0$</td><td>直接积</td></tr>
+          <tr><td>$t$</td><td>$1/s^2$</td><td>$s &gt; 0$</td><td>IBP 一次</td></tr>
+          <tr><td>$t^n$ (一般)</td><td>$n!/s^{n+1}$</td><td>$s &gt; 0$</td><td>IBP $n$ 次, 或 $(-1)^n d^n/ds^n[1/s]$</td></tr>
+          <tr><td>$e^{at}$</td><td>$1/(s-a)$</td><td>$s &gt; a$</td><td>合并指数</td></tr>
+          <tr><td>$\sin bt$</td><td>$b/(s^2+b^2)$</td><td>$s &gt; 0$</td><td>$\sin = \frac{1}{2i}(e^{ibt}-e^{-ibt})$ + 上一行</td></tr>
+          <tr><td>$\cos bt$</td><td>$s/(s^2+b^2)$</td><td>$s &gt; 0$</td><td>$\cos = \frac{1}{2}(e^{ibt}+e^{-ibt})$ + 上一行</td></tr>
+          <tr><td>$e^{at}\sin bt$</td><td>$b/((s-a)^2+b^2)$</td><td>$s&gt;a$</td><td>shift property: $\LT(e^{at}g(t)) = \LT(g)(s-a)$</td></tr>
+        </tbody>
+      </table>
+
+      <details>
+        <summary>展开 4 道题的逐题验证</summary>
+
+        <div class="box thm">
+          <strong>II.1.</strong> $\LT(1)(s) = \int_0^\infty e^{-st}\,dt = [-e^{-st}/s]_0^\infty = 1/s$ ($s &gt; 0$).
+        </div>
+
+        <div class="box thm">
+          <strong>II.2.</strong> $\LT(t)(s)$: IBP with $u=t$, $dv = e^{-st}dt$:
+          $$\LT(t) = [-te^{-st}/s]_0^\infty + \frac{1}{s}\int_0^\infty e^{-st}dt = 0 + \frac{1}{s}\cdot\frac{1}{s} = \frac{1}{s^2}.$$
+        </div>
+
+        <div class="box thm">
+          <strong>II.3.</strong> $\LT(e^{at})(s) = \int_0^\infty e^{-(s-a)t}dt = 1/(s-a)$ for $s &gt; a$.
+        </div>
+
+        <div class="box thm">
+          <strong>II.4.</strong> $\sin bt = (e^{ibt} - e^{-ibt})/(2i)$. By linearity + II.3 (with $a = \pm ib$, abscissa shifts to $s &gt; 0$):
+          $$\LT(\sin bt) = \frac{1}{2i}\left[\frac{1}{s-ib} - \frac{1}{s+ib}\right] = \frac{1}{2i}\cdot\frac{2ib}{s^2+b^2} = \frac{b}{s^2+b^2}.$$
+        </div>
+      </details>
+
+      <div class="box remark"><strong>记忆口诀.</strong>
+        <ul>
+          <li>"指数 → 1 / (s 减 a)" — 想象 LT 把 $e^{at}$ 翻译成"$s$ 比 $a$ 大多少的倒数".</li>
+          <li>"$\sin / \cos$ → 分母都是 $s^2 + b^2$, 分子是 $b$ 还是 $s$ 看是 sin 还是 cos" — 简记 "$\sin$ 给 $b$, $\cos$ 给 $s$".</li>
+          <li>"$t^n$ → $n!/s^{n+1}$" — 记 $t^n$ 多了一个 $t$, $s$ 就多一阶, 且带 factorial.</li>
+        </ul>
+      </div>
+
+      <!-- ==================== §4 Part III ==================== -->
+      <h2 id="sec4">§4 Part III — PDE/ODE 应用 (4 题)</h2>
+
+      <p>这是 Practice Final <strong>最重要的一部分</strong>: Part I/II 是工具, Part III 教你<strong>怎么用工具解 PDE/ODE</strong>. 四道题分两组:</p>
+      <ul>
+        <li><strong>III.1, III.2:</strong> FT 解 PDE — "在 $x$ 维做 FT, 把空间导数变成 $\xi$ 倍数, 留下 $t$ 维 ODE / 完全代数方程, 再做反 FT 识别成 convolution."</li>
+        <li><strong>III.3, III.4:</strong> LT 解 ODE — "把 $y, y', y''$ 都翻译成 $s$ 的代数式, 解 $Y(s)$ 的代数方程, 用部分分式 + 卷积定理反演."</li>
+      </ul>
+
+      <!-- ===== III.1 ===== -->
+      <h3>§4.1 Problem III.1 — 热方程 $u_t = u_{xx}$, $u(x,0)=f(x)$</h3>
+
+      <div class="box def"><strong>Problem III.1.</strong> 用 FT (对 $x$) 解 $u_t = u_{xx}$ on $\R\times(0,\infty)$, 初值 $u(x,0) = f(x)$.</div>
+
+      <p><strong>策略 (3 步).</strong></p>
+      <ol>
+        <li><strong>变换:</strong> 对 $x$ 做 FT. 空间二阶导 $u_{xx}$ 变成 $-4\pi^2\xi^2\widehat{u}$ (因为 $\widehat{f''} = (-2\pi i\xi)^2\widehat{f}$). 时间导 $u_t$ 与 FT 交换 (DCT), 仍是 $\partial_t \widehat{u}$.</li>
+        <li><strong>解参数 ODE:</strong> 对每个固定的 $\xi$, 这是一阶 ODE in $t$: $\partial_t\widehat{u} = -4\pi^2\xi^2\widehat{u}$, $\widehat{u}(\xi,0) = \widehat{f}(\xi)$. 解出 $\widehat{u}(\xi,t) = \widehat{f}(\xi)\,e^{-4\pi^2\xi^2 t}$.</li>
+        <li><strong>反演:</strong> 识别 $e^{-4\pi^2 t\xi^2}$ 为<strong>热核 (heat kernel) $G_t(x) = \frac{1}{\sqrt{4\pi t}}e^{-x^2/(4t)}$ 的 FT</strong> (用 Part I.4 + rescaling). 卷积定理: $\widehat{u} = \widehat{f}\cdot\widehat{G_t} = \widehat{G_t * f}$, 所以 $u = G_t * f$.</li>
+      </ol>
+
+      <details>
+        <summary>展开计算 (含 $\widehat{G_t}$ 验证)</summary>
+        <div class="box thm">
+          <strong>Step 1 (FT).</strong> 对 $x$ 做 FT, 用微分律 $\widehat{f''}(\xi) = -4\pi^2\xi^2 \widehat{f}(\xi)$:
+          $$\partial_t\widehat{u}(\xi,t) = -4\pi^2\xi^2\widehat{u}(\xi,t), \quad \widehat{u}(\xi,0) = \widehat{f}(\xi).$$
+          <strong>Step 2 (ODE).</strong> 一阶线性 ODE in $t$, 解为
+          $$\widehat{u}(\xi,t) = \widehat{f}(\xi)\,e^{-4\pi^2\xi^2 t}.$$
+          <strong>Step 3 (识别热核 FT).</strong> 设 $G_t(x) = (4\pi t)^{-1/2} e^{-x^2/(4t)}$. 用 rescaling $\widehat{g(a\cdot)}(\xi) = a^{-1}\widehat{g}(\xi/a)$ 与 I.4: 写 $G_t(x) = (4\pi t)^{-1/2}e^{-\pi(ax)^2}$ where $a = 1/\sqrt{4\pi t}$, 算得
+          $$\widehat{G_t}(\xi) = (4\pi t)^{-1/2}\cdot a^{-1}\cdot e^{-\pi(\xi/a)^2} = e^{-4\pi^2 t\xi^2}.$$
+          <strong>Step 4 (卷积定理).</strong> $\widehat{u} = \widehat{f}\cdot\widehat{G_t} = \widehat{G_t * f}$. 由 FT 的单射性,
+          $$\boxed{\,u(x,t) = (G_t * f)(x) = \frac{1}{\sqrt{4\pi t}}\int_{\R} e^{-(x-y)^2/(4t)}\,f(y)\,dy\,}$$
+        </div>
+      </details>
+
+      <div class="box remark"><strong>反思 (考试要点).</strong>
+        <ul>
+          <li>"FT 解 PDE 的范式"是这个: <em>空间 FT → 留下 $t$-ODE → 解 ODE → 反 FT 识别为 convolution</em>.</li>
+          <li>热核 $G_t$ 是这个 PDE 的<strong>基本解</strong> (fundamental solution): $G_t \to \delta_0$ as $t\to 0^+$.</li>
+          <li>$G_t$ 把 $f$ 在<strong>尺度 $\sqrt{t}$ 上抹平</strong>: 越大的 $t$, smoothing 越强.</li>
+          <li>考场技巧: 不要去硬算 $\widehat{G_t}$, 直接看 $e^{-4\pi^2 t \xi^2}$ 形式上就是 Gauss, 与 I.4 类比立刻知道是某个 Gauss 的 FT.</li>
+        </ul>
+      </div>
+
+      <!-- ===== III.2 ===== -->
+      <h3>§4.2 Problem III.2 — $-u'' + u = f$ (Helmholtz-like)</h3>
+
+      <div class="box def"><strong>Problem III.2.</strong> 用 FT 解 $-u''(x) + u(x) = f(x)$ on $\R$. 提示: $\widehat{e^{-|x|}}(\xi) = 2/(1+4\pi^2\xi^2)$.</div>
+
+      <p><strong>策略.</strong> 比 III.1 更直接 — 没有 $t$ 维, 只是<strong>纯代数方程</strong>. 做 FT 后: $-(-4\pi^2\xi^2)\widehat{u} + \widehat{u} = \widehat{f}$, 即 $(4\pi^2\xi^2 + 1)\widehat{u} = \widehat{f}$. 解出 $\widehat{u}(\xi) = \widehat{f}(\xi)/(1+4\pi^2\xi^2)$, 然后<strong>识别 $1/(1+4\pi^2\xi^2)$ 为 $\frac{1}{2}\widehat{e^{-|x|}}(\xi)$</strong> (用提示), 卷积定理给 $u = \frac{1}{2}e^{-|x|} * f$.</p>
+
+      <details>
+        <summary>展开计算</summary>
+        <div class="box thm">
+          做 FT: $\widehat{u''} = -4\pi^2\xi^2\widehat{u}$. 因此
+          $$-\widehat{u''}(\xi) + \widehat{u}(\xi) = \widehat{f}(\xi) \implies (4\pi^2\xi^2 + 1)\widehat{u}(\xi) = \widehat{f}(\xi) \implies \widehat{u}(\xi) = \frac{\widehat{f}(\xi)}{1 + 4\pi^2\xi^2}.$$
+          由提示, $\frac{1}{1+4\pi^2\xi^2} = \frac{1}{2}\widehat{e^{-|x|}}(\xi)$, 所以 $\widehat{u} = \frac{1}{2}\widehat{e^{-|\cdot|}}\cdot\widehat{f} = \widehat{\frac{1}{2}e^{-|\cdot|} * f}$. 因此
+          $$\boxed{\,u(x) = \frac{1}{2}(e^{-|\cdot|} * f)(x) = \frac{1}{2}\int_\R e^{-|x-y|}f(y)\,dy\,}$$
+        </div>
+      </details>
+
+      <div class="box remark"><strong>反思.</strong> 核 $K(x) = \frac{1}{2}e^{-|x|}$ 是算子 $L = -\partial_x^2 + 1$ 的<strong>Green 函数</strong>: $LK = \delta_0$. 这是<strong>常系数 ODE/PDE on $\R$ 的标配解法</strong> — FT 把微分算子变代数除法, 反演把代数除法变 convolution. 推广: 同样方法解 $(-\Delta + m^2)u = f$ on $\R^n$ 得 Bessel-type Green 函数.</div>
+
+      <!-- ===== III.3 ===== -->
+      <h3>§4.3 Problem III.3 — $y' + 3y = e^{-t}$, $y(0)=2$ (LT 解一阶 ODE)</h3>
+
+      <div class="box def"><strong>Problem III.3.</strong> 用 Laplace 变换解 $y'(t) + 3y(t) = e^{-t}$, $y(0)=2$.</div>
+
+      <p><strong>策略 (3 步).</strong></p>
+      <ol>
+        <li><strong>变换:</strong> 用 $\LT(y')(s) = sY(s) - y(0)$ 把 ODE 变代数方程.</li>
+        <li><strong>解 $Y(s)$:</strong> 一行代数得到 $Y(s) = (2s+3)/[(s+1)(s+3)]$.</li>
+        <li><strong>反演 (部分分式):</strong> 分解 $Y(s) = A/(s+1) + B/(s+3)$, 查表反演.</li>
+      </ol>
+      <p><strong>关键技巧:</strong> 部分分式时用 "<strong>代入根 → 得系数</strong>" 法 (cover-up method): 把 $s = -1$ 代入 $2s+3 = A(s+3) + B(s+1)$ 得 $1 = 2A$, $A = 1/2$; $s = -3$ 得 $-3 = -2B$, $B = 3/2$.</p>
+
+      <details>
+        <summary>展开计算 + 验证</summary>
+        <div class="box thm">
+          $\LT(y') = sY - 2$, $\LT(e^{-t}) = 1/(s+1)$. ODE 变成
+          $$sY - 2 + 3Y = \frac{1}{s+1} \implies (s+3)Y = 2 + \frac{1}{s+1} = \frac{2s+3}{s+1} \implies Y(s) = \frac{2s+3}{(s+1)(s+3)}.$$
+          部分分式: $A = 1/2$, $B = 3/2$, 因此
+          $$Y(s) = \frac{1/2}{s+1} + \frac{3/2}{s+3} \implies \boxed{\,y(t) = \tfrac{1}{2}e^{-t} + \tfrac{3}{2}e^{-3t}\,}$$
+          <strong>验证:</strong> $y(0) = 1/2 + 3/2 = 2$ ✓. $y' = -\frac{1}{2}e^{-t} - \frac{9}{2}e^{-3t}$, $y' + 3y = -\frac{1}{2}e^{-t} - \frac{9}{2}e^{-3t} + \frac{3}{2}e^{-t} + \frac{9}{2}e^{-3t} = e^{-t}$ ✓.
+        </div>
+      </details>
+
+      <!-- ===== III.4 ===== -->
+      <h3>§4.4 Problem III.4 — $y'' + y = \sin t$, $y(0)=0$, $y'(0)=1$ (LT + 共振)</h3>
+
+      <div class="box def"><strong>Problem III.4.</strong> 用 Laplace 变换解 $y''(t) + y(t) = \sin t$, $y(0) = 0$, $y'(0) = 1$.</div>
+
+      <p><strong>策略.</strong> 这题比 III.3 难一点, 因为强迫频率 $\sin t$ 正好与齐次方程 $y'' + y = 0$ 的本征频率<strong>共振</strong> (resonance). 反演时会出现 $1/(s^2+1)^2$ — 这种"分母平方"的反演用<strong>卷积定理</strong>最干净.</p>
+      <p><strong>反演 $1/(s^2+1)^2$ 的两种方法:</strong></p>
+      <ul>
+        <li><strong>(推荐) 卷积:</strong> $1/(s^2+1)^2 = [\LT(\sin t)]^2 = \LT(\sin t * \sin t)$, 算 $(\sin*\sin)(t) = \int_0^t \sin(t-\tau)\sin\tau\,d\tau$ 用 product-to-sum identity.</li>
+        <li><strong>(背) 标准表:</strong> $\LT^{-1}\{1/(s^2+1)^2\} = \frac{1}{2}(\sin t - t\cos t)$. 也可用 $\LT(t\sin t) = 2s/(s^2+1)^2$ 等导出.</li>
+      </ul>
+
+      <details>
+        <summary>展开计算 (卷积法)</summary>
+        <div class="box thm">
+          $\LT(y'') = s^2 Y - sy(0) - y'(0) = s^2 Y - 1$. $\LT(\sin t) = 1/(s^2+1)$. ODE 变成
+          $$(s^2 Y - 1) + Y = \frac{1}{s^2+1} \implies (s^2+1)Y = 1 + \frac{1}{s^2+1} = \frac{s^2+2}{s^2+1} \implies Y(s) = \frac{s^2+2}{(s^2+1)^2}.$$
+          拆分: $Y(s) = \frac{(s^2+1)+1}{(s^2+1)^2} = \frac{1}{s^2+1} + \frac{1}{(s^2+1)^2}$. 第一项反演为 $\sin t$. 第二项用卷积:
+          $$\frac{1}{(s^2+1)^2} = \LT(\sin t)\LT(\sin t) = \LT(\sin t * \sin t).$$
+          算卷积 (用 $\sin A\sin B = \frac{1}{2}[\cos(A-B) - \cos(A+B)]$):
+          $$
+          (\sin*\sin)(t) = \int_0^t \sin(t-\tau)\sin\tau\,d\tau
+          = \frac{1}{2}\int_0^t[\cos(t-2\tau) - \cos t]d\tau
+          = \frac{1}{2}\sin t - \frac{t}{2}\cos t = \tfrac{1}{2}(\sin t - t\cos t).
+          $$
+          因此
+          $$y(t) = \sin t + \tfrac{1}{2}(\sin t - t\cos t) = \boxed{\,\tfrac{3}{2}\sin t - \tfrac{t}{2}\cos t\,}$$
+          <strong>验证:</strong> $y(0)=0$ ✓. $y' = \cos t + \frac{t}{2}\sin t$, $y'(0)=1$ ✓. $y''+y = \sin t$ ✓ (算一下).
+        </div>
+      </details>
+
+      <div class="box remark"><strong>反思 (共振).</strong> 关键观察: 解里有 $-\frac{t}{2}\cos t$ — 一个<strong>线性增长 × 周期函数</strong>的"secular term". 这是因为强迫 $\sin t$ 频率恰好等于齐次解的固有频率 (the natural frequency of $y''+y=0$), 造成 amplitude growth. 物理对应: 一个单摆被以其固有频率推动, 振幅线性增长 (直到非线性效应启动). LT 解法<strong>自动揪出</strong>这个 secular term, 不需要"特解 + 齐次"的人工试解. 这是 LT 最漂亮的应用之一.</div>
+
+      <!-- ==================== §5 Part IV ==================== -->
+      <h2 id="sec5">§5 Part IV — 平面曲线曲率 (4 题)</h2>
+
+      <p>Part IV 四题<strong>套同一个公式</strong>:</p>
+      $$\kappa(t) = \frac{|x'(t)y''(t) - y'(t)x''(t)|}{((x'(t))^2 + (y'(t))^2)^{3/2}}.$$
+
+      <p>分母里 $|c'(t)|^3$ 的 $3/2$ 次方源自 chain rule (非单位速度参数化). 这是 Lec 10.2 给出的"<strong>general parametrization formula</strong>". 单位速度时 ($|c'|=1$) 公式退化到 $\kappa = |x'y'' - y'x''|$.</p>
+
+      <p><strong>策略.</strong> 4 道题都是<strong>套公式 → 简化</strong>, 没有特别技巧. 反而是要<strong>读几何意义</strong>: 哪里曲率最大、是否有拐点、$\kappa\to 0$ 的渐近行为.</p>
+
+      <h3>§5.1 IV.1 — 抛物线 $c(t) = (t, t^2)$</h3>
+
+      <details>
+        <summary>展开计算</summary>
+        <div class="box thm">
+          $x' = 1, y' = 2t, x'' = 0, y'' = 2$. $|x'y'' - y'x''| = 2$. $(x')^2 + (y')^2 = 1 + 4t^2$.
+          $$\boxed{\,\kappa(t) = \frac{2}{(1 + 4t^2)^{3/2}}\,}$$
+        </div>
+      </details>
+
+      <div class="box remark"><strong>几何:</strong> $\kappa(0) = 2$ (顶点处, osculating circle 半径 $1/2$). $\kappa\to 0$ as $|t|\to\infty$ (抛物线在无穷远处变直).</div>
+
+      <h3>§5.2 IV.2 — 半径 $a$ 的圆 $c(t) = (a\cos t, a\sin t)$</h3>
+
+      <details>
+        <summary>展开计算</summary>
+        <div class="box thm">
+          $x' = -a\sin t, y' = a\cos t, x'' = -a\cos t, y'' = -a\sin t$. $|x'y'' - y'x''| = a^2(\sin^2 t + \cos^2 t) = a^2$. $(x')^2 + (y')^2 = a^2$.
+          $$\boxed{\,\kappa(t) = a^2/(a^2)^{3/2} = 1/a\,}$$
+        </div>
+      </details>
+
+      <div class="box remark"><strong>几何:</strong> 圆周上每一点曲率都是 $1/a$ — 这是<strong>"曲率 = osculating circle 半径的倒数"的基准案例</strong>. 反过来: 任何平面曲线在曲率为 $\kappa$ 的点的 osculating 圆半径就是 $1/\kappa$.</div>
+
+      <h3>§5.3 IV.3 — 三次曲线 $c(t) = (t, t^3)$</h3>
+
+      <details>
+        <summary>展开计算</summary>
+        <div class="box thm">
+          $x' = 1, y' = 3t^2, x'' = 0, y'' = 6t$. $|x'y'' - y'x''| = 6|t|$. $(x')^2 + (y')^2 = 1 + 9t^4$.
+          $$\boxed{\,\kappa(t) = \frac{6|t|}{(1+9t^4)^{3/2}}\,}$$
+        </div>
+      </details>
+
+      <div class="box remark"><strong>几何:</strong> $\kappa(0) = 0$ — 这是<strong>拐点</strong> (inflection point), 三次曲线在原点改变凹凸方向, 所以曲率必为 0. 这是"$\kappa = 0$ ⇔ 拐点"的范例 (对于二次连续可微平面曲线).</div>
+
+      <h3>§5.4 IV.4 — 指数曲线 $c(t) = (t, e^t)$</h3>
+
+      <details>
+        <summary>展开计算</summary>
+        <div class="box thm">
+          $x' = 1, y' = e^t, x'' = 0, y'' = e^t$. $|x'y'' - y'x''| = e^t$. $(x')^2 + (y')^2 = 1 + e^{2t}$.
+          $$\boxed{\,\kappa(t) = \frac{e^t}{(1 + e^{2t})^{3/2}}\,}$$
+        </div>
+      </details>
+
+      <div class="box remark"><strong>几何:</strong> $t\to -\infty$ 时 $\kappa\sim e^t \to 0$ (曲线渐近 $x$ 轴, 几乎是直线). $t\to +\infty$ 时 $\kappa\sim e^t/e^{3t} = e^{-2t}\to 0$ (曲线变成"垂直", 也变直). 最大值在唯一临界点 $t^* = -\frac{1}{2}\ln 2$ (从 $\frac{d}{dt}\log\kappa = 1 - \frac{3}{2}\cdot\frac{2e^{2t}}{1+e^{2t}} = 0$ 解出).</div>
+
+      <!-- ==================== §6 Part V ==================== -->
+      <h2 id="sec6">§6 Part V — 空间曲线 κ, τ (4 题)</h2>
+
+      <p>Part V 4 道题<strong>套两个公式</strong>:</p>
+      $$\kappa(t) = \frac{|c'(t)\times c''(t)|}{|c'(t)|^3}, \quad \tau(t) = \frac{\det(c'(t), c''(t), c'''(t))}{|c'(t)\times c''(t)|^2}.$$
+
+      <p><strong>关键技巧 (节省时间):</strong></p>
+      <ul>
+        <li>$c'\times c''$ 用 $\det\begin{pmatrix}\vec i & \vec j & \vec k\\ \cdot \\ \cdot\end{pmatrix}$ 展开. 经验: 第三列经常有 0, 沿第三列展开能省一半工夫.</li>
+        <li>$\det(c', c'', c''')$ 三阶行列式. 如果有<strong>上三角结构</strong> (twisted cubic 就是), 直接对角积. 如果第三列只有一个非零 (helix), 沿第三列展开成 $2\times 2$.</li>
+        <li>圆柱螺旋线 $c(t) = (R\cos t, R\sin t, ht)$ 是<strong>原型</strong>: $\kappa = R/(R^2+h^2)$, $\tau = h/(R^2+h^2)$ (常数). 记住这个公式可以做 cross-check.</li>
+        <li>$\tau \equiv 0$ ⟺ 曲线在<strong>固定平面</strong>内 (这是 V.3 的考点). 平面曲线没有"扭".</li>
+      </ul>
+
+      <h3>§6.1 V.1 — 单位螺旋线 $c(t) = (\cos t, \sin t, t)$</h3>
+
+      <details>
+        <summary>展开计算</summary>
+        <div class="box thm">
+          $c' = (-\sin t, \cos t, 1), |c'|^2 = 2, |c'|^3 = 2\sqrt 2$.<br>
+          $c'' = (-\cos t, -\sin t, 0)$.<br>
+          $c''' = (\sin t, -\cos t, 0)$.<br>
+          $c'\times c'' = \det\begin{pmatrix}\vec i & \vec j & \vec k\\ -\sin t & \cos t & 1\\ -\cos t & -\sin t & 0\end{pmatrix} = (\sin t, -\cos t, 1)$, $|c'\times c''| = \sqrt{2}$.
+          $$\kappa = \sqrt 2/(2\sqrt 2) = \boxed{1/2}.$$
+          $\det(c', c'', c''')$: 第三列只有第一行非零 (值 1), 沿第三列展开:
+          $$= 1\cdot\det\begin{pmatrix}-\cos t & -\sin t\\ \sin t & -\cos t\end{pmatrix} = \cos^2 t + \sin^2 t = 1.$$
+          $|c'\times c''|^2 = 2$, 因此
+          $$\tau = 1/2 = \boxed{1/2}.$$
+        </div>
+      </details>
+
+      <div class="box remark"><strong>几何:</strong> 常数 $\kappa$ 与常数 $\tau$ 是<strong>螺旋线</strong> (helix) 的特征 (Klingenberg Thm. 1.5.7). 反过来: 一个 regular 空间曲线如果 $\kappa, \tau$ 都常数且非零, 必是圆柱螺旋线 (up to rigid motion).</div>
+
+      <h3>§6.2 V.2 — 加宽螺旋线 $c(t) = (2\cos t, 2\sin t, t)$</h3>
+
+      <details>
+        <summary>展开计算</summary>
+        <div class="box thm">
+          $c' = (-2\sin t, 2\cos t, 1), |c'|^2 = 5, |c'|^3 = 5\sqrt 5$.<br>
+          $c'' = (-2\cos t, -2\sin t, 0)$.<br>
+          $c''' = (2\sin t, -2\cos t, 0)$.<br>
+          $c'\times c'' = (2\sin t, -2\cos t, 4)$, $|c'\times c''|^2 = 4\sin^2 t + 4\cos^2 t + 16 = 4 + 16 = 20$, $|c'\times c''| = 2\sqrt 5$.
+          $$\kappa = 2\sqrt 5/(5\sqrt 5) = \boxed{2/5}.$$
+          $\det(c',c'',c''')$: 第三列只有第一行非零 (1), 展开:
+          $$= 1\cdot\det\begin{pmatrix}-2\cos t & -2\sin t\\ 2\sin t & -2\cos t\end{pmatrix} = 4\cos^2 t + 4\sin^2 t = 4.$$
+          $|c'\times c''|^2 = 20$, $\tau = 4/20 = \boxed{1/5}$. 用螺旋公式 ($R = 2, h = 1$): $\kappa = 2/(4+1) = 2/5$ ✓, $\tau = 1/(4+1) = 1/5$ ✓.
+        </div>
+      </details>
+
+      <h3>§6.3 V.3 — 平面曲线 $c(t) = (t, t^2, 0)$</h3>
+
+      <details>
+        <summary>展开计算</summary>
+        <div class="box thm">
+          $c' = (1, 2t, 0)$, $c'' = (0, 2, 0)$, $c''' = (0,0,0)$.<br>
+          $c'\times c'' = (0, 0, 2)$, $|c'\times c''| = 2$. $|c'|^2 = 1+4t^2$.
+          $$\kappa = \boxed{2/(1+4t^2)^{3/2}}$$
+          (与 IV.1 的平面公式一致.) 又 $c''' = 0$ 给 $\det = 0$, 因此 $\boxed{\tau \equiv 0}$.
+        </div>
+      </details>
+
+      <div class="box remark"><strong>几何:</strong> $\tau\equiv 0$ ⟺ 曲线在固定平面内 (Klingenberg Prop. 1.5.4). 这里曲线在 $xy$-平面, 不出意外. 另外注意: 即使 $c'''$ 不是 $0$, 只要曲线在固定平面里, 三个向量 $c', c'', c'''$ 也共面 ($\det = 0$). 这里 $c''' = 0$ 是凑巧, 不是本质.</div>
+
+      <h3>§6.4 V.4 — 扭三次曲线 $c(t) = (t, t^2, t^3)$ ("twisted cubic")</h3>
+
+      <details>
+        <summary>展开计算</summary>
+        <div class="box thm">
+          $c' = (1, 2t, 3t^2), |c'|^2 = 1+4t^2+9t^4$.<br>
+          $c'' = (0, 2, 6t)$, $c''' = (0, 0, 6)$.<br>
+          $c'\times c'' = \det\begin{pmatrix}\vec i & \vec j & \vec k\\ 1 & 2t & 3t^2\\ 0 & 2 & 6t\end{pmatrix} = (12t^2 - 6t^2, -(6t - 0), 2 - 0) = (6t^2, -6t, 2)$.<br>
+          $|c'\times c''|^2 = 36t^4 + 36t^2 + 4 = 4(9t^4 + 9t^2 + 1)$, $|c'\times c''| = 2\sqrt{9t^4+9t^2+1}$.
+          $$\boxed{\,\kappa = \frac{2\sqrt{9t^4+9t^2+1}}{(1+4t^2+9t^4)^{3/2}}\,}$$
+          $\det(c', c'', c''')$: 注意矩阵 $[c'|c''|c''']$ 是<strong>上三角</strong>!
+          $$\det\begin{pmatrix}1 & 2t & 3t^2\\ 0 & 2 & 6t\\ 0 & 0 & 6\end{pmatrix} = 1\cdot 2\cdot 6 = 12.$$
+          因此
+          $$\boxed{\,\tau = \frac{12}{4(9t^4+9t^2+1)} = \frac{3}{9t^4+9t^2+1}\,}$$
+          $t=0$: $\kappa = 2$, $\tau = 3$. $|t|\to\infty$: $\kappa, \tau\to 0$.
+        </div>
+      </details>
+
+      <div class="box remark"><strong>反思 (上三角技巧).</strong> 看到 $c(t) = (\text{poly}_1(t), \text{poly}_2(t), \text{poly}_3(t))$ 单调升次数的形式, 矩阵 $[c'|c''|c''']$ 总是<strong>上三角</strong> (因为 $c^{(k)}$ 的前 $k-1$ 个分量必然消掉 $t$ 项). 这能让 $\det$ 一秒算出. Twisted cubic 是<strong>所有非退化空间曲线的局部模型</strong>: 任何 $\kappa\ne 0, \tau\ne 0$ 的空间曲线在某点附近的 Taylor 展开看起来都像 twisted cubic.</div>
+
+      <!-- ==================== §7 Part VII ==================== -->
+      <h2 id="sec7">§7 Part VII — 曲面四例 (4 题)</h2>
+
+      <p>Part VI 是<strong>框架</strong> (只有公式没有题), Part VII 是<strong>应用框架</strong>到 4 个具体曲面上. 框架回顾:</p>
+
+      <div class="box prereq">
+        <strong>曲面计算 5 步:</strong>
+        <ol>
+          <li><strong>$X_u, X_v$</strong> (一阶偏导, 切向量), 算 $E = X_u\cdot X_u, F = X_u\cdot X_v, G = X_v\cdot X_v$.</li>
+          <li><strong>$X_u\times X_v$</strong> (法向), 归一化得 $\nu$. 注意符号选择: 是向"外"还是向"里"?</li>
+          <li><strong>$X_{uu}, X_{uv}, X_{vv}$</strong> (二阶偏导), 与 $\nu$ 点乘得 $L, M, N$.</li>
+          <li>若 $F = M = 0$ (正交参数化, 对角情形, 常见): $k_1 = L/E$, $k_2 = N/G$.</li>
+          <li>否则用 $K = (LN-M^2)/(EG-F^2)$, $H = (EN+GL-2FM)/(2(EG-F^2))$, $k_{1,2} = H\pm\sqrt{H^2-K}$.</li>
+        </ol>
+      </div>
+
+      <p><strong>策略提示:</strong></p>
+      <ul>
+        <li><strong>挑参数化</strong>很重要: 题目给的是常规参数化, 一般 $F=M=0$ 会化简. 如果不是, 像椭圆抛物面 ($X(x,y) = (x,y, (x^2+y^2)/2)$) 这种, 就只能上 general formula.</li>
+        <li><strong>$\nu$ 的方向</strong>影响 $L, M, N$ 的符号, 进而影响 $H$ 的符号 (但不影响 $K$, 因为 $K = k_1 k_2$ 任何两个负数相乘还是正). 一般约定: cross product 给出的方向是"题目认可的".</li>
+        <li>球面是<strong>umbilic</strong> ($k_1 = k_2$) 的例子, 平面与圆柱<strong>$K = 0$ 但不是平面</strong>的例子 (developable surface), 椭圆抛物面是<strong>$K &gt; 0$ everywhere</strong> 的例子.</li>
+      </ul>
+
+      <h3>§7.1 VII.1 — 平面 $X(u,v) = (u, v, 0)$</h3>
+
+      <details>
+        <summary>展开计算</summary>
+        <div class="box thm">
+          $X_u = (1,0,0), X_v = (0,1,0)$. $E = 1, F = 0, G = 1$. $X_u\times X_v = (0,0,1)$, $\nu = (0,0,1)$.<br>
+          所有二阶导都是 $0$: $L = M = N = 0$. 解 $k^2 = 0$:
+          $$\boxed{\,k_1 = k_2 = 0, \quad H = 0, \quad K = 0\,}$$
+        </div>
+      </details>
+
+      <div class="box remark">平面是<strong>"完全平的"</strong>曲面 — 每个方向曲率都是 0. 反过来: 嵌入 $\R^3$ 的曲面如果 $H \equiv 0$ 且 $K \equiv 0$, 局部必是平面.</div>
+
+      <h3>§7.2 VII.2 — 圆柱 $X(\theta, z) = (R\cos\theta, R\sin\theta, z)$</h3>
+
+      <details>
+        <summary>展开计算</summary>
+        <div class="box thm">
+          $X_\theta = (-R\sin\theta, R\cos\theta, 0), X_z = (0,0,1)$. $E = R^2, F = 0, G = 1$.<br>
+          $X_\theta\times X_z = (R\cos\theta, R\sin\theta, 0)$, $\nu = (\cos\theta, \sin\theta, 0)$ (向外).<br>
+          $X_{\theta\theta} = (-R\cos\theta, -R\sin\theta, 0), X_{\theta z} = 0, X_{zz} = 0$.<br>
+          $L = -R\cos^2\theta - R\sin^2\theta = -R$, $M = 0, N = 0$.<br>
+          $F = M = 0$ 对角情形: $k_1 = L/E = -1/R$, $k_2 = N/G = 0$.
+          $$\boxed{\,k_1 = -1/R,\, k_2 = 0,\, H = -1/(2R),\, K = 0\,}$$
+        </div>
+      </details>
+
+      <div class="box remark"><strong>几何 (关键):</strong>
+        <ul>
+          <li>$K = 0$ 说明圆柱<strong>本质上平</strong> ("<strong>developable</strong>") — 它可以剪开沿一条直线展平成平面, 而不改变长度. Gauss 的 Theorema Egregium 把这个抽象成 "intrinsic" 性质.</li>
+          <li>$k_1 = -1/R$ 在<strong>$\theta$ 方向</strong> (绕一圈是圆, 曲率 $1/R$, 符号因 $\nu$ 选择是负), $k_2 = 0$ 在<strong>$z$ 方向</strong> (是直线, 不弯).</li>
+          <li>$H = -1/(2R) \ne 0$ 把圆柱与平面区分开 — 平面 $H = K = 0$, 圆柱 $K = 0$ 但 $H \ne 0$.</li>
+        </ul>
+      </div>
+
+      <h3>§7.3 VII.3 — 球面 $X(\theta, \phi) = R(\sin\phi\cos\theta, \sin\phi\sin\theta, \cos\phi)$</h3>
+
+      <details>
+        <summary>展开计算</summary>
+        <div class="box thm">
+          假设 $0 &lt; \phi &lt; \pi$ 以避开极点.<br>
+          $X_\theta = R\sin\phi\cdot(-\sin\theta, \cos\theta, 0)$, $X_\phi = R(\cos\phi\cos\theta, \cos\phi\sin\theta, -\sin\phi)$.<br>
+          $E = R^2\sin^2\phi$, $G = R^2$, $F = 0$ (交叉项相消).<br>
+          $X_\theta\times X_\phi = -R^2\sin\phi\cdot(\sin\phi\cos\theta, \sin\phi\sin\theta, \cos\phi)$, 模长 $R^2\sin\phi$,
+          $\nu = -(\sin\phi\cos\theta, \sin\phi\sin\theta, \cos\phi) = -X/R$ (向内, 朝原点).<br>
+          二阶导:
+          <ul>
+            <li>$X_{\theta\theta} = (-R\sin\phi\cos\theta, -R\sin\phi\sin\theta, 0)$;
+              $L = X_{\theta\theta}\cdot\nu = R\sin^2\phi(\cos^2\theta + \sin^2\theta) = R\sin^2\phi$.</li>
+            <li>$X_{\theta\phi} = R\cos\phi\cdot(-\sin\theta, \cos\theta, 0)$, 计算 $M = 0$.</li>
+            <li>$X_{\phi\phi} = -X$, 所以 $N = -X\cdot\nu = -X\cdot(-X/R) = |X|^2/R = R$.</li>
+          </ul>
+          $F = M = 0$: $k_1 = L/E = R\sin^2\phi/(R^2\sin^2\phi) = 1/R$. $k_2 = N/G = R/R^2 = 1/R$.
+          $$\boxed{\,k_1 = k_2 = 1/R,\, H = 1/R,\, K = 1/R^2\,}$$
+        </div>
+      </details>
+
+      <div class="box remark"><strong>几何 (重要):</strong>
+        <ul>
+          <li>$k_1 = k_2$ 说明球面是<strong>umbilic</strong> (每点每个方向曲率都一样). 这是 umbilic surface 的极致.</li>
+          <li>$K = 1/R^2 &gt; 0$ 常数 — 球面是<strong>常正高斯曲率曲面</strong> (常曲率).</li>
+          <li>$\nu$ 选向内还是向外, $H$ 的符号会翻 (但 $K$ 不变, 因为 $K = k_1 k_2$, 两个 sign flip 后乘积不变). 这是 Theorema Egregium 的简单实例.</li>
+          <li><strong>分类定理:</strong> 连通完备 umbilic 曲面 (in $\R^3$) 必是球面或平面. 没有"中间"形态.</li>
+        </ul>
+      </div>
+
+      <h3>§7.4 VII.4 — 椭圆抛物面 $X(x,y) = (x, y, (x^2+y^2)/2)$</h3>
+
+      <p><strong>策略 (与前三题不同).</strong> 这是 4 题里<strong>唯一 $F \ne 0$</strong> 的, 不能用对角公式. 必须用 general formula $K = (LN-M^2)/(EG-F^2)$, $H = (EN+GL-2FM)/(2(EG-F^2))$.</p>
+
+      <details>
+        <summary>展开计算 (含主曲率简化)</summary>
+        <div class="box thm">
+          $X_x = (1, 0, x), X_y = (0, 1, y)$.<br>
+          $E = 1 + x^2, F = xy, G = 1 + y^2$. 令 $w := 1 + x^2 + y^2$. 然后 $EG - F^2 = (1+x^2)(1+y^2) - x^2y^2 = 1 + x^2 + y^2 = w$.<br>
+          $X_x\times X_y = (-x, -y, 1)$, $|X_x\times X_y| = \sqrt{w}$, $\nu = (-x, -y, 1)/\sqrt{w}$.<br>
+          $X_{xx} = (0,0,1), X_{xy} = 0, X_{yy} = (0,0,1)$.<br>
+          $L = 1/\sqrt w, M = 0, N = 1/\sqrt w$.<br>
+          <strong>Gauss 曲率:</strong>
+          $$K = \frac{LN - M^2}{EG - F^2} = \frac{1/w}{w} = \boxed{\,\frac{1}{(1+x^2+y^2)^2}\,}$$
+          <strong>平均曲率:</strong>
+          $$H = \frac{EN + GL - 2FM}{2(EG-F^2)} = \frac{(1+x^2)\cdot\frac{1}{\sqrt w} + (1+y^2)\cdot\frac{1}{\sqrt w}}{2w} = \boxed{\,\frac{2+x^2+y^2}{2(1+x^2+y^2)^{3/2}}\,}$$
+          <strong>主曲率简化:</strong> 设 $r^2 = x^2+y^2$, $w = 1+r^2$. 算 $H^2 - K = \frac{(2+r^2)^2}{4w^3} - \frac{1}{w^2} = \frac{(2+r^2)^2 - 4w}{4w^3} = \frac{r^4}{4w^3}$. 因此 $\sqrt{H^2-K} = r^2/(2w^{3/2})$, 给出
+          $$\boxed{\,k_1 = \frac{1+r^2}{w^{3/2}} = \frac{1}{\sqrt w} = \frac{1}{\sqrt{1+x^2+y^2}},\quad k_2 = \frac{1}{w^{3/2}} = \frac{1}{(1+x^2+y^2)^{3/2}}\,}$$
+          验证: $k_1 k_2 = 1/w^2 = K$ ✓.
+        </div>
+      </details>
+
+      <div class="box remark"><strong>几何:</strong>
+        <ul>
+          <li>原点 $(0,0)$: $E = G = 1, F = 0, L = N = 1, M = 0$ — 第一与第二基本形式相等, 故 $k_1 = k_2 = 1$. 椭圆抛物面在顶点与单位球<strong>相切并曲率相等</strong>.</li>
+          <li>$K &gt; 0$ everywhere — 椭圆抛物面是<strong>处处局部凸</strong>的曲面.</li>
+          <li>这是 4 题里唯一 $F\ne 0$ 的, 训练你<strong>什么时候不能用对角公式</strong>. 如果你看到 $F = xy \ne 0$, 立刻拿出 general formula.</li>
+        </ul>
+      </div>
+
+      <!-- ==================== §8 Part VIII ==================== -->
+      <h2 id="sec8">§8 Part VIII — 环面 (Torus) Gauss 曲率符号</h2>
+
+      <div class="box def"><strong>Problem VIII.</strong> 考虑环面
+        $$X(u, v) = ((R + r\cos v)\cos u, (R + r\cos v)\sin u, r\sin v), \quad R &gt; r &gt; 0.$$
+        计算主曲率、平均曲率、Gauss 曲率. 判定 Gauss 曲率正/负/零的区域.
+      </div>
+
+      <p><strong>策略 (重头戏).</strong> Part VIII 的 1 道题 = Part VII 4 道题的"压轴版", 而且加了一个<strong>定性分析</strong> ($K$ 的符号在哪里正/负/零, 这考你<strong>几何理解</strong>而不只是计算).</p>
+      <ul>
+        <li>设 $\rho := R + r\cos v$ — 这是环面上点到 $z$-轴的距离. 它会反复出现, 提前命名.</li>
+        <li>套 5 步框架: $X_u, X_v$ → $E, F, G$ → $X_u\times X_v$ → $\nu$ → 二阶 → $L, M, N$.</li>
+        <li>由参数化的<strong>正交性</strong> ($u, v$ 几何上正交), 必有 $F = 0$ 与 $M = 0$. 对角公式!</li>
+        <li>$K = k_1 k_2 = (-\cos v/\rho)\cdot(-1/r) = \cos v/(r\rho)$. 分母总正, 所以 <strong>$\operatorname{sgn}(K) = \operatorname{sgn}(\cos v)$</strong>.</li>
+        <li>$K$ 的符号分析: $K &gt; 0$ ⟺ $v \in (-\pi/2, \pi/2)$ (外侧, 椭圆点), $K = 0$ ⟺ $v = \pm\pi/2$ (顶/底圆周, parabolic), $K &lt; 0$ ⟺ $v \in (\pi/2, 3\pi/2)$ (内侧, 鞍点).</li>
+      </ul>
+
+      <details>
+        <summary>展开完整计算 (5 步)</summary>
+        <div class="box thm">
+          <strong>Step 1 ($X_u, X_v$, 第一基本形式).</strong> 设 $\rho := R + r\cos v$.
+          $$X_u = (-\rho\sin u, \rho\cos u, 0), \quad X_v = (-r\sin v\cos u, -r\sin v\sin u, r\cos v).$$
+          $$E = \rho^2, \quad G = r^2, \quad F = \rho r\sin u\sin v\cos u - \rho r\sin v\sin u\cos u + 0 = 0.$$
+
+          <strong>Step 2 ($\nu$).</strong>
+          $$X_u\times X_v = \rho r(\cos u\cos v, \sin u\cos v, \sin v), \quad |X_u\times X_v| = \rho r, \quad \nu = (\cos u\cos v, \sin u\cos v, \sin v).$$
+          (向外法向 — 指向远离 tube 中心线.)
+
+          <strong>Step 3 (二阶偏导).</strong>
+          $$X_{uu} = (-\rho\cos u, -\rho\sin u, 0),$$
+          $$X_{uv} = (r\sin v\sin u, -r\sin v\cos u, 0),$$
+          $$X_{vv} = (-r\cos v\cos u, -r\cos v\sin u, -r\sin v).$$
+
+          <strong>Step 4 ($L, M, N$).</strong>
+          $$L = X_{uu}\cdot\nu = -\rho\cos u\cdot\cos u\cos v - \rho\sin u\cdot\sin u\cos v = -\rho\cos v.$$
+          $$M = X_{uv}\cdot\nu = r\sin v\cos v\sin u\cos u - r\sin v\cos v\cos u\sin u = 0.$$
+          $$N = X_{vv}\cdot\nu = -r\cos^2 v - r\sin^2 v = -r.$$
+
+          <strong>Step 5 (主/平均/Gauss).</strong> $F = M = 0$ 对角:
+          $$\boxed{k_1 = L/E = -\cos v/\rho = -\frac{\cos v}{R+r\cos v}}, \quad \boxed{k_2 = N/G = -1/r}.$$
+          $$\boxed{\,H = -\frac{R + 2r\cos v}{2r(R + r\cos v)}, \quad K = \frac{\cos v}{r(R+r\cos v)}\,}$$
+
+          <strong>Sign 分析.</strong> 分母 $r(R+r\cos v) &gt; 0$ 总. 所以 $\sgn K = \sgn(\cos v)$:
+          <ul>
+            <li><strong>$K &gt; 0$</strong> ($v \in (-\pi/2, \pi/2)$): <strong>外侧 (椭圆点)</strong> — 离 $z$ 轴最远的半圈, 双方向都"鼓出去", sphere-like, 正曲率.</li>
+            <li><strong>$K = 0$</strong> ($v = \pm\pi/2$): <strong>顶/底 parabolic circles</strong> — 最高与最低纬度圈, $k_1 = 0$ 沿 $u$ 方向是水平直线 (准确地: 切于"上下圆"的切线).</li>
+            <li><strong>$K &lt; 0$</strong> ($v \in (\pi/2, 3\pi/2)$): <strong>内侧 (双曲点 / 鞍点)</strong> — 离 $z$ 轴最近的半圈, sphere-bulge 与 saddle 的混合, 两个主方向曲率符号相反.</li>
+          </ul>
+        </div>
+      </details>
+
+      <div class="box remark"><strong>反思 (Gauss-Bonnet 的体现).</strong> 在<strong>整个环面上</strong>积分 Gauss 曲率:
+        $$\iint_T K\,dS = \int_0^{2\pi}\int_0^{2\pi} \frac{\cos v}{r(R+r\cos v)}\cdot \sqrt{EG-F^2}\,du\,dv.$$
+        $\sqrt{EG-F^2} = \rho r = r(R + r\cos v)$ 正好把 $K$ 的分母约掉, 留下 $\int\int \cos v\,du\,dv = 0$. 这正是 <strong>Gauss-Bonnet 定理</strong> 的实例: $\iint_M K\,dS = 2\pi\chi(M)$. 环面的 Euler characteristic $\chi(T) = 0$, 所以 $\iint K\,dS = 0$. 正曲率区域 (外侧) 与负曲率区域 (内侧) 在积分意义下"等量抵消".</div>
+
+      <div class="box remark"><strong>题外话 (定性图像):</strong>
+        <ul>
+          <li>把环面想象成<strong>甜甜圈</strong>. 外侧表面 = 你舔甜甜圈外圈的那一面 (像球). 内侧表面 = 甜甜圈的"洞"那一面 (像鞍).</li>
+          <li>$v = 0$ 对应正外侧最远点 (椭圆); $v = \pi$ 对应正内侧最近点 (双曲); $v = \pm\pi/2$ 对应正上 / 正下 (parabolic).</li>
+          <li>$k_2 = -1/r$ 在所有点都是<strong>常数</strong> — 因为 $v$ 方向是绕 tube 一圈的小圆, 曲率永远是 $1/r$ (符号因 $\nu$ 选择).</li>
+          <li>$k_1 = -\cos v/\rho$ 变号, 反映了 longitudinal direction (绕 $z$ 轴) 在外侧"向 $\nu$ 反方向凸", 在内侧"向 $\nu$ 同方向凸".</li>
+        </ul>
+      </div>
+
+      <!-- ==================== §9 速查 ==================== -->
+      <h2 id="sec9">§9 方法论速查</h2>
+
+      <div class="cheat-sheet">
+        <h3>🟦 Fourier 标准变换 (背)</h3>
+        <ul>
+          <li>$\widehat{\1_{[-a,a]}}(\xi) = \sin(2\pi a\xi)/(\pi\xi)$ — sinc, $1/|\xi|$ decay</li>
+          <li>$\widehat{e^{-a|x|}}(\xi) = 2a/(a^2 + 4\pi^2\xi^2)$ — Lorentzian, $1/\xi^2$ decay</li>
+          <li>$\widehat{e^{-\pi x^2}}(\xi) = e^{-\pi\xi^2}$ — self-dual</li>
+          <li>Heat kernel $G_t$: $\widehat{G_t}(\xi) = e^{-4\pi^2 t\xi^2}$</li>
+          <li>张量积律: $\widehat{f\otimes g} = \widehat{f}\otimes\widehat{g}$ (Fubini)</li>
+        </ul>
+
+        <h3>🟦 Laplace 标准变换 (背)</h3>
+        <ul>
+          <li>$\LT(1) = 1/s$, $\LT(t^n) = n!/s^{n+1}$, $\LT(e^{at}) = 1/(s-a)$</li>
+          <li>$\LT(\sin bt) = b/(s^2+b^2)$, $\LT(\cos bt) = s/(s^2+b^2)$</li>
+          <li>Shift: $\LT(e^{at}g(t))(s) = \LT(g)(s-a)$</li>
+          <li>导数律: $\LT(y') = sY - y(0)$, $\LT(y'') = s^2 Y - sy(0) - y'(0)$</li>
+        </ul>
+
+        <h3>🟨 变换求解 PDE/ODE 范式</h3>
+        <ul>
+          <li><strong>PDE on $\R\times[0,\infty)$ via FT:</strong> 对空间 FT → 留下 $t$-ODE → 解 → 反 FT 识别 convolution</li>
+          <li><strong>纯代数 PDE on $\R$ via FT:</strong> 变代数除法 → 识别 kernel → convolution with $f$</li>
+          <li><strong>ODE on $[0,\infty)$ via LT:</strong> $\LT$ → 部分分式 → 查表反演</li>
+          <li><strong>共振 ($1/(s^2+b^2)^2$ 出现):</strong> 用卷积定理反演; 解里有 $t\sin(bt)$ 或 $t\cos(bt)$ 项</li>
+          <li><strong>$(LN-M^2)$ 题型:</strong> 公式 + 简化, 看是否对角</li>
+        </ul>
+
+        <h3>🟢 曲率公式 (背)</h3>
+        <ul>
+          <li><strong>平面曲线:</strong> $\kappa = |x'y'' - y'x''|/((x')^2+(y')^2)^{3/2}$</li>
+          <li><strong>空间曲线:</strong> $\kappa = |c'\times c''|/|c'|^3$; $\tau = \det(c',c'',c''')/|c'\times c''|^2$</li>
+          <li><strong>螺旋 $(R\cos t, R\sin t, ht)$:</strong> $\kappa = R/(R^2+h^2)$, $\tau = h/(R^2+h^2)$ (常数)</li>
+          <li><strong>曲面 (orthogonal, $F=M=0$):</strong> $k_1 = L/E$, $k_2 = N/G$, $H = (k_1+k_2)/2$, $K = LN/EG$</li>
+          <li><strong>曲面 (general):</strong> $K = (LN-M^2)/(EG-F^2)$, $H = (EN+GL-2FM)/(2(EG-F^2))$, $k_{1,2} = H\pm\sqrt{H^2-K}$</li>
+        </ul>
+
+        <h3>🟢 4 个标准曲面的曲率 (记)</h3>
+        <ul>
+          <li><strong>平面:</strong> $E=G=1, F=L=M=N=0$, $H = K = 0$</li>
+          <li><strong>圆柱 $R$:</strong> $E=R^2, G=1$, $L=-R, N=0$, $k_1=-1/R, k_2=0$, $K = 0$ (developable)</li>
+          <li><strong>球 $R$:</strong> $E=R^2\sin^2\phi, G=R^2$, $L=R\sin^2\phi, N=R$, $k_1=k_2=1/R$ (umbilic), $K = 1/R^2$</li>
+          <li><strong>椭圆抛物面 $z = (x^2+y^2)/2$:</strong> $K = 1/(1+r^2)^2$, 顶点 $K = 1$</li>
+          <li><strong>环面 $(R, r)$:</strong> $k_1 = -\cos v/\rho, k_2 = -1/r$, $K = \cos v/(r\rho)$ 符号随 $v$ 变</li>
+        </ul>
+
+        <h3>🟥 易错点</h3>
+        <ul>
+          <li>"FT 微分律的符号" — 用 Hubbard 约定 $e^{+2\pi i x\xi}$ 时 $\widehat{f'} = -2\pi i\xi\widehat{f}$. 用错 sign 公式整题翻车.</li>
+          <li>"Lebesgue/Riemann 同名不同事" — Practice Final 里 LT/FT 都是<strong>普通 Riemann 积分</strong>, 不是 MCT/DCT 主战场. 但<strong>积分号与导数号交换</strong>用的是 DCT (DUI), 这里要严谨.</li>
+          <li>"曲面参数化的 $F = ?$" — 检查 $F = X_u\cdot X_v$. 椭圆抛物面 $F = xy \ne 0$ 不能用对角公式!</li>
+          <li>"$\nu$ 的方向" — $X_u\times X_v$ 可能向"外"也可能向"里". 这影响 $L, M, N$ 与 $H$ 的符号. 但<strong>不影响 $K$</strong>.</li>
+          <li>"忘记验证" — ODE 解出来代回原方程 + 初值条件检验! 部分分式系数错一个就全错.</li>
+          <li>"二阶 ODE 共振时" — 看到 $\sin t / \cos t$ 强迫加 $y''+y$ 这种, 知道解里必有 secular term $t\cos t$ 或 $t\sin t$.</li>
+        </ul>
+      </div>
+
+      <!-- ==================== §10 进一步阅读 ==================== -->
+      <h2 id="sec10">§10 进一步阅读 & 考试策略</h2>
+
+      <p><strong>源材料 (推荐回看):</strong></p>
+      <ul>
+        <li><strong>Fourier:</strong> Lec 9.2 (DUI + Gauss FT)、Lec 10.1 (4 个 FT 计算 + Heat equation + Laplace transform). 文件: <code>Notes/Typed/9.2_notes/</code>, <code>Notes/Typed/10.1_notes/</code>.</li>
+        <li><strong>曲线:</strong> Lec 9.3 (tangent space + 参数化 + Frenet frame), Lec 10.2 (distinguished Frenet frame + 平面/空间曲率公式). 文件: <code>Notes/Typed/9.3_notes/</code>, <code>Notes/Typed/10.2_notes/</code>.</li>
+        <li><strong>曲面:</strong> Klingenberg <em>A Course in Differential Geometry</em>, §3.5 (forms + curvatures). 文件: <code>A Course in Differential Geometry.pdf</code> 根目录.</li>
+        <li><strong>LaTeX response:</strong> <code>../../HW/Response/PracticeFinal_response.pdf</code> — 严格证明版.</li>
+      </ul>
+
+      <p><strong>考试当天策略 (基于教授 announcement):</strong></p>
+      <ul>
+        <li><strong>40% 计算 (本页 + LaTeX response 涵盖):</strong> Fourier, Laplace, 用变换解 PDE/ODE, 曲线曲率, 曲面曲率. 拿满分.</li>
+        <li><strong>30% MCT/DCT/Fatou:</strong> 不在本页. 回去看 <code>../homework/HW4.html</code> (HW4 详解 — 6 题全部是 MCT/DCT 应用) + Practice MT2 Problems I/II/III/VIII/IX (Fatou + reverse Fatou + decreasing MCT + generalized DCT + Scheffé). 这部分会是"<strong>4-10 行简短证明</strong>" — 识别套哪个定理就完事.</li>
+        <li><strong>剩余 30% (推测前 MT2 内容):</strong> CoV (§4.9-§4.10), 测度零 (§4.1-§4.2), Fubini (§4.5). 复习 <code>../midterm2/MT2-D_drill.html</code> 与 Practice MT2.</li>
+        <li><strong>Cheat sheet (A4 双面手写 / iPad / 打印, 都可):</strong> 把本页 §9 cheat sheet 抄上去就基本够了. 另加上 MCT/DCT/Fatou 三个定理陈述与 Practice MT2 题目的 1-行套路提示.</li>
+      </ul>
+
+      <p><strong>办公时间:</strong> 教授下周 (final 前一周) 周三周四 3:30PM-5PM Zoom 远程 (本周ICM Satellite). 有不确定的题 (尤其曲面边界 case 或 ODE 验证步骤) 提前列出来.</p>
+
+      <p><strong>勘误邀请:</strong> 如果发现本页有算错或证明不严谨的地方, 直接告诉 AI 改. 优先信任 LaTeX response 里的严格证明.</p>
+
+    </main>
+  </div>
+
+</body>
+</html>
