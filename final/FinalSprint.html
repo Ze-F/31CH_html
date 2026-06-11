@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Final 冲刺总览 | MATH 31CH 复习</title>
+  <script>try{document.documentElement.dataset.theme=localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light")}catch(e){}</script>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\Disc': '\\operatorname{Disc}',
+        '\\osc': '\\operatorname{osc}',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\diam': '\\operatorname{diam}',
+        '\\sgn': '\\operatorname{sgn}',
+        '\\abs': '\\left|#1\\right|',
+        '\\norm': '\\left\\|#1\\right\\|',
+        '\\FT': '\\widehat{#1}',
+        '\\LT': '\\mathcal{L}',
+        '\\I': '\\mathrm{I}',
+        '\\II': '\\mathrm{I\\!I}',
+        '\\T': '\\mathbf{T}',
+        '\\NN': '\\mathbf{N}',
+        '\\B': '\\mathbf{B}',
+        '\\dddot': '\\overset{\\,\\cdot\\,\\cdot\\,\\cdot\\,}{#1}'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="../index.html">主页</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="CheatSheet.html">A4 Cheat Sheet</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#intel">§1 考试情报</a></li>
+        <li><a href="#roadmap">§2 冲刺路线图</a></li>
+        <li><a href="#fourier-laplace">§3 Fourier &amp; Laplace 速查</a></li>
+        <li><a href="#curves">§4 曲线速查</a></li>
+        <li><a href="#surfaces">§5 曲面速查</a></li>
+        <li><a href="#convergence">§6 收敛定理速查</a></li>
+        <li><a href="#pitfalls">§7 易错点 Top 10</a></li>
+        <li><a href="#checklist">§8 考前 checklist</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>Final 冲刺总览</h1>
+      <p class="subtitle">考前最后一站 · 聚合 topics 16–22 / MT2 区 / Practice Final 详解 · 配套 <a href="CheatSheet.html">可打印 A4 Cheat Sheet</a></p>
+
+      <!-- ============ §1 ============ -->
+      <h2 id="intel">§1 考试情报 (教授公告, 2026-06-05)</h2>
+
+      <div class="box pitfall">
+        <span class="box-title">🎯 出题范围与分值 (教授原话转译)</span>
+        <ul>
+          <li><strong>计算题全部出自 MT2 之后</strong> — "<em>All computations in the final will be from after midterm II</em>": Fourier + Laplace 变换、用变换解 PDE/ODE、平面/空间曲线的曲率、曲面 (curvature of plane/space curves, surfaces)。<strong>约占 40%</strong>。</li>
+          <li><strong>另一最重要板块: 收敛定理</strong> — "<em>the convergence theorems (MCT, DCT, Fatou's lemma of Lebesgue integral), specifically being able to use them</em>"。考的是<strong>会用</strong>: 识别定理 → 验 hypotheses → 套结论。<strong>约占 30%</strong>。</li>
+          <li>剩余 ~30% 未明示 — 按 MT2 经验大概率是 §4.9/§4.10 风格的 CoV 计算或积分理论基础题。</li>
+        </ul>
+      </div>
+
+      <div class="box remark">
+        <span class="box-title">📋 规则与后勤</span>
+        <ul>
+          <li><strong>Practice Final = HW V</strong>: 每个 Part 至少做一题; 至少提交两题 (任选), 按完成度给分。它就是 final 的题型预告 — 全部 25 题详解见 <a href="../homework/PracticeFinal.html">Practice Final 详解页</a>。</li>
+          <li><strong>Cheat sheet</strong>: 允许一张 <strong>A4 双面</strong>, 手写 / iPad 手写 / 打印皆可 ("<em>Do not bring a magnifying glass</em>" — 字号要肉眼可读)。本站配套: <a href="CheatSheet.html">可直接打印的 A4 双面 cheat sheet</a>。</li>
+          <li><strong>评分</strong>: 50% Final + 30% Best Midterm + 20% HW。Final 占一半, 冲刺收益最大。</li>
+          <li><strong>Office hours (考前周)</strong>: 周三 / 周四 3:30–5:00 PM, <strong>线上</strong> (教授赴 ICM Satellite 会议); 也可 zoom 预约。</li>
+        </ul>
+      </div>
+
+      <!-- ============ §2 ============ -->
+      <h2 id="roadmap">§2 冲刺路线图 (按性价比排序)</h2>
+
+      <p>分值结构决定复习顺序: <strong>40% 计算 + 30% 收敛定理 = 70% 的分数集中在两个高度模板化的板块</strong>。冲刺期不要平均用力, 按下表从上往下推进。</p>
+
+      <div class="box prereq">
+        <span class="box-title">冲刺顺序</span>
+        <ol>
+          <li><strong>① Practice Final 全 25 题过一遍</strong> (~40% 分值的直接预告) — 先盖住答案做, 再对 <a href="../homework/PracticeFinal.html">详解页</a>。8 个 Part: Fourier 变换 / Laplace 变换 / 变换解 PDE&amp;ODE / 平面曲线曲率 / 空间曲线 $\kappa,\tau$ / 曲面四例 / 环面。</li>
+          <li><strong>② 收敛定理五件套重做</strong> (~30% 分值) — <a href="../midterm2/MT2-practice.html">Practice MT2</a> 的 P1 (Fatou) / P2 (Fatou a.e.) / P3 (递减 MCT) / P8 (Generalized DCT) / P9 (Scheffé)。MT2 已考过同款, final 大概率换皮重现。理论靠背: <a href="../midterm2/MT2-C_lebesgue.html">MT2-C</a> 的 Thm C.6 / C.7 + 4 推论。</li>
+          <li><strong>③ 公式记忆 + 制作 cheat sheet</strong> — 边抄 <a href="CheatSheet.html">A4 cheat sheet</a> 边记 (手写一遍本身就是记忆过程); 或直接打印。</li>
+          <li><strong>④ 查漏</strong> — 扫 topics 16–22 各页的 §6 常见陷阱; 本页 <a href="#pitfalls">§7 易错点 Top 10</a> 是浓缩版。</li>
+        </ol>
+      </div>
+
+      <div class="box remark">
+        <span class="box-title">两份新鲜素材的去向</span>
+        <p><strong>最后一课 (Lec 10.3, 周五)</strong>: 用 Fourier 解热方程 / Poisson 型方程 + Laplace 解 ODE 两个完整例题 — 已全部吸收进本页 <a href="#fourier-laplace">§3</a> 的模板与例题。<strong>教授的 Final Review 课</strong>: 曲面公式总表 + graph surface + 双曲抛物面 + <strong>torus 全套计算</strong> — 已吸收进 <a href="#surfaces">§5</a>。教授复习课点名讲什么, 什么就是重点。</p>
+      </div>
+
+      <!-- ============ §3 ============ -->
+      <h2 id="fourier-laplace">§3 Fourier &amp; Laplace 速查 (计算题主战场之一)</h2>
+
+      <h3>§3.1 Fourier 变换: 约定与公式</h3>
+
+      <div class="box pitfall">
+        <span class="box-title">⚠ 本课程符号约定 (与多数教材相反!)</span>
+        <p>$$\FT{f}(\zeta) = \int_{\R^n} f(x)\,e^{+2\pi i\,\zeta\cdot x}\,dx, \qquad f(x) = \int_{\R^n} \FT{f}(\zeta)\,e^{-2\pi i\,\zeta\cdot x}\,d\zeta.$$</p>
+        <p><strong>正变换是 $+2\pi i$, 逆变换是 $-2\pi i$</strong> (H&amp;H / 本课 Lec 10.3 板书约定), 与 Stein、Folland 等正好反号; 无 $1/(2\pi)$ 因子。从课外资料抄公式前必须核对约定, 否则微分公式差正负号。</p>
+      </div>
+
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-thm"><strong>微分 → 乘法</strong>: $\widehat{\partial_{x_j} f}(\zeta) = -2\pi i\,\zeta_j\,\FT{f}(\zeta)$; 迭代得 $\widehat{\Delta f}(\zeta) = -4\pi^2|\zeta|^2\,\FT{f}(\zeta)$。</li>
+          <li class="cs-thm"><strong>卷积定理</strong>: $(f*g)(x) = \int f(x-y)\,g(y)\,dy$, 则 $\widehat{f*g} = \FT{f}\cdot\FT{g}$。配合 <strong>FT 在 $\IL(\R^n)$ 上单射</strong>: $\FT{h} = \FT{f}\,\FT{g} \Rightarrow h = f*g$。</li>
+          <li class="cs-tech"><strong>★★ Gaussian</strong>: $\widehat{e^{-ax^2}}(\zeta) = \sqrt{\pi/a}\;e^{-\pi^2\zeta^2/a}$; $n$ 维 $\widehat{e^{-a|x|^2}}(\zeta) = (\pi/a)^{n/2} e^{-\pi^2|\zeta|^2/a}$。</li>
+          <li class="cs-tech"><strong>★ Double-exp</strong>: $\widehat{e^{-a|x|}}(\zeta) = \dfrac{2a}{a^2 + 4\pi^2\zeta^2}$; 特别地 $a=1$: $\dfrac{1}{1+4\pi^2\zeta^2} = \tfrac12\,\widehat{e^{-|x|}}(\zeta)$。</li>
+          <li class="cs-tech"><strong>Indicator</strong>: $\widehat{\mathbf{1}_{[-A,A]}}(\zeta) = \dfrac{\sin(2\pi\zeta A)}{\pi\zeta}$ ($\zeta=0$ 时 $=2A$)。</li>
+        </ul>
+      </div>
+
+      <h3>§3.2 模板 A: 热方程 (Lec 10.3 Example I)</h3>
+
+      <div class="box example">
+        <span class="box-title">热方程四步流程 — $u_t = \Delta u$, $u(0,x) = f(x)$</span>
+        <ol>
+          <li><strong>对 $x$ 取 FT</strong>: $\partial_t \FT{u}(\zeta,t) = -4\pi^2|\zeta|^2\,\FT{u}(\zeta,t)$ — PDE 变成 (每个 $\zeta$ 一条) ODE。</li>
+          <li><strong>解 ODE</strong>: $\FT{u}(\zeta,t) = C(\zeta)\,e^{-4\pi^2|\zeta|^2 t}$; 初值给 $C(\zeta) = \FT{f}(\zeta)$。</li>
+          <li><strong>识别 frequency 因子是谁的 FT</strong>: 由 Gaussian 公式 (取 $a = \tfrac{1}{4t}$), $e^{-4\pi^2|\zeta|^2 t} = \FT{K_t}(\zeta)$, 其中热核 $K_t(x) = (4\pi t)^{-n/2}\,e^{-|x|^2/(4t)}$。</li>
+          <li><strong>卷积定理 + 单射性收尾</strong>:
+          $$u(x,t) = (K_t * f)(x) \;\overset{n=1}{=}\; \int_\R \frac{e^{-(x-y)^2/(4t)}}{\sqrt{4\pi t}}\,f(y)\,dy.$$</li>
+        </ol>
+      </div>
+
+      <h3>§3.3 模板 B: Poisson 型方程 (Lec 10.3 Example II)</h3>
+
+      <div class="box example">
+        <span class="box-title">$-u'' + u = f$ on $\R$</span>
+        <p>FT 两边: $(-2\pi i\zeta)^2$ 给 $-\FT{u''} = +4\pi^2\zeta^2\FT{u}$, 故
+        $$(1 + 4\pi^2\zeta^2)\,\FT{u}(\zeta) = \FT{f}(\zeta) \;\Longrightarrow\; \FT{u}(\zeta) = \frac{\FT{f}(\zeta)}{1+4\pi^2\zeta^2}.$$
+        识别 $\dfrac{1}{1+4\pi^2\zeta^2} = \tfrac12\widehat{e^{-|x|}}(\zeta)$, 由卷积定理 + 单射性:
+        $$u(x) = \tfrac12\,(e^{-|\cdot|} * f)(x) = \tfrac12\int_\R e^{-|x-y|}\,f(y)\,dy.$$
+        同型变体 (Yukawa, $\R^3$): $-\Delta u + m^2 u = f$ → $G(x) = e^{-m|x|}/(4\pi|x|)$, 见 <a href="../topics/17-fourier-pde.html">Topic 17</a>。</p>
+      </div>
+
+      <h3>§3.4 Laplace 变换: 公式表</h3>
+
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-def"><strong>定义</strong>: $\LT(f)(s) = \displaystyle\int_0^\infty f(t)\,e^{-st}\,dt$ (在 $s$ 足够大时收敛)。</li>
+          <li class="cs-thm"><strong>★★ 求导公式 (ODE 的引擎)</strong>: $\LT(f')(s) = s\LT(f)(s) - f(0)$; $\;\LT(f'')(s) = s^2\LT(f)(s) - s f(0) - f'(0)$。<strong>初值项绝对不能漏。</strong></li>
+          <li class="cs-tech"><strong>指数</strong>: $\LT(e^{-at})(s) = \dfrac{1}{s+a}$ ($s > -a$); 单项式×指数: $\LT(t^m e^{-at})(s) = \dfrac{m!}{(s+a)^{m+1}}$; 特例 $\LT(1) = 1/s$, $\LT(t^m) = m!/s^{m+1}$。</li>
+          <li class="cs-tech"><strong>三角</strong>: $\LT(\sin bt)(s) = \dfrac{b}{s^2+b^2}$, $\quad\LT(\cos bt)(s) = \dfrac{s}{s^2+b^2}$。</li>
+          <li class="cs-thm"><strong>★ $s$-求导技巧 (Lec 10.3 aside)</strong>: $\LT(t f(t))(s) = -\dfrac{d}{ds}\LT(f)(s)$。推论: $\LT(t\sin t) = \dfrac{2s}{(s^2+1)^2}$, $\;\LT(t\cos t) = \dfrac{s^2-1}{(s^2+1)^2}$, $\;\LT\!\big(\tfrac12(\sin t - t\cos t)\big) = \dfrac{1}{(s^2+1)^2}$ — 逆变换 $\dfrac{1}{(s^2+1)^2}$ 全靠它。</li>
+          <li class="cs-thm"><strong>卷积 (Laplace 版)</strong>: $(f*g)(t) = \displaystyle\int_0^t f(t-y)g(y)\,dy$, $\LT(f*g) = \LT(f)\LT(g)$。注意积分限是 $[0,t]$, 与 FT 版不同。</li>
+        </ul>
+      </div>
+
+      <h3>§3.5 模板 C: Laplace 解 ODE 四步 (Lec 10.3 两例)</h3>
+
+      <div class="box example">
+        <span class="box-title">流程: 变换 → 代数 → 部分分式 → 查表逆变换</span>
+        <p><strong>例 1 (一阶)</strong>: $y' + 3y = e^{-t}$, $y(0) = 2$。
+        $$\big(s\LT(y) - 2\big) + 3\LT(y) = \frac{1}{s+1} \;\Rightarrow\; \LT(y) = \frac{1}{(s+1)(s+3)} + \frac{2}{s+3} = \frac{1/2}{s+1} + \frac{3/2}{s+3},$$
+        故 $y(t) = \tfrac12 e^{-t} + \tfrac32 e^{-3t}$ (验 $y(0) = 2$ ✓)。</p>
+        <p><strong>例 2 (二阶, 共振)</strong>: $y'' + y = \sin t$, $y(0)=0$, $y'(0)=1$。
+        $$\big(s^2\LT(y) - 1\big) + \LT(y) = \frac{1}{s^2+1} \;\Rightarrow\; \LT(y) = \frac{1}{s^2+1} + \frac{1}{(s^2+1)^2}.$$
+        第二项用 $s$-求导技巧逆变换: $\dfrac{1}{(s^2+1)^2} = \LT\big(\tfrac12(\sin t - t\cos t)\big)$, 故
+        $$y(t) = \sin t + \tfrac12(\sin t - t\cos t) = \tfrac32\sin t - \tfrac12\,t\cos t.$$
+        (验: $y(0)=0$ ✓, $y'(t) = \cos t + \tfrac{t}{2}\sin t$, $y'(0)=1$ ✓。$t\cos t$ 的线性增长 = 共振现象。)</p>
+        <p><strong>收尾必做</strong>: 把初值代回答案检查 — 10 秒钟, 抓住 90% 的部分分式手滑。</p>
+      </div>
+
+      <!-- ============ §4 ============ -->
+      <h2 id="curves">§4 曲线速查 (κ 与 τ)</h2>
+
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-thm"><strong>★★ 平面曲线 (signed)</strong>: $c(t) = (x(t), y(t))$,
+          $$\kappa = \frac{x'y'' - y'x''}{\big((x')^2+(y')^2\big)^{3/2}} = \frac{\det(\dot c, \ddot c)}{|\dot c|^3}.$$
+          符号: $+$ ⟺ 向左转 (向 $e_2 = R_{90°}e_1$ 方向弯)。</li>
+          <li class="cs-tech"><strong>函数图象</strong>: $c(t) = (t, f(t))$ → $\kappa = \dfrac{f''}{(1+(f')^2)^{3/2}}$; <strong>半径 $r$ 的圆</strong>: $\kappa \equiv 1/r$。</li>
+          <li class="cs-thm"><strong>★★ 空间曲线 (unsigned $\kappa$, signed $\tau$)</strong>:
+          $$\kappa = \frac{|\dot c \times \ddot c|}{|\dot c|^3} \;(>0), \qquad \tau = \frac{\det(\dot c, \ddot c, \dddot c)}{|\dot c \times \ddot c|^2}.$$
+          <strong>⚠ $\tau$ 的分母是 $|\dot c\times\ddot c|^2$, 不是 $|\dot c|^6$</strong> — 最高频考场错误。</li>
+          <li class="cs-def"><strong>Frenet 三标架</strong>: $\T = \dot c/|\dot c|$, $\;\NN = \dot\T/|\dot\T|$, $\;\B = \T\times\NN$ (右手系)。Frenet 方程 (unit-speed): $\T' = \kappa\NN$, $\;\NN' = -\kappa\T + \tau\B$, $\;\B' = -\tau\NN$。</li>
+          <li class="cs-tech"><strong>★ Helix 标志值</strong>: $c(t) = (a\cos t, a\sin t, bt)$ → $\kappa = \dfrac{a}{a^2+b^2}$, $\tau = \dfrac{b}{a^2+b^2}$, 双双常数 (且是 $\kappa,\tau$ 全常数的唯一空间曲线, up to rigid motion)。</li>
+          <li class="cs-tech"><strong>参数化不变性</strong>: $\kappa, \tau$ 只依赖 image + orientation — 公式已含 $|\dot c|$ 修正因子, <strong>不必先化 unit-speed</strong>; 选最好算的参数化即可。</li>
+          <li class="cs-pitfall"><strong>退化警告</strong>: 直线 $\ddot c = 0$ → Frenet frame 不存在, $\tau$ 是 $0/0$ 无定义; 不要写 "直线 $\tau = 0$"。</li>
+        </ul>
+      </div>
+
+      <p>详细推导与练习: <a href="../topics/19-curves-frenet.html">Topic 19</a> (Frenet frame 构造) / <a href="../topics/20-frenet-curvature.html">Topic 20</a> (曲率公式 + 证明)。</p>
+
+      <!-- ============ §5 ============ -->
+      <h2 id="surfaces">§5 曲面速查 (Final Review 课主角)</h2>
+
+      <h3>§5.1 计算流水线 (背熟, 每道曲面题都走这条线)</h3>
+
+      <div class="box thm">
+        <span class="box-title">曲面六步流水线 — $X: U \subset \R^2 \to \R^3$</span>
+        <ol>
+          <li>$X_u, X_v$ → <strong>第一基本形式</strong> $\I = \begin{pmatrix} E &amp; F \\ F &amp; G\end{pmatrix}$, $\;E = X_u\!\cdot\!X_u$, $F = X_u\!\cdot\!X_v$, $G = X_v\!\cdot\!X_v$。</li>
+          <li><strong>法向</strong> $\nu = \dfrac{X_u\times X_v}{|X_u\times X_v|}$, 其中 $|X_u\times X_v| = \sqrt{EG - F^2}$ (Lagrange)。<strong>面积</strong> $= \iint_\Omega \sqrt{EG-F^2}\,du\,dv$。</li>
+          <li>$X_{uu}, X_{uv}, X_{vv}$ → <strong>第二基本形式</strong> $\II = \begin{pmatrix} L &amp; M \\ M &amp; N\end{pmatrix}$, $\;L = X_{uu}\!\cdot\!\nu$, $M = X_{uv}\!\cdot\!\nu$, $N = X_{vv}\!\cdot\!\nu$。</li>
+          <li><strong>Gauss 曲率</strong> $K = \dfrac{LN - M^2}{EG - F^2}$; <strong>平均曲率</strong> $H = \dfrac{EN - 2FM + GL}{2(EG - F^2)}$。</li>
+          <li><strong>Shape operator</strong> $S = \I^{-1}\II$; <strong>主曲率</strong> $k_1, k_2$ = $S$ 的特征值 (恒为实); $K = k_1 k_2 = \det S$, $H = \tfrac{k_1+k_2}{2} = \tfrac12\operatorname{tr} S$。</li>
+          <li>若 $\I, \II$ 同时对角 ($F = M = 0$): 直接 $k_1 = L/E$, $k_2 = N/G$ — 球面 / 旋转面 / torus 都走这条捷径。</li>
+        </ol>
+      </div>
+
+      <div class="box remark">
+        <span class="box-title">Theorema Egregium (概念题考点)</span>
+        <p>$K$ <strong>内蕴</strong> — 只依赖 $\I$, 局部等距不变 ("测量者不出曲面就能算出 $K$"); $H$ <strong>不内蕴</strong>。经典见证: 圆柱与平面局部等距, 都有 $K = 0$, 但圆柱 $H \ne 0$ 平面 $H = 0$。另注意 $K$ 不依赖 $\nu$ 方向 ($\II$ 的两行同时变号, $LN - M^2$ 不变), $H$ 随 $\nu$ 翻转变号 — 报 $H$ 时要么说明法向, 要么报 $|H|$。</p>
+      </div>
+
+      <h3>§5.2 Graph surface $z = f(x,y)$ 特化公式 (Final Review "important example")</h3>
+
+      <div class="box def">
+        <span class="box-title">$X(x,y) = (x, y, f(x,y))$, 记 $W = \sqrt{1 + f_x^2 + f_y^2}$</span>
+        <p>$$\I = \begin{pmatrix} 1+f_x^2 &amp; f_x f_y \\ f_x f_y &amp; 1 + f_y^2 \end{pmatrix}, \qquad \nu = \frac{(-f_x,\, -f_y,\, 1)}{W}, \qquad \II = \frac{1}{W}\begin{pmatrix} f_{xx} &amp; f_{xy} \\ f_{xy} &amp; f_{yy} \end{pmatrix},$$
+        $$K = \frac{f_{xx}f_{yy} - f_{xy}^2}{W^4} = \frac{f_{xx}f_{yy} - f_{xy}^2}{(1+f_x^2+f_y^2)^2}, \qquad H = \frac{(1+f_y^2)f_{xx} - 2f_xf_yf_{xy} + (1+f_x^2)f_{yy}}{2\,W^3}.$$</p>
+        <p>口诀: $K$ 分子是 "Hessian 行列式", 分母 $W^4$; $H$ 分子交叉配权, 分母 $2W^3$。<em>(勘误: Final Review 板书的 $H$ 漏写了分母的 2; 用 $H = \frac{EN-2FM+GL}{2(EG-F^2)}$ 代入可验, minimal set 结论不受影响。)</em></p>
+      </div>
+
+      <div class="box example">
+        <span class="box-title">Worked: 双曲抛物面 $z = \frac{x^2 - y^2}{2}$ (Final Review 例题)</span>
+        <p>$f_x = x$, $f_y = -y$, $f_{xx} = 1$, $f_{yy} = -1$, $f_{xy} = 0$, $W^2 = 1+x^2+y^2$:
+        $$K = \frac{(1)(-1) - 0}{(1+x^2+y^2)^2} = \frac{-1}{(1+x^2+y^2)^2} &lt; 0 \;\text{处处 (鞍面)}, \qquad H = \frac{(1+y^2) - (1+x^2)}{2(1+x^2+y^2)^{3/2}} = \frac{y^2 - x^2}{2(1+x^2+y^2)^{3/2}}.$$
+        <strong>Minimal points</strong> ($H = 0$): $y = \pm x$ — 即曲面上的两条直线 $\{(x, \pm x, 0)\}$。<strong>定义</strong>: $H(p) = 0$ 的点叫 minimal point; 处处 minimal 的曲面叫 minimal surface。同法可练椭圆抛物面 $z = \frac{x^2+y^2}{2}$ (无 minimal point: $H$ 分子 $= 2 + x^2 + y^2 &gt; 0$)。</p>
+      </div>
+
+      <h3>§5.3 Torus 全套结果 (Final Review 压轴例题 — 必会)</h3>
+
+      <div class="box example">
+        <span class="box-title">$X(u,v) = \big((R + r\cos v)\cos u,\; (R + r\cos v)\sin u,\; r\sin v\big)$, $\;R &gt; r &gt; 0$</span>
+        <p>$u$ = 大圆角, $v$ = 小圆角 ($v = 0$ 最外圈, $v = \pi$ 最内圈)。计算走流水线 (取外法向 $\nu = (\cos v\cos u, \cos v\sin u, \sin v)$):</p>
+        <p>$$\I = \begin{pmatrix}(R+r\cos v)^2 &amp; 0\\ 0 &amp; r^2\end{pmatrix}, \qquad \II = \begin{pmatrix}-(R+r\cos v)\cos v &amp; 0\\ 0 &amp; -r\end{pmatrix},$$
+        $$k_1 = \frac{-\cos v}{R + r\cos v}, \quad k_2 = -\frac1r, \qquad \boxed{\,K = k_1 k_2 = \frac{\cos v}{r\,(R + r\cos v)}\,}, \qquad H = -\frac{R + 2r\cos v}{2r(R + r\cos v)}.$$</p>
+        <p><strong>$K$ 的符号地理</strong>: 外半圈 ($|v| &lt; \pi/2$) $K &gt; 0$ (椭圆型); 内半圈 $K &lt; 0$ (鞍型); 顶/底圈 ($v = \pm\pi/2$) $K = 0$。<em>(板书取内法向, $\II$ 与 $H$ 整体反号, $K$ 与 minimal 条件不变。)</em></p>
+        <p><strong>Minimal points 三分讨论</strong> ($H = 0 \iff \cos v = -\frac{R}{2r}$):</p>
+        <ul>
+          <li>$R &gt; 2r$: $-\frac{R}{2r} &lt; -1$ — <strong>无</strong> minimal point ("管子太细/洞太大");</li>
+          <li>$R = 2r$: $\cos v = -1$, $v = \pi$ — minimal points = 最内圈 $\{((R-r)\cos u, (R-r)\sin u, 0)\}$;</li>
+          <li>$r &lt; R &lt; 2r$: $v = \pm\arccos(-\frac{R}{2r})$ — <strong>两个</strong>圆周。</li>
+        </ul>
+      </div>
+
+      <h3>§5.4 标志曲面结果表 (报数即可的"常识")</h3>
+
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-tech"><strong>球面 (半径 $R$)</strong>: $K = 1/R^2$, $|H| = 1/R$, 处处脐点 ($k_1 = k_2$)。</li>
+          <li class="cs-tech"><strong>圆柱面 (半径 $r$)</strong>: $K = 0$, $|H| = \frac{1}{2r}$ — "内蕴平、外在弯", 与平面局部等距。</li>
+          <li class="cs-tech"><strong>鞍面 $z = uv$ 在原点</strong>: $K = -1$, $H = 0$, $k_{1,2} = \pm 1$ — minimal 且双曲。</li>
+          <li class="cs-tech"><strong>平面</strong>: $\II = 0$, $K = H = 0$。</li>
+          <li class="cs-pitfall"><strong>⚠ $K = 0$ 不等于平面</strong> — 圆柱、圆锥都 $K=0$ (developable); $K = 0$ 只说"内蕴 flat"。</li>
+        </ul>
+      </div>
+
+      <p>详细推导与练习: <a href="../topics/21-surfaces-first-form.html">Topic 21</a> ($\I$/弧长/面积) / <a href="../topics/22-second-form-curvature.html">Topic 22</a> ($\II$/$K$/$H$/shape operator)。</p>
+
+      <!-- ============ §6 ============ -->
+      <h2 id="convergence">§6 收敛定理速查 (~30% 分值, 全是模板题)</h2>
+
+      <h3>§6.1 两大主定理 + 四个推论</h3>
+
+      <div class="box thm">
+        <span class="box-title">MCT for Lebesgue (H&amp;H Thm 4.11.18)</span>
+        <p><strong>递增版</strong>: $(f_k) \subset \IL(\R^n)$, (H1) $0 \le f_1 \le_L f_2 \le_L \cdots$ (a.e. 逐对), (H2) $\sup_k \int f_k\,dV_L &lt; \infty$ ⟹ $f := \lim f_k \in \IL$ 且 $\int f\,dV_L = \lim_k \int f_k\,dV_L$。</p>
+        <p><strong>递减版</strong> (Practice MT2 P3): $f_k \downarrow f$ a.e., 某个 $\int f_k$ 有限 ⟹ 同结论。证: $h_k := f_1 - f_k$ 翻成递增套上版。</p>
+      </div>
+
+      <div class="box thm">
+        <span class="box-title">DCT for Lebesgue (H&amp;H Thm 4.11.19)</span>
+        <p>$(f_k) \subset \IL(\R^n)$, (H1) $f_k \to f$ a.e., (H2) 存在 <strong>dominator</strong> $F \in \IL$ 使 $|f_k| \le_L F$ 对所有 $k$ ⟹ $f \in \IL$, 且 $\int|f_k - f|\,dV_L \to 0$, 特别地 $\int f_k \to \int f$。</p>
+        <p>⚠ 与 <strong>DCT for Riemann</strong> (Thm 4.11.6) 的区别: Riemann 版要求 $f \in \IR$ 是<em>付费假设</em> (要自己验); Lebesgue 版白送 $f \in \IL$。</p>
+      </div>
+
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-thm"><strong>Fatou 引理</strong> (≡ Practice MT2 P1): $f_k \ge 0$ in $\IL$ (且 $\liminf\int f_k &lt; \infty$) ⟹ $\int \liminf f_k \le \liminf \int f_k$。证: $g_m := \inf_{k \ge m} f_k$ 单调增, 套 MCT。<strong>记不等号方向: 积分会"漏质量", 不会"凭空多"。</strong></li>
+          <li class="cs-thm"><strong>Fatou for a.e. limit</strong> (≡ P2): $f_k \ge 0$, $f_k \to f$ a.e. ⟹ $\int f \le \liminf \int f_k$ (因 a.e. 收敛 ⟹ $\liminf f_k = f$ a.e.)。</li>
+          <li class="cs-thm"><strong>Generalized DCT</strong> (≡ P8): dominator 可变 — $|f_k| \le g_k$, $g_k \to g$ a.e., $\int g_k \to \int g &lt; \infty$, $f_k \to f$ a.e. ⟹ $\int f_k \to \int f$。证: Fatou 同时用于 $g_k + f_k \ge 0$ 和 $g_k - f_k \ge 0$, 两边夹。</li>
+          <li class="cs-thm"><strong>Scheffé</strong> (≡ P9): $f_k \to f$ a.e. 时, $\int|f_k| \to \int|f| \iff \int|f_k - f| \to 0$。实质方向证: $h_k := |f_k - f|$ 被 $g_k := |f_k| + |f|$ 控制, 套 Generalized DCT。</li>
+        </ul>
+      </div>
+
+      <h3>§6.2 选定理决策树 + 答题模板</h3>
+
+      <div class="box def">
+        <span class="box-title">看到 "$\lim \int f_k \overset{?}{=} \int \lim f_k$" 类题, 按序自问:</span>
+        <ol>
+          <li><strong>序列单调吗?</strong> (a.e. 递增/递减) → <strong>MCT</strong>。递增验 $\sup\int f_k &lt; \infty$; 递减验某 $\int f_k$ 有限。</li>
+          <li><strong>能找到固定可积 dominator $F$ 吗?</strong> ($|f_k| \le F$, $\int F &lt; \infty$) → <strong>DCT</strong>。$F$ 常见来源: 题目给的界 × 指示函数、首项 $|f_1|$、$\min/\max$ 组合。</li>
+          <li><strong>只有非负性、问的是不等式?</strong> → <strong>Fatou</strong> ($\le \liminf$ 方向)。</li>
+          <li><strong>dominator 自己也在动?</strong> ($|f_k| \le g_k$, $g_k$ 收敛且积分收敛) → <strong>Generalized DCT</strong>。</li>
+          <li><strong>问 $\int|f_k - f| \to 0$ ($L^1$ 收敛)?</strong> → <strong>Scheffé</strong> (验 $\int|f_k| \to \int|f|$)。</li>
+        </ol>
+        <p><strong>答题模板 (4–10 行)</strong>: ① 点名定理; ② 逐条验 hypotheses — 单调性 / dominator 的可积性 ($\int F &lt; \infty$ 要算出来或给界) / a.e. 收敛 (求 pointwise limit); ③ 引用结论收尾。教授 MT2 原话: "<em>if you apply this, you immediately get the answer</em>" — final 的收敛定理题同样是识别 + 验设 + 套用。</p>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">两个必背反例 (考"为什么需要 hypotheses"时直接搬)</span>
+        <ul>
+          <li><strong>Traveling box</strong> $f_k = \mathbf{1}_{[k, k+1]}$: 逐点 $\to 0$ 但 $\int f_k \equiv 1 \ne 0$。质量逃向 $\infty$; 任何 dominator 必须 $\ge \mathbf{1}_{[1,\infty)}$ 不可积 → DCT 的 (H2) 不可修复。</li>
+          <li><strong>Tall thin spike</strong> $f_k = k\,\mathbf{1}_{(0, 1/k]}$: 逐点 $\to 0$ 但 $\int f_k \equiv 1$。质量集中在 $0$; dominator 必须 $\ge 1/x$ 不可积。</li>
+          <li>两例中 Fatou 不等式 $0 = \int\lim \le \liminf\int = 1$ 严格 — Fatou 的 "$\le$" 不能升级成 "$=$" 的活见证。</li>
+        </ul>
+      </div>
+
+      <p>完整理论链 + 更多例题: <a href="../midterm2/MT2-C_lebesgue.html">MT2-C (Lebesgue 积分)</a>; 五道原题详解: <a href="../midterm2/MT2-practice.html">Practice MT2</a> P1/P2/P3/P8/P9。</p>
+
+      <!-- ============ §7 ============ -->
+      <h2 id="pitfalls">§7 易错点 Top 10 (考前一晚扫一遍)</h2>
+
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-pitfall"><strong>1. FT 符号约定</strong>: 本课正变换 $e^{+2\pi i \zeta x}$、逆变换 $e^{-2\pi i \zeta x}$ — 与 Stein/Folland 反号; 微分公式因此是 $\widehat{\partial f} = -2\pi i\zeta\FT{f}$。抄外部资料先核对。</li>
+          <li class="cs-pitfall"><strong>2. Laplace 漏初值项</strong>: $\LT(f') = s\LT(f) - f(0)$, $\LT(f'') = s^2\LT(f) - sf(0) - f'(0)$ — 初值不是零时漏掉直接全错。</li>
+          <li class="cs-pitfall"><strong>3. $\tau$ 的分母</strong>: $\tau = \det(\dot c,\ddot c,\dddot c)\,/\,|\dot c\times\ddot c|^2$, <strong>不是</strong> $|\dot c|^6$。</li>
+          <li class="cs-pitfall"><strong>4. 面积元</strong>: $\sqrt{EG - F^2}$, <strong>不是</strong> $\sqrt{EG}$ — $F \ne 0$ 的参数化 (如 graph) 必须减 $F^2$。</li>
+          <li class="cs-pitfall"><strong>5. $H$ 的分母有 2</strong>: $H = \frac{EN - 2FM + GL}{2(EG-F^2)} = \frac{k_1+k_2}{2}$ 是<em>平均</em>; 且 $H$ 随 $\nu$ 翻转变号 ($K$ 不会)。</li>
+          <li class="cs-pitfall"><strong>6. 平面 $\kappa$ signed, 空间 $\kappa &gt; 0$</strong> (符号转移给 $\tau$); 直线 Frenet 失效, $\tau$ 无定义。</li>
+          <li class="cs-pitfall"><strong>7. DCT 的 dominator 必须可积</strong>: 写 "$|f_k| \le F$" 不够, 必须验 $\int F &lt; \infty$ — traveling box / spike 就死在这一步。</li>
+          <li class="cs-pitfall"><strong>8. Fatou 方向</strong>: $\int\liminf \le \liminf\int$ (质量只会漏不会多), 且需 $f_k \ge 0$; 反向不等式不成立。</li>
+          <li class="cs-pitfall"><strong>9. Gaussian FT 的 $\pi$ 位置</strong>: $\widehat{e^{-ax^2}} = \sqrt{\pi/a}\,e^{-\pi^2\zeta^2/a}$ — 指数里是 $\pi^2/a$, 系数是 $\sqrt{\pi/a}$; 热核识别 $a = \frac{1}{4t}$ 时别代错。</li>
+          <li class="cs-pitfall"><strong>10. $\kappa, \tau$ 公式不需要 unit-speed</strong>: 公式已含 $|\dot c|$ 因子; helix $(a\cos t, a\sin t, bt)$ 速度是 $\sqrt{a^2+b^2}$ 不是 1, 但直接套公式即可, <em>不要</em>先费力重参数化。</li>
+        </ul>
+      </div>
+
+      <!-- ============ §8 ============ -->
+      <h2 id="checklist">§8 考前 checklist + 资源导航</h2>
+
+      <div class="box prereq">
+        <span class="box-title">✅ 考前一天</span>
+        <ul>
+          <li>Practice Final 25 题全部至少看过解法思路 (做过 ≥ 每 Part 一题): <a href="../homework/PracticeFinal.html">详解页</a></li>
+          <li>Practice MT2 P1/P2/P3/P8/P9 能脱稿复现 (每道 4–10 行): <a href="../midterm2/MT2-practice.html">详解页</a></li>
+          <li>Cheat sheet 已制作 (打印或手抄): <a href="CheatSheet.html">A4 双面模板</a> — 检查字号肉眼可读</li>
+          <li>本页 §7 易错点过一遍; torus 三分讨论 (§5.3) 能独立写出</li>
+        </ul>
+      </div>
+
+      <div class="box prereq">
+        <span class="box-title">✅ 考前 10 分钟 (心理装载顺序)</span>
+        <ul>
+          <li>FT 约定 ($+2\pi i$ 正变换) + Gaussian 公式 + 热核</li>
+          <li>$\LT(f'), \LT(f'')$ 初值项 + $\sin/\cos$ 表 + $s$-求导技巧</li>
+          <li>$\kappa, \tau$ 公式 (默念 "$\tau$ 分母是叉积平方")</li>
+          <li>曲面流水线: $\I \to \nu \to \II \to K, H \to S$</li>
+          <li>决策树: 单调→MCT / dominator→DCT / 非负不等式→Fatou</li>
+        </ul>
+      </div>
+
+      <div class="box remark">
+        <span class="box-title">📚 资源地图 (按板块)</span>
+        <ul>
+          <li><strong>Fourier/Laplace</strong>: <a href="../topics/16-fourier-transform.html">Topic 16 (FT 定义与计算)</a> · <a href="../topics/17-fourier-pde.html">Topic 17 (FT 解 PDE)</a> · <a href="../topics/18-laplace-transform.html">Topic 18 (Laplace)</a></li>
+          <li><strong>曲线</strong>: <a href="../topics/19-curves-frenet.html">Topic 19 (Frenet frame)</a> · <a href="../topics/20-frenet-curvature.html">Topic 20 (曲率/挠率)</a></li>
+          <li><strong>曲面</strong>: <a href="../topics/21-surfaces-first-form.html">Topic 21 (第一基本形式)</a> · <a href="../topics/22-second-form-curvature.html">Topic 22 ($\II$/$K$/$H$)</a></li>
+          <li><strong>收敛定理</strong>: <a href="../midterm2/MT2-C_lebesgue.html">MT2-C</a> · <a href="../midterm2/MT2-practice.html">Practice MT2</a></li>
+          <li><strong>变量代换 (剩余 30% 的可能来源)</strong>: <a href="../midterm2/MT2-A_linear_cov.html">MT2-A</a> · <a href="../midterm2/MT2-B_nonlinear_cov.html">MT2-B</a> · <a href="../midterm2/MT2-D_drill.html">MT2-D 押题</a></li>
+          <li><strong>真题演练</strong>: <a href="../homework/PracticeFinal.html">Practice Final 25 题详解</a> · <a href="../homework/HW4.html">HW4 (MCT/DCT 应用)</a></li>
+        </ul>
+      </div>
+
+      <footer>
+        <p>MATH 31CH · Final 冲刺 · 生成于 2026-06-11 · 数学内容源自 Lec 10.3 + 教授 Final Review 板书 + 已校对的 topic 页</p>
+      </footer>
+    </main>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Final A4 Cheat Sheet (双面可打印) | MATH 31CH 复习</title>
+  <script>try{document.documentElement.dataset.theme=localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light")}catch(e){}</script>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\abs': '\\left|#1\\right|',
+        '\\FT': '\\widehat{#1}',
+        '\\LT': '\\mathcal{L}',
+        '\\I': '\\mathrm{I}',
+        '\\II': '\\mathrm{I\\!I}',
+        '\\T': '\\mathbf{T}',
+        '\\NN': '\\mathbf{N}',
+        '\\B': '\\mathbf{B}',
+        '\\dddot': '\\overset{\\,\\cdot\\,\\cdot\\,\\cdot\\,}{#1}'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+
+  <style>
+    /* ---- on-screen: paper-like cards ---- */
+    .sheet {
+      background: #fff;
+      color: #111;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+      padding: 9mm;
+      margin: 24px auto;
+      max-width: 210mm;
+      font-size: 11.5px;
+      line-height: 1.42;
+    }
+    [data-theme="dark"] .sheet { background: #fff; color: #111; } /* sheet 永远是"纸" */
+    .sheet h2 {
+      font-size: 14px; margin: 0 0 4px; padding-bottom: 3px;
+      border-bottom: 2px solid #333; color: #111;
+    }
+    .sheet h3 {
+      font-size: 12px; margin: 6px 0 2px; color: #0b58a6;
+      border-bottom: 1px solid #bbb; break-after: avoid;
+    }
+    .sheet .cols { columns: 2; column-gap: 7mm; column-rule: 1px solid #ddd; }
+    .sheet ul { margin: 2px 0 6px; padding-left: 14px; }
+    .sheet li { margin: 1.5px 0; break-inside: avoid; }
+    .sheet p { margin: 2px 0; }
+    .sheet .blk { break-inside: avoid; margin-bottom: 5px; }
+    .sheet .hl { background: #fff3bf; padding: 0 2px; border-radius: 2px; }
+    .sheet .warn { color: #b00000; font-weight: 600; }
+    .sheet .katex { font-size: 1.02em; }
+    .sheet .katex-display { margin: 3px 0; }
+    .sheet table { border-collapse: collapse; width: 100%; font-size: inherit; }
+    .sheet td, .sheet th { border: 1px solid #999; padding: 1px 5px; text-align: left; }
+    .sheet th { background: #eee; }
+
+    /* ---- print: real A4, one sheet per page ---- */
+    @media print {
+      @page { size: A4 portrait; margin: 0; }
+      html, body { background: #fff !important; }
+      .top-nav, .sidebar-toc, .no-print, footer, .theme-toggle { display: none !important; }
+      .container { display: block; max-width: none; padding: 0; margin: 0; }
+      main { max-width: none; }
+      .sheet {
+        box-shadow: none; border: none; border-radius: 0;
+        width: 210mm; max-width: none; min-height: 297mm;
+        margin: 0; padding: 8mm 9mm;
+        page-break-after: always;
+        font-size: 10px; line-height: 1.38;
+      }
+      .sheet:last-of-type { page-break-after: auto; }
+      h1, .subtitle { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="FinalSprint.html">Final 冲刺总览</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <span class="nav-next nav-disabled">无</span>
+  </nav>
+
+  <div class="container" style="display:block; max-width: 960px;">
+    <main>
+      <h1>Final A4 Cheat Sheet</h1>
+      <p class="subtitle">双面 · 正面 = Fourier/Laplace + 收敛定理 (≈70% 分值) · 反面 = 曲线 + 曲面 · 配套 <a href="FinalSprint.html">冲刺总览</a></p>
+
+      <div class="box remark no-print">
+        <span class="box-title">🖨 打印说明</span>
+        <ul>
+          <li>等公式全部渲染完 (~2 秒), 浏览器 <strong>⌘P</strong> → 纸张 A4 → 边距「无」→ 缩放 100% → 双面打印 (沿长边翻页)。</li>
+          <li>下面两块白纸卡片 = A4 正反两面, 打印时自动各占一页。教授规则: 一张 A4, 双面, 手写/打印均可。</li>
+          <li>也可以照着手抄一遍 — 抄写本身就是最好的最后一轮记忆。</li>
+        </ul>
+      </div>
+
+      <!-- ================= SHEET 1 : 正面 ================= -->
+      <div class="sheet">
+        <h2>MATH 31CH Final — Side 1: Fourier · Laplace · 收敛定理</h2>
+        <div class="cols">
+
+          <div class="blk">
+            <h3>Fourier 变换 (本课约定: 正变换 +2πi !)</h3>
+            <p>$\FT{f}(\zeta) = \int_{\R^n} f(x)\,e^{+2\pi i \zeta\cdot x} dx$, $\;f(x) = \int \FT{f}(\zeta)\,e^{-2\pi i \zeta\cdot x} d\zeta$</p>
+            <ul>
+              <li>微分: $\widehat{\partial_{x_j} f} = -2\pi i \zeta_j \FT{f}$; $\;\widehat{\Delta f} = -4\pi^2|\zeta|^2 \FT{f}$</li>
+              <li>卷积: $(f{*}g)(x) = \int f(x{-}y)g(y)dy$, $\;\widehat{f{*}g} = \FT{f}\,\FT{g}$; FT 在 $\IL$ 上单射</li>
+              <li class="hl">Gaussian: $\widehat{e^{-ax^2}} = \sqrt{\pi/a}\,e^{-\pi^2\zeta^2/a}$ ($n$D: $(\pi/a)^{n/2}e^{-\pi^2|\zeta|^2/a}$)</li>
+              <li class="hl">$\widehat{e^{-a|x|}} = \dfrac{2a}{a^2+4\pi^2\zeta^2}$; $\;\dfrac{1}{1+4\pi^2\zeta^2} = \tfrac12\widehat{e^{-|x|}}$</li>
+              <li>$\widehat{\mathbf 1_{[-A,A]}} = \dfrac{\sin(2\pi\zeta A)}{\pi\zeta}$ ($\zeta{=}0$: $2A$)</li>
+            </ul>
+          </div>
+
+          <div class="blk">
+            <h3>模板: 热方程 $u_t = \Delta u$, $u(0) = f$</h3>
+            <p>FT$_x$ → $\partial_t\FT{u} = -4\pi^2|\zeta|^2\FT{u}$ → $\FT{u} = \FT{f}\,e^{-4\pi^2|\zeta|^2 t}$</p>
+            <p>热核 $K_t(x) = (4\pi t)^{-n/2} e^{-|x|^2/(4t)}$ ($a = \frac{1}{4t}$ 代 Gaussian), $\FT{K_t} = e^{-4\pi^2|\zeta|^2 t}$</p>
+            <p class="hl">$u = K_t * f$; $\;n{=}1$: $u(x,t) = \int_\R \frac{e^{-(x-y)^2/4t}}{\sqrt{4\pi t}} f(y)\,dy$</p>
+          </div>
+
+          <div class="blk">
+            <h3>模板: Poisson 型 $-u'' + u = f$ (on $\R$)</h3>
+            <p>$(1 + 4\pi^2\zeta^2)\FT{u} = \FT{f}$ → $\FT{u} = \frac{\FT{f}}{1+4\pi^2\zeta^2}$ → <span class="hl">$u = \tfrac12 e^{-|\cdot|} * f$</span></p>
+            <p>($\R^3$ Yukawa $-\Delta u + m^2 u = f$: $G = e^{-m|x|}/(4\pi|x|)$)</p>
+          </div>
+
+          <div class="blk">
+            <h3>Laplace 变换</h3>
+            <p>$\LT(f)(s) = \int_0^\infty f(t)e^{-st}dt$</p>
+            <ul>
+              <li class="hl">$\LT(f') = s\LT(f) - f(0)$; $\;\LT(f'') = s^2\LT(f) - sf(0) - f'(0)$ <span class="warn">初值勿漏!</span></li>
+              <li>$\LT(e^{-at}) = \frac{1}{s+a}$; $\;\LT(t^m e^{-at}) = \frac{m!}{(s+a)^{m+1}}$; $\;\LT(1) = \frac1s$; $\;\LT(t^m) = \frac{m!}{s^{m+1}}$</li>
+              <li>$\LT(\sin bt) = \frac{b}{s^2+b^2}$; $\;\LT(\cos bt) = \frac{s}{s^2+b^2}$</li>
+              <li class="hl">$\LT(t f(t)) = -\frac{d}{ds}\LT(f)$ ⟹ $\LT(t\sin t) = \frac{2s}{(s^2+1)^2}$, $\LT(t\cos t) = \frac{s^2-1}{(s^2+1)^2}$, $\frac{1}{(s^2+1)^2} = \LT\big(\tfrac12(\sin t - t\cos t)\big)$</li>
+              <li>卷积: $(f{*}g)(t) = \int_0^t f(t{-}y)g(y)dy$, $\LT(f{*}g) = \LT(f)\LT(g)$</li>
+            </ul>
+          </div>
+
+          <div class="blk">
+            <h3>ODE 四步 + 两个范例</h3>
+            <p>① 取 $\LT$ (带初值) ② 代数解出 $\LT(y)$ ③ 部分分式 ④ 查表逆变换; 末尾代回 $y(0)$ 验算</p>
+            <ul>
+              <li>$y' + 3y = e^{-t}$, $y(0){=}2$: $\LT(y) = \frac{1/2}{s+1} + \frac{3/2}{s+3}$ → $y = \frac12 e^{-t} + \frac32 e^{-3t}$</li>
+              <li>$y'' + y = \sin t$, $y(0){=}0$, $y'(0){=}1$: $\LT(y) = \frac{1}{s^2+1} + \frac{1}{(s^2+1)^2}$ → $y = \frac32\sin t - \frac12 t\cos t$ (共振)</li>
+            </ul>
+          </div>
+
+          <div class="blk">
+            <h3>收敛定理 (Lebesgue, black box 引用)</h3>
+            <ul>
+              <li class="hl"><b>MCT</b> (4.11.18): $0 \le f_k \uparrow$ a.e., $\sup_k \int f_k &lt; \infty$ ⟹ $f = \lim f_k \in \IL$, $\int f = \lim\int f_k$。递减版: $f_k \downarrow f$ a.e. + 某 $\int f_k$ 有限 (证: $f_1 - f_k$ 翻转)。</li>
+              <li class="hl"><b>DCT</b> (4.11.19): $f_k \to f$ a.e. + $|f_k| \le_L F \in \IL$ ⟹ $f \in \IL$, $\int|f_k - f| \to 0$, $\int f_k \to \int f$。<span class="warn">必须验 $\int F &lt; \infty$</span></li>
+              <li><b>Fatou</b>: $f_k \ge 0$ ⟹ $\int\liminf f_k \le \liminf\int f_k$ (证: $g_m = \inf_{k\ge m} f_k \uparrow$ 套 MCT)。方向: 质量只漏不多。</li>
+              <li><b>Fatou a.e.</b>: $f_k \ge 0$, $f_k \to f$ a.e. ⟹ $\int f \le \liminf\int f_k$</li>
+              <li><b>Gen. DCT</b>: $|f_k| \le g_k$, $g_k \to g$ a.e., $\int g_k \to \int g$, $f_k \to f$ a.e. ⟹ $\int f_k \to \int f$ (证: Fatou 于 $g_k \pm f_k \ge 0$ 两侧夹)</li>
+              <li><b>Scheffé</b>: $f_k \to f$ a.e. ⟹ [$\int|f_k| \to \int|f|$ ⟺ $\int|f_k - f| \to 0$] (证: $h_k = |f_k - f| \le g_k = |f_k| + |f|$ 套 Gen. DCT)</li>
+            </ul>
+          </div>
+
+          <div class="blk">
+            <h3>决策树 + 反例</h3>
+            <p>单调? → MCT | 固定 dominator? → DCT | 非负 + 不等式? → Fatou | dominator 在动? → Gen. DCT | 问 $\int|f_k - f| \to 0$? → Scheffé</p>
+            <p>答题: 点名定理 → 逐条验设 (单调 / $\int F &lt; \infty$ / a.e. 极限) → 套结论</p>
+            <ul>
+              <li><b>Traveling box</b> $\mathbf 1_{[k,k+1]}$: $\to 0$ 逐点, $\int \equiv 1$ (质量逃 $\infty$, dominator $\ge \mathbf 1_{[1,\infty)}$ 不可积)</li>
+              <li><b>Spike</b> $k\mathbf 1_{(0,1/k]}$: $\to 0$ 逐点, $\int \equiv 1$ (质量集中 0, dominator $\ge 1/x$ 不可积)</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ================= SHEET 2 : 反面 ================= -->
+      <div class="sheet">
+        <h2>MATH 31CH Final — Side 2: 曲线曲率 · 曲面曲率</h2>
+        <div class="cols">
+
+          <div class="blk">
+            <h3>平面曲线 $c(t) = (x, y)$</h3>
+            <ul>
+              <li class="hl">$\kappa = \dfrac{x'y'' - y'x''}{((x')^2 + (y')^2)^{3/2}} = \dfrac{\det(\dot c, \ddot c)}{|\dot c|^3}$ (signed; $+$ = 向左弯)</li>
+              <li>图象 $(t, f(t))$: $\kappa = \dfrac{f''}{(1 + (f')^2)^{3/2}}$; 圆 (半径 $r$): $\kappa \equiv 1/r$</li>
+            </ul>
+          </div>
+
+          <div class="blk">
+            <h3>空间曲线 $c(t) \in \R^3$</h3>
+            <ul>
+              <li class="hl">$\kappa = \dfrac{|\dot c \times \ddot c|}{|\dot c|^3} > 0$; $\;\tau = \dfrac{\det(\dot c, \ddot c, \dddot c)}{|\dot c \times \ddot c|^2}$ <span class="warn">τ 分母 = 叉积平方, 不是 $|\dot c|^6$!</span></li>
+              <li>Frenet: $\T = \frac{\dot c}{|\dot c|}$, $\NN = \frac{\dot\T}{|\dot\T|}$, $\B = \T \times \NN$; unit-speed 方程: $\T' = \kappa\NN$, $\NN' = -\kappa\T + \tau\B$, $\B' = -\tau\NN$</li>
+              <li>Helix $(a\cos t, a\sin t, bt)$: $\kappa = \frac{a}{a^2+b^2}$, $\tau = \frac{b}{a^2+b^2}$ (全常数)</li>
+              <li>公式不需 unit-speed (已含 $|\dot c|$ 因子); 直线: Frenet 失效, $\tau$ 无定义</li>
+            </ul>
+          </div>
+
+          <div class="blk">
+            <h3>曲面流水线 $X(u,v): U \to \R^3$</h3>
+            <ul>
+              <li>① $X_u, X_v$ → $\I = \begin{pmatrix} E &amp; F \\ F &amp; G \end{pmatrix}$, $E = X_u{\cdot}X_u$, $F = X_u{\cdot}X_v$, $G = X_v{\cdot}X_v$</li>
+              <li>② $\nu = \frac{X_u \times X_v}{|X_u \times X_v|}$, $|X_u{\times}X_v| = \sqrt{EG - F^2}$; 面积 $= \iint\sqrt{EG-F^2}\,du\,dv$ <span class="warn">不是 $\sqrt{EG}$</span></li>
+              <li>③ $X_{uu}, X_{uv}, X_{vv}$ → $\II = \begin{pmatrix} L &amp; M \\ M &amp; N \end{pmatrix}$, $L = X_{uu}{\cdot}\nu$, $M = X_{uv}{\cdot}\nu$, $N = X_{vv}{\cdot}\nu$</li>
+              <li class="hl">④ $K = \dfrac{LN - M^2}{EG - F^2}$, $\;H = \dfrac{EN - 2FM + GL}{2(EG - F^2)}$ <span class="warn">分母有 2</span></li>
+              <li>⑤ $S = \I^{-1}\II$; 主曲率 $k_1, k_2$ = 特征值; $K = k_1k_2$, $H = \frac{k_1+k_2}{2}$</li>
+              <li>⑥ $F = M = 0$ 时直接 $k_1 = L/E$, $k_2 = N/G$</li>
+              <li>$K$ 内蕴 (Theorema Egregium), 不依赖 $\nu$; $H$ 随 $\nu$ 翻转变号</li>
+            </ul>
+          </div>
+
+          <div class="blk">
+            <h3>Graph $z = f(x,y)$, $\;W = \sqrt{1 + f_x^2 + f_y^2}$</h3>
+            <ul>
+              <li>$\I = \begin{pmatrix} 1{+}f_x^2 &amp; f_xf_y \\ f_xf_y &amp; 1{+}f_y^2 \end{pmatrix}$, $\;\nu = \frac{(-f_x, -f_y, 1)}{W}$, $\;\II = \frac1W\begin{pmatrix} f_{xx} &amp; f_{xy} \\ f_{xy} &amp; f_{yy} \end{pmatrix}$</li>
+              <li class="hl">$K = \dfrac{f_{xx}f_{yy} - f_{xy}^2}{W^4}$, $\;H = \dfrac{(1{+}f_y^2)f_{xx} - 2f_xf_yf_{xy} + (1{+}f_x^2)f_{yy}}{2W^3}$</li>
+              <li>例: $z = \frac{x^2-y^2}{2}$: $K = \frac{-1}{(1+x^2+y^2)^2}$, $H = \frac{y^2 - x^2}{2(1+x^2+y^2)^{3/2}}$; minimal points: $y = \pm x$</li>
+            </ul>
+          </div>
+
+          <div class="blk">
+            <h3>Torus $X = ((R{+}r\cos v)\cos u, (R{+}r\cos v)\sin u, r\sin v)$, $R &gt; r$</h3>
+            <ul>
+              <li>$\I = \mathrm{diag}((R{+}r\cos v)^2,\, r^2)$; 外法向 $\nu = (\cos v\cos u, \cos v\sin u, \sin v)$</li>
+              <li>$\II = \mathrm{diag}(-(R{+}r\cos v)\cos v,\, -r)$; $\;k_1 = \frac{-\cos v}{R + r\cos v}$, $k_2 = -\frac1r$</li>
+              <li class="hl">$K = \dfrac{\cos v}{r(R + r\cos v)}$: 外半圈 $&gt;0$ / 内半圈 $&lt;0$ / $v = \pm\frac\pi2$ 时 $=0$</li>
+              <li class="hl">$H = 0 \iff \cos v = -\frac{R}{2r}$: $R &gt; 2r$ 无解 | $R = 2r$: $v = \pi$ 最内圈 | $r &lt; R &lt; 2r$: 两个圆周 $v = \pm\arccos(-\frac{R}{2r})$</li>
+            </ul>
+          </div>
+
+          <div class="blk">
+            <h3>标志曲面 (直接报数)</h3>
+            <table>
+              <tr><th>曲面</th><th>$K$</th><th>$H$</th></tr>
+              <tr><td>球面 $R$</td><td>$1/R^2$</td><td>$|H| = 1/R$</td></tr>
+              <tr><td>圆柱 $r$</td><td>$0$</td><td>$|H| = \frac{1}{2r}$</td></tr>
+              <tr><td>平面</td><td>$0$</td><td>$0$</td></tr>
+              <tr><td>鞍面 $z{=}uv$ @ $0$</td><td>$-1$</td><td>$0$ (minimal)</td></tr>
+            </table>
+            <p><span class="warn">$K = 0$ ≠ 平面</span> (圆柱/圆锥 developable); minimal point: $H(p) = 0$; minimal surface: $H \equiv 0$</p>
+          </div>
+
+          <div class="blk">
+            <h3>考场提醒</h3>
+            <ul>
+              <li>FT 约定: 正变换 $e^{+2\pi i\zeta x}$ (与 Stein/Folland 反!)</li>
+              <li>$\LT(f')$ 漏 $-f(0)$ = 全错; 答案代回初值验算</li>
+              <li>$K$ 用 $W^4$, $H$ 用 $2W^3$; 面积元 $\sqrt{EG - F^2}$</li>
+              <li>平面 $\kappa$ signed / 空间 $\kappa &gt; 0$; $\tau$ 分母叉积平方</li>
+              <li>DCT: dominator 可积性是要验的, 不是白送的</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+
+      <footer class="no-print">
+        <p>MATH 31CH · Final Cheat Sheet · 2026-06-11 · 内容与 <a href="FinalSprint.html">冲刺总览</a> 同源</p>
+      </footer>
+    </main>
+  </div>
+
+</body>
+</html>
