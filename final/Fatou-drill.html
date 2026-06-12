@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fatou 集中训练 — 15 题分梯度 | MATH 31CH 复习</title>
+  <script>try{document.documentElement.dataset.theme=localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light")}catch(e){}</script>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      macros: {
+        '\\R': '\\mathbb{R}',
+        '\\N': '\\mathbb{N}',
+        '\\Z': '\\mathbb{Z}',
+        '\\Q': '\\mathbb{Q}',
+        '\\eps': '\\varepsilon',
+        '\\IR': '\\mathscr{I}_R',
+        '\\IL': '\\mathscr{I}_L',
+        '\\vol': '\\operatorname{vol}',
+        '\\supp': '\\operatorname{supp}',
+        '\\abs': '\\left|#1\\right|'
+      },
+      throwOnError: false,
+      errorColor: '#cc0000'
+    });"></script>
+
+  <script defer src="../scripts.js"></script>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-prev" href="FinalSprint.html">Final 冲刺总览</a>
+    <a class="nav-center" href="../index.html">MATH 31CH 复习 · 主页</a>
+    <a class="nav-next" href="CheatSheet.html">A4 Cheat Sheet</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar-toc">
+      <h3>本页目录</h3>
+      <button class="toc-toggle">≡ 目录</button>
+      <ul>
+        <li><a href="#review">§1 核心回顾</a></li>
+        <li><a href="#partA">§2 A 组 — 默写与变体</a></li>
+        <li><a href="#partB">§3 B 组 — 直接应用</a></li>
+        <li><a href="#partC">§4 C 组 — 综合推导链</a></li>
+        <li><a href="#partD">§5 D 组 — 判断辨析</a></li>
+        <li><a href="#cheat">§6 速查</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h1>Fatou 集中训练</h1>
+      <p class="subtitle">教授 OH 钦点 "最有用" · 15 题四个梯度 · 先做后看 · 配套 <a href="FinalSprint.html">冲刺总览 §6</a> / <a href="../midterm2/MT2-practice.html">Practice MT2</a> P1/P2/P8</p>
+
+      <div class="box prereq">
+        <span class="box-title">使用说明</span>
+        <p><strong>A 组</strong>检查"能不能默写"(考场最可能直接出); <strong>B 组</strong>练"识别 + 套用"(标准 4–10 行应用题); <strong>C 组</strong>是一条推导链 — 从 Fatou 出发依次推出 DCT → Generalized DCT → Scheffé, 做完你会看清整个收敛定理家族其实都长在 Fatou 上; <strong>D 组</strong>是判断题, 专治"记得公式但记反方向/漏假设". 建议顺序做, 每题先自己写再展开对照.</p>
+      </div>
+
+      <!-- ============ §1 ============ -->
+      <h2 id="review">§1 核心回顾 (动手前 5 分钟)</h2>
+
+      <div class="box thm">
+        <span class="box-title">Fatou 引理 (课内版, ≡ Practice MT2 P1)</span>
+        <p>设 $f_k \colon \R^n \to [0, \infty)$ 是一列 Lebesgue 可积函数, 且 $\liminf_k \int f_k &lt; \infty$. 则 $\liminf_k f_k \in \IL(\R^n)$ 且
+        $$\int_{\R^n} \liminf_{k\to\infty} f_k \;\le\; \liminf_{k\to\infty} \int_{\R^n} f_k.$$</p>
+        <p><strong>证明骨架 (必须能默写)</strong>: 令 $g_k := \inf_{j \ge k} f_j$。三个观察: (i) $0 \le g_k \le f_k$ 且 $g_k \in \IL$ (有限 min 用格运算 $\min(u,v) = \frac{u+v-|u-v|}{2}$, 取极限用递减 MCT); (ii) $(g_k)$ 单调递增 (inf 的范围在缩小); (iii) $\lim_k g_k = \liminf_k f_k$ (定义)。由 $g_k \le f_j$ ($\forall j \ge k$) 与积分单调性, $\int g_k \le \inf_{j\ge k} \int f_j$; 而 $\sup_k \int g_k \le \liminf \int f_k &lt; \infty$, 对 $(g_k)$ 套<strong>递增 MCT</strong>收口。$\square$</p>
+      </div>
+
+      <div class="box remark">
+        <span class="box-title">三句话直觉</span>
+        <ul>
+          <li><strong>方向</strong>: 取极限时质量只会<em>丢失</em> (逃向 $\infty$ / 集中到点 / 在位置间震荡), 不会凭空产生 — 所以积分的极限 $\ge$ 极限的积分。</li>
+          <li><strong>为什么是 liminf</strong>: $\liminf_k f_k(x)$ 在每个点取"最悲观子列", 是能保证的<em>下限</em>; 对下限只能指望单边不等式。</li>
+          <li><strong>地位</strong>: MCT ⟹ Fatou ⟹ DCT (C 组会亲手走一遍后半段) — Fatou 是从"单调"通向"控制"的桥。</li>
+        </ul>
+      </div>
+
+      <!-- ============ §2 ============ -->
+      <h2 id="partA">§2 A 组 — 默写与变体 (3 题)</h2>
+
+      <div class="box def">
+        <span class="box-title">A1 (默写检查 = Practice MT2 P1)</span>
+        <p>合上书, 完整写出 Fatou 引理的陈述与证明。写完后展开 §1 的骨架对照: 三个观察一个不能少 ((i) 可积性来源 (ii) 单调性 (iii) 极限是 liminf), 收口必须点名"递增 MCT"并验它的两个 hypothesis。</p>
+      </div>
+
+      <div class="box def">
+        <span class="box-title">A2 (a.e. 极限版 = Practice MT2 P2)</span>
+        <p>设 $(f_k)$ 非负 Lebesgue 可积, $f_k \to f$ a.e., $f$ 非负且 Lebesgue 可积。证明 $\displaystyle\int f \le \liminf_k \int f_k$。</p>
+      </div>
+      <details>
+        <summary><strong>展开 A2 详解</strong></summary>
+        <div class="details-body">
+          <p>逐点 (a.e.) 收敛 ⟹ $\liminf_k f_k = \lim_k f_k = f$ a.e.。Lebesgue 积分对 a.e. 相等不敏感, 直接套 A1:
+          $$\int f = \int \liminf_k f_k \le \liminf_k \int f_k. \qquad \square$$
+          <strong>考场要点</strong>: 这题就一行半, 但要写出"a.e. 收敛 ⟹ liminf = f a.e."这个衔接句, 不能直接跳。</p>
+        </div>
+      </details>
+
+      <div class="box def">
+        <span class="box-title">A3 (Reverse Fatou — 有 dominator 时的镜像)</span>
+        <p>设 $(f_k)$ 非负 Lebesgue 可积, 且存在 $F \in \IL$ 使 $f_k \le F$ 对所有 $k$。证明
+        $$\limsup_k \int f_k \;\le\; \int \limsup_k f_k.$$
+        (提示: 对 $F - f_k \ge 0$ 用 Fatou; 想清楚为什么 $\int F &lt; \infty$ 不可缺。)</p>
+      </div>
+      <details>
+        <summary><strong>展开 A3 详解</strong></summary>
+        <div class="details-body">
+          <p>令 $h_k := F - f_k \ge 0$, 每个 $h_k \in \IL$ (线性). 注意恒等式
+          $$\liminf_k (F - f_k) = F - \limsup_k f_k \qquad (\text{逐点; } \inf(-a_k) = -\sup a_k).$$
+          由 Fatou (A1) 应用于 $(h_k)$ (其 $\liminf \int h_k \le \int F &lt; \infty$ ✓):
+          $$\int \bigl(F - \limsup_k f_k\bigr) \;\le\; \liminf_k \int (F - f_k) \;=\; \int F - \limsup_k \int f_k,$$
+          最右一步用了 $\liminf(c - a_k) = c - \limsup a_k$。同时 Fatou 的结论给出 $F - \limsup f_k \in \IL$, 由线性 $\limsup f_k \in \IL$, 左端可拆为 $\int F - \int \limsup f_k$。<strong>两边消去有限的 $\int F$</strong> (这一步要求 $\int F &lt; \infty$!), 整理即得结论。$\square$</p>
+          <p><strong>反思</strong>: 没有 dominator 时此式不成立 — D2 会给反例。"liminf 方向白送, limsup 方向要花钱 (dominator)" 是整个家族的不对称性。</p>
+        </div>
+      </details>
+
+      <!-- ============ §3 ============ -->
+      <h2 id="partB">§3 B 组 — 直接应用 (3 题, 标准考场题型)</h2>
+
+      <div class="box def">
+        <span class="box-title">B1 (极限函数的可积性 + 积分界 — 最高频应用模式)</span>
+        <p>设 $(f_k)$ 非负 Lebesgue 可积, $f_k \to f$ a.e., 且 $\sup_k \int f_k =: C &lt; \infty$。证明: $f \in \IL(\R^n)$ 且 $\int f \le C$。</p>
+      </div>
+      <details>
+        <summary><strong>展开 B1 详解</strong></summary>
+        <div class="details-body">
+          <p>由 $\sup_k \int f_k = C &lt; \infty$ 得 $\liminf_k \int f_k \le C &lt; \infty$, Fatou 的两个 hypothesis 都验好了。由 Fatou:
+          $$\liminf_k f_k \in \IL \quad\text{且}\quad \int \liminf_k f_k \;\le\; \liminf_k \int f_k \;\le\; C.$$
+          又 $f_k \to f$ a.e. ⟹ $f = \liminf_k f_k$ a.e., 故 $f \in \IL$ 且 $\int f \le C$。$\square$</p>
+          <p><strong>反思</strong>: 与 A2 的区别 — A2 把 $f \in \IL$ 当假设, B1 把它当<strong>结论</strong>白送。这正是 Fatou 的独门本事: 不需要 dominator 就能证"极限函数可积" (DCT 也能但要 dominator)。考题若问"证明 $f$ 可积并给出积分上界", 八成就是这个模式。</p>
+        </div>
+      </details>
+
+      <div class="box def">
+        <span class="box-title">B2 (具体序列: 质量集中 — 算一遍看 Fatou 严格)</span>
+        <p>令 $f_k(x) := \dfrac{k}{1 + k^2 x^2}\,\mathbf{1}_{[0,1]}(x)$。</p>
+        <ol type="a">
+          <li>求逐点极限 $\lim_k f_k(x)$ (对 $x \in (0,1]$ 与 $x = 0$ 分别讨论);</li>
+          <li>计算 $\int f_k$ 与两边的值, 验证 Fatou 不等式在此例<strong>严格</strong>;</li>
+          <li>证明不存在 dominator: 任何满足 $F \ge f_k\ \forall k$ 的 $F$ 必 $\notin \IL$。</li>
+        </ol>
+      </div>
+      <details>
+        <summary><strong>展开 B2 详解</strong></summary>
+        <div class="details-body">
+          <p><strong>(a)</strong> 固定 $x \in (0,1]$: $f_k(x) = \dfrac{k}{1+k^2x^2} \le \dfrac{k}{k^2 x^2} = \dfrac{1}{k x^2} \to 0$。在 $x = 0$: $f_k(0) = k \to \infty$, 但单点测度零。故 $f_k \to 0$ a.e.</p>
+          <p><strong>(b)</strong> 直接反导:
+          $$\int_0^1 \frac{k\,dx}{1+k^2x^2} = \bigl[\arctan(kx)\bigr]_0^1 = \arctan k \;\xrightarrow{k\to\infty}\; \frac{\pi}{2}.$$
+          两边: $\int \liminf f_k = \int 0 = 0$, $\liminf \int f_k = \pi/2$。Fatou: $0 \le \pi/2$ ✓ 且严格 — 质量 ($\approx \pi/2$) 全部集中到 $x = 0$ 这个测度零点上, 在极限函数里"看不见"。</p>
+          <p><strong>(c)</strong> 设 $F \ge f_k$ 对所有 $k$。固定小 $x &gt; 0$, 取 $k = \lceil 1/x \rceil$ (即 $kx \approx 1$):
+          $$F(x) \;\ge\; f_k(x) = \frac{k}{1+(kx)^2} \;\ge\; \frac{1/x}{1 + 4} = \frac{1}{5x} \qquad (\text{用 } 1 \le kx \le 2 \text{ 当 } x \le 1).$$
+          故 $F \ge \frac{1}{5x}$ 在 $(0,1]$ 的每点附近成立, 而 $\int_0^1 \frac{dx}{5x} = \infty$ (HW4 §3 的对数发散), 由积分单调性 $F \notin \IL$。$\square$</p>
+          <p><strong>反思</strong>: (c) 解释了为什么这例只能用 Fatou 而 DCT 无能为力 — 这正是"Fatou 最有用"的场景: <em>没有 dominator 可用, 但只要单边不等式就够</em>。</p>
+        </div>
+      </details>
+
+      <div class="box def">
+        <span class="box-title">B3 (具体序列: 震荡丢质量 — liminf 的"最悲观子列"本性)</span>
+        <p>令 $f_k := \mathbf{1}_{[0,1]}$ ($k$ 偶), $f_k := \mathbf{1}_{[1,2]}$ ($k$ 奇)。计算 $\liminf_k f_k$、$\int \liminf_k f_k$、$\liminf_k \int f_k$, 并解释: 质量既没逃向 $\infty$ 也没集中到一点, 为什么 Fatou 还是严格?</p>
+      </div>
+      <details>
+        <summary><strong>展开 B3 详解</strong></summary>
+        <div class="details-body">
+          <p>逐点: 对 $x \in [0,1)$, 序列 $f_k(x)$ 是 $1, 0, 1, 0, \ldots$, $\liminf = 0$; 对 $x \in (1,2]$ 同理 $= 0$; 仅在 $x = 1$ 两个指示函数都取 $1$, $\liminf = 1$。故 $\liminf_k f_k = \mathbf{1}_{\{1\}} = 0$ a.e., $\int \liminf f_k = 0$。而 $\int f_k = 1$ 恒成立, $\liminf \int f_k = 1$。Fatou: $0 \le 1$, 严格。</p>
+          <p><strong>解释</strong>: $\liminf$ 在<em>每个点分别</em>取最悲观子列 — $x \in [0,1)$ 看奇数子列 (值 0), $x \in (1,2]$ 看偶数子列 (值 0)。两个"悲观方案"取的是<strong>不同的子列</strong>, 拼出来的下限函数比任何一个真实的 $f_k$ 都小。质量不需要"去哪里", 只要在两个位置间<strong>震荡</strong>, liminf 就抓不住它。</p>
+          <p><strong>反思</strong>: 此例还顺手击破一个常见错觉 — "$f_k$ 一致有界 + 公共紧支撑 ⟹ Fatou 取等"。这里 $0 \le f_k \le 1$, $\supp f_k \subset [0,2]$, 仍然严格! 缺的是<em>逐点收敛</em> (见 D4)。</p>
+        </div>
+      </details>
+
+      <!-- ============ §4 ============ -->
+      <h2 id="partC">§4 C 组 — 综合推导链: 从 Fatou 长出整个家族 (3 题)</h2>
+
+      <p>这三题是一条链: C1 用 Fatou 证 DCT, C2 升级成 Generalized DCT (= Practice MT2 P8), C3 用 C2 证 Scheffé 的非负版。做完这条链, "教授说 Fatou 最有用"就不再是一句玄学 — <strong>它是其它定理的引擎</strong>。</p>
+
+      <div class="box def">
+        <span class="box-title">C1 (用 Fatou 证 DCT 的积分收敛)</span>
+        <p>设 $(f_k) \subset \IL$ (可变号), $f_k \to f$ a.e., 且存在 $F \in \IL$ 使 $|f_k| \le F$ 对所有 $k$。<strong>只用 Fatou (A1/A2) 与线性</strong>, 证明 $f \in \IL$ 且 $\displaystyle\lim_k \int f_k = \int f$。(提示: 对 $F + f_k \ge 0$ 与 $F - f_k \ge 0$ 各用一次 Fatou。)</p>
+      </div>
+      <details>
+        <summary><strong>展开 C1 详解</strong></summary>
+        <div class="details-body">
+          <p><strong>Step 1 (上半边)</strong>: $F + f_k \ge 0$, 属于 $\IL$ (线性), 且 $F + f_k \to F + f$ a.e.。验 Fatou 的有限性: $\int(F + f_k) \le 2\int F &lt; \infty$。由 Fatou:
+          $$F + f = \liminf_k (F + f_k) \in \IL \quad (\text{由线性得 } f \in \IL),$$
+          $$\int(F + f) \;\le\; \liminf_k \int(F + f_k) = \int F + \liminf_k \int f_k \;\Longrightarrow\; \int f \le \liminf_k \int f_k.$$</p>
+          <p><strong>Step 2 (下半边)</strong>: 对 $F - f_k \ge 0$ 同样操作, 用 $\liminf(-a_k) = -\limsup a_k$:
+          $$\int(F - f) \le \int F - \limsup_k \int f_k \;\Longrightarrow\; \limsup_k \int f_k \le \int f.$$</p>
+          <p><strong>Step 3 (三明治)</strong>:
+          $$\int f \;\le\; \liminf_k \int f_k \;\le\; \limsup_k \int f_k \;\le\; \int f,$$
+          全链取等, $\lim_k \int f_k = \int f$。$\square$</p>
+          <p><strong>反思</strong>: DCT 的"对称双边结论" = Fatou 的"单边不等式"用两次 (一次正一次负), dominator $F$ 的作用就是把变号序列<em>抬成非负</em>让 Fatou 可用。</p>
+        </div>
+      </details>
+
+      <div class="box def">
+        <span class="box-title">C2 (Generalized DCT = Practice MT2 P8)</span>
+        <p>设 $(f_k), (g_k) \subset \IL$, $|f_k| \le g_k$, $f_k \to f$ a.e., $g_k \to g$ a.e., $g \in \IL$, 且 $\int g_k \to \int g$。证明 $f \in \IL$ 且 $\int f_k \to \int f$。(与 C1 的差别: dominator 自己在动。)</p>
+      </div>
+      <details>
+        <summary><strong>展开 C2 详解</strong></summary>
+        <div class="details-body">
+          <p>结构与 C1 完全相同, 只是 Fatou 用在 $g_k \pm f_k \ge 0$ 上。以上半边为例: $g_k + f_k \ge 0$, $\to g + f$ a.e., 且 $\int(g_k + f_k) \le 2\int g_k$ 有界 (因 $\int g_k$ 收敛故有界)。由 Fatou:
+          $$\int (g + f) \;\le\; \liminf_k \int (g_k + f_k).$$
+          关键一步: 因为 $\int g_k \to \int g$ <em>收敛</em>, 有 $\liminf_k\bigl(\int g_k + \int f_k\bigr) = \int g + \liminf_k \int f_k$ (收敛项可以从 liminf 里提出来 — 31BH 数列事实, 考场要写明这句). 消去有限的 $\int g$:
+          $$\int f \;\le\; \liminf_k \int f_k.$$
+          下半边对 $g_k - f_k \ge 0$ 重复, 得 $\limsup_k \int f_k \le \int f$, 三明治收口。($f \in \IL$ 与 C1 同理由 Fatou 的可积性结论 + 线性。) $\square$</p>
+          <p><strong>反思</strong>: 假设 $\int g_k \to \int g$ <strong>不能删</strong> — 否则 "$\liminf$ 拆和" 那步崩塌。D 组有对应辨析。</p>
+        </div>
+      </details>
+
+      <div class="box def">
+        <span class="box-title">C3 (Scheffé 非负版 — 链条的终点)</span>
+        <p>设 $(f_k)$ 非负 Lebesgue 可积, $f_k \to f$ a.e., $f \in \IL$, 且 $\int f_k \to \int f$。证明
+        $$\int \abs{f_k - f} \;\longrightarrow\; 0.$$
+        (提示: $|f_k - f| \le f_k + f$, 然后把 C2 整个搬过来。)</p>
+      </div>
+      <details>
+        <summary><strong>展开 C3 详解</strong></summary>
+        <div class="details-body">
+          <p>令 $h_k := |f_k - f|$, $g_k := f_k + f$。逐项验 C2 的 hypotheses:</p>
+          <ul>
+            <li>$h_k \le f_k + f = g_k$ ✓ (三角不等式, 注意 $f_k, f \ge 0$);</li>
+            <li>$h_k \to 0$ a.e. ✓ (因 $f_k \to f$ a.e.);</li>
+            <li>$g_k \to 2f$ a.e. ✓; $2f \in \IL$ ✓;</li>
+            <li>$\int g_k = \int f_k + \int f \to 2\int f = \int(2f)$ ✓ (题设).</li>
+          </ul>
+          <p>由 C2 (取"$f_k$"$= h_k$, "$g$"$= 2f$, 极限函数 $= 0$): $\int h_k \to \int 0 = 0$。$\square$</p>
+          <p><strong>反思</strong>: 结论 $\int|f_k - f| \to 0$ 是 "$L^1$ 收敛", 比 "$\int f_k \to \int f$" 强得多 (后者只看总量, 前者控制逐点偏差的积分). Scheffé 说: 对非负序列, <em>总量收敛 + a.e. 收敛 ⟹ $L^1$ 收敛</em> — 全部成本只是一次 generalized DCT, 而后者只是两次 Fatou。链条至此: <strong>MCT → Fatou → (Gen)DCT → Scheffé</strong>。</p>
+        </div>
+      </details>
+
+      <!-- ============ §5 ============ -->
+      <h2 id="partD">§5 D 组 — 判断辨析 (6 题, 治"记反了")</h2>
+
+      <p>每题先判断对错并想好理由/反例, 再展开。反例全部来自本页与冲刺页已有的四个标准序列: traveling box $\mathbf{1}_{[k,k+1]}$ / spike $k\mathbf{1}_{(0,1/k]}$ / 集中峰 (B2) / 震荡箱 (B3)。</p>
+
+      <div class="box def"><span class="box-title">D1</span>
+        <p>"若 $f_k \ge 0$ 且 $f_k \to f$ 逐点<em>处处</em>收敛, 则 Fatou 取等: $\int f = \lim \int f_k$。"</p>
+      </div>
+      <details><summary><strong>展开 D1</strong></summary><div class="details-body">
+        <p><strong>错。</strong> spike $f_k = k\,\mathbf{1}_{(0,1/k]}$ 逐点处处收敛到 $0$ (任意 $x &gt; 0$ 最终 $1/k &lt; x$; $x \le 0$ 恒为 0), 但 $\int f_k \equiv 1 \ne 0$。逐点收敛挡不住质量集中。取等需要额外机制 (dominator / 单调性 / 总量收敛)。</p>
+      </div></details>
+
+      <div class="box def"><span class="box-title">D2</span>
+        <p>"limsup 版本免费成立: 对非负可积 $(f_k)$ 总有 $\limsup \int f_k \le \int \limsup f_k$。"</p>
+      </div>
+      <details><summary><strong>展开 D2</strong></summary><div class="details-body">
+        <p><strong>错。</strong> traveling box $f_k = \mathbf{1}_{[k,k+1]}$: $\limsup f_k = 0$ (每点最终为 0), 故右端 $= 0$; 左端 $= 1$。$1 \le 0$ 不成立。limsup 方向<strong>必须购买 dominator</strong> (A3); 这里 dominator 不存在 (任何 $F \ge \sup_k f_k \ge \mathbf{1}_{[1,\infty)}$ 不可积)。顺带: 反方向 $\int \limsup \le \limsup \int$ 也不成立 — 震荡箱 (B3) 给 $\int\limsup = \int \mathbf{1}_{[0,2]} = 2 &gt; 1 = \limsup\int$。<strong>limsup 两个方向都没有免费的不等式</strong>。</p>
+      </div></details>
+
+      <div class="box def"><span class="box-title">D3</span>
+        <p>"Fatou 的非负假设可以放宽为: 存在 $g \in \IL$ 使 $f_k \ge -g$ 对所有 $k$ (即'有可积下界')。"</p>
+      </div>
+      <details><summary><strong>展开 D3</strong></summary><div class="details-body">
+        <p><strong>对。</strong> 对 $f_k + g \ge 0$ 套 Fatou, 再用线性把有限的 $\int g$ 从两边消掉 (机制与 A3/C1 相同)。但<strong>完全没有下界控制时 Fatou 假</strong>: $f_k := -k\,\mathbf{1}_{(0,1/k]}$ (负 spike) 逐点 $\to 0$, $\int f_k = -1$, 于是 $\int \liminf f_k = 0 &gt; -1 = \liminf \int f_k$ — 不等号反向。负质量可以"凭空消失"使积分极限<em>偏大</em>… 准确说: 负质量集中后消失, 让 liminf∫ 停在 $-1$ 而 ∫liminf 回到 $0$。</p>
+      </div></details>
+
+      <div class="box def"><span class="box-title">D4</span>
+        <p>"若 $0 \le f_k \le M$ (一致有界) 且所有 $\supp f_k$ 含于同一个有界集 $B$, 则 Fatou 取等。"</p>
+      </div>
+      <details><summary><strong>展开 D4</strong></summary><div class="details-body">
+        <p><strong>错。</strong> 震荡箱 (B3): $0 \le f_k \le 1$, $\supp f_k \subset [0,2]$, 但 $0 = \int\liminf &lt; \liminf\int = 1$。一致有界 + 公共支撑挡住了"逃逸"和"无限集中", 但挡不住<strong>震荡</strong> — liminf 在不同点抓不同子列。补上"$f_k \to f$ a.e."后才真取等 (此时 $M\mathbf{1}_B$ 是合法 dominator, DCT/C1 适用)。<strong>考场教训: 检查 hypotheses 时, "收敛性"和"控制"是两件独立的事, 缺一不可。</strong></p>
+      </div></details>
+
+      <div class="box def"><span class="box-title">D5</span>
+        <p>"hypothesis $\liminf_k \int f_k &lt; \infty$ 删掉也无妨, 反正不等式 $\le$ 对 $+\infty$ 也成立。"</p>
+      </div>
+      <details><summary><strong>展开 D5</strong></summary><div class="details-body">
+        <p><strong>半对半错 — 取决于你要哪个结论。</strong> 纯不等式确实平凡成立 (右端 $= \infty$ 拦不住任何东西)。但 Fatou 课内版的结论还包括 <strong>$\liminf f_k \in \IL$</strong>, 这一半<em>需要</em>有限性: 例 $f_k(x) := x^{-1}\mathbf{1}_{[1/k,\,1]}(x)$ 单调上升, $\int f_k = \ln k \to \infty$, 极限 $\frac1x\mathbf{1}_{(0,1]} \notin \IL$ (HW4 §3 的对数发散)。证明里这个 hypothesis 喂给的是递增 MCT 的 "$\sup_k \int g_k &lt; \infty$" — 删了它 MCT 不放行。</p>
+      </div></details>
+
+      <div class="box def"><span class="box-title">D6</span>
+        <p>"C2 (Generalized DCT) 里的假设 $\int g_k \to \int g$ 可以削弱为 '$g_k \to g$ a.e. 且所有 $\int g_k$ 有界'。"</p>
+      </div>
+      <details><summary><strong>展开 D6</strong></summary><div class="details-body">
+        <p><strong>错。</strong> 取 $g_k = f_k :=$ traveling box $\mathbf{1}_{[k,k+1]}$。则 $|f_k| \le g_k$ ✓, $f_k \to 0$ a.e. ✓, $g_k \to 0 =: g \in \IL$ ✓, $\int g_k \equiv 1$ 有界 ✓ — 但 $\int f_k = 1 \not\to 0 = \int f$。问题出在 $\int g_k = 1 \not\to 0 = \int g$: dominator 自己丢了质量, 它就罩不住 $f_k$ 的质量。<strong>"dominator 的总量不许漏" 正是 generalized DCT 比 Fatou 多收的费。</strong></p>
+      </div></details>
+
+      <!-- ============ §6 ============ -->
+      <h2 id="cheat">§6 速查 (做完再看, 当自检清单)</h2>
+
+      <div class="cheat-sheet">
+        <ul>
+          <li class="cs-thm"><strong>Fatou</strong>: $f_k \ge 0 \in \IL$, $\liminf\int f_k &lt; \infty$ ⟹ $\liminf f_k \in \IL$ 且 $\int\liminf f_k \le \liminf\int f_k$。</li>
+          <li class="cs-tech"><strong>证明骨架四件套</strong>: $g_k := \inf_{j\ge k} f_j$ → (i) $0 \le g_k \le f_k$ 可积 (ii) 单调增 (iii) $\lim g_k = \liminf f_k$ → 递增 MCT 收口。</li>
+          <li class="cs-tech"><strong>应用模式 1 (B1)</strong>: a.e. 收敛 + $\sup\int &lt; \infty$ ⟹ 极限函数 $\in \IL$ + 积分上界 — <em>不要 dominator</em>。</li>
+          <li class="cs-tech"><strong>应用模式 2 (C1/C2)</strong>: 变号序列 → 用 dominator 抬非负 ($F \pm f_k$ 或 $g_k \pm f_k$), Fatou 双侧夹出 DCT。</li>
+          <li class="cs-tech"><strong>limsup 方向 (A3)</strong>: 要 dominator, 经 $F - f_k$ 转换, 且 $\int F &lt; \infty$ 用于两边消去。</li>
+          <li class="cs-pitfall"><strong>方向口诀</strong>: "$\int\liminf \le \liminf\int$" — 质量只漏不涨; 等号要额外买 (dominator / 单调 / 总量收敛)。</li>
+          <li class="cs-pitfall"><strong>四大反例各管一个漏点</strong>: traveling box (逃逸 ∞) / spike & B2 集中峰 (集中到点) / 震荡箱 (位置震荡, 破"有界+紧支撑⟹取等") / 负 spike (破"可变号")。</li>
+          <li class="cs-pitfall"><strong>非负不能删</strong> (D3), <strong>有限性不能删</strong> (D5), <strong>$\int g_k \to \int g$ 不能删</strong> (D6)。</li>
+        </ul>
+      </div>
+
+      <div class="box remark">
+        <span class="box-title">📚 配套资源</span>
+        <ul>
+          <li>原题与课内全证: <a href="../midterm2/MT2-practice.html">Practice MT2</a> P1 (Fatou) / P2 (a.e. 版) / P8 (Generalized DCT) / P9 (Scheffé 完整版含逆向)。</li>
+          <li>定理家族总览: <a href="../midterm2/MT2-C_lebesgue.html">MT2-C</a> Thm C.6/C.7 + 4 推论; <a href="FinalSprint.html#convergence">冲刺总览 §6</a> 决策树。</li>
+          <li>MCT/DCT 在具体可积性问题中的实战: <a href="../homework/HW4.html">HW4 详解</a> (Problems 5/6/7/11/19)。</li>
+        </ul>
+      </div>
+
+      <footer>
+        <p>MATH 31CH · Fatou 集中训练 · 2026-06-11 · 反例与证法均与课内 (Lec 8.2 / Practice MT2) 一致</p>
+      </footer>
+    </main>
+  </div>
+
+</body>
+</html>
