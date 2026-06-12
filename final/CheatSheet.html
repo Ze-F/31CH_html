@@ -177,7 +177,7 @@
             <ul>
               <li class="hl"><b>MCT</b> (4.11.18): $0 \le f_k \uparrow$ a.e., $\sup_k \int f_k &lt; \infty$ ⟹ $f = \lim f_k \in \IL$, $\int f = \lim\int f_k$。递减版: $f_k \downarrow f$ a.e. + 某 $\int f_k$ 有限 (证: $f_1 - f_k$ 翻转)。</li>
               <li class="hl"><b>DCT</b> (4.11.19): $f_k \to f$ a.e. + $|f_k| \le_L F \in \IL$ ⟹ $f \in \IL$, $\int|f_k - f| \to 0$, $\int f_k \to \int f$。<span class="warn">必须验 $\int F &lt; \infty$</span></li>
-              <li><b>Fatou</b>: $f_k \ge 0$ ⟹ $\int\liminf f_k \le \liminf\int f_k$ (证: $g_m = \inf_{k\ge m} f_k \uparrow$ 套 MCT)。方向: 质量只漏不多。</li>
+              <li class="hl"><b>Fatou (★ 教授 OH 钦点 "最有用")</b>: $f_k \ge 0$ ⟹ $\int\liminf f_k \le \liminf\int f_k$ (证: $g_m = \inf_{k\ge m} f_k \uparrow$, $g_m \le f_m$, 套 MCT 后取 $\liminf$)。方向: 质量只漏不多。</li>
               <li><b>Fatou a.e.</b>: $f_k \ge 0$, $f_k \to f$ a.e. ⟹ $\int f \le \liminf\int f_k$</li>
               <li><b>Gen. DCT</b>: $|f_k| \le g_k$, $g_k \to g$ a.e., $\int g_k \to \int g$, $f_k \to f$ a.e. ⟹ $\int f_k \to \int f$ (证: Fatou 于 $g_k \pm f_k \ge 0$ 两侧夹)</li>
               <li><b>Scheffé</b>: $f_k \to f$ a.e. ⟹ [$\int|f_k| \to \int|f|$ ⟺ $\int|f_k - f| \to 0$] (证: $h_k = |f_k - f| \le g_k = |f_k| + |f|$ 套 Gen. DCT)</li>

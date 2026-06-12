@@ -87,7 +87,17 @@
         <ul>
           <li><strong>计算题全部出自 MT2 之后</strong> — "<em>All computations in the final will be from after midterm II</em>": Fourier + Laplace 变换、用变换解 PDE/ODE、平面/空间曲线的曲率、曲面 (curvature of plane/space curves, surfaces)。<strong>约占 40%</strong>。</li>
           <li><strong>另一最重要板块: 收敛定理</strong> — "<em>the convergence theorems (MCT, DCT, Fatou's lemma of Lebesgue integral), specifically being able to use them</em>"。考的是<strong>会用</strong>: 识别定理 → 验 hypotheses → 套结论。<strong>约占 30%</strong>。</li>
-          <li>剩余 ~30% 未明示 — 按 MT2 经验大概率是 §4.9/§4.10 风格的 CoV 计算或积分理论基础题。</li>
+          <li>剩余 ~30% 未明示 — 结合下面的 OH 情报与 Practice Final 结构, 更可能仍是上述两大板块的延伸, 而非新题型。</li>
+        </ul>
+      </div>
+
+      <div class="box pitfall">
+        <span class="box-title">🆕 考前情报更新 (2026-06-11, office hours 同学转述 — 非官方书面, 但多人交叉印证)</span>
+        <ul>
+          <li><strong>CoV (变量代换) 不在考试里</strong> — "<em>change of variables is not there</em>" (教授本来不想明说). 与 Practice Final 的结构互相印证: 25 题 8 个 Part 里本来就没有 CoV part。→ MT2-A/B 的 §4.9/§4.10 内容<strong>降级为背景知识</strong>, 冲刺期不必再刷 (球坐标作为曲面/径向积分的工具仍要会, 但不会单独出 CoV 计算题)。</li>
+          <li><strong>Frenet frames 大概率不考</strong> — frame 的 Gram–Schmidt 构造、存在唯一性定理、$\omega$ 矩阵这些理论装置可以放下; 但<strong>曲线曲率计算仍在官方范围内</strong>, $\kappa, \tau$ 的计算公式 (本页 §4) 照背不误。</li>
+          <li><strong>Fatou 被点名</strong> — "<em>Be prepared to use Fatou's theorem... it's actually the most useful when you think about it</em>"。收敛定理板块里 Fatou 优先级提到最高: 重做 Practice MT2 P1 (Fatou 全证) 与 P2 (a.e. 版), 把 "$g_m := \inf_{k\ge m} f_k$ 单调增 → MCT" 这条证明骨架背到能默写 (见 §6)。</li>
+          <li><strong>时长与难度</strong> — 考试 <strong>3 小时</strong>; 教授原话 "<em>should be a pretty easy exam as long as you don't get stuck on the computation</em>" + "<em>it's 3 hours, how long can you be stuck really</em>"。结论: 题不难但计算量大, 拼的是<strong>公式熟练度和不犯低级错误</strong> — cheat sheet 和 §7 易错点的价值进一步上升。</li>
         </ul>
       </div>
 
@@ -110,7 +120,7 @@
         <span class="box-title">冲刺顺序</span>
         <ol>
           <li><strong>① Practice Final 全 25 题过一遍</strong> (~40% 分值的直接预告) — 先盖住答案做, 再对 <a href="../homework/PracticeFinal.html">详解页</a>。8 个 Part: Fourier 变换 / Laplace 变换 / 变换解 PDE&amp;ODE / 平面曲线曲率 / 空间曲线 $\kappa,\tau$ / 曲面四例 / 环面。</li>
-          <li><strong>② 收敛定理五件套重做</strong> (~30% 分值) — <a href="../midterm2/MT2-practice.html">Practice MT2</a> 的 P1 (Fatou) / P2 (Fatou a.e.) / P3 (递减 MCT) / P8 (Generalized DCT) / P9 (Scheffé)。MT2 已考过同款, final 大概率换皮重现。理论靠背: <a href="../midterm2/MT2-C_lebesgue.html">MT2-C</a> 的 Thm C.6 / C.7 + 4 推论。</li>
+          <li><strong>② 收敛定理五件套重做</strong> (~30% 分值) — <a href="../midterm2/MT2-practice.html">Practice MT2</a> 的 P1 (Fatou) / P2 (Fatou a.e.) / P3 (递减 MCT) / P8 (Generalized DCT) / P9 (Scheffé)。MT2 已考过同款, final 大概率换皮重现。<strong>OH 情报: Fatou 被教授点名 "最有用"</strong> — P1/P2 优先到能默写。理论靠背: <a href="../midterm2/MT2-C_lebesgue.html">MT2-C</a> 的 Thm C.6 / C.7 + 4 推论。</li>
           <li><strong>③ 公式记忆 + 制作 cheat sheet</strong> — 边抄 <a href="CheatSheet.html">A4 cheat sheet</a> 边记 (手写一遍本身就是记忆过程); 或直接打印。</li>
           <li><strong>④ 查漏</strong> — 扫 topics 16–22 各页的 §6 常见陷阱; 本页 <a href="#pitfalls">§7 易错点 Top 10</a> 是浓缩版。</li>
         </ol>
@@ -196,6 +206,11 @@
 
       <!-- ============ §4 ============ -->
       <h2 id="curves">§4 曲线速查 (κ 与 τ)</h2>
+
+      <div class="box remark">
+        <span class="box-title">🆕 OH 情报对本节的影响</span>
+        <p>Frenet frame 的<strong>理论装置</strong> (Gram–Schmidt 构造、distinguished frame 存在唯一性、$\omega$ 矩阵推导) 大概率不考, 可降低优先级; 但<strong>曲率计算</strong>是官方点名的计算板块之一 — 下表的 $\kappa, \tau$ 公式、helix 标志值、以及 "τ 分母是叉积平方" 这条易错点仍是必背核心。$\T, \NN, \B$ 的定义留着即可 (空间曲线公式的语言), Frenet 方程组扫一眼有印象就行。</p>
+      </div>
 
       <div class="cheat-sheet">
         <ul>
@@ -286,6 +301,11 @@
       <!-- ============ §6 ============ -->
       <h2 id="convergence">§6 收敛定理速查 (~30% 分值, 全是模板题)</h2>
 
+      <div class="box remark">
+        <span class="box-title">🆕 OH 情报: Fatou 是本板块的钦点主角</span>
+        <p>教授在 OH 明示 "<em>be prepared to use Fatou's theorem — it's actually the most useful</em>"。落实到行动: ① Fatou 的<strong>完整证明骨架</strong>背到默写 — 令 $g_m := \inf_{k \ge m} f_k$, 则 $g_m$ 单调增、$g_m \le f_m$, 对 $(g_m)$ 套 MCT, 再由 $\int g_m \le \int f_m$ 取 $\liminf$; ② 两个变体 (a.e. 版 P2、与 generalized DCT 的双侧 Fatou 用法 P8) 都过一遍; ③ 记牢不等号方向与非负前提 (§7 易错点 8)。</p>
+      </div>
+
       <h3>§6.1 两大主定理 + 四个推论</h3>
 
       <div class="box thm">
@@ -372,7 +392,7 @@
           <li>$\LT(f'), \LT(f'')$ 初值项 + $\sin/\cos$ 表 + $s$-求导技巧</li>
           <li>$\kappa, \tau$ 公式 (默念 "$\tau$ 分母是叉积平方")</li>
           <li>曲面流水线: $\I \to \nu \to \II \to K, H \to S$</li>
-          <li>决策树: 单调→MCT / dominator→DCT / 非负不等式→Fatou</li>
+          <li>决策树: 单调→MCT / dominator→DCT / 非负不等式→Fatou (教授钦点, 证明骨架 $g_m = \inf_{k\ge m} f_k$ 要能默写)</li>
         </ul>
       </div>
 
@@ -383,7 +403,7 @@
           <li><strong>曲线</strong>: <a href="../topics/19-curves-frenet.html">Topic 19 (Frenet frame)</a> · <a href="../topics/20-frenet-curvature.html">Topic 20 (曲率/挠率)</a></li>
           <li><strong>曲面</strong>: <a href="../topics/21-surfaces-first-form.html">Topic 21 (第一基本形式)</a> · <a href="../topics/22-second-form-curvature.html">Topic 22 ($\II$/$K$/$H$)</a></li>
           <li><strong>收敛定理</strong>: <a href="../midterm2/MT2-C_lebesgue.html">MT2-C</a> · <a href="../midterm2/MT2-practice.html">Practice MT2</a></li>
-          <li><strong>变量代换 (剩余 30% 的可能来源)</strong>: <a href="../midterm2/MT2-A_linear_cov.html">MT2-A</a> · <a href="../midterm2/MT2-B_nonlinear_cov.html">MT2-B</a> · <a href="../midterm2/MT2-D_drill.html">MT2-D 押题</a></li>
+          <li><strong>变量代换 (🆕 OH 情报: 不考, 降为背景)</strong>: <a href="../midterm2/MT2-A_linear_cov.html">MT2-A</a> · <a href="../midterm2/MT2-B_nonlinear_cov.html">MT2-B</a> · <a href="../midterm2/MT2-D_drill.html">MT2-D 押题</a> — 冲刺期可跳过; 球坐标作为径向积分工具仍要会</li>
           <li><strong>真题演练</strong>: <a href="../homework/PracticeFinal.html">Practice Final 25 题详解</a> · <a href="../homework/HW4.html">HW4 (MCT/DCT 应用)</a></li>
         </ul>
       </div>
