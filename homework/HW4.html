@@ -90,7 +90,7 @@
           <tr><td>4.11.6</td><td>MCT + Riemann Fubini + 夹逼比较</td><td>δ-shell $\{x \ge \delta\}$ 避开原点</td><td>cusp/wedge 几何与阈值 $\max\{1, (m+1)/2\}$</td></tr>
           <tr><td>4.11.7</td><td>同 4.11.6 (对偶, 无界域)</td><td>$\{x \le R\}$ 切掉无穷尾</td><td>阈值 $\min\{1, (m+1)/2\}$, 与 4.11.6 镜像</td></tr>
           <tr><td>4.11.8(a-d)</td><td>DCT + Lebesgue Fubini + 反证</td><td>$\{|x| \le n\}$ 双侧 + 三角域</td><td>Lebesgue 版 IBP 完整链条 (4 part 串成定理)</td></tr>
-          <tr><td>4.11.11</td><td>MCT + DCT (二段法)</td><td>径向 ball, 再 DCT 处理变号</td><td>多项式 × Gaussian 的 Γ-函数估计</td></tr>
+          <tr><td>4.11.11</td><td>MCT + DCT (二段法)</td><td>径向 ball, 再 DCT 处理变号</td><td>多项式 × Gaussian: 指数级数放缩 $e^{r^2} \ge r^{2k}/k!$</td></tr>
           <tr><td>4.11.19</td><td>MCT 主链 + DCT 收尾</td><td>half-open $[a, c_k]$</td><td>improper Riemann → Lebesgue 桥定理</td></tr>
         </tbody>
       </table>
@@ -523,20 +523,21 @@ $I(L)$ 还是 §3 的三个初等事实 (单调下界 / 小 $L$ 同阶于 $L$ / 
 
       <p><strong>积分良定性预备.</strong> 由 part (a), $F, G$ 在 $\R$ 上连续, 故在紧集 $[a, b]$ 上有界. 因此 $G \cdot \mathbf{1}_{[a,b]} \in \IR$ 有界, 由乘积规则 $f \cdot G \cdot \mathbf{1}_{[a,b]} \in \IL$; 同理 $F \cdot g \cdot \mathbf{1}_{[a,b]} \in \IL$. 右端两个积分都有意义.</p>
 
+      <p><strong>几何直觉 (先看懂要干什么).</strong> 把 $f(s)\,g(t)$ 想成铺在正方形 $[a,b]^2$ 上的"质量". 整个正方形上的积分可以分离变量, 等于 $\bigl(F(b)-F(a)\bigr)\bigl(G(b)-G(a)\bigr)$ — 这正是 IBP 公式里乘积项的来源. <strong>IBP 的本质就是把正方形沿对角线 $s = t$ 切成两个三角形</strong>: 下三角上的质量竖着切片得到含 $fG$ 的积分, 横着切片得到含 $Fg$ 的积分 — 同一块质量两种数法, 等式就出来了.</p>
+
       <p><strong>Step 1 — Lebesgue Fubini 给出核心等式.</strong> 声明:
       $$\int_a^b f(s)\bigl(G(b) - G(s)\bigr)\,ds \;=\; \int_a^b g(t)\bigl(F(t) - F(a)\bigr)\,dt. \tag{$\star$}$$
       两端都是 $f(s)\,g(t)$ 在闭三角域
       $$T := \{(s, t) \in [a, b]^2 : s \le t\}$$
-      上的二维积分, 只是沿不同方向 slicing:
-      $$G(b) - G(s) = \int_s^b g(t)\,dt, \qquad F(t) - F(a) = \int_a^t f(s)\,ds.$$
-      要应用 Lebesgue Fubini (Thm 4.11.10), 需先验证 $h(s, t) := f(s)\,g(t)\,\mathbf{1}_T(s, t) \in \IL(\R^2)$:</p>
+      上的二维积分, 只是沿不同方向切片:
+      $$G(b) - G(s) = \int_s^b g(t)\,dt \;(\text{竖切, 固定 } s), \qquad F(t) - F(a) = \int_a^t f(s)\,ds \;(\text{横切, 固定 } t).$$
+      要应用 Lebesgue Fubini (Thm 4.11.10), 需先验证 $h(s, t) := f(s)\,g(t)\,\mathbf{1}_T(s, t) \in \IL(\R^2)$. 分三小步, 每步都是熟悉的工具:</p>
       <ul>
-        <li>$f \cdot \mathbf{1}_{[a,b]} \in \IL(\R)$ (乘积规则: $f \in \IL$, $\mathbf{1}_{[a,b]} \in \IR$ 有界); 同理 $g \cdot \mathbf{1}_{[a,b]} \in \IL(\R)$.</li>
-        <li><strong>张量积 (baby Fubini for $\IL$, Lec 2.2 的 $\IL$ 类比)</strong>: 取 $f \cdot \mathbf{1}_{[a,b]}$ 的砖块分解 $f \mathbf{1}_{[a,b]} = \sum_k f_k$ 与 $g \mathbf{1}_{[a,b]} = \sum_l g_l$ (两者都绝对可和, 各自 $\sum_k \int |f_k| &lt; \infty$, $\sum_l \int |g_l| &lt; \infty$). 那么双指标族 $\{f_k \otimes g_l\}_{k, l}$ 构成
-        $$(f \mathbf{1}_{[a,b]}) \otimes (g \mathbf{1}_{[a,b]})(s, t) := f(s)\,g(t)\,\mathbf{1}_{[a,b]^2}(s, t)$$
-        的砖块分解, 且 $\sum_{k, l} \int |f_k \otimes g_l|\,dV = (\sum_k \int |f_k|)(\sum_l \int |g_l|) &lt; \infty$ (Fubini-Tonelli on Riemann $f_k \otimes g_l$). 故 $(f \mathbf{1}_{[a,b]}) \otimes (g \mathbf{1}_{[a,b]}) \in \IL(\R^2)$.</li>
-        <li>三角域指示函数 $\mathbf{1}_T \in \IR(\R^2)$: $T$ 是有界闭集, 其边界由两条坐标轴对齐线段 ($\{s = a\}, \{t = b\}$ 的部分) 加一条对角线段 $\{s = t\}$ 组成, 总测度零, 故 $\partial T$ 测度零, $\mathbf{1}_T$ 由 Lebesgue 准则可 Riemann 积分; $\mathbf{1}_T$ 显然有界 (取值 $\in \{0, 1\}$).</li>
-        <li>最后再次乘积规则: $h = \bigl((f \mathbf{1}_{[a,b]}) \otimes (g \mathbf{1}_{[a,b]})\bigr) \cdot \mathbf{1}_T \in \IL(\R^2)$ ($\IL \times \IR$-bounded).</li>
+        <li><strong>限制到 $[a,b]$</strong>: $f \cdot \mathbf{1}_{[a,b]} \in \IL(\R)$ (乘积规则: $f \in \IL$, $\mathbf{1}_{[a,b]} \in \IR$ 有界); 同理 $g \cdot \mathbf{1}_{[a,b]} \in \IL(\R)$.</li>
+        <li><strong>乘成二维函数</strong>: 要证 $f(s)\,g(t)\,\mathbf{1}_{[a,b]^2}(s,t) \in \IL(\R^2)$. 思路与 Lec 2.2 的 baby Fubini ($\int f_1(x) f_2(y)\,dV = \int f_1 \cdot \int f_2$, 当时是 Riemann 版) 一模一样, 只是升级到 $\IL$: 取两个一维砖块分解 $f \mathbf{1}_{[a,b]} = \sum_k f_k$, $g \mathbf{1}_{[a,b]} = \sum_l g_l$, 把它们<em>逐对相乘</em>得二维砖块 $f_k(s)\,g_l(t)$. 每块的绝对积分由 baby Fubini 分离:
+        $$\int_{\R^2} |f_k(s)\,g_l(t)|\,dV = \Bigl(\int|f_k|\Bigr)\Bigl(\int|g_l|\Bigr),$$
+        全部加起来 $= \bigl(\sum_k \int|f_k|\bigr)\bigl(\sum_l \int|g_l|\bigr) &lt; \infty$ — 两个绝对收敛级数的乘积还是绝对收敛 (31BH 级数理论, 重排无碍). 所以这族二维砖块绝对可和, 其和正是 $f(s)g(t)\mathbf{1}_{[a,b]^2}$, 故它 $\in \IL(\R^2)$.</li>
+        <li><strong>切出三角形</strong>: $\mathbf{1}_T \in \IR(\R^2)$ 有界 — $T$ 有界闭, $\partial T$ 是三条线段 (两条边 + 对角线), 测度零, Lebesgue 准则放行. 最后再用一次乘积规则: $h = \bigl(f(s)g(t)\mathbf{1}_{[a,b]^2}\bigr)\cdot\mathbf{1}_T \in \IL(\R^2)$.</li>
       </ul>
 
       <p>Lebesgue Fubini 现在给出:
@@ -826,7 +827,7 @@ $I(L)$ 还是 §3 的三个初等事实 (单调下界 / 小 $L$ 同阶于 $L$ / 
 
           <li class="cs-pitfall"><strong>忘了非负</strong>: MCT 要求 $f_k \ge 0$ 且单调上升, 对变号 $f_k$ 不能直接套. 想用 MCT 先取 $|f_k|$ (但极限交换需要 DCT, 不是 MCT).</li>
           <li class="cs-pitfall"><strong>"bounded" ≠ "dominator"</strong>: DCT 要求 dominator $g \in \IL$, 不是 "$|f_k| \le M$ 常数". 在 $\R^n$ 上常数 $M$ 不可积 (无界域上 $\int M\,dV = \infty$), 故 $M$ 不是合法 dominator.</li>
-          <li class="cs-pitfall"><strong>improper Riemann ≠ Lebesgue</strong>: $\int_1^\infty \sin(x)/x\,dx$ 改进 Riemann 条件收敛 (Dirichlet test), 但 $\sin(x)/x \notin \IL(\R)$ 因为 $|\sin(x)/x|$ 不可积. 检验 $\IL$ 必须取<em>绝对值</em>积分有限 (§7 题设里 "$\lim \int |f|$ 存在" 就是为了避开这种 pathology).</li>
+          <li class="cs-pitfall"><strong>improper Riemann ≠ Lebesgue</strong>: $\int_1^\infty \sin(x)/x\,dx$ 改进 Riemann 条件收敛 (分部积分可证, 见 §7), 但 $\sin(x)/x \notin \IL(\R)$ 因为 $|\sin(x)/x|$ 不可积 (逐段下界 + 调和级数). 检验 $\IL$ 必须取<em>绝对值</em>积分有限 (§7 题设里 "$\lim \int |f|$ 存在" 就是为了避开这种 pathology).</li>
         </ul>
       </div>
 
@@ -855,7 +856,7 @@ $I(L)$ 还是 §3 的三个初等事实 (单调下界 / 小 $L$ 同阶于 $L$ / 
             <li><a href="../midterm2/MT2-practice.html">MT2 Practice — 真题与详解</a>: 第 4-5 题与本页 §5 (Problem 8) 同类型; 第 8-9 题 (Generalized DCT / Scheffé) 与本页 §6 (Problem 11) 用同款 MCT-DCT 二段法.</li>
           </ul>
         </li>
-        <li><strong>下一步学什么</strong>: §4.11 之后是 Ch 5 (微分形式与 wedge 积) 与 Ch 6 (Stokes 定理). MCT/DCT 工具会在 Stokes 定理的极限论证里继续被用 (尤其在 forms 的逐点收敛 vs 积分收敛的衔接处).</li>
+        <li><strong>下一步学什么 (本课程实际走向)</strong>: §4.11 之后课程进入 <strong>Fourier / Laplace 变换</strong> — $\IL$ 正是 Fourier 变换的自然定义域 (积分 $\int f e^{2\pi i x\zeta}$ 对 $f \in \IL$ 有意义), MCT/DCT 在变换的极限交换论证里继续登场; 之后是<strong>微分几何</strong> (曲线曲率、曲面). 见 <a href="../topics/16-fourier-transform.html">Topic 16</a>–<a href="../topics/22-second-form-curvature.html">22</a> 与 <a href="../final/FinalSprint.html">Final 冲刺总览</a>.</li>
       </ul>
 
     </main>
