@@ -178,6 +178,21 @@
       </details>
 
       <div class="box remark">
+        <span class="box-title">🔍 Step ❷ 拆解 — "球坐标降维"一行里压缩了什么 (2026-06-11 补)</span>
+        <p>这一步看起来一行带过, 实际是 <strong>广义球坐标 CoV + baby Fubini 分离</strong> 两个动作. 逐层展开:</p>
+        <p><strong>(1) 用的是哪个变量代换?</strong> Lec 5.3 的极坐标 ($n=2$: $|\det[DP]| = r$) 和球坐标 ($n=3$: $|\det[DS]| = r^2\cos\varphi$) 都有 $n$ 维版本 — "广义球坐标": 一个半径 $r$ + $(n-1)$ 个角度 (角度盒子记作 $\Theta$). 关键的<strong>结构性事实</strong>是 Jacobian 总能因式分解为
+        $$\abs{\det[D\Phi]} = r^{n-1}\cdot A(\text{angles}),$$
+        径向部分永远是 $r^{n-1}$, 角度因子 $A$ 与 $r$ 无关 ($n=2$: $A \equiv 1$; $n=3$: $A = \cos\varphi$).</p>
+        <p><strong>(2) 为什么是 $r^{n-1}$?</strong> 不用算行列式的理解: 半径 $r$ 的球体积是 $\beta_n r^n$ (Lec 4.2), 所以薄球壳 $\{r \le |\mathbf{x}| \le r + dr\}$ 的体积 $\approx \frac{d}{dr}(\beta_n r^n)\,dr = n\beta_n r^{n-1}\,dr$ — 球面"面积"随半径按 $r^{n-1}$ 增长, 这个增长率就是 Jacobian 的径向因子.</p>
+        <p><strong>(3) 套 CoV 后发生了什么?</strong> 被积函数是径向的: $|\Phi(r, \text{angles})| = r$, 故 $f_R(\Phi) = r^p\,\mathbf{1}_{1 \le r \le R}$. 在紧区域 $[1,R]\times\overline\Theta$ 上应用 Thm 4.10.12 (边界测度零、内部单射 — 极/球坐标的标准验证):
+        $$\int_{\R^n} f_R\,dV = \int_\Theta\int_1^R r^p \cdot r^{n-1} A(\text{angles})\,dr\,d(\text{angles}).$$
+        被积函数 = $\big(r^{p+n-1}\big)\cdot\big(A(\text{angles})\big)$ 是<strong>纯 $r$ 因子 × 纯角度因子</strong>, 由 baby Fubini (Lec 2.2: $\int f_1(x)f_2(y) = (\int f_1)(\int f_2)$) 直接分离成两个一元积分之积.</p>
+        <p><strong>(4) $d\sigma$ 与 $\sigma_n$ 到底是什么?</strong> 本课程<strong>从未定义过球面上的测度</strong>, 所以 $\int_{S^{n-1}} d\sigma$ 在这里只是记号缩写 — 严格含义就是角度积分 $\int_\Theta A\,d(\text{angles})$, 一个有限正常数, <em>定义</em>为 $\sigma_n$ ("$S^{n-1}$ 的面积"). 验证低维: $\sigma_2 = \int_0^{2\pi} 1\,d\theta = 2\pi$ ✓ (单位圆周长); $\sigma_3 = \int_0^{2\pi}\!\int_{-\pi/2}^{\pi/2}\cos\varphi\,d\varphi\,d\theta = 4\pi$ ✓ (单位球面积); 一般地 $\sigma_n = n\beta_n$ (与 (2) 的球壳论证自洽). <strong>本题根本不需要 $\sigma_n$ 的数值</strong> — 它只是有限正常数, 可积阈值完全由 $\int_1^R r^{p+n-1}\,dr$ 决定, 这就是证明敢"一笔带过"的原因.</p>
+        <p><strong>(5) $n = 1$ 与 $\sigma_1 := 2$ 的约定.</strong> $n=1$ 没有角度, 直接拆区域: $\int_{1\le|x|\le R}|x|^p\,dx = \int_{-R}^{-1} + \int_1^R = 2\int_1^R r^p\,dr$. 这个 $2$ 恰是 "$S^0 = \{-1,+1\}$ 有两个点". 约定 $\sigma_1 := 2$ 后公式对所有 $n \ge 1$ 统一 ($n=1$ 时 $r^{p+n-1} = r^p$ ✓), Step ❸❹ 不必分情形.</p>
+        <p><strong>考点本质</strong>: 维数 $n$ 通过球壳因子 $r^{n-1}$ 进入指数, 把 1-D 直觉的阈值 $p &lt; -1$ 抬成 $p + n - 1 &lt; -1 \iff p &lt; -n$. 出径向积分题时要会写的模板就一条: $\int_{\R^n} g(|\mathbf{x}|)\,dV = \sigma_n \int g(r)\,r^{n-1}\,dr$, 并记住 $\sigma_n$ 是有限常数、不影响收敛性判断.</p>
+      </div>
+
+      <div class="box remark">
         <span class="box-title">💡 反思 — 维度对阈值的影响</span>
         <p>特例: $n = 1$ 时 $p &lt; -1$; $n = 2$ 时 $p &lt; -2$; $n = 3$ 时 $p &lt; -3$. <strong>环境维度越高, 衰减要求越严</strong> —— 这是球壳 $r^{n-1}$ 因子的体现, 几何意义是"半径 $r$ 处的体积元随 $r^{n-1}$ 增长". 在物理学里这对应 inverse-square 力场: 在 $n = 3$ 时 $|\mathbf{x}|^{-2}$ 处于不可积阈值 $p = -2 \ge -n = -3$ 之上, 故引力/库仑势 (而非力本身) 才是 well-defined 的 conserved quantity.</p>
         <p>同样的"$r^{n-1}$ 加成"会再次出现在 Problem 11 (Gaussian 矩) 的 Step 1 — 但那里 Gaussian 衰减压倒一切多项式, 所以任意 $p$ (即任意多项式次数) 都可积.</p>
